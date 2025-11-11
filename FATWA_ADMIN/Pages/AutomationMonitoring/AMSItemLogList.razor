@@ -1,0 +1,33 @@
+﻿@page "/itemlog-list/{SessionId}"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.AutomationMonitoring;
+
+@*< History Author = 'Ijaz Ahmad' Date = '2024-06-24' Version = "1.0" Branch = "master"> Item Logs </History>*@
+
+<RadzenContent Container="main" class="p-0 pt-3">
+    <ChildContent>
+        <div class="row tableContent table-responsive no-gutters">
+            <RadzenDataGrid @ref="ItemLogsGrid"
+                            FilterMode="Radzen.FilterMode.Advanced"
+                            Count="@(FilteredItemLog != null ? FilteredItemLog.Count() : 0)"
+                            AllowPaging="true"
+                            AllowSorting="true"
+                            AllowFiltering="false"
+                            Data="@FilteredItemLog"
+                            TItem="AMSItemLogVM"
+                            PageSize="@systemSettingState.Grid_Pagination"
+                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                            EmptyText="@translationState.Translate("No_record_found")"
+                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                            ShowPagingSummary="true">
+
+                <Columns>
+                    <RadzenDataGridColumn TItem="AMSItemLogVM" Width="1px" FormatString="{0:dd/MM/yyyy hh:mm tt}" Property="DateUpdated" Title="@translationState.Translate("Envent_Date_Time")" />
+                    <RadzenDataGridColumn TItem="AMSItemLogVM" Width="5px" Property="LogMessage" Title="@translationState.Translate("Description")" />
+
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    </ChildContent>
+</RadzenContent>

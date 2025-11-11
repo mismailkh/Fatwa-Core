@@ -1,0 +1,78 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@using FATWA_DOMAIN.Models.CaseManagment;
+@using FATWA_DOMAIN.Models.BaseModels;
+@layout MainLayout
+<RadzenTemplateForm Data="@GovernmentEntityRepresentatives" Visible="@(GovernmentEntityRepresentatives != null)" TItem="GovernmentEntityRepresentative" Submit="@SaveChanges">
+    <ChildContent>
+            <div class="row">
+                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("English_Name") + " *")" Component="NameEn" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("User_Name_English")" @bind-Value="@GovernmentEntityRepresentatives.NameEn" Name="NameEn" />
+                    <RadzenRegexValidator Component="NameEn" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                    <RadzenRequiredValidator Component="NameEn" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenLengthValidator Component="NameEn" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Arabic_Name") + " *")" Component="NameAr" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("User_Name_Arabic")" @bind-Value="@GovernmentEntityRepresentatives.NameAr" Name="NameAr" />
+                    <RadzenRegexValidator Component="NameAr" Text="@translationState.Translate("Only_Arabic_Characters_Are_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                    <RadzenRequiredValidator Component="NameAr" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenLengthValidator Component="NameAr" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Representative_Designation_EN") + " *")" Component="Representative_Designation_EN" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("User_Name_English")" @bind-Value="@GovernmentEntityRepresentatives.Representative_Designation_EN" Name="Representative_Designation_EN" />
+                    <RadzenRegexValidator Component="Representative_Designation_EN" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                    <RadzenRequiredValidator Component="Representative_Designation_EN" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenLengthValidator Component="Representative_Designation_EN" Max="150" Text="@translationState.Translate("Max_One_Fifty_Characters")" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Representative_Designation_AR") + " *")" Component="Representative_Designation_AR" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("User_Name_Arabic")" @bind-Value="@GovernmentEntityRepresentatives.Representative_Designation_AR" Name="Representative_Designation_AR" />
+                    <RadzenRegexValidator Component="Representative_Designation_AR" Text="@translationState.Translate("Only_Arabic_Characters_Are_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                    <RadzenRequiredValidator Component="Representative_Designation_AR" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenLengthValidator Component="Representative_Designation_AR" Max="150" Text="@translationState.Translate("Max_One_Fifty_Characters")" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Representative_Code") + " *")" Component="RepresentativeCode" />
+                    <RadzenTextBox class="flex-grow-1" Placeholder="@translationState.Translate("Representative_Code")" @bind-Value="@GovernmentEntityRepresentatives.RepresentativeCode" Name="RepresentativeCode" MaxLength="9"></RadzenTextBox>
+                    <RadzenRegexValidator Component="RepresentativeCode" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesPattern" />
+                    <RadzenRequiredValidator Component="RepresentativeCode" Text="@translationState.Translate("Required_Field")" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Government_Entity") + " *")" Component="GovernmentEntitiesName" />
+                    <RadzenDropDown Data="@GovernmentEntitiesName" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" Multiple="false"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="EntityId" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@GovernmentEntityRepresentatives.GovtEntityId" Name="GovernmentEntities" />
+                    <RadzenRequiredValidator Component="GovernmentEntities" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                </div>
+            </div>
+        </div>
+        <div class="popup-buttons-alignment px-0">
+            <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                          Style="margin-left: 10px; margin-right: 10px;"
+                          ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")">
+            </RadzenButton>
+            <RadzenButton Text="@translationState.Translate("Cancel")"
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="@Button2Click">
+            </RadzenButton>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

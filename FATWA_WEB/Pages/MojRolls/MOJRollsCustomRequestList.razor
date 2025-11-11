@@ -1,0 +1,141 @@
+﻿@page "/rolls-custom-list"
+@using FATWA_DOMAIN.Models.ViewModel.MojRollsVM
+@using static FATWA_GENERAL.Helper.Enum
+
+<!--<History Author = 'IJaz Ahmad' Date='2022-06-15' Version="1.0" Branch="master"> MOJ Custom Rolls List</History>-->
+<PageTitle>@translationState.Translate("Custome_Rolls")</PageTitle>
+    @if (loginState.ClaimList.Any(x => x.Value == "Permissions.ODRP.MojRolls.CustomList"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row justify-content-center align-items-center breadcrumbBar pb-3">
+                <div class="col-md-6 col-sm-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Custome_Rolls")" />
+                    </RadzenBreadCrumb>
+
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Custome_Rolls")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 tableAdditionButton addPrincipleBtn px-0">
+                            <RadzenTextBox class="searchBox" Placeholder="@translationState.Translate("Grid_Search")" Name="Textbox0"
+                                           @oninput="@(async(args) => {search = $"{args.Value}";await grid.GoToPage(0);await Load();})">
+                            </RadzenTextBox>
+                        </div>
+                        
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        ShowPagingSummary="true"
+                                        Data="@getMojRollesRequestList"
+                                        TItem="MOJRollsRequestListVM"
+                                        Count="@(getMojRollesRequestList != null ? getMojRollesRequestList.Count() : 0)"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
+                                    <Template Context="mojrollscontext">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      Icon="info"
+                                                      Size="ButtonSize.Small"
+                                                      Title="@translationState.Translate("Details")"
+                                                      Click="@((args) => ExceptionView(args, mojrollscontext))"
+                                                      @onclick:stopPropagation="true" Disabled="mojrollscontext.StatusId!=(int)MOJRollsRequestStatusEnum.Exception" />
+                                        <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                      Icon="visibility"
+                                                      Class="viewIcon"
+                                                      Click="@((args) => ViewPDF(args, mojrollscontext))"
+                                                      @onclick:stopPropagation="true" Disabled="mojrollscontext.StatusId!=(int)MOJRollsRequestStatusEnum.Completed" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Width="150px" Property="StatusNameAr" Title="@translationState.Translate("Request_Status")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        @if (rowItem.StatusId == (int)MOJRollsRequestStatusEnum.Completed)
+                                    {
+
+                                        <span style="color: #009E0F; margin-right: 0.2rem; padding: 0.2rem;">@rowItem.StatusNameAr</span>
+
+                                    }
+                                    @if (rowItem.StatusId == (int)MOJRollsRequestStatusEnum.RetryExtraction)
+                                    {
+
+                                        <span style="color: #6FA8DC; margin-right: 0.2rem; padding: 0.2rem;">@rowItem.StatusNameAr</span>
+
+                                    }
+                                    @if (rowItem.StatusId == (int)MOJRollsRequestStatusEnum.Pending)
+                                    {
+
+                                        <span style="color: #2B78E4; margin-right: 0.2rem; padding: 0.2rem;">@rowItem.StatusNameAr</span>
+
+                                    }
+                                    @if (rowItem.StatusId == (int)MOJRollsRequestStatusEnum.Exception)
+                                    {
+
+                                        <span style="color: #FF9900; margin-right: 0.2rem; padding: 0.2rem;">@rowItem.StatusNameAr</span>
+                                    }
+                                    @if (rowItem.StatusId == (int)MOJRollsRequestStatusEnum.UnderProcess)
+                                    {
+
+                                        <span style="color: #946c35; margin-right: 0.2rem; padding: 0.2rem;">@rowItem.StatusNameAr</span>
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Property="RollDescription" Title="@translationState.Translate("Roll_type")">
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Property="CourtType" Title="@translationState.Translate("Court_Type")">
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Property="chambertype" Title="@translationState.Translate("Chamber")">
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Property="ChamberCodes" Title="@translationState.Translate("Chamber_Number")">
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Property="SessionDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Session_Date")">
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Property="RequestedDateTime" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Created_Datetime")">
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </div>
+
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

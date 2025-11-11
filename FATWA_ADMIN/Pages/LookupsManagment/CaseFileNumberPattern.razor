@@ -1,0 +1,44 @@
+﻿@page "/CaseFileNumberPattern"
+@using FATWA_DOMAIN.Enums.Common;
+
+<PageTitle>@translationState.Translate("Case_File_Number_Pattern")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.CMS.Configuration"))
+{
+<div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                <RadzenBreadCrumbItem Text="@translationState.Translate("Case_File_Number_Pattern")" />
+            </RadzenBreadCrumb>
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+        <div class="backtoDashboard">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          title="@translationState.Translate("Go_Back_Dashboard")"
+                          class="returnBtn" Icon="dashboard" />
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                          class="returnBtn"
+                          Icon="home" />
+        </div>
+    </div>
+</div>
+<div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Case_File_Number_Pattern")" />
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end ">
+    </div>
+</div>
+<NumberConfigeration PatternTypeId="(int)CmsComsNumPatternTypeEnum.CaseFileNumber" />
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

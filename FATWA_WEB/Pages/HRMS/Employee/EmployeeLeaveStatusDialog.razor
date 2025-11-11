@@ -1,0 +1,27 @@
+﻿@page "/employee-leave-status"
+@using Radzen
+@using Radzen.Blazor
+
+@* <History Author = 'Ammaar Naveed' Date='2024-04-29' Version="1.0" Branch="master">Leave check response dialog</History> *@
+<div class="row">
+    <div class="col-12">
+        <p>
+            @translationState.Translate("Delegated_Employee_Already_Added");
+        </p>
+    </div>
+</div>
+
+<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 popup-buttons-alignment">
+    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Text="@translationState.Translate("Change_Dates")"
+                  ButtonStyle="ButtonStyle.Light"
+                  Click="@ButtonCloseClick">
+    </RadzenButton>
+</div>
+
+<style>
+    .rz-dialog-titlebar-close {
+        display: none !important;
+    }
+</style>
+
+

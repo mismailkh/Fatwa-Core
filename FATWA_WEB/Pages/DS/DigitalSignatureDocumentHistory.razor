@@ -1,0 +1,99 @@
+﻿@using FATWA_DOMAIN.Models.DigitalSignature;
+@using FATWA_DOMAIN.Models.ViewModel.DmsVMs;
+<div>
+    <RadzenLabel Text="@translationState.Translate("Signing_History_from_Task")" class="pt-3 pb-3 w-100" />
+    <RadzenDataGrid @ref="grid"
+                    FilterMode="Radzen.FilterMode.Advanced"
+                    AllowPaging="true"
+                    AllowSorting="true"
+                    AllowFiltering="false"
+                    Data="@FilterDsSigningRequestTaskLog"
+                    TItem="DsSigningRequestTaskLogVM"
+                    ExpandMode="DataGridExpandMode.Single"
+                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                    EmptyText="@translationState.Translate("No_record_found")"
+                    ShowPagingSummary="true"
+                    Count="@(FilterDsSigningRequestTaskLog != null ? FilterDsSigningRequestTaskLog.Count() : 0)"
+                    PageSize="@systemSettingState.Grid_Pagination"
+                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+        <Columns>
+            <RadzenDataGridColumn TItem="DsSigningRequestTaskLogVM" Width="120px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "SenderNameEn" : "SenderNameAr")" Title="@translationState.Translate("Sender_Name")" />
+            <RadzenDataGridColumn TItem="DsSigningRequestTaskLogVM" Width="120px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "ReceiverNameEn" : "ReceiverNameAr")" Title="@translationState.Translate("Receiver_Name")" />
+            <RadzenDataGridColumn TItem="DsSigningRequestTaskLogVM" Width="120px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "TaskStatusEn" : "TaskStatusAr")" Title="@translationState.Translate("Status")" />
+            <RadzenDataGridColumn TItem="DsSigningRequestTaskLogVM" Width="120px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "SigningMethodEn" : "SigningMethodAr")" Title="@translationState.Translate("Signing_Method")" />
+            <RadzenDataGridColumn TItem="DsSigningRequestTaskLogVM" Width="100px" Property="Remarks" Title="@translationState.Translate("Remarks")">
+                <Template Context="Remark">
+                    @if (Remark.Remarks != null)
+                    {
+                        @if (Remark.Remarks.Length > 10)
+                        {
+                            <a href="#" @onclick="@(() => OnDescriptionFullReasonDetail(Remark.Remarks))" @onclick:preventDefault>@translationState.Translate("Remarks")</a>
+                        }
+                        else
+                        {
+                            @Remark.Remarks
+                        }
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="DsSigningRequestTaskLogVM" Width="120px" Property="RejectionReason" Title="@translationState.Translate("Rejection_Reason")">
+                <Template Context="Reason">
+                    @if (Reason.RejectionReason != null)
+                    {
+                        @if (Reason.RejectionReason.Length > 10)
+                        {
+                            <a href="#" @onclick="@(() => OnDescriptionFullReasonDetail(Reason.RejectionReason))" @onclick:preventDefault>@translationState.Translate("Rejection_Reason")</a>
+                        }
+                        else
+                        {
+                            @Reason.RejectionReason
+                        }
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="DsSigningRequestTaskLogVM" Width="130px" Property="SigningDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Signing_Date")">
+                <Template Context="Data">
+                    @if(Data.ModifiedDate != null) { @Data.ModifiedDate } else { @Data.CreatedDate }
+                </Template>
+            </RadzenDataGridColumn>
+        </Columns>                      
+    </RadzenDataGrid>
+</div>
+
+<div>
+    <RadzenLabel Text="@translationState.Translate("Signing_History")" class="pt-5 pb-3 w-100" />
+    <RadzenDataGrid @ref="grid1"
+                    FilterMode="Radzen.FilterMode.Advanced"
+                    AllowPaging="true"
+                    AllowSorting="true"
+                    AllowFiltering="false"
+                    Data="@signingHistoryList"
+                    TItem="DsSigningRequestTaskLogVM"
+                    ExpandMode="DataGridExpandMode.Single"
+                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                    EmptyText="@translationState.Translate("No_record_found")"
+                    ShowPagingSummary="true"
+                    Count="@(signingHistoryList != null ? signingHistoryList.Count() : 0)"
+                    PageSize="@systemSettingState.Grid_Pagination"
+                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+        <Columns>
+            <RadzenDataGridColumn TItem="DsSigningRequestTaskLogVM" Width="120px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "SenderNameEn" : "SenderNameAr")" Title="@translationState.Translate("Signatory_Name")" />
+            <RadzenDataGridColumn TItem="DsSigningRequestTaskLogVM" Width="120px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "SigningMethodEn" : "SigningMethodAr")" Title="@translationState.Translate("Signing_Method")" />
+            <RadzenDataGridColumn TItem="DsSigningRequestTaskLogVM" Width="120px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Signing_Date")" />
+        </Columns>
+    </RadzenDataGrid>
+</div>
+
+@code {
+    async Task OnDescriptionFullReasonDetail(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Reason"), ds =>
+    @<div>
+            <p class="mb-4" style="min-height:200px;min-width:550px;line-height:2.5">@args</p>
+    </div>);
+    }
+}

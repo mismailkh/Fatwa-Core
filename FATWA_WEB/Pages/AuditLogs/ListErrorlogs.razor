@@ -1,0 +1,202 @@
+﻿@page "/errorlogs"
+
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel
+
+<PageTitle>@translationState.Translate("Error_logs")</PageTitle>
+
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.Submenu.AuditLogs.ErrorLogs"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Error_logs")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Error_logs")" />
+                    </div>
+                </div>
+
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+
+
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 tableAdditionButton addPrincipleBtn px-0 pb-3">
+                            <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")" class="searchBox" Name="Textbox0" @oninput="@(async(args) =>
+                                   {search = $"{args.Value}";await OnSearchInput();})">
+                            </RadzenTextBox>
+                        </div>
+
+                        <div class="col-md-8 tableAdditionButton addPrincipleBtn px-0 pb-3">
+                            <RadzenButton class="addBtn"
+                                          Icon="search"
+                                          Text="@translationState.Translate("Advanced_Search")"
+                                          Click="ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+                   @*  <div class="row no-gutters">
+                        <div class="col-md-12 text-right-custom-gridcolumn">
+                            <RadzenSplitButton Icon="download"
+                                               Style="margin-left: 10px; margin-bottom: 10px"
+                                               Text="@translationState.Translate("Export_Button")"
+                                               Click="@ExportButtonClick">
+                                <ChildContent>
+                                    <RadzenSplitButtonItem Text="@translationState.Translate("Export_Button_Excel")" Value="xlsx" />
+                                    <RadzenSplitButtonItem Text="@translationState.Translate("Export_Button_CSV")" Value="csv" />
+                                </ChildContent>
+                            </RadzenSplitButton>
+                        </div>
+                    </div> *@
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(getErrorlogsResult?.Any() == true ? getErrorlogsResult.FirstOrDefault().TotalCount : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        AllowFiltering="false"
+                                        Data="@FilteredErrorlogsResult"
+                                        TItem="ErrorLogVM"
+                                        LoadData=@OnLoadData
+                                        Sort="@OnSortData"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="ErrorLogVM" Title="@translationState.Translate("Action")" Width="70px" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+
+                                        <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                      class="viewIcon"
+                                                      Icon="visibility"
+                                                      title="@translationState.Translate("Details")"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => ViewErrorLogDetail(rowItem))"
+                                        @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ErrorLogVM" Width="150px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                <RadzenDataGridColumn TItem="ErrorLogVM" Width="150px" Property="Body" Title="@translationState.Translate("Description")" />
+                                <RadzenDataGridColumn TItem="ErrorLogVM" Width="200px" Property="LogDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Log_Date")" />
+                                <RadzenDataGridColumn TItem="ErrorLogVM" Width="150px" Property="Source" Title="@translationState.Translate("Source")" />
+                                <RadzenDataGridColumn TItem="ErrorLogVM" Width="150px" Property="UserName" Title="@translationState.Translate("user_name")" />
+                                <RadzenDataGridColumn TItem="ErrorLogVM" Width="150px" Property="IPDetails" Title="@translationState.Translate("IP_Details")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+    @*Advance search Window*@
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <strong>@translationState.Translate("Advanced_Search")</strong>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="col-md-12">
+                                <RadzenLabel Text="@translationState.Translate("Subject")" Style="display:block;" Component="KeywordsType" />
+                            </div>
+                            <div class="col-md-12">
+                                <RadzenTextBox style="display: block; width: 100%"
+                                               MaxLength="100"
+                                               Placeholder="@translationState.Translate("Subject")"
+                                               Name="SearchKeywords"
+                                @bind-Value="@(errorLogAdvanceSearchVM.Subject)" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="col-md-12">
+                                <RadzenLabel Text="@translationState.Translate("UserName")" />
+                            </div>
+                            <div class="col-md-12">
+                                <RadzenTextBox style="display: block; width: 100%"
+                                               MaxLength="100"
+                                               Name="SearchKeywords"
+                                               Placeholder="@translationState.Translate("UserName")"
+                                @bind-Value="@errorLogAdvanceSearchVM.UserName" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-6">
+                            <div class="col-md-12">
+                                <RadzenLabel Text="@translationState.Translate("From_Date")" />
+                            </div>
+                            <div class="col-md-12">
+                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="From_Date"
+                                                  Placeholder="@translationState.Translate("From_Date")" @bind-Value="@errorLogAdvanceSearchVM.FromDate" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="col-md-12">
+                                <RadzenLabel Text="@translationState.Translate("To_Date")" />
+                            </div>
+                            <div class="col-md-12">
+                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="To_Date"
+                                                  Placeholder="@translationState.Translate("To_Date")" @bind-Value="@errorLogAdvanceSearchVM.ToDate" />
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div class="row justify-content-end pt-3">
+                        <div class="col-md-12 popup-buttons-alignment">
+                            <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                            @if (Keywords == true)
+                            {
+                                <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+

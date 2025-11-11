@@ -1,0 +1,17 @@
+﻿<div class="text-center">
+    <p>@translationState.Translate("Session_About_Expire_Message")</p>
+    <div class="badge alert alert-primary ">
+        <span>@FormattedTime</span>
+    </div>
+</div>
+
+<div class="col-12">
+    <div class="row">
+        <div class="col-6 p-1">
+            <RadzenButton class="w-100" Text="@translationState.Translate("Continue_Session")" Click="OnContinueSessionClick" ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" />
+        </div>
+        <div class="col-6 p-1">
+            <RadzenButton class="w-100" Text="@translationState.Translate("Logout")" Click="OnLogoutClick" ButtonStyle="ButtonStyle.Light" />
+        </div>
+    </div>
+</div>

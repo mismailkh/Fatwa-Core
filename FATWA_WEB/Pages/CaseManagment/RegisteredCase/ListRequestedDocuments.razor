@@ -1,0 +1,100 @@
+﻿@page "/requested-documents-list"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.CMS.RegisteredCase.RequestedDocuments").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Requested_Documents_List")" />
+                    </RadzenBreadCrumb>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Requested_Documents_List")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 d-flex justify-content-end">
+                            <RadzenTextBox class="searchBox"
+                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                           Name="Textbox0"
+                            @oninput="@(async(args) => {search = $"{args.Value}";await grid.GoToPage(0);await OnSearchInput();})" />
+
+                        </div>
+                        <div class="col-md-8">
+                        </div>
+
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                    Width="100%"
+                                    @ref="grid"
+                                    AllowFiltering="false"
+                                    FilterMode="Radzen.FilterMode.Advanced"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    Data="@FilteredGetRequestedDocuments"
+                                    TItem="CmsRequestDocumentsVM"
+                                    PageSize="@systemSettingState.Grid_Pagination"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="CmsRequestDocumentsVM" Property="CANNumber" Title="@translationState.Translate("CAN_Number")" />
+                                <RadzenDataGridColumn TItem="CmsRequestDocumentsVM" Property="CaseNumber" Title="@translationState.Translate("Case_Number")" />
+                                <RadzenDataGridColumn TItem="CmsRequestDocumentsVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DocumentTypeEn" : "DocumentTypeAr") Title="@translationState.Translate("Document_Type")" />
+                                <RadzenDataGridColumn TItem="CmsRequestDocumentsVM" Property="CourtNumber" Title="@translationState.Translate("Court_Number")" />
+                                <RadzenDataGridColumn TItem="CmsRequestDocumentsVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CourtNameEn" : "CourtNameAr") Title="@translationState.Translate("Court_Name")" />
+                                <RadzenDataGridColumn TItem="CmsRequestDocumentsVM" Property="ChamberNumber" Title="@translationState.Translate("Chamber_Number")" />
+                                <RadzenDataGridColumn TItem="CmsRequestDocumentsVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ChamberNameEn" : "ChamberNameAr") Title="@translationState.Translate("Chamber_Name")" />
+                                <RadzenDataGridColumn TItem="CmsRequestDocumentsVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="60px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+
+                                        <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                  Icon="visibility"
+                                                  Size="ButtonSize.Small"
+                                                  Click="@((args) => RequestedDocumentDetails(rowItem))"
+                                                  @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+

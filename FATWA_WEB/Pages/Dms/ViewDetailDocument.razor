@@ -1,0 +1,135 @@
+﻿@page "/document-detail/{UploadedDocumentId}"
+@using FATWA_DOMAIN.Models.ViewModel;
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@layout MainLayout
+
+<PageTitle>"@translationState.Translate("Document_Detail")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/document-list" Text="@translationState.Translate("Document_List")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Document_Detail")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row pt-3 no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Document_Detail")" />
+                </div>
+            </div>
+        </div>
+        <div class="row d-block justify-content-center mainContentBlock no-gutters p-0 tab-webkit-fill">
+            <div class="save-case-request-col">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <RadzenFieldset AllowCollapse="false" Style=" margin: 40px auto;">
+                        <HeaderTemplate>
+                            <span class="d-inline-flex align-items-center align-middle">
+                                <b>@translationState.Translate("Document_Details")</b>
+                            </span>
+                        </HeaderTemplate>
+                        <ChildContent>
+                            <div class="row no-gutters">
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Attachment_Type"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? dMSDocumentDetailVM?.AttachmentTypeEn : dMSDocumentDetailVM?.AttachmentTypeAr)</h3>
+                                    </div>
+                                </div>
+
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("File_Name"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@dMSDocumentDetailVM?.FileName</h3>
+                                    </div>
+                                </div>
+
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("File_Number"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@dMSDocumentDetailVM?.FileNumber</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Description"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@dMSDocumentDetailVM?.Description</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenFieldset>
+                    <RadzenFieldset AllowCollapse="false" Style=" margin: 40px auto;">
+                        <HeaderTemplate>
+                            <span class="d-inline-flex align-items-center align-middle">
+                                <b>@translationState.Translate("Document_Content")</b>
+                            </span>
+                        </HeaderTemplate>
+                        <ChildContent>
+                            @if (ShowDocumentViewer)
+                            {
+                                <div class="row pb-2">
+                                    @* <TelerikPdfViewer @ref="PdfViewerRef"
+                                        Width="100%"
+                                        Height="1000px"
+                                        Data="@FileData"
+                                        Class="m-3" /> *@
+                                    <SfPdfViewerServer EnableNavigationToolbar="false"
+                                                       Width="100%"
+                                                       Height="1000px"
+                                                       @ref="@pdfViewer"
+                                                       EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                                       Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                                       ID="pdfviewerDetailCommunication"
+                                                       DocumentPath="@DocumentPath"
+                                                       InteractionMode="InteractionMode.Pan">
+                                    </SfPdfViewerServer>
+                                </div>
+                            }
+                        </ChildContent>
+                    </RadzenFieldset>
+                    <div class="row d-flex justify-content-center align-items-center px-4 pb-3 mt-4">
+                        <div class="col-md-6 d-flex justify-content-start">
+                            <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@RedirectBack">@translationState.Translate("Back")</TelerikButton>
+                        </div>
+                        <div class="col-md-6 d-flex justify-content-end">
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" Click="@ShareDocument" class="m-1 prevBtn" Text="@translationState.Translate("Share_Document")" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

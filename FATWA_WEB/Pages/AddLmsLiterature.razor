@@ -1,0 +1,211 @@
+﻿@page "/add-lms-literature"
+@layout MainLayout
+@inherits FATWA_WEB.Pages.AddLmsLiteratureComponent
+
+@using FATWA_DOMAIN.Models
+
+<!-- <History Author = 'Umer Zaman' Date='2022-03-18' Version="1.0" Branch="master">Redesign Add New Literature</History> -->
+
+<PageTitle>أضف الأدب</PageTitle>
+<RadzenContent Container="main">
+  <ChildContent>
+    <div class="row">
+      <div class="col-md-12">
+        <RadzenTemplateForm Data="@lmsliterature" Visible="@(lmsliterature != null)" TItem="LmsLiterature" Submit="@Form0Submit">
+          <ChildContent>
+           
+           @* <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="تفاصيل الأدب" Component="LiteratureDetails" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox MaxLength="50" style="display: block; width: 100%" @bind-Value="@(lmsliterature.LiteratureDetails)" Name="LiteratureDetails">
+                </RadzenTextBox>
+                <RadzenRequiredValidator Component="LiteratureDetails" Text="تفاصيل الأدب مطلوبة" style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>*@
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="اسم اللغة الإنجليزية" Component="Name_En" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox MaxLength="50" style="display: block; width: 100%" @bind-Value="@(lmsliterature.Name_En)" Name="Name_En">
+                </RadzenTextBox>
+                <RadzenRequiredValidator Component="Name_En" Text="مطلوب اسم انجليزي" style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>
+             <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="اسم عربي" Component="Name_Ar" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox MaxLength="50" style="display: block; width: 100%" @bind-Value="@(lmsliterature.Name_Ar)" Name="Name_Ar">
+                </RadzenTextBox>
+                <RadzenRequiredValidator Component="Name_Ar" Text="مطلوب اسم عربي" style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>
+
+             <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="مادة الانجليزية" Component="Subject_En" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox MaxLength="50" style="display: block; width: 100%" @bind-Value="@(lmsliterature.Subject_En)" Name="Subject_En">
+                </RadzenTextBox>
+                <RadzenRequiredValidator Component="Subject_En" Text="مطلوب موضوع اللغة الإنجليزية" style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="الموضوع عربي" Component="Subject_Ar" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox MaxLength="50" style="display: block; width: 100%" @bind-Value="@(lmsliterature.Subject_Ar)" Name="Subject_Ar">
+                </RadzenTextBox>
+                <RadzenRequiredValidator Component="Subject_Ar" Text="مطلوب موضوع عربي" style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="ISBN" Component="ISBN" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox style="display: block; width: 100%" @bind-Value="@(lmsliterature.ISBN)" Name="ISBN">
+                </RadzenTextBox>
+                <RadzenRequiredValidator Component="ISBN" Text="رقم ISBN مطلوب" style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="الشخصيات" Component="Characters" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox MaxLength="50" style="display: block; width: 100%" @bind-Value="@(lmsliterature.Characters)" Name="Characters">
+                </RadzenTextBox>
+                <RadzenRequiredValidator Component="Characters" Text="الأحرف مطلوبة" style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="عدد النسخ" Component="CopyCount" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(lmsliterature.CopyCount)" Name="CopyCount">
+                </RadzenNumeric>
+                <RadzenRequiredValidator Component="CopyCount" Text="عدد النسخ مطلوب" style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="عدد الصفحات" Component="NumberOfPages" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(lmsliterature.NumberOfPages)" Name="NumberOfPages">
+                </RadzenNumeric>
+                <RadzenRequiredValidator Component="NumberOfPages" Text="عدد الصفحات مطلوب" style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="سلسلة" Component="IsSeries" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenNumeric style="width: 100%" @bind-Value="@(lmsliterature.IsSeries)" Name="IsSeries">
+                </RadzenNumeric>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="رقم المسلسل" Component="SeriesNumber" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(lmsliterature.SeriesNumber)" Name="SeriesNumber">
+                </RadzenNumeric>
+                <RadzenRequiredValidator Component="SeriesNumber" Text="رقم المسلسل مطلوب" style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="قابل للعرض" Component="IsViewable" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenCheckBox @bind-Value="@(lmsliterature.IsViewable)" Name="IsViewable">
+                </RadzenCheckBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="قابل للاستعارة" Component="IsBorrowable" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenCheckBox @bind-Value="@(lmsliterature.IsBorrowable)" Name="IsBorrowable">
+                </RadzenCheckBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="السماح للنشر" Component="AllowtoPublish" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenCheckBox @bind-Value="@(lmsliterature.AllowtoPublish)" Name="AllowtoPublish">
+                </RadzenCheckBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="نوع الأدب" Component="TypeId" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenDropDownDataGrid Data="@getLmsLiteratureTypesForTypeIdResult" TextProperty="Name_En" ValueProperty="TypeId" Placeholder="Choose LmsLiteratureType" ShowSearch="false" style="width: 100%" @bind-Value="@(lmsliterature.TypeId)" Name="TypeId">
+                </RadzenDropDownDataGrid>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="تصنيف الأدب" Component="ClassificationId" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenDropDownDataGrid Data="@getLmsLiteratureClassificationsForClassificationIdResult" TextProperty="Name_En" ValueProperty="ClassificationId" Placeholder="Choose LmsLiteratureClassification" ShowSearch="false" style="width: 100%" @bind-Value="@(lmsliterature.ClassificationId)" Name="ClassificationId">
+                </RadzenDropDownDataGrid>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col offset-sm-3">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" Icon="save" Text="حفظ" ButtonStyle="ButtonStyle.Primary">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="إلغاء" Click="@Button2Click">
+                </RadzenButton>
+              </div>
+            </div>
+          </ChildContent>
+        </RadzenTemplateForm>
+      </div>
+    </div>
+  </ChildContent>
+</RadzenContent>

@@ -1,0 +1,191 @@
+﻿@page "/assign-supervisor-manager"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@layout MainLayout
+
+@*< History Author = 'Ammaar Naveed' Date = '2024-06-04' Version = "1.0" Branch = "master"UI fixations in pages and dialogs</History>*@
+@*< History Author = 'Hassan Abbas' Date = '2023-03-01' Version = "1.0" Branch = "master" Assign Supervisor To Lawyers</History>*@
+<PageTitle>@translationState.Translate("Assign_Supervisor_And_Manager")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.CMS.Configuration"))
+{
+<div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                <RadzenBreadCrumbItem Text="@translationState.Translate("Assign_Supervisor_And_Manager")" />
+            </RadzenBreadCrumb>
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+        <div class="backtoDashboard">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                          class="returnBtn"
+                          Icon="home" Click="@GoBackHomeScreen" />
+        </div>
+    </div>
+</div>
+<div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Assign_Supervisor_And_Manager")" />
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end ">
+    </div>
+</div>
+<div class="row pt-2">
+    <div class="col-md-12">
+        <RadzenCard class="p-4">
+
+            <RadzenTemplateForm Data="@lawyerSupervisor" Visible="@(lawyerSupervisor != null)" TItem="CmsLawyerSupervisorVM" Submit="@FormSubmit">
+                <ChildContent>
+                    <div class="row pt-2 pb-2">
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <div class="form-group">
+                                <RadzenHeading Text="@translationState.Translate("Sector")" Size="H4" />
+                                <RadzenDropDown Data="@SectorTypes" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                                ValueProperty="Id"
+                                                Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;"
+                                                @bind-Value="SectorId"
+                                                Change=@(args => OnSectorChange(args))
+                                                Name="approvalTracking.SectorTo" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <div class="form-group">
+                                <RadzenHeading Text="@translationState.Translate("Supervisor")" Size="H4"/>
+                                    <RadzenDropDown TValue="string"
+                                                AllowClear="true"
+                                                AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                Name="SupervisorName"
+                                                @bind-Value="lawyerSupervisor.SupervisorId"
+                                                Placeholder="@translationState.Translate("Select_Supervisor")"
+                                                Data="@supervisors"
+                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr")
+                                                ValueProperty="Id"
+                                                Style="display:block;"/>
+                                    @if(lawyerSupervisor.ManagerId==null)
+                                    {
+                                        <RadzenRequiredValidator Component="SupervisorName"
+                                                             Text="@translationState.Translate("Required")"
+                                                             Style="position: absolute"
+                                                             DefaultValue="0" />                                   
+                                    }
+                                
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <div class="form-group">
+                                <RadzenHeading Text="@translationState.Translate("Manager")" Size="H4" />
+                                <RadzenDropDown TValue="string"
+                                                AllowClear="true"
+                                                AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                Name="ManagerName"
+                                                @bind-Value="lawyerSupervisor.ManagerId"
+                                                Placeholder="@translationState.Translate("Select_Manager")"
+                                                Data="@ManagersList"
+                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar")
+                                                ValueProperty="UserId"
+                                                Style="display:block;"/>
+                                @if (lawyerSupervisor.SupervisorId == null)
+                                {
+                                    <RadzenRequiredValidator Component="ManagerName"
+                                                             Text="@translationState.Translate("Required")"
+                                                             Style="position: absolute"
+                                                             DefaultValue="0" />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    @if (SectorId > 0)
+                    {
+                        <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+                            <HeaderTemplate>
+                                <span class="d-inline-flex align-items-center align-middle">
+                                    <RadzenIcon Class="me-1" /><b>@translationState.Translate("Lawyer_Selection")</b>
+                                </span>
+                            </HeaderTemplate>
+                            <ChildContent>
+                                <div class="row pt-4 pb-4">
+                                    <div class="col-12">
+                                        <div class="row">
+                                        <div class="col-4">
+                                            <RadzenTextBox class="searchBox"
+                                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                                           Name="Textbox0"
+                                                    @oninput="@(async(args) => {await supervisorsAndManagersGrid.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                                         </div>
+                                        </div>
+                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                    @ref="supervisorsAndManagersGrid"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    SelectionMode="DataGridSelectionMode.Multiple"
+                                                    AllowRowSelectOnRowClick="true"
+                                                    Data="@filteredSupervisorsAndManagers"
+                                                    TItem="ListLawyerSupervisorAssignmentVM"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    Count="@(filteredSupervisorsAndManagers != null ? filteredSupervisorsAndManagers.Count() : 0)"
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    @bind-Value="lawyerSupervisor.SelectedUsers">
+                                            <Columns>
+                                                <RadzenDataGridColumn TextAlign="TextAlign.Center" TItem="ListLawyerSupervisorAssignmentVM" Width="80px" Sortable="false" Filterable="false">
+                                                    <HeaderTemplate>
+                                                        <RadzenCheckBox TriState="false" TValue="bool?" InputAttributes="@(new Dictionary<string,object>(){ { "aria-label", "Select all items" }})"
+                                                                        Value="@(lawyerSupervisor.SelectedUsers == null || lawyerSupervisor.SelectedUsers?.Any() != true ? false : !filteredSupervisorsAndManagers.All(i => lawyerSupervisor.SelectedUsers.Contains(i)) ? null : filteredSupervisorsAndManagers.Any(i => lawyerSupervisor.SelectedUsers.Contains(i)))"
+                                                                        Change="@(args => lawyerSupervisor.SelectedUsers = args == true ? filteredSupervisorsAndManagers.ToList() : new List<ListLawyerSupervisorAssignmentVM>())" />
+                                                    </HeaderTemplate>
+                                                    <Template Context="data">
+                                                        <RadzenCheckBox TriState="false"
+                                                                    Value="@(lawyerSupervisor.SelectedUsers != null && lawyerSupervisor.SelectedUsers.Contains(data))"
+                                                                    TValue="bool"
+                                                                    Change=@(args => { if(!allowRowSelectOnRowClick) {supervisorsAndManagersGrid.SelectRow(data); }}) />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="ListLawyerSupervisorAssignmentVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr") Title="@translationState.Translate("Lawyer_Name")" />
+                                                <RadzenDataGridColumn TItem="ListLawyerSupervisorAssignmentVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SupervisorNameEn" : "SupervisorNameAr") Title="@translationState.Translate("Supervisor")" />
+                                                <RadzenDataGridColumn TItem="ListLawyerSupervisorAssignmentVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ManagerNameEn" : "ManagerNameAr") Title="@translationState.Translate("Manager")" />
+                                                </Columns>
+                                        </RadzenDataGrid>
+
+                                    </div>
+                                </div>
+                            </ChildContent>
+                        </RadzenFieldset>
+                        <div class="row mt-4">
+                            <div class="col-12 popup-buttons-alignment ">
+                                <RadzenButton Text="@translationState.Translate("Submit")"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          style="margin-right: 0.2rem !important"
+                                          Click="@FormSubmit"
+                                              Disabled="!lawyerSupervisor.SelectedUsers.Any() || (String.IsNullOrEmpty(lawyerSupervisor.SupervisorId) && String.IsNullOrEmpty(lawyerSupervisor.ManagerId))"
+                                          ButtonType="Radzen.ButtonType.Submit" />
+                                <RadzenButton Text="@translationState.Translate("Cancel")"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Click="@ButtonCancelClick" />
+                            </div>
+                        </div>
+                    }
+                </ChildContent>
+
+            </RadzenTemplateForm>
+        </RadzenCard>
+    </div>
+</div>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

@@ -1,0 +1,187 @@
+﻿@page "/add-activity/{ModuleId:int}"
+@using FATWA_DOMAIN.Models.WorkflowModels
+@using FATWA_WEB.Data
+@using FATWA_WEB.Services
+@using static FATWA_DOMAIN.Enums.WorkflowEnums
+
+@inject DialogService dialogService
+@inject TranslationState translationState
+@inject SpinnerService spinnerService
+
+
+<div class="row">
+    <div class="col-lg-12 rz-calendar-webkit-fill">
+        <RadzenLabel Text="@translationState.Translate("Category")" Style="display:block;" />
+        <RadzenDropDown TValue="WorkflowActivityCategory" Data="@WorkflowActivityCategoryOptions" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                        TextProperty="WorkflowActivityCategoryEnumName" ValueProperty="WorkflowActivityCategoryEnumValue" Placeholder="@translationState.Translate("Select")"
+                        Style="display:block;" Value="SelectedCategory" Change=@(args => OnCategoryChange(args))>
+                        <Template Context="category">
+                @translationState.Translate($"{category.WorkflowActivityCategoryEnumName}")
+                        </Template>
+        </RadzenDropDown>
+    </div>
+</div>
+@if (ShowTasks)
+{
+    <div class="row">
+        <div class="col-lg-12 rz-calendar-webkit-fill">
+            <RadzenLabel Text="@translationState.Translate("Activity")" Style="display:block;" />
+            <RadzenDropDown Data="@ModuleActivities" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                        TextProperty="Name" ValueProperty="ActivityId" Placeholder="@translationState.Translate("Select")"
+                        Style="display:block;" @bind-Value="SelectedActivity">
+                <Template Context="activity">
+                    @translationState.Translate($"{activity.Name}")
+                </Template>
+            </RadzenDropDown>
+        </div>
+    </div>
+}
+else if (ShowBranches)
+{
+    <div class="row">
+        <div class="col-lg-12 rz-calendar-webkit-fill">
+            <RadzenLabel Text="@translationState.Translate("Choose_Execution_Branch")" Style="display:block;" />
+            <RadzenDropDown TValue="WorkflowBranch" Data="@WorkflowBranchOptions" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                        TextProperty="WorkflowBranchEnumName" ValueProperty="WorkflowBranchEnumValue" Placeholder="@translationState.Translate("Select")"
+                        @bind-Value="@(SelectedBranch)" Style="display:block;">
+            </RadzenDropDown>
+        </div>
+    </div>
+}
+<div class="row mt-4">
+    <div class="col-md-12 text-right ">
+        <RadzenButton Click="@((args) => dialogService.Close(ReturnSelectedActivity()))" Text="@translationState.Translate("OK")" Disabled="@(SelectedCategory == WorkflowActivityCategory.FlowControls ? (int)SelectedBranch == 0 : SelectedActivity == 0)" Style="width: 120px" />
+        <RadzenButton Click="@((args) => dialogService.Close(false))" ButtonStyle="ButtonStyle.Secondary" Text="@translationState.Translate("Cancel")" Style="width: 120px" Class="mr-1" />
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int TriggerId { get; set; }
+
+    [Parameter]
+    public bool isFirstActivity { get; set; }
+
+    [Parameter]
+    public bool isPreviousActivityGeneral { get; set; }
+    [Parameter]
+    public bool IsOptional { get; set; }
+
+
+
+
+    public class WorkflowActivityCategoryEnum
+    {
+        public WorkflowActivityCategory WorkflowActivityCategoryEnumValue { get; set; }
+        public string WorkflowActivityCategoryEnumName { get; set; }
+    }
+    protected List<object> WorkflowActivityCategoryOptions { get; set; } = new List<object>();
+
+    public class WorkflowBranchEnum
+    {
+        public WorkflowBranch WorkflowBranchEnumValue { get; set; }
+        public string WorkflowBranchEnumName { get; set; }
+    }
+    protected List<object> WorkflowBranchOptions { get; set; } = new List<object>();
+
+    protected WorkflowActivityCategory SelectedCategory { get; set; }
+
+    protected WorkflowBranch SelectedBranch { get; set; }
+    protected int SelectedActivity { get; set; }
+
+    protected bool ShowBranches { get; set; }
+
+    protected bool ShowTasks { get; set; }
+
+    protected List<ModuleActivity> ModuleActivities { get; set; } = new List<ModuleActivity>();
+
+    //<History Author = 'Hassan Abbas' Date='2022-05-11' Version="1.0" Branch="master"> Initialzie Component -> Show Advance Search For Create / Hide Advance Search and Parse Content For Editing Masking</History>
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            spinnerService.Show();
+            foreach (WorkflowActivityCategory item in Enum.GetValues(typeof(WorkflowActivityCategory)))
+            {
+                if ((isFirstActivity || isPreviousActivityGeneral) && item == WorkflowActivityCategory.FlowControls)
+                { }
+                else
+                {
+                    if (item == WorkflowActivityCategory.FlowControls || item == WorkflowActivityCategory.Tasks)
+                    {
+                        WorkflowActivityCategoryOptions.Add(new WorkflowActivityCategoryEnum { WorkflowActivityCategoryEnumName = translationState.Translate(item.ToString()), WorkflowActivityCategoryEnumValue = item });
+                    }
+
+                }
+            }
+            foreach (WorkflowBranch item in Enum.GetValues(typeof(WorkflowBranch)))
+            {
+                if (IsOptional == false)
+                {
+                    if (item == WorkflowBranch.ConditionalBranch)
+                    {
+                        WorkflowBranchOptions.Add(new WorkflowBranchEnum { WorkflowBranchEnumName = translationState.Translate(item.ToString()), WorkflowBranchEnumValue = item });
+                    }
+                }
+                else
+                {
+                    if (item == WorkflowBranch.OptionBranch)
+                    {
+                        WorkflowBranchOptions.Add(new WorkflowBranchEnum { WorkflowBranchEnumName = translationState.Translate(item.ToString()), WorkflowBranchEnumValue = item });
+
+                    }
+                }
+
+            }
+            spinnerService.Hide();
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+    protected async Task OnCategoryChange(object args)
+    {
+        try
+        {
+            SelectedCategory = (WorkflowActivityCategory)args;
+            if ((int)args == 0)
+            {
+                ShowTasks = false;
+                ShowBranches = false;
+                return;
+            }
+            if ((WorkflowActivityCategory)args == WorkflowActivityCategory.GeneralControls || (WorkflowActivityCategory)args == WorkflowActivityCategory.Tasks)
+            {
+                SelectedBranch = new WorkflowBranch();
+                ModuleActivities = await workflowService.GetModuleActvitiesByCategory(TriggerId, (int)(WorkflowActivityCategory)args);
+                ShowTasks = true;
+                ShowBranches = false;
+            }
+            else if ((WorkflowActivityCategory)args == WorkflowActivityCategory.FlowControls)
+            {
+                SelectedActivity = 0;
+                ShowTasks = false;
+                ShowBranches = true;
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+    protected object ReturnSelectedActivity()
+    {
+        if (SelectedActivity > 0)
+        {
+            return ModuleActivities.Where(a => a.ActivityId == SelectedActivity).FirstOrDefault();
+        }
+        if (SelectedBranch != null)
+        {
+            return SelectedBranch;
+        }
+        return null;
+    }
+}

@@ -1,0 +1,255 @@
+﻿@page "/correspondence-detail-view/{CommunicationId}/{SubModuleId}/{ByActivity}"
+@page "/correspondence-detail-view/{ReferenceId}/{CommunicationId}/{SubModuleId}/{ByActivity}"
+@layout MainLayout
+
+@using FATWA_DOMAIN.Common;
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_DOMAIN.Models
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+@using static FATWA_DOMAIN.Enums.TaskEnums
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@using static FATWA_DOMAIN.Enums.CommunicationEnums;
+
+<!--<History Author = "Nabeel ur Rehman" Date="2022-10-11" Version="1.0" Branch="master"> View Detail of Case Request and Registerd Request</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Comm.Communication.Detail").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+                <div class="col-9">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="@CaseRequestUrlS" Text="@translationState.Translate(TransKeyUrl)" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate(TransKeyHeader)" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-3 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-12">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Correspondence_Details")" />
+                    </div>
+                </div>
+            </div>
+            @if (isRecordFound)
+            {
+                <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+                    <RadzenCard>
+                        <RadzenAccordion>
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Correspondence_Details")" Selected="true">
+                                    <div class="row pb-2">
+                                        <div class="col-12 datagrid-rz-label">
+                                            <div class="row no-gutters">
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        @if (SubModule == (int)SubModuleEnum.CaseFile)
+                                                        {
+                                                            <h3>@translationState.Translate("File_Number"):</h3>
+                                                        }
+                                                        else if (SubModule == (int)SubModuleEnum.CaseRequest)
+                                                        {
+                                                            <h3>@translationState.Translate("Request_Number"):</h3>
+                                                        }
+                                                        else if (SubModule == (int)SubModuleEnum.RegisteredCase)
+                                                        {
+                                                            <h3>@translationState.Translate("Case_No"):</h3>
+                                                        }
+                                                        else
+                                                        {
+                                                            <h3>@translationState.Translate("Reference_No"):</h3>
+                                                        }
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@communicationDetail?.ReferenceNumber</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        @if (SubModule == (int)SubModuleEnum.CaseRequest)
+                                                        {
+                                                            <h3>@translationState.Translate("Case_Request_Date"):</h3>
+                                                        }
+                                                        else if (SubModule == (int)SubModuleEnum.CaseFile)
+                                                        {
+                                                            <h3>@translationState.Translate("Case_File_Date"):</h3>
+                                                        }                                                        
+                                                        else if (SubModule == (int)SubModuleEnum.RegisteredCase)
+                                                        {
+                                                            <h3>@translationState.Translate("Case_Registration_Date"):</h3>
+                                                        }
+                                                        else if (SubModule == (int)SubModuleEnum.ConsultationFile)
+                                                        {
+                                                            <h3>@translationState.Translate("Consultation_File_Date"):</h3>
+                                                        }
+                                                        else if (SubModule == (int)SubModuleEnum.ConsultationRequest)
+                                                        {
+                                                            <h3>@translationState.Translate("Consultation_Request_Date"):</h3>
+                                                        }
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@communicationDetail?.RequestOrFileDate?.ToString("dd/MM/yyyy")</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Correspondence_Type"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @communicationDetail?.CorrespondenceTypeEn : @communicationDetail?.CorrespondenceTypeAr)</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Communication_Date"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        @if (communicationDetail?.CorrespondenceTypeId == (int)CommunicationCorrespondenceTypeEnum.Inbox)
+                                                        {
+                                                            <h3>@communicationDetail?.G2GReferenceDate?.ToString("dd/MM/yyyy")</h3>
+                                                        }
+                                                        else
+                                                        {
+                                                            <h3>@communicationDetail?.ResponseDate?.ToString("dd/MM/yyyy")</h3>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                @if (communicationDetail?.CorrespondenceTypeId == (int)CommunicationCorrespondenceTypeEnum.Outbox)
+                                                {
+                                                    <div class="col-6 detailSection">
+                                                        <div class="detailHeading">
+                                                            <h3>@translationState.Translate("OutboxNumber"):</h3>
+                                                        </div>
+                                                        <div class="detailContent">
+                                                            <h3>@communicationDetail?.OutboxNumber</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 detailSection">
+                                                        <div class="detailHeading">
+                                                            <h3>@translationState.Translate("OutboxDate"):</h3>
+                                                        </div>
+                                                        <div class="detailContent">
+                                                            <h3>@communicationDetail?.OutboxDate?.ToString("dd/MM/yyyy")</h3>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else if (communicationDetail?.CorrespondenceTypeId == (int)CommunicationCorrespondenceTypeEnum.Inbox)
+                                                {
+                                                    <div class="col-6 detailSection">
+                                                        <div class="detailHeading">
+                                                            <h3>@translationState.Translate("Communication_Response_Title"):</h3>
+                                                        </div>
+                                                        <div class="detailContent">
+                                                            <h3>@translationState.Translate(communicationDetail?.CommunicationResponseTitle)</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 detailSection">
+                                                        <div class="detailHeading">
+                                                            <h3>@translationState.Translate("Inbox_Number"):</h3>
+                                                        </div>
+                                                        <div class="detailContent">
+                                                            <h3>@communicationDetail?.InboxNumber</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 detailSection">
+                                                        <div class="detailHeading">
+                                                            <h3>@translationState.Translate("Inbox_Date"):</h3>
+                                                        </div>
+                                                        <div class="detailContent">
+                                                            <h3>@communicationDetail?.InboxDate?.ToString("dd/MM/yyyy")</h3>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 detailSection">
+                                                        <div class="detailHeading">
+                                                            <h3>@translationState.Translate("Reference_Number"):</h3>
+                                                        </div>
+                                                        <div class="detailContent">
+                                                            <h3>@communicationDetail?.G2GReferenceNumber</h3>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Government_Entity_Name"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @communicationDetail?.PartyEntityEn : @communicationDetail?.PartyEntityAr)</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Additiona_GE_Users"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @communicationDetail?.AdditionalGEUserEn : @communicationDetail?.AdditionalGEUserAr)</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Priority"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @communicationDetail?.PriorityNameEN : @communicationDetail?.PriorityNameAr)</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Correspondence_Name"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@translationState.Translate(communicationDetail?.Description)</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    </RadzenCard>
+                </div>
+                <div class="buttoncontainer">
+                    <input type="checkbox" id="toggle" />
+                    <label class="floatingbutton" for="toggle"></label>
+                    <nav class="nav">
+                        <ul>
+                            <TelerikButton Class="cancleBtn"
+                                           ButtonType="Telerik.Blazor.ButtonType.Button"
+                                           ThemeColor="light"
+                                           OnClick="@BtnBack"> @translationState.Translate("Back") </TelerikButton>
+                        </ul>
+                    </nav>
+                </div>
+            }
+            else
+            {
+                <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("No_record_found")</div>
+            }
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

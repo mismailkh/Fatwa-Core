@@ -1,0 +1,51 @@
+﻿@page "/task/delete/{taskId:int}"
+@using FATWA_DOMAIN.Models
+@inject NavigationManager NavigationManager
+@inject IConfiguration _config
+<h2>حذف المهمة</h2>
+<br />
+<div class="form-group">
+    <h4>هل تريد حذف هذه المهمة؟</h4>
+    <table class="table">
+        <tbody>
+            <tr>
+                <td>عنوان</td>
+                <td>@task.Title</td>
+            </tr>
+            <tr>
+                <td>وصف</td>
+                <td>@task.Description</td>
+            </tr>
+            <tr>
+                <td>تاريخ محدد</td>
+                <td>@task.AssignedDate</td>
+            </tr>
+            <tr>
+                <td>تاريخ الاستحقاق</td>
+                <td>@task.DueDate</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<div class="form-group">
+    <input type="submit" value="حذف" @onclick="(async () => await RemoveTask(task.TaskId))" class="btn btn-danger" />
+    <input type="submit" value="إلغاء" @onclick="(() => Cancel())" class="btn btn-warning" />
+</div>
+@code {
+    [Parameter]
+    public int taskId { get; set; }
+        FATWA_DOMAIN.Models.UserTask task = new FATWA_DOMAIN.Models.UserTask();
+    protected override async System.Threading.Tasks.Task OnInitializedAsync()
+    {
+        task = await new HttpClient().GetFromJsonAsync<UserTask>(_config["api_url"] + "/Tasks/" + taskId);
+    }
+    protected async System.Threading.Tasks.Task RemoveTask(int taskID)
+    {
+        await new HttpClient().DeleteAsync(_config["api_url"] + "/Tasks/" + taskID);
+        NavigationManager.NavigateTo("/fetchtasks");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("/fetchtasks");
+    }
+}

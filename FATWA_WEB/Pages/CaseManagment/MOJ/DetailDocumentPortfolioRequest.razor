@@ -1,0 +1,328 @@
+﻿@page "/detail-portfolio-request/{Id}/{CaseNumber}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_DOMAIN.Models
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@using static FATWA_DOMAIN.Enums.WorkflowParameterEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+
+<!--<History Author = "Hassan Abbas" Date="2023-03-24" Version="1.0" Branch="master"> Detail Of Document Portfolio</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.CMS.DocumentPortfolio.RequestDetail").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/moj-portfolio-requests" Text="@translationState.Translate("Moj_Document_Portfolio_Requests")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("View_Details")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Document_Portfolio_Detail")" />
+                    </div>
+                </div>
+            </div>
+            <RadzenCard>
+                <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill steps-center">
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <RadzenAccordion>
+                                <Items>
+                                    <RadzenAccordionItem Text="@translationState.Translate("Request_Details")" Selected="true">
+                                        <div class="col-12 datagrid-rz-label">
+                                            <div class="row no-gutters">
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Name"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@documentPortfolio.Name</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Required_Documents"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@requestForDocument?.RequiredDocuments</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Case_Number"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@CaseNumber</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Hearing_Date"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@requestForDocument?.HearingDate.ToString("dd/MM/yyyy")</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@(translationState.Translate("Lawyer") + ":")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @requestForDocument?.User?.FirstName_En : @requestForDocument?.User?.FirstName_Ar)</h3>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </RadzenAccordionItem>
+                                </Items>
+                            </RadzenAccordion>
+                            <RadzenAccordion>
+                                <Items>
+                                    <RadzenAccordionItem Text="@translationState.Translate("Documents")" Selected="true">
+                                        <div class="row pb-2">
+                                            <div class="col-md-4">
+                                            </div>
+                                            <div class="col-md-8 d-flex justify-content-end">
+                                                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="add" Text="@translationState.Translate("Add_Document")" Click="@( () => AddDocument() )">
+                                                </RadzenButton>
+                                            </div>
+                                        </div>
+                                        <div class="row pb-2">
+                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                <div class="tableContent table-responsive datagrid-rz-label">
+                                                    <RadzenDataGrid @ref="gridAttachments"
+                                                                AllowFiltering="false"
+                                                                AllowPaging="true"
+                                                                AllowSorting="true"
+                                                                Data="@attachments?.Where(a => a.DocType?.ToLower() == ".pdf")"
+                                                                TItem="TempAttachementVM"
+                                                                Count="@(attachments != null ? attachments.Count() : 0)"
+                                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                                SelectionMode="DataGridSelectionMode.Multiple"
+                                                                AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                                                @bind-Value=@documentPortfolio.SelectedDocuments
+                                                                ShowPagingSummary="true">
+                                                        <Columns>
+                                                            <RadzenDataGridColumn TItem="TempAttachementVM" Width="40px" Sortable="false" Filterable="false">
+                                                                <HeaderTemplate>
+                                                                    <RadzenCheckBox TriState="false"
+                                                                                Value="@((attachments!=null && documentPortfolio.SelectedDocuments != null)? (attachments.Except(documentPortfolio.SelectedDocuments).Any()? false : true) :false)"
+                                                                                TValue="bool"
+                                                                                Change="@(args => documentPortfolio.SelectedDocuments = args ? attachments.ToList() : null)" />
+                                                                </HeaderTemplate>
+                                                                <Template Context="data">
+                                                                    <RadzenCheckBox TriState="false"
+                                                                                Value="@(documentPortfolio.SelectedDocuments != null && documentPortfolio.SelectedDocuments.Contains(data))"
+                                                                                TValue="bool"
+                                                                                Change=@(args => { if(!allowRowSelectOnRowClick) { gridAttachments.SelectRow(data); }}) />
+                                                                </Template>
+                                                            </RadzenDataGridColumn>
+                                                            <RadzenDataGridColumn TItem="TempAttachementVM" Frozen="true" Context="attachment" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Title="@translationState.Translate("Action")">
+                                                                <Template Context="attachment">
+                                                                    <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="visibility" Class="viewIcon" title="@translationState.Translate("View")" Click="@(args => ViewAttachement(attachment))" @onclick:stopPropagation="true" Disabled="attachment.StoragePath == null">
+                                                                    </RadzenButton>
+                                                                </Template>
+                                                            </RadzenDataGridColumn>
+                                                            <RadzenDataGridColumn TItem="TempAttachementVM" Property="AttachmentTypeId" Title="@translationState.Translate("Document_Type")">
+                                                                <Template Context="attachment">
+                                                                    @if (attachment.AttachmentTypeId == (int)AttachmentTypeEnum.Other)
+                                                                    {
+                                                                        <RadzenLabel Text="@attachment.OtherAttachmentType" />
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <RadzenLabel Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? $"{AttachmentTypes?.Where(t => t.AttachmentTypeId == attachment.AttachmentTypeId)?.FirstOrDefault()?.Type_En}" : $"{AttachmentTypes?.Where(t => t.AttachmentTypeId == attachment.AttachmentTypeId)?.FirstOrDefault()?.Type_Ar}") />
+                                                                    }
+                                                                </Template>
+                                                            </RadzenDataGridColumn>
+                                                            <RadzenDataGridColumn TItem="TempAttachementVM" Property="Description" Title="@translationState.Translate("Description")">
+                                                                <Template Context="attachment">
+                                                                    @if (String.IsNullOrEmpty(attachment.Description) || attachment.Description == "null")
+                                                                    {
+                                                                        <RadzenLabel Text="-" />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <RadzenLabel Text="@attachment.Description" />
+                                                                    }
+                                                                </Template>
+                                                            </RadzenDataGridColumn>
+                                                            <RadzenDataGridColumn TItem="TempAttachementVM" Property="FileName" Title="@translationState.Translate("File_Name")">
+                                                            </RadzenDataGridColumn>
+                                                            <RadzenDataGridColumn TItem="TempAttachementVM" Property="DocDateTime" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Document_Date")">
+                                                            </RadzenDataGridColumn>
+
+                                                        </Columns>
+                                                    </RadzenDataGrid>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </RadzenAccordionItem>
+                                </Items>
+                            </RadzenAccordion>
+                            <div class="row d-flex justify-content-center align-items-center pb-3 mt-2">
+                                <div class="col-md-6 d-flex justify-content-start">
+                                    <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@RedirectBack">@translationState.Translate("Back")</TelerikButton>
+                                </div>
+                                <div class="col-md-6 d-flex justify-content-end">
+                                    <RadzenButton IsBusy=@(busyPreviewBtn) ButtonType="Radzen.ButtonType.Submit" Disabled="@busyPreviewBtn" ButtonStyle="ButtonStyle.Primary" Click="@PreviewDocumentPortfolio" Text="@translationState.Translate("Preview_And_Submit")">
+                                    </RadzenButton>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </RadzenCard>
+        </ChildContent>
+    </RadzenContent>
+    @if (DisplayDocumentViewer)
+    {
+        <RadzenCard class="bg-light m-3">
+            <div class="row pb-2">
+                <div class="col-md-4">
+                    <h2 class="formHeading">@translationState.Translate("Document_Viewer")</h2>
+                </div>
+                <div class="col-md-8 d-flex justify-content-end">
+                    <RadzenButton ButtonStyle="ButtonStyle.Light"
+                          class="btn-close-custom"
+                          Text="@translationState.Translate("Close")"
+                          Click="@( () => DisplayDocumentViewer = false )" />
+                </div>
+            </div>
+            <div class="row pb-2" style="overflow:scroll">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    @* <TelerikPdfViewer @ref="PdfViewerRef"
+                              Width="100%"
+                              Height="800px"
+                              Data="@FileDataViewer">
+                        <PdfViewerToolBar>
+                            <PdfViewerToolBarSeparator />
+                            <PdfViewerToolBarDownloadTool />
+                            <PdfViewerToolBarPrintTool />
+                            <PdfViewerToolBarPagerTool />
+                            <PdfViewerToolBarSpacer />
+                            <PdfViewerToolBarZoomTool />
+                            <PdfViewerToolBarSelectionTool />
+                            <PdfViewerToolBarSearchTool />
+                        </PdfViewerToolBar>
+                    </TelerikPdfViewer> *@
+                    <SfPdfViewerServer EnableNavigationToolbar="false"
+                                       Width="100%"
+                                       Height="1000px"
+                                       @ref="@pdfViewer"
+                                       ID="pdfviewerDetailCommunication"
+                                       DocumentPath="@DocumentPath"
+                                       EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                       Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                       InteractionMode="InteractionMode.Pan">
+                    </SfPdfViewerServer>
+                </div>
+            </div>
+        </RadzenCard>
+    }
+
+    @if (isVisible && !busyPreviewBtn)
+    {
+        @*Template Previewer*@
+        <TelerikWindow Class="draftPreviewWindow" Size="@(ThemeConstants.Window.Size.Medium)" Visible="true" Draggable="true" Top="5%" Left="20%">
+            <WindowTitle>
+                <RadzenHeading Size="H2" Text="@translationState.Translate("Portfolio_Preview")" />
+            </WindowTitle>
+            <WindowActions>
+                <WindowAction Name="Maximize"></WindowAction>
+                <WindowAction Name="Minimize"></WindowAction>
+                <WindowAction Name="Close" OnClick="@TogglePreviewWindow"></WindowAction>
+            </WindowActions>
+            <WindowContent>
+                <div class="row pb-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        @* <TelerikPdfViewer @ref="PdfViewerRef2"
+                                  Width="100%"
+                                  Height="calc(100vh - 250px)!Important"
+                                  Data="@documentPortfolio.FileData">
+                            <PdfViewerToolBar>
+                                <PdfViewerToolBarSeparator />
+                                <PdfViewerToolBarDownloadTool />
+                                <PdfViewerToolBarPrintTool />
+                                <PdfViewerToolBarPagerTool />
+                                <PdfViewerToolBarSpacer />
+                                <PdfViewerToolBarZoomTool />
+                                <PdfViewerToolBarSelectionTool />
+                                <PdfViewerToolBarSearchTool />
+                            </PdfViewerToolBar>
+                        </TelerikPdfViewer> *@
+                        <SfPdfViewerServer EnableNavigationToolbar="false"
+                                           Width="100%"
+                                           Height="1000px"
+                                           @ref="@pdfViewer"
+                                           EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                           Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                           ID="pdfviewerDetailCommunication"
+                                           DocumentPath="@DocumentPath"
+                                           InteractionMode="InteractionMode.Pan">
+                        </SfPdfViewerServer>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center align-items-center pb-3 mt-2">
+                    <div class="col-md-12 d-flex justify-content-end">
+                        <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@SubmitPortfolio">@translationState.Translate("Submit")</TelerikButton>
+                    </div>
+                </div>
+            </WindowContent>
+        </TelerikWindow>
+    }
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+<style>
+    .rz-dialog-wrapper {
+        z-index: 10010 !important;
+    }
+
+    .rz-dropdown-panel.rz-popup {
+        z-index: 10010 !important;
+    }
+
+    .rz-datepicker.rz-popup {
+        z-index: 10010 !important;
+    }
+</style>

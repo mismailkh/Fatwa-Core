@@ -1,0 +1,256 @@
+﻿@page "/contact-add"
+@page "/contact-add/{ContactId}"
+@using FATWA_DOMAIN.Models.Contact;
+@using FATWA_WEB.Pages.Shared;
+@using static FATWA_DOMAIN.Enums.Contact.ContactManagementEnum;
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+@layout MainLayout
+
+<PageTitle>@(ContactId == null ? translationState.Translate("Add_Contact") : translationState.Translate("Edit_Contact"))</PageTitle>
+    <!--<History Author = "Umer Zaman" Date="2022-04-02" Version="1.0" Branch="master"> Add / update Contact request</History>-->
+    @if ((loginState.ClaimList.Where(x => x.Value == "Permissions.Contact.AddContact.Create").Count() > 0 && ContactId == null) || (loginState.ClaimList.Where(x => x.Value == "Permissions.Contact.AddContact.Edit").Count() > 0 && ContactId != null))
+{
+
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumb>
+                                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                                <RadzenBreadCrumbItem Path="/contact-list" Text="@translationState.Translate("Contact_List")" />
+                                <PageTitle>@(ContactId == null ? translationState.Translate("Add_Contact") : translationState.Translate("Edit_Contact"))</PageTitle>
+                                    <RadzenBreadCrumbItem Text="@((ContactId == null ? translationState.Translate("Add_Contact") : translationState.Translate("Edit_Contact")))" />
+                                </RadzenBreadCrumb>
+                            </RadzenBreadCrumb>
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <div class="backtoDashboard">
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.Small"
+                                          title="@translationState.Translate("Go_Back_Dashboard")"
+                                          class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.Small"
+                                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                                          class="returnBtn"
+                                          Icon="home" Click="@GoBackHomeScreen" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row TitleBar justify-content-left align-items-center py-4">
+                    <div class="col-md-6">
+                        <div class="row no-gutters">
+                            <RadzenHeading Size="H1" Text="@((ContactId == null ? translationState.Translate("Add_Contact") : translationState.Translate("Edit_Contact")))" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+                    <RadzenTemplateForm TItem="CntContact" Data="@CntContacts" Submit="@Form0Submit">
+                        <ChildContent>
+                            <RadzenCard>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Contact_Type") + "*")" Component="ContactType" />
+                                            <RadzenDropDown Data="@CntContactTypeList" AllowFiltering="true" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "NameEn" : "NameAr")" ValueProperty="TypeId" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="@(CntContacts.ContactTypeId)" Name="ContactType" Disabled="true" />
+
+                                            <RadzenRequiredValidator DefaultValue="0" Component="ContactType" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                    @if (InternalContact)
+                                {
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Contact_Role"))" Component="ContactRole" />
+                                            <RadzenDropDown Data="@CntContactJobRoleList" AllowFiltering="true" AllowClear="true"
+                                                            TextProperty="Name" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="@(CntContacts.JobRoleId)" Name="ContactRole" />
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Contact_Sector"))" Component="ContactSector" />
+                                            <RadzenDropDown Data="@OperatingSectorTypeList" AllowFiltering="true" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "Name_En" : "Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="@(CntContacts.SectorId)" Name="ContactSector" />
+                                        </div>
+                                    </div>
+                                }
+                                @if (ExternalContact)
+                                {
+                                    <div class="col-4 form-group">
+                                        <div class="row">
+                                            <div class="col-10">
+                                                <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Contact_WorkPlace"))" Component="ContactCompany" />
+                                                <RadzenDropDown @ref="@CompanyDropDown" Data="@CompanyList" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "NameEn" : "NameAr")" ValueProperty="CompanyId" Placeholder="@translationState.Translate("Select")"
+                                                                Style="display:block;" @bind-Value="@(CntContacts.WorkPlace)" Name="ContactCompany" />
+                                            </div>
+                                            <div class="col-2 p-0">
+                                                <div class="k-form-field">
+                                                    <label for="sub" class="k-label k-form-label"></label>
+                                                    <div class="k-form-field-wrap">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                      Icon="add"
+                                                                      class="addBtn"
+                                                                      Style=" margin-top: 6px !important;"
+                                                                      Title="@translationState.Translate("Add")"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => AddWorkPlaceButtonClick(args))"
+                                                        @onclick:stopPropagation="true" />
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-4 form-group">
+                                        <div class="row">
+                                            <div class="col-10">
+                                                <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Contact_Designation"))" Component="ContactDesignation" />
+                                                <RadzenDropDown @ref="@DesignationDropDown" Data="@DesignationList" AllowFiltering="true" AllowClear="true"
+                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "Name_En" : "Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                Style="display:block;" @bind-Value="@(CntContacts.Designation)" Name="ContactDesignation" />
+                                            </div>
+                                            <div class="col-2 p-0">
+                                                <div class="k-form-field">
+                                                    <label for="sub" class="k-label k-form-label"></label>
+                                                    <div class="k-form-field-wrap">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                      Icon="add"
+                                                                      class="addBtn"
+                                                                      Style=" margin-top: 6px !important;"
+                                                                      Title="@translationState.Translate("Add")"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => AddDesignationButtonClick(args))"
+                                                        @onclick:stopPropagation="true" />
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Contact_First_Name") + " *")" Component="ContactFirstName" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Contact_First_Name")" @bind-Value="@(CntContacts.FirstName)" Name="ContactFirstName" />
+                                        <RadzenRequiredValidator Component="ContactFirstName" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenRegexValidator Component="ContactFirstName" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="^[A-Za-z \u0621-\u064A]+$" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Contact_Second_Name"))" Component="ContactSecondName" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Contact_Second_Name")" @bind-Value="@(CntContacts.SecondName)" Name="ContactSecondName" />
+                                        <RadzenRegexValidator Component="ContactSecondName" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="^[A-Za-z \u0621-\u064A]+$" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Contact_Last_Name") + " *")" Component="ContactLastName" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Contact_Last_Name")" @bind-Value="@(CntContacts.LastName)" Name="ContactLastName" />
+                                        <RadzenRequiredValidator Component="ContactLastName" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenRegexValidator Component="ContactLastName" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="^[A-Za-z \u0621-\u064A]+$" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Contact_Phone") + " *")" Component="ContactPhone" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Contact_Phone")" MaxLength="8" @bind-Value="@(CntContacts.PhoneNumber)" Name="ContactPhone" />
+
+                                        <RadzenLengthValidator Component="ContactPhone" Min="8"
+                                                               Text="@translationState.Translate("Must_Eight_Characters")"
+                                                               Style="@(string.IsNullOrEmpty(CntContacts.PhoneNumber) ? "display:none;" : "")" />
+
+                                        <RadzenRegexValidator Component="ContactPhone"
+                                                              Text="@translationState.Translate("Only_Digits_Allowed")"
+                                                              Pattern="^[0-9]+$"
+                                                              Style="@(string.IsNullOrEmpty(CntContacts.PhoneNumber) ? "display:none;" : "")" />
+
+                                                              
+                                        <RadzenRequiredValidator Component="ContactPhone"
+                                                                 Text="@translationState.Translate("Required_Field")" />
+
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Contact_Email")+ " *")" Component="ContactEmail" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("example@domain.kw")" @bind-Value="@(CntContacts.Email)" Name="ContactEmail" />
+                                        <RadzenRequiredValidator Component="ContactEmail" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenRegexValidator Component="ContactEmail" Text="@translationState.Translate("Required_Valid_Email")" Pattern="@REGEX_EMAIL_ADDRESS" />
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Civil_Id"))" Component="Civil_Id" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Civil_Id")" MaxLength="12" @bind-Value="@(CntContacts.CivilId)" Name="CivilId" /> 
+                                        <RadzenLengthValidator Component="CivilId" Min="12" Text="@translationState.Translate("Must_Twelve_Characters")" />
+                                        <RadzenRegexValidator Component="CivilId" Text="@translationState.Translate("Only_Digits_Allowed")" Pattern="^[0-9]+$" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <RadzenLabel Text="@(translationState.Translate("Contact_Note"))" Component="ContactNote" />
+                                    <RadzenTextArea Rows="5" Placeholder="@translationState.Translate("Contact_Note")" @bind-Value="@(CntContacts.Notes)" Class="w-100" Name="ContactNote" />
+                                </div>
+                            </div>
+                        </RadzenCard>
+                        <RadzenCard class="mt-3">
+                            <div class="row pb-2">
+                                <div class="col-md-4">
+                                    <h2 class="formHeading">@translationState.Translate("Link_Documents")</h2>
+                                    <div class="divider"></div>
+                                </div>
+                                <div class="col-md-4">
+                                </div>
+                            </div>
+
+                            <FileUpload ReferenceGuid="@CntContacts?.ContactId"
+                            @bind-DeletedAttachementIds="@CntContacts.DeletedAttachementIds"
+                                        Multiple="false"
+                                        MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                        FileTypes="@systemSettingState.FileTypes"
+                                        UploadFrom="ContactManagement"
+                                        HideView="true"
+                                        ModuleId="(int)WorkflowModuleEnum.CNTContactManagement" />
+                        </RadzenCard>
+                        <div class="mt-4">
+                            <RadzenCard>
+                                <div class="popup-buttons-alignment">
+                                    <div class="col-12 p-0">
+                                        <RadzenButton ButtonType="Radzen.ButtonType.Submit" style="margin-left: 0.5rem !important" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")" Click="@SubmitClicked" />
+                                        @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Contact.DeleteContact.Delete").Count() > 0 && ContactId != null)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.5rem !important" Text="@translationState.Translate("delete")" Click="@DeleteContact" />
+                                        }
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.5rem !important" Text="@translationState.Translate("Cancel")" Click="@CancelForm" />
+                                    </div>
+                                </div>
+                            </RadzenCard>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+<Style>
+    .rz-label {
+        width: -webkit-fill-available !important;
+    }
+</Style>

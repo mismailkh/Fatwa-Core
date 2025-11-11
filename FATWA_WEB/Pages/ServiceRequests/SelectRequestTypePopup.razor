@@ -1,0 +1,44 @@
+﻿@using FATWA_DOMAIN.Models.InventoryManagement;
+@using Microsoft.AspNetCore.Components;
+@using Microsoft.AspNetCore.Components.Web;
+@using Radzen;
+@layout MainLayout
+
+
+<RadzenTemplateForm Data="@requestTypes" TItem="RequestType" Visible="true" Submit="@FormSubmit">
+    <ChildContent>
+        <div class="pt-2 pb-2">
+
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Service_Request_Type") + " *")" Component="Type" />
+                    <RadzenDropDown Data="@ServiceRequestTypes"
+                                    TValue="int"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" :"NameAr")"
+                                    ValueProperty="Id"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;"
+                                    @bind-Value="requestTypes.RequestTypeId"
+                                    Name="Type">
+                    </RadzenDropDown>
+                    <RadzenRequiredValidator DefaultValue="0" Component="Type" Text="@translationState.Translate("Required_Field")" />
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 popup-buttons-alignment">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Text="@translationState.Translate("Submit")">
+                </RadzenButton>
+
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@ButtonCancelClick">
+                </RadzenButton>
+            </div>
+
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

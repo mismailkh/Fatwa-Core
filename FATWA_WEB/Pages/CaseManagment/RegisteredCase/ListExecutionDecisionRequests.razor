@@ -1,0 +1,91 @@
+﻿@page "/executiondecision-requests"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+
+
+@*@if (loginState.ClaimList.Where(x => x.Value == "Permissions.CMS.Case.MojExecutionList").Count() > 0)
+{*@
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Execution_Requests")" />
+                </RadzenBreadCrumb>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row TitleBar justify-content-center align-items-center py-4">
+            <div class="col-md-12">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Execution_Requests")" />
+                </div>
+            </div>
+
+        </div>
+        <div class="row justify-content-center mainContentBlock py-4">
+            <div class="col-md-12">
+                <div class="row no-gutters">
+                    <div class="col-md-6">
+                    </div>
+
+                </div>
+                <RadzenTabs TabPosition="Radzen.TabPosition.Top" style="margin: 20px auto;" RenderMode="TabRenderMode.Server">
+                    <Tabs>
+                        <RadzenTabsItem Text="@translationState.Translate("Regenrate_Execution_Requests")">
+                            <div class="row tableContent table-responsive no-gutters pb-3">
+                                <RadzenDataGrid @ref="grid"
+                                                AllowFiltering="false"
+                                                AllowPaging="true"
+                                                AllowSorting="true"
+                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                Data="@getjugdmentDecisionVMs"
+                                                TItem="CmsJugdmentDecisionVM">
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="CmsJugdmentDecisionVM" Width="150px" Property="Title" Title="@translationState.Translate("Title")" />
+                                        <RadzenDataGridColumn TItem="CmsJugdmentDecisionVM" Width="150px" Property="Description" Title="@translationState.Translate("Description")" />
+                                        <RadzenDataGridColumn TItem="CmsJugdmentDecisionVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DecisionTypeEn" : "DecisionTypeAr") Title="@translationState.Translate("Decision_Type")" />
+                                        <RadzenDataGridColumn TItem="CmsJugdmentDecisionVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
+                                            <Template Context="row">
+
+                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="visibility" Size="ButtonSize.Small" Click="@((args) => DetailJudgmentDecision(row))" @onclick:stopPropagation="true" />
+
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                    </Columns>
+                                </RadzenDataGrid>
+
+
+                            </div>
+                        </RadzenTabsItem>
+                    </Tabs>
+                </RadzenTabs>
+
+
+
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+@*}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+*@

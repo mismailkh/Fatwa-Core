@@ -1,0 +1,314 @@
+﻿@page "/document-add/{DocumentId}"
+@page "/document-add/{DocumentId}/{TaskId}"
+@page "/document-add"
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.Dms;
+@using static FATWA_DOMAIN.Enums.DmsEnums;
+@using FATWA_DOMAIN.Models.ViewModel;
+@using Radzen.Blazor.Rendering
+<!--<History Author = "Hassan Abbas" Date="2023-06-07" Version="1.0" Branch="master"> Add Document Form as DMS Utility</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.DMS.Document.Add").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/dashboard" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/document-list" Text="@translationState.Translate("Document_List")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Add_Document")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Add_Document")" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row d-block justify-content-center mainContentBlock no-gutters bg-light p-0">
+                <RadzenTemplateForm Data="@AddedDocument" Visible="AddedDocument != null" TItem="DmsAddedDocument" Submit="@Form0Submit" InvalidSubmit="@FormInvalidSubmit">
+                    <ChildContent>
+                        <RadzenCard>
+                            <div class="row">
+                                @if (AddedDocument.Id == Guid.Empty)
+                                {
+                                    @if (ShowModuleDD)
+                                    {
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group rz-calendar-webkit-fill">
+                                                <RadzenLabel Text="@(translationState.Translate("Document_Category") + " *")" Component="Module" />
+                                                <RadzenDropDown Data="@Modules" AllowFiltering="true" AllowClear="true"
+                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ModuleNameEn" : "ModuleNameAr")" ValueProperty="ModuleId" Placeholder="@translationState.Translate("Select")"
+                                                                Style="display:block;" @bind-Value="AddedDocument.ModuleId" Name="Module" Change="@OnModuleChange"
+                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                                                <RadzenRequiredValidator DefaultValue="0" Component="Module" Text="@translationState.Translate("Required_Field")" />
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <div class="form-group rz-calendar-webkit-fill">
+                                            <RadzenLabel Text="@(translationState.Translate("Document_Type") + " *")" Component="Attachment_Type" />
+                                            <RadzenDropDown Data="@AttachmentTypes" AllowFiltering="true" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar")" ValueProperty="AttachmentTypeId" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="AddedDocument.AttachmentTypeId" Name="Attachment_Type" Change="@OnTypeChange"
+                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="Attachment_Type" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <div class="form-group rz-calendar-webkit-fill">
+                                            <RadzenLabel Text="@(translationState.Translate("Document_Classification"))" Component="Document_Classification" />
+                                            <RadzenDropDown Data="@DocumentClassifications" AllowFiltering="true" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="AddedDocument.ClassificationId" Name="Document_Classification" Change="@OnClassificationChange"
+                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="Document_Classification" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                    @if (AddedDocument.ClassificationId == (int)DocumentClassificationEnum.PredefinedTemplate)
+                                    {
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group rz-calendar-webkit-fill">
+                                                <RadzenLabel Text="@(translationState.Translate("Document_Template") + " *")" Component="Select_Template" />
+                                                <RadzenDropDown Data="@CaseTemplates" AllowFiltering="true" AllowClear="true"
+                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                Style="display:block;" @bind-Value="TemplateId" Name="Select_Template" Change="@OnTemplateChange"
+                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                                                <RadzenRequiredValidator DefaultValue="0" Component="Select_Template" Text="@translationState.Translate("Required_Field")" />
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Document_Name") + " *")" Component="Document_Name" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Document_Name")" @bind-Value="@(AddedDocument.DocumentName)" Name="Document_Name" Disabled="true" />
+                                        <RadzenRequiredValidator Component="Document_Name" Text="@translationState.Translate("Required_Field")" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Document_Number"))" Component="Document_Number" />
+                                        <RadzenNumeric Placeholder="@translationState.Translate("Document_Number")" @bind-Value="@(AddedDocument.DocumentNumber)" Disabled="true" Name="Document_Number" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Document_Description"))" Component="Document_Description" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Document_Description")"
+                                                       @bind-Value="@(AddedDocument.Description)"
+                                                       Name="Document_Description" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Version_Number"))" Component="Version_Number" />
+                                        <RadzenNumeric Placeholder="@translationState.Translate("Version_Number")" @bind-Value="@(AddedDocument.DocumentVersion.VersionNo)" Name="Version_Number" Disabled="true" />
+                                        <RadzenRequiredValidator Component="Version_Number" Text="@translationState.Translate("Required_Field")" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="k-form-field">
+                                        <div class="k-form-field-wrap rz-calendar-webkit-fill">
+                                            <RadzenLabel Text="@(translationState.Translate("Is_Confidential"))" />
+                                            <div class="k-form-field-wrap">
+                                                <TelerikCheckBox Id="isSeries" @bind-Value="@AddedDocument.IsConfidential"></TelerikCheckBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            @if (AddedDocument.ClassificationId == (int)DocumentClassificationEnum.External)
+                            {
+                                <div class="row">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <RadzenLabel Text="@translationState.Translate("Upload_Document")" />
+                                        <div class="form-group mb-2">
+                                            <label class="rz-label">&nbsp;</label>
+                                            <TelerikUpload SaveUrl="@SaveUrl"
+                                                           RemoveUrl="@RemoveUrl"
+                                                           RemoveField="_fileToRemove"
+                                                           AutoUpload="false"
+                                                           AllowedExtensions="@(systemSettingState.FileTypes.ToList())"
+                                                           MaxFileSize="@(systemSettingState.File_Maximum_Size)"
+                                                           MinFileSize="1"
+                                                           OnSelect="@OnSelectHandler"
+                                                           OnCancel="@OnCancelHandler"
+                                                           OnRemove="@OnRemoveHandler"
+                                                           OnUpload="@OnUploadHandler"
+                                                           OnSuccess="@OnSuccessHandler"
+                                                           OnError="@OnErrorHandler"
+                                                           Multiple="false"
+                                                           Enabled="@(TempFiles.Count() == 0)">
+                                            </TelerikUpload>
+                                            <div class="k-form-hint">
+                                                @translationState.Translate("Accepted_Files")
+                                                <strong>
+                                                    @if (systemSettingState.FileTypes != null)
+                                                    {
+                                                        @foreach (var type in systemSettingState.FileTypes)
+                                                        {
+                                                            @type
+                                                        }
+
+                                                    }
+                                                </strong>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (TempFiles.Any())
+                                {
+                                    <div class="row">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12"> 
+                                            <RadzenDataGrid PageSize="5" Data="@TempFiles" TItem="TempAttachementVM">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="TempAttachementVM" Property="FileName" Title="@translationState.Translate("File_Name")" />
+                                                    <RadzenDataGridColumn TItem="TempAttachementVM" Property="DocType" Title="@translationState.Translate("File_Type")" />
+                                                    <RadzenDataGridColumn TItem="TempAttachementVM" Property="DocDateTime" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")" />
+                                                    <RadzenDataGridColumn TItem="TempAttachementVM" Title="@translationState.Translate("Action")" Width="100px">
+                                                        <Template Context="data">
+                                                            <TelerikButton ButtonType="@Telerik.Blazor.ButtonType.Button" Class="mr-1" Icon="trash" OnClick="@(() => RemoveTempAttachement())"></TelerikButton>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else if (AddedDocument.ClassificationId == (int)DocumentClassificationEnum.FreeEditor)
+                            {
+                                <RadzenHtmlEditor class="draftEditor" @ref="editor" @bind-Value="@(AddedDocument.DocumentVersion.Content)" style="width: 100%; height: 400px; margin-bottom: 1rem;">
+                                    <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                                    <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                                    <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                                    <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                                    <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorAlignLeft Title=@translationState.Translate("Align_Left") />
+                                    <RadzenHtmlEditorAlignCenter Title=@translationState.Translate("Align_Centre") />
+                                    <RadzenHtmlEditorAlignRight Title=@translationState.Translate("Align_Right") />
+                                    <RadzenHtmlEditorJustify Title=@translationState.Translate("Justify") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorIndent Title=@translationState.Translate("Indent") />
+                                    <RadzenHtmlEditorOutdent Title=@translationState.Translate("Outdent") />
+                                    <RadzenHtmlEditorUnorderedList Title=@translationState.Translate("Bullet_List") />
+                                    <RadzenHtmlEditorOrderedList Title=@translationState.Translate("Ordered_List") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                                    <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                                    <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorSubscript Title=@translationState.Translate("Subscript") />
+                                    <RadzenHtmlEditorSuperscript Title=@translationState.Translate("Superscript") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorLink Title=@translationState.Translate("Link")
+                                                          UrlText=@translationState.Translate("Web_Address")
+                                                          LinkText=@translationState.Translate("Text")
+                                                          OpenInNewWindowText=@translationState.Translate("Open_in_new_window")
+                                                          OkText=@translationState.Translate("OK")
+                                                          CancelText=@translationState.Translate("Cancel") />
+                                    <RadzenHtmlEditorUnlink Title=@translationState.Translate("Unlink") />
+                                    <RadzenHtmlEditorFontName Placeholder="@translationState.Translate("Sultan")" Title="@translationState.Translate("Sultan")">
+                                        <ChildContent>
+                                            <RadzenHtmlEditorFontNameItem Text="Sultan" Value="Sultan" />
+                                            <RadzenHtmlEditorFontNameItem Text="Sultan Medium" Value='"Sultan Medium"' />
+                                        </ChildContent>
+                                    </RadzenHtmlEditorFontName>
+                                    <RadzenHtmlEditorFontSize Placeholder="@translationState.Translate("Font_Size")" Title="@translationState.Translate("Font_Size")" />
+                                    <RadzenHtmlEditorFormatBlock Placeholder="@translationState.Translate("Format_Block")" Title="@translationState.Translate("Format_Block")" />
+                                </RadzenHtmlEditor>
+                            }
+                            else if ((AddedDocumentId == Guid.Empty && AddedDocument.ClassificationId == (int)DocumentClassificationEnum.PredefinedTemplate && TemplateId > 0) || (AddedDocumentId != Guid.Empty && AddedDocument.ClassificationId == (int)DocumentClassificationEnum.PredefinedTemplate))
+                            {
+                                <RadzenHtmlEditor class="draftEditor" @ref="editor" @bind-Value="@(AddedDocument.DocumentVersion.Content)" style="width: 100%; height: 400px; margin-bottom: 1rem;">
+                                    <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                                    <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                                    <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                                    <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                                    <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorAlignLeft Title=@translationState.Translate("Align_Left") />
+                                    <RadzenHtmlEditorAlignCenter Title=@translationState.Translate("Align_Centre") />
+                                    <RadzenHtmlEditorAlignRight Title=@translationState.Translate("Align_Right") />
+                                    <RadzenHtmlEditorJustify Title=@translationState.Translate("Justify") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorIndent Title=@translationState.Translate("Indent") />
+                                    <RadzenHtmlEditorOutdent Title=@translationState.Translate("Outdent") />
+                                    <RadzenHtmlEditorUnorderedList Title=@translationState.Translate("Bullet_List") />
+                                    <RadzenHtmlEditorOrderedList Title=@translationState.Translate("Ordered_List") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                                    <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                                    <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorSubscript Title=@translationState.Translate("Subscript") />
+                                    <RadzenHtmlEditorSuperscript Title=@translationState.Translate("Superscript") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorLink Title=@translationState.Translate("Link")
+                                                          UrlText=@translationState.Translate("Web_Address")
+                                                          LinkText=@translationState.Translate("Text")
+                                                          OpenInNewWindowText=@translationState.Translate("Open_in_new_window")
+                                                          OkText=@translationState.Translate("OK")
+                                                          CancelText=@translationState.Translate("Cancel") />
+                                    <RadzenHtmlEditorUnlink Title=@translationState.Translate("Unlink") />
+                                    <RadzenHtmlEditorFontName Placeholder="@translationState.Translate("Font")" Title="@translationState.Translate("Font")">
+                                        <ChildContent>
+                                            <RadzenHtmlEditorFontNameItem Text="Sultan" Value="Sultan" />
+                                            <RadzenHtmlEditorFontNameItem Text="Sultan Medium" Value='"Sultan Medium"' />
+                                        </ChildContent>
+                                    </RadzenHtmlEditorFontName>
+                                    <RadzenHtmlEditorFontSize Placeholder="@translationState.Translate("Font_Size")" Title="@translationState.Translate("Font_Size")" />
+                                    <RadzenHtmlEditorFormatBlock Placeholder="@translationState.Translate("Format_Block")" Title="@translationState.Translate("Format_Block")" />
+                                </RadzenHtmlEditor>
+                            }
+                            <div class="row d-flex justify-content-center align-items-center px-4 pb-3 mt-4">
+                                <div class="col-md-6 d-flex justify-content-start">
+                                    <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@RedirectBack">@translationState.Translate("Back")</TelerikButton>
+                                </div>
+                                <div class="col-md-6 d-flex justify-content-end">
+                                    @* @if ((loginState.Username == AddedDocument.DocumentVersion.CreatedBy && (AddedDocument.DocumentVersion.StatusId == (int)DocumentStatusEnum.Draft || AddedDocument.DocumentVersion.StatusId == 0)) || AddedDocument.Id == Guid.Empty||AddedDocument.DocumentVersion.StatusId == (int)DocumentStatusEnum.InReview)
+                                { *@
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Button" style="margin-left: 0.5rem !important" Click="@SaveAsDraft" Text="@translationState.Translate("Save_As_Draft")">
+                                    </RadzenButton>
+                                    @* } *@
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                    </RadzenButton>
+                                </div>
+                            </div>
+                        </RadzenCard>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} 

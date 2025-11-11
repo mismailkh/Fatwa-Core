@@ -1,0 +1,43 @@
+﻿@page "/add-LegalLegislationTags"
+@using FATWA_DOMAIN.Models
+
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Add_Legislation_Tags")</PageTitle>
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@legalLegislationTag" Visible="@(legalLegislationTag != null)" TItem="LegalLegislationTag" Submit="@FormSubmit">
+                    <ChildContent>
+                        <div class="row">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("Name")" Component="TagName" />
+                                <RadzenTextBox Placeholder="@translationState.Translate("Name")"
+                                               MaxLength="100"
+                                               @bind-Value="@(legalLegislationTag.TagName)"
+                                               Name="TagName" />
+                                <RadzenRequiredValidator Component="TagName" Text="@translationState.Translate("Required_Field")" />
+                                <RadzenLengthValidator Component="TagName" Text="@translationState.Translate("Max_Ninety_Characters")" Max="90" />
+                                <RadzenRegexValidator Component="TagName" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                            </div>
+                        </div> 
+                        <div class="row popup-buttons-alignment">
+                            <div class="col-12 p-0"> 
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                              Text="@translationState.Translate("Save")"
+                                              ButtonStyle="ButtonStyle.Primary" />
+
+                                <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                              Style="margin-left: 1rem"
+                                              Text="@translationState.Translate("Cancel")"
+                                              Click="@ButtonCancelClick" /> 
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

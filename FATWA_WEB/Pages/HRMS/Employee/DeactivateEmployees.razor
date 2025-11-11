@@ -1,0 +1,74 @@
+﻿@page "/deactivateemployees"
+@layout MainLayout
+@using FATWA_DOMAIN.Common
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using Telerik.Blazor.Components.Upload
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@using static FATWA_DOMAIN.Enums.UserEnum;
+
+<div class="row pt-2">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+        <div class="form-group mb-2">
+                @* @if (EmployeeStatusId == 1 && RoleId == SystemRoles.Lawyer || RoleId == SystemRoles.ComsLawyer || RoleId == SystemRoles.ComsSupervisor || RoleId == SystemRoles.Supervisor)
+                {
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="form-group">
+                                <RadzenLabel Text="@(translationState.Translate("Task_Delegation"))" />
+                                <RadzenDropDown Data="DelegatedEmployeesList"
+                                                AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar")"
+                                                ValueProperty="UserId"
+                                                Placeholder="@(IsUserHasAnyTask == true? translationState.Translate("Delegate_An_Employee") : translationState.Translate("User_Has_No_Tasks"))"
+                                                @bind-Value="deactivateModel.DelegatedEmployeId"
+                                                Name="DelegatedEmployee"
+                                                Disabled="!IsUserHasAnyTask" />
+                            @if (IsUserHasAnyTask == true)
+                            {
+                                <RadzenRequiredValidator Component="DelegatedEmployee" Text="@translationState.Translate("Required_Field")" />
+                            }
+                        </div>
+                        </div>
+                    </div>
+                } *@
+            <div class="row">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@(EmployeeStatusId != 1? translationState.Translate("Employee_Status") : translationState.Translate("Deactivation_reason"))" Component="EmployeeDeactivationReason" />
+                    <RadzenDropDown Data="@employeeStatuses"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                    ValueProperty="Id"
+                                    Placeholder="@translationState.Translate("Select")"
+                    @bind-Value="@(EmployeeDeactivationReason)"
+                                    Name="EmployeeStatus" />
+                    <RadzenRequiredValidator DefaultValue="0" Component="EmployeeStatus" Text="@translationState.Translate("Required_Field")" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@(translationState.Translate("Date") )" Style="display:block" Component="StatusDate" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" @bind-Value="@deactivateModel.StatusDate" Name="StatusDate" />
+                    <RadzenRequiredValidator DefaultValue="0" Component="StatusDate" Text="@translationState.Translate("Required_Field")" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Comments"))" />
+                        <RadzenTextArea Placeholder="@translationState.Translate("Comments")" @bind-Value="deactivateModel.StatusReason" />
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4 px-3 pt-2 popup-buttons-alignment">
+                <div class="col-12 p-0">
+                    <RadzenButton Click="@DeactivateEmployee"
+                                  Style="margin-right: 1rem"
+                                  Text="@translationState.Translate("Submit")" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                  Text="@translationState.Translate("Cancel")"
+                                  Click="@CloseDialog" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

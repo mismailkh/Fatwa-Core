@@ -1,0 +1,89 @@
+﻿@page "/exception-action/{ItemId}"
+@using FATWA_DOMAIN.Models.AdminModels.AutomationMonitoring;
+@layout MainLayout
+
+@*< History Author = 'Ijaz Ahmad' Date = '2024-06-24' Version = "1.0" Branch = "master"> Exception Action</History>*@
+<PageTitle>@translationState.Translate("Exception-Action")</PageTitle>
+
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.AutoMonInterface"))
+{
+    <RadzenTemplateForm Data="@workQueueItem" Visible="@(workQueueItem != null)" TItem="AMSWorkQueueItem" Submit="@SaveChanges">
+        <div class="row pb-2">
+            <div class="col-12 datagrid-rz-label">
+                <div class="row no-gutters">
+                    <div class="col-6 detailSection">
+                        <div class="detailHeading">
+                            <h3>
+                           @translationState.Translate("Item_ID"):
+                        </h3>
+
+                    </div>
+                    <div class="detailContent">
+                        <h3>@AMSExceptionsDetails?.ItemId</h3>
+                    </div>
+                </div>
+                <div class="col-6 detailSection">
+                    <div class="detailHeading">
+                        <h3>@translationState.Translate("Item_Name"):</h3>
+
+                    </div>
+                    <div class="detailContent">
+                        <h3>@AMSExceptionsDetails?.ItemName</h3>
+                    </div>
+                </div>
+                <div class="col-6 detailSection">
+                    <div class="detailHeading">
+                        <h3>@translationState.Translate("Occurrence_Date"):</h3>
+                    </div>
+                    <div class="detailContent">
+                        <h3>@AMSExceptionsDetails.OccurrenceDate?.ToString("dd/MM/yyyy")</h3>
+                    </div>
+                </div>
+                <div class="col-6 detailSection">
+                    <div class="detailHeading">
+                        <h3>@translationState.Translate("Exception_Type"):</h3>
+                    </div>
+                    <div class="detailContent">
+                        <h3>@AMSExceptionsDetails?.ExceptionType</h3>
+                    </div>
+
+
+                </div>
+                <div class="col-6 detailSection">
+                    <div class="detailHeading">
+                        <h3>@translationState.Translate("Exception_Message"):</h3>
+                    </div>
+                    <div class="detailContent">
+                        <h3>@AMSExceptionsDetails?.ExceptionMessage</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-12">
+        </div>
+    </div>
+    <!-- Buttons Section -->
+    <div class="popup-buttons-alignment">
+        <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                      Style="margin-left: 10px; margin-right: 10px;"
+                      ButtonStyle="ButtonStyle.Primary" Disabled=@(AMSExceptionsDetails.ItemId==null) Text="@translationState.Translate("Retry")" >
+        </RadzenButton>
+        <RadzenButton Text="@translationState.Translate("Cancel")"
+                      ButtonStyle="ButtonStyle.Light"
+                      Click="@Button2Click">
+        </RadzenButton>
+    </div>
+
+
+</RadzenTemplateForm>
+
+}
+else
+{
+<div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+
+

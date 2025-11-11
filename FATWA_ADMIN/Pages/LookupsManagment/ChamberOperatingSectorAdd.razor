@@ -1,0 +1,28 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.CaseManagment;
+@using FATWA_DOMAIN.Models.TaskModels;
+@layout MainLayout
+
+<RadzenTemplateForm Data="@ChamberSectorType" Visible="@(ChamberSectorType != null)" TItem="ChamberOperatingSector" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Sector_Type") + " *")" />
+                <RadzenDropDown Data="@SectorTypes" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" Multiple="false"
+                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                Style="display:block;" @bind-Value="@ChamberSectorType.SectorTypeId"
+                                Name="Chamber_Sector" />
+                <RadzenRequiredValidator Component="Chamber_Sector" DefaultValue="0" Text="@translationState.Translate("Required_Field")" />
+
+            </div>
+            <div class="popup-buttons-alignment">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                              Style="margin-left: 10px; margin-right: 10px;"
+                              ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")" />
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@Button2Click" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

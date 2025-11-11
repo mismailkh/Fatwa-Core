@@ -1,0 +1,85 @@
+﻿@page "/merge-requests"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@using FATWA_WEB.Services.Lms;
+@layout MainLayout
+
+<!--<History Author = "Hassan Abbas" Date="2022-11-21" Version="1.0" Branch="master"> List of Merge Requests</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.CMS.CaseFile.List").Count() > 0)
+{
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Merge_Requests")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Merge_Requests")" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                        <div class="row tableContent table-responsive no-gutters pb-3">
+                            <RadzenDataGrid
+                                        Width="100%"
+                                        @ref="grid"
+                                        AllowColumnResize="true" 
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(getMergeRequests != null ? getMergeRequests.Count() : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        AllowFiltering="false"
+                                        Data="@getMergeRequests"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="MergeRequestVM" Width="180px" Property="Reason" Title="@translationState.Translate("Reason")" />
+                                    <RadzenDataGridColumn TItem="MergeRequestVM" Width="170px" Property="PrimaryCANNumber" Title="@translationState.Translate("Primary_CAN_Number")" />
+                                    <RadzenDataGridColumn TItem="MergeRequestVM" Width="170px" Property="PrimaryCaseNumber" Title="@translationState.Translate("Primary_Case_Number")" />
+                                    <RadzenDataGridColumn TItem="MergeRequestVM" Width="80px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Created_Date")" />
+                                    <RadzenDataGridColumn TItem="MergeRequestVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                        <Template Context="rowItem">
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="visibility" Size="ButtonSize.Small" Click="@((args) => Detail(rowItem))" @onclick:stopPropagation="true" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

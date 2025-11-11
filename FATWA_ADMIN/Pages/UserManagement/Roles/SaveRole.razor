@@ -1,0 +1,48 @@
+﻿@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+
+<!--<History Author = "Hassan Abbas" Date="2022-07-20" Version="1.0" Branch="master"> Adding/Updating new Role and Assign/Unassign permissions to it.</History>-->
+<!--<History Author = "Ammaar Naveed" Date="2024-03-12" Version="1.0" Branch="master"> UI upgradation -> Breadcrumbs bar</History>-->
+
+<RadzenTemplateForm Data="@Role" TItem="Role" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("English_Name") + " *")" />
+                <RadzenTextBox class="flex-grow-1" Placeholder="@translationState.Translate("English_Name")" @bind-Value="@Role.Name" Name="Name_En" />
+                <RadzenRegexValidator Component="Name_En" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                <RadzenRequiredValidator Component="Name_En" Text="@translationState.Translate("Required_Field")" />
+                <RadzenLengthValidator Component="Name_En" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+            </div>
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Arabic_Name") +" *")" />
+                <RadzenTextBox class="pt-1 flex-grow-1" Placeholder="@translationState.Translate("Arabic_Name")" @bind-Value="@Role.NameAr" Name="Name_Ar" />
+                <RadzenRegexValidator Component="Name_Ar" Text="@translationState.Translate("Arabic_Name_Is_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                <RadzenRequiredValidator Component="Name_Ar" Text="@translationState.Translate("Required_Field")" />
+                <RadzenLengthValidator Component="Name_Ar" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+            </div>
+            <div class="form-group">
+                <RadzenLabel Text="@translationState.Translate("Role_Description_En")" />
+                <RadzenTextArea Rows="2" class="flex-grow-1" Placeholder="@translationState.Translate("Role_Description_En")" @bind-Value="@Role.Description_En" Name="Description_En" />
+                <RadzenLengthValidator Component="Description_En" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")" />
+                <RadzenRegexValidator Component="Description_En" Pattern="@RegexPatterns.NoSpacesTextAreaPattern" Text="@translationState.Translate("Cannot_have_trailing_spaces")" />
+            </div>
+            <div class="form-group">
+                <RadzenLabel Text="@translationState.Translate("Role_Description_Ar")" />
+                <RadzenTextArea Rows="2" class="pt-1 flex-grow-1" Placeholder="@translationState.Translate("Role_Description_Ar")" @bind-Value="@Role.Description_Ar" Name="Description_Ar" />
+                <RadzenLengthValidator Component="Description_Ar" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")" />
+                <RadzenRegexValidator Component="Description_Ar" Pattern="@RegexPatterns.NoSpacesTextAreaPattern" Text="@translationState.Translate("Cannot_have_trailing_spaces")" />
+            </div>
+            <div class="popup-buttons-alignment">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                              Style="margin-left: 10px; margin-right: 10px;"
+                              ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")" />
+
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@CancelSavingRole" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

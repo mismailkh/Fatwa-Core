@@ -1,0 +1,190 @@
+﻿@page "/legallegislation-list"
+@using FATWA_DOMAIN.Models.ViewModel
+@using static FATWA_DOMAIN.Enums.LegalLegislationEnum
+
+@layout MainLayout
+<PageTitle>@translationState.Translate("Legislation_Heading")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.Submenu.LDS.Documents.List"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("legallegislation")" />
+                    </RadzenBreadCrumb>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-center align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Legal_Legislation_Heading")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+
+
+
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4">
+                            <RadzenTextBox class="searchBox"
+                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                           Name="Textbox0"
+                                           @bind-Value="search"
+                            @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+                         </div>
+                        <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                            <RadzenButton class="addBtn " Icon="add" Text="@translationState.Translate("Add_Legislation")" Click="@AddLegislation" />
+                            <RadzenButton class="addBtn"
+                                          Icon="search"
+                                          Text="@translationState.Translate("Advanced_Search")"
+                                          Click="ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(LegalLegislation?.Any() == true ? LegalLegislation.FirstOrDefault().TotalCount : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        AllowFiltering="false"
+                                        LoadData="OnLoadData"
+                                        Data="@getLegalLegislations"
+                                        Sort="OnSortData"
+                                        TItem="LegalLegislationsVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+
+                            <Columns>
+                                <RadzenDataGridColumn TItem="LegalLegislationsVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                      class="viewIcon"
+                                                      Icon="visibility"
+                                                      Title="@translationState.Translate("Details")"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => ViewLegislationDetail(rowItem))"
+                                                      @onclick:stopPropagation="true" />
+                                        @if (rowItem.Legislation_Flow_Status == (int)LegislationFlowStatusEnum.PartiallyCompleted || rowItem.Legislation_Flow_Status == (int)LegislationFlowStatusEnum.New || rowItem.Legislation_Flow_Status == (int)LegislationFlowStatusEnum.NeedModification || rowItem.Legislation_Flow_Status == (int)LegislationFlowStatusEnum.Unpublished)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                          class="editIcon"
+                                                          Icon="mode"
+                                                          Title="@translationState.Translate("Edit")"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => EditLegalLegalLegislation(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.LDS.Documents.List.Delete").Count() > 0)
+                                            {
+                                                @if (rowItem.Legislation_Flow_Status == (int)LegislationFlowStatusEnum.PartiallyCompleted || rowItem.Legislation_Flow_Status == (int)LegislationFlowStatusEnum.New || rowItem.Legislation_Flow_Status == (int)LegislationFlowStatusEnum.NeedModification || rowItem.Legislation_Flow_Status == (int)LegislationFlowStatusEnum.Unpublished)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                                  class="deleteIcon"
+                                                                  Icon="delete_outline"
+                                                                  Title="@translationState.Translate("delete")"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => DeleteLegislation(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                            }
+                                        }
+
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LegalLegislationsVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Legislation_Type_En" : "Legislation_Type_Ar") Title="@translationState.Translate("Legislation_Type")" />
+                                <RadzenDataGridColumn TItem="LegalLegislationsVM" Property="Legislation_Number" Title="@translationState.Translate("Legislation_Number")" />
+                                <RadzenDataGridColumn TItem="LegalLegislationsVM" Property="LegislationTitle" Title="@translationState.Translate("Subject")" />
+                                @* <RadzenDataGridColumn TItem="LegalLegislationsVM" Width="200px" Property="IssueDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Legislation_Issue_Date")" />
+                            <RadzenDataGridColumn TItem="LegalLegislationsVM" Width="200px" Property="StartDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Legislation_Start_Date")" />*@
+                                <RadzenDataGridColumn TItem="LegalLegislationsVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Legislation_Status_En" : "Legislation_Status_Ar") Title="@translationState.Translate("Legislation_Status")" />
+                                <RadzenDataGridColumn TItem="LegalLegislationsVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Legislation_Flow_Status_En" : "Legislation_Flow_Status_Ar") Title="@translationState.Translate("Legislation_Flow_Status")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+    @*Advance search Window*@
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Legislation_Number")" Style="display:block;" />
+                    <TelerikTextBox Placeholder="@translationState.Translate("Legislation_Number")" @bind-Value="@advanceSearchVM.Legislation_Number" Name="Legislation_Number" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Legislation_Title")" Style="display:block;" />
+                    <TelerikTextBox Placeholder="@translationState.Translate("Legislation_Title")" @bind-Value="@advanceSearchVM.LegislationTitle" Name="LegislationTitle" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Legislation_Type")" Component="Legislation_Type" />
+                    <RadzenDropDown Data="@legislationTypes" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchVM.Legislation_Type" Name="Legislation_Type" />
+                </div>
+            </div>
+            <div class="row" Style="margin-top:10px;">
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Legislation_Status")" Component="Legislation_Status" />
+                    <RadzenDropDown Data="@statuses" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchVM.Legislation_Status" Name="Legislation_Status" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("StartFrom")" Style="display:block;" />
+                    <TelerikDatePicker Format="dd/MM/yyyy" Placeholder="@translationState.Translate("StartFrom")" @bind-Value="@advanceSearchVM.Start_From" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("EndTo")" Style="display:block;" />
+                    <TelerikDatePicker Format="dd/MM/yyyy" Placeholder="@translationState.Translate("EndTo")" @bind-Value="@advanceSearchVM.End_To" />
+                </div>
+            </div>
+            <div class="row justify-content-end pt-3">
+                <div class="col-md-12 popup-buttons-alignment">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+

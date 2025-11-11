@@ -1,0 +1,596 @@
+﻿@page "/Login"
+@page "/"
+
+@using Blazored.LocalStorage
+@using FATWA_ADMIN.Services.UserManagement
+@using FATWA_DOMAIN.Interfaces
+@using FATWA_DOMAIN.Models
+@using FATWA_ADMIN.Data
+@using FATWA_ADMIN.Services
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_GENERAL.Helper
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using System.Net.Http.Headers
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using Telerik.Blazor.Components
+@using static FATWA_GENERAL.Helper.Response
+@using static FATWA_GENERAL.Helper.Request
+@inject LoginState loginState
+@inject TranslationState translationState
+@inject IConfiguration _config
+@inject ILocalStorageService BrowserStorage
+@inject NavigationManager navManager
+@inject RoleService roleService
+@using Radzen
+@using Radzen.Blazor
+@inject IJSRuntime JsInterop
+@using System.Net;
+@using System.Net.Mail;
+@using static FATWA_GENERAL.Helper.Enum
+@inject SystemConfigurationService _systemConfigurationServices;
+
+
+@*<History Author = 'Zain Ul Islam' Date='2022-08-03' Version="1.0" Branch="master"> Delete or InActive User should not Login and Error Message made dynamic</History> *@
+
+<TelerikNotification @ref="@notificationComponent" />
+
+@if (!ValidSubmit)
+{
+    
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 pt-4 pb-5 px-3 px-lg-5">
+                <div class="session">
+
+                    <div class="left">
+                        <svg enable-background="new 0 0 300 302.5" version="1.1" viewBox="0 0 300 302.5" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+                            <style type="text/css">
+                                .st01 {
+                                    fill: #fff;
+                                }
+                            </style>
+                          <path class="st01" d="m126 302.2c-2.3 0.7-5.7 0.2-7.7-1.2l-105-71.6c-2-1.3-3.7-4.4-3.9-6.7l-9.4-126.7c-0.2-2.4 1.1-5.6 2.8-7.2l93.2-86.4c1.7-1.6 5.1-2.6 7.4-2.3l125.6 18.9c2.3 0.4 5.2 2.3 6.4 4.4l63.5 110.1c1.2 2 1.4 5.5 0.6 7.7l-46.4 118.3c-0.9 2.2-3.4 4.6-5.7 5.3l-121.4 37.4zm63.4-102.7c2.3-0.7 4.8-3.1 5.7-5.3l19.9-50.8c0.9-2.2 0.6-5.7-0.6-7.7l-27.3-47.3c-1.2-2-4.1-4-6.4-4.4l-53.9-8c-2.3-0.4-5.7 0.7-7.4 2.3l-40 37.1c-1.7 1.6-3 4.9-2.8 7.2l4.1 54.4c0.2 2.4 1.9 5.4 3.9 6.7l45.1 30.8c2 1.3 5.4 1.9 7.7 1.2l52-16.2z"></path>
+                        </svg>
+                    </div>
+                    <TelerikForm Model="@identityUser"
+                             OnValidSubmit="@HandleValidSubmit"
+                             OnInvalidSubmit="@HandleInvalidSubmit" Class="log-in">
+                        <FormValidation>
+                            <DataAnnotationsValidator></DataAnnotationsValidator>
+                        </FormValidation>
+                        <FormItems>
+                            <h3>FATWA</h3>
+                            <h4>Admin Panel</h4>
+                            <p>مرحبا بعودتك! تسجيل الدخول إلى حسابك.</p>
+                            <FormItem Field="@nameof(IdentityRequest.Email)">
+                                <Template>
+                                    <div class="floating-label">
+                                        <TelerikTextBox Id="mail" @bind-Value="@identityUser.Email" InputMode="email" PlaceHolder="example@domain.com"></TelerikTextBox>
+                                        <TelerikValidationMessage For="@(() => identityUser.Email)"></TelerikValidationMessage>
+                                        <div class="icon">
+                                            <svg enable-background="new 0 0 100 100" version="1.1" viewBox="0 0 100 100" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+                                                <style type="text/css">
+                                                    .st0 {
+                                                        fill: none;
+                                                    }
+                                                </style>
+                                                <g transform="translate(0 -952.36)">
+                                                <path d="m17.5 977c-1.3 0-2.4 1.1-2.4 2.4v45.9c0 1.3 1.1 2.4 2.4 2.4h64.9c1.3 0 2.4-1.1 2.4-2.4v-45.9c0-1.3-1.1-2.4-2.4-2.4h-64.9zm2.4 4.8h60.2v1.2l-30.1 22-30.1-22v-1.2zm0 7l28.7 21c0.8 0.6 2 0.6 2.8 0l28.7-21v34.1h-60.2v-34.1z"></path>
+                                                            </g>
+                                                <rect class="st0" width="100" height="100"></rect>
+                                             </svg>
+                                            <label for="email" style="top:5px">بريد الالكتروني:</label>
+                                        </div>
+                                    </div>
+                                </Template>
+                            </FormItem>
+                            <FormItem Field="@nameof(IdentityRequest.Password)">
+                                <Template>
+                                    <div class="floating-label">
+                                        <TelerikTextBox Id="pass" @bind-Value="@identityUser.Password" Password="true"></TelerikTextBox>
+                                        <TelerikValidationMessage For="@(() => identityUser.Password)"></TelerikValidationMessage>
+                                        <div class="icon">
+                                            <svg enable-background="new 0 0 24 24" version="1.1" viewBox="0 0 24 24" xml:space="preserve" xmlns="http://www.w3.org/2000/svg">
+                                                <style type="text/css">
+                                                    .st0 {
+                                                        fill: none;
+                                                    }
+
+                                                    .st1 {
+                                                        fill: #010101;
+                                                    }
+                                                 </style>
+                                                <rect class="st0" width="24" height="24"></rect>
+                                                <path class="st1" d="M19,21H5V9h14V21z M6,20h12V10H6V20z"></path>
+                                                <path class="st1" d="M16.5,10h-1V7c0-1.9-1.6-3.5-3.5-3.5S8.5,5.1,8.5,7v3h-1V7c0-2.5,2-4.5,4.5-4.5s4.5,2,4.5,4.5V10z"></path>
+                                                <path class="st1" d="m12 16.5c-0.8 0-1.5-0.7-1.5-1.5s0.7-1.5 1.5-1.5 1.5 0.7 1.5 1.5-0.7 1.5-1.5 1.5zm0-2c-0.3 0-0.5 0.2-0.5 0.5s0.2 0.5 0.5 0.5 0.5-0.2 0.5-0.5-0.2-0.5-0.5-0.5z"></path>
+                                            </svg>
+                                            <label for="password" style="top:8px">كلمة المرور:</label>
+                                        </div>
+
+                                    </div>
+                                </Template>
+                            </FormItem>
+                            <div class="demo-alert demo-alert-error" role="alert" style="display:@isLoginFailed">@errorMessage</div>
+                        </FormItems>
+                        <FormButtons>
+                            <TelerikButton ButtonType="Telerik.Blazor.ButtonType.Submit" ThemeColor="@(ThemeConstants.Button.ThemeColor.Primary)">تسجيل الدخول</TelerikButton>
+                            @*<TelerikButton ButtonType="ButtonType.Button" OnClick="@OnCancelAddUser">إلغاء</TelerikButton>*@
+                        </FormButtons>
+                    </TelerikForm>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+}
+
+<TelerikLoaderContainer Visible="@LoaderContainerVisible" ThemeColor="@ThemeColor" OverlayThemeColor="@OverlayThemeColor"
+                            LoaderPosition="@SelectedLoaderPosition"
+                            Text="@LoaderContainerText"
+                            LoaderType="@SelectedLoaderType"></TelerikLoaderContainer>
+
+@code {
+    string SelectedLoaderSize { get; set; } = ThemeConstants.Loader.Size.Medium;
+    string ThemeColor { get; set; } = "primary";
+    string OverlayThemeColor { get; set; } = "dark";
+    string LoaderContainerText { get; set; }
+    string isLoginFailed { get; set; } = "none";
+    string loginFailedMessage { get; set; } = "";
+    string errorMessage = "";
+
+    LoaderType SelectedLoaderType { get; set; } = LoaderType.InfiniteSpinner;
+    LoaderPosition SelectedLoaderPosition { get; set; } = LoaderPosition.Top;
+
+    public bool LoaderContainerVisible { get; set; } = false;
+    TelerikNotification notificationComponent { get; set; }
+    IdentityRequest identityUser = new IdentityRequest();
+
+    public bool ValidSubmit { get; set; } = true;
+
+    #region Login  validate
+    User UserNameResult { get; set; } = new User();
+    SystemConfiguration UserGroupDetail { get; set; } = new SystemConfiguration();
+    string InvalidLoginAttemptsCount = null;
+    string WrongPasswordAttemptsCount = null;
+    IErrorLogs error;
+    IProcessLogs process;
+    readonly Logging _logging = new Logging(error, process);
+    #endregion
+
+    protected override void OnParametersSet()
+    {
+        ValidSubmit = true;
+        if (loginState.IsLoggedIn)
+        {
+            navManager.NavigateTo("Index");
+        }
+        else{
+            ValidSubmit = false;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        LoaderContainerText = translationState.Translate("Loading");
+        isLoginFailed = "none";
+        ValidSubmit = false;
+    }
+
+    async void HandleValidSubmit()
+    {
+        isLoginFailed = "none";
+        LoaderContainerVisible = true;
+        ValidSubmit = true;
+        await OnLogin();
+        StateHasChanged();
+    }
+
+
+    void HandleInvalidSubmit()
+    {
+        ValidSubmit = false;
+    }
+
+    //<History Author = 'Hassan Abbas' Date='2022-02-28' Version="1.0" Branch="master"> Initialize Login State, Claims and Tokens on Login</History>
+    //<History Author = 'Hassan Abbas' Date='2022-03-15' Version="2.0" Branch="master"> Change body styling</History>
+    //<History Author = 'Hassan Abbas' Date='2022-03-16' Version="3.0" Branch="master"> Added Loader on Login and changed events hierarchy for smooth layout change, keep Username on login state</History>
+    //<History Author = 'Hassan Abbas' Date='2022-07-06' Version="3.0" Branch="master"> Added User in browser storage and 'initializeTimerOnLogin' on login to track inactivity for session out and changes for Service Injection as Scoped</History>
+    //<History Author = 'Hassan Abbas' Date='2022-07-09' Version="3.0" Branch="master"> populate translation list in new state which is Translation State</History>
+    //<History Author = 'Aqeel Altaf' Date='2022-08-09' Version="3.0" Branch="master"> Add security stamp for force logout</History>
+    //<History Author = 'Umer Zaman' Date='2022-08-16' Version="3.0" Branch="master"> handle system configuration impletementation</History>
+    protected async Task OnLogin()
+    {
+        var user = (await BrowserStorage.GetItemAsync<string>("User")) ?? "";
+        if(String.IsNullOrEmpty(user))
+        {
+            var response = await new HttpClient().PostAsJsonAsync(_config["api_url"] + "/Account/Login", identityUser);
+            if (response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadFromJsonAsync<UserSucessResponse>();
+                await BrowserStorage.SetItemAsync("Token", data.Token);
+                await BrowserStorage.SetItemAsync("RefreshToken", data.RefreshToken);
+                await BrowserStorage.SetItemAsync("User", identityUser.Email);
+                await BrowserStorage.SetItemAsync("SecurityStamp", data.UserDetail.SecurityStamp);
+                await BrowserStorage.SetItemAsync("UserDetail", data.UserDetail);
+
+                var translationsResponse = await roleService.GetAllTranslations();
+                if (translationsResponse.IsSuccessStatusCode)
+                {
+                    translationState.TranslationList = (List<TranslationSucessResponse>)translationsResponse.ResultData;
+                }
+                else
+                {
+                    translationState.TranslationList = new List<TranslationSucessResponse>();
+                }
+
+                loginState.SetLoginAndClaims(data.User.UserName, data.UserDetail, true, true, data.UserClaims, data.Token, data.RefreshToken, "LoginForm");
+                LoaderContainerVisible = false;
+                await JsInterop.InvokeVoidAsync("initializeTimerOnLogin");
+                await JsInterop.InvokeVoidAsync("RevertBodyStyle");
+                navManager.NavigateTo("Index");
+
+                 _logging.AddProcessLog(
+                   "Successfully valid login attempts",
+                   identityUser.Email,
+                   "user login successfully",
+                   Environment.MachineName.ToString(),
+                   "user login successfully",
+                   (int)ProcessLogEnum.Processed,
+                   (int)ProcessLogEnum.Processed);
+            }
+            else
+            {
+                #region System Configuration Login Validations
+                var responseUser = await _systemConfigurationServices.GetUserDetailByUsingEmail(identityUser.Email);
+                if (responseUser.StatusCode == System.Net.HttpStatusCode.NoContent)
+                {
+                     UserNameResult = null;
+                }
+                else if(responseUser.IsSuccessStatusCode)
+                {
+                    UserNameResult = (User)responseUser.ResultData;
+                }
+                else
+                {
+                    UserNameResult = null;
+                }
+                if (UserNameResult == null)
+                {
+                    InvalidLoginAttemptsCount = (InvalidLoginAttemptsCount + 1).ToString();
+
+                   _logging.AddProcessLog(
+                   "Invalid login attempts",
+                   identityUser.Email,
+                   "Unable to login due to invalid attempts",
+                   Environment.MachineName.ToString(),
+                   InvalidLoginAttemptsCount,
+                   (int)ProcessLogEnum.Processed,
+                   (int)ProcessLogEnum.Processed);
+                }
+                else
+                {
+                    WrongPasswordAttemptsCount = (WrongPasswordAttemptsCount + 1).ToString();
+
+                    _logging.AddProcessLog(
+                    "Wrong password attempts",
+                    identityUser.Email,
+                    "Unable to login due to wrong password attempts",
+                    Environment.MachineName.ToString(),
+                    WrongPasswordAttemptsCount,
+                    (int)ProcessLogEnum.Processed,
+                    (int)ProcessLogEnum.Processed);
+
+                    var responseGroup = await _systemConfigurationServices.GetUserGroupDetailByUsingGroupId(UserNameResult.GroupId);
+                    if (responseGroup.StatusCode == System.Net.HttpStatusCode.NoContent)
+                    {
+                        UserGroupDetail = null;
+                    }
+                    else if(responseGroup.IsSuccessStatusCode)
+                    {
+                        UserGroupDetail = (SystemConfiguration)responseGroup.ResultData;
+                    }
+                    else
+                    {
+                        UserGroupDetail = null;
+                    }
+                    if (UserGroupDetail != null)
+                    {
+                        if (InvalidLoginAttemptsCount == UserGroupDetail.Invalid_Login_Attempts)
+                        { }
+                        if (WrongPasswordAttemptsCount == UserGroupDetail.Wrong_Password_Attempts)
+                        { }
+                    }
+                }
+                #endregion
+                LoaderContainerVisible = false;
+                ValidSubmit = false;
+                var data = await response.Content.ReadFromJsonAsync<RequestFailedResponse>();
+                 if (data != null)
+                { 
+                    errorMessage = data.Errors.FirstOrDefault();
+
+                    isLoginFailed = "block";
+                    loginFailedMessage = errorMessage;
+                } 
+            }
+        }
+        else
+        {
+            await JsInterop.InvokeVoidAsync("RevertBodyStyle");
+            LoaderContainerVisible = false;
+            navManager.NavigateTo("Index");
+        }
+    }
+
+}
+
+<style>
+    body {
+        height: 100vh !important;
+        width: 100vw !important;
+        margin: 0 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #f3f2f2 !important
+    }
+
+    .rz-layout {
+        display: block !important;
+        height: unset !important;
+    }
+
+    * {
+        font-family: -apple-system, BlinkMacSystemFont, "San Francisco", Helvetica, Arial, sans-serif;
+        font-weight: 300;
+        margin: 0;
+    }
+
+    h4 {
+        font-size: 24px;
+        font-weight: 600;
+        color: #000;
+        opacity: .85;
+    }
+
+    label {
+        font-size: 12.5px;
+        color: #000;
+        opacity: .8;
+        font-weight: 400;
+    }
+
+    form {
+        padding: 40px 30px;
+        background: #fefefe;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-bottom: 20px;
+        width: 300px;
+        direction: rtl; <!--arabic UI-->
+    }
+
+    h4 {
+        margin-bottom: 20px;
+        color: rgba(#000, .5);
+    }
+
+    span {
+        color: rgba(#000, 1);
+        font-weight: 700;
+    }
+
+
+    p {
+        line-height: 155%;
+        margin-bottom: 5px;
+        font-size: 14px;
+        color: #000;
+        opacity: .65;
+        font-weight: 400;
+        max-width: 200px;
+        margin-bottom: 40px;
+    }
+
+    a.discrete {
+        color: rgba(#000, .4);
+        font-size: 14px;
+        border-bottom: solid 1px rgba(#000, .0);
+        padding-bottom: 4px;
+        margin-left: auto;
+        font-weight: 300;
+        transition: all .3s ease;
+        margin-top: 40px;
+    }
+
+    a:hover {
+        border-bottom: solid 1px rgba(#000, .2);
+    }
+
+
+    button {
+        -webkit-appearance: none;
+        width: auto;
+        min-width: 100px;
+        border-radius: 24px;
+        text-align: center;
+        padding: 15px 40px;
+        margin-top: 5px;
+        background-color: saturate(rgb(182,157,230), 30%);
+        color: #fff;
+        font-size: 14px;
+        margin-left: auto;
+        font-weight: 500;
+        box-shadow: 0px 2px 6px -1px rgba(0,0,0,.13);
+        border: none;
+        transition: all .3s ease;
+        outline: 0;
+    }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 2px 6px -1px rgba(rgb(182,157,230), .65);
+        }
+
+        button:active {
+            transform: scale(.99);
+        }
+
+    input {
+        font-size: 16px;
+        padding: 20px 0px;
+        height: 56px;
+        border: none;
+        border-bottom: solid 1px rgba(0,0,0,.1);
+        background: #fff;
+        width: 280px;
+        box-sizing: border-box;
+        transition: all .3s linear;
+        color: #000;
+        font-weight: 400;
+        -webkit-appearance: none;
+    }
+
+        input:focus {
+            border-bottom: solid 1px rgb(182,157,230);
+            outline: 0;
+            box-shadow: 0 2px 6px -8px rgba(rgb(182,157,230), .45);
+        }
+
+
+
+    .floating-label {
+        position: relative;
+        margin-bottom: 25px;
+        width: 100%;
+    }
+
+    label {
+        position: absolute;
+        top: calc(50% - 7px);
+        left: 0;
+        opacity: 0;
+        transition: all .3s ease;
+        padding-left: 44px;
+    }
+
+    input {
+        width: calc(100% - 44px);
+        margin-left: auto;
+        display: flex;
+    }
+
+    .icon {
+        position: absolute;
+        top: -25px;
+        @*left: 1px;<!--english UI-->*@ right: 1px; <!--
+        arabic UI--> height: 11px;
+        width: 30px;
+        display: flex;
+    }
+
+    svg {
+        height: 30px;
+        width: 30px;
+        margin: auto;
+        opacity: .15;
+        transition: all .3s ease;
+    }
+
+    path {
+        transition: all .3s ease;
+    }
+
+    input:not(:placeholder-shown) {
+        padding: 28px 0px 12px 0px;
+    }
+
+        input:not(:placeholder-shown) + label {
+            transform: translateY(-10px);
+            opacity: .7;
+        }
+
+    input:valid:not(:placeholder-shown) + label + .icon svg {
+        opacity: 1;
+    }
+
+        input:valid:not(:placeholder-shown) + label + .icon svg path {
+            fill: rgb(182,157,230);
+        }
+
+    input:not(:valid):not(:focus) + label + .icon {
+        animation-name: shake-shake;
+        animation-duration: .3s;
+    }
+
+    .session {
+        display: flex;
+        flex-direction: row;
+        width: auto;
+        height: auto;
+        margin: auto auto;
+        background: #ffffff;
+        border-radius: 4px;
+        box-shadow: 0px 2px 6px -1px rgba(0,0,0,.12);
+        direction: ltr;
+    }
+
+    .left {
+        width: 220px;
+        height: auto;
+        min-height: 100%;
+        position: relative;
+        background-image: url("images/admin.PNG");
+        background-size: cover;
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+    }
+
+    svg {
+        height: 40px;
+        width: auto;
+        margin: 20px;
+    }
+
+    .floating-label .icon svg {
+        height: 30px;
+        width: 30px;
+        margin: auto;
+        opacity: 0.15;
+        transition: all 0.3s ease;
+    }
+
+    .floating-label label {
+        position: absolute;
+        top: 9px;
+        @*left: 0;<!--english UI-->*@ 
+        right: 0; <!--arabic UI--> 
+        opacity: 1;
+        transition: all 0.3s ease;
+        @*padding-left: 33px;<!--english UI-->*@ 
+        padding-right: 33px; <!--arabic UI--> 
+        z-index: 22;
+        text-align: right; <!--arabic UI--> 
+        min-width:200px;
+    }
+
+    .k-input {
+        margin-top: 5px !important;
+    }
+
+    .k-input-inner {
+        height: 40px !important;
+    }
+
+    .k-loader-container, .k-loader-container-overlay{
+        display:contents!important;
+    }
+
+    .k-loader-container-overlay{
+        opacity:0 !important;
+    }
+</style>

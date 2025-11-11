@@ -1,0 +1,35 @@
+﻿@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+<div class="row">
+    <div class="col-12">
+        <RadzenTemplateForm TItem="AddEmployeeVM" Data="@EmployeeVM" Submit="@SaveEmployeeRole">
+            <ChildContent>
+                <RadzenLabel Text="@translationState.Translate("Assign_Role")" />
+                <RadzenDropDown Data="SystemRoles"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowClear="true"
+                                Placeholder="@translationState.Translate("Select")"
+                @bind-Value="EmployeeVM.RoleId"
+                                ValueProperty="Id"
+                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name" : "NameAr")"
+                                Name="Roles"
+                                Disabled="IsUserHasAnyTask"
+                                Style="width: 100%;" />
+                <RadzenRequiredValidator DefaultValue="0" Component="Roles" Text="@translationState.Translate("Required_Field")" />
+                <RadzenHeading Visible="@IsUserHasAnyTask" Size="H6" Text="@translationState.Translate("Role_Cannot_Be_Edited_Text")" Style="color: red; font-size: 14px; margin-bottom: 20px;" />
+                <div class="popup-buttons-alignment pt-3">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  Text="@(CurrentRoleId == null? translationState.Translate("Submit"): translationState.Translate("Update"))"
+                                  Disabled="IsUserHasAnyTask" />
+                    <RadzenButton Text="@translationState.Translate("Cancel")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@ButtonCancelClick" />
+                </div>
+            </ChildContent>
+        </RadzenTemplateForm>
+    </div>
+</div>
+
+

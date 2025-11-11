@@ -1,0 +1,17 @@
+﻿@page "/legalprinciple-inreview"
+@layout MainLayout
+@using static FATWA_DOMAIN.Enums.LegalPrinciple.LegalPrincipleEnum;
+
+
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LPS.Principles.Review").Count() > 0)
+{
+    <LLSLegalPrincipleListComponent 
+        FlowStatusId="(int)PrincipleFlowStatusEnum.InReview"
+        UserId="@(loginState.UserDetail.UserId)">
+    </LLSLegalPrincipleListComponent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} 

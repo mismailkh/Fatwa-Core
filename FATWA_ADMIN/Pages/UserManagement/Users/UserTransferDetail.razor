@@ -1,0 +1,50 @@
+﻿@page "/User-Transfer-Detail/{UserId}"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@layout MainLayout
+<RadzenContent Container="main">
+ <ChildContent>
+    <RadzenHeading Size="H1" Text="@translationState.Translate("User_Transfer_History")"></RadzenHeading>
+      <div class="row">
+         <div class="col-md-12 p-3">
+            <RadzenCard>
+               <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/users" Text="@translationState.Translate("Users")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("User_Detail_View_Title")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("User_Transfer_History")" />
+                    </RadzenBreadCrumb>
+                </RadzenCard>
+            </div>
+            <div class="col-md-12">
+                <RadzenCard>
+                    <div class="row">
+                        <div class="col-md-6">
+                        </div>
+                        <div class="col-md-6 text-right-custom-gridcolumn">
+                       </div>
+                    </div>
+                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                    Width="100%"
+                                    @ref="grid0"
+                                    AllowFiltering="false"
+                                    FilterMode="Radzen.FilterMode.Advanced"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    Data="@getUserTransferDetailByIdResult"
+                                    TItem="UserTransferVM"
+                                    PageSize="@loginState.PageSize"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    Count="@count">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="UserTransferVM" Property="UserName" Title="@translationState.Translate("User_Name")"><FooterTemplate><b>@translationState.Translate("Total_Records")</b> @count</FooterTemplate></RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="UserTransferVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CurrentDepartmentNameEn" : "CurrentDepartmentNameAr") Title="@translationState.Translate("Transfer_CurrentDept")" />  
+                            <RadzenDataGridColumn TItem="UserTransferVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "PreviousDepartmentNameEn" :  "PreviousDepartmentNameAr") Title="@translationState.Translate("Transfer_NextDept")" />
+                            <RadzenDataGridColumn TItem="UserTransferVM" Property="DateOfJoining" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Transfer_Start_Date")" />
+                            <RadzenDataGridColumn TItem="UserTransferVM" Property="TranferValidityDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Transfer_End_Date")" />
+                        </Columns>
+                    </RadzenDataGrid>
+                </RadzenCard>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

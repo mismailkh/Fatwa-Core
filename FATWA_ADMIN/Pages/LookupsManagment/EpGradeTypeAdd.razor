@@ -1,0 +1,51 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@layout MainLayout
+
+@*< History Author = 'Ammaar Naveed' Date = '2024-06-04' Version = "1.0" Branch = "master"> UI fixations in pages and dialogs</History>*@
+
+
+<RadzenTemplateForm Data="@EpGradeType" Visible="@(EpGradeType != null)" TItem="GradeType" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("English_Name") + " *")" />
+                <RadzenTextBox Placeholder="@translationState.Translate("English_Name")" @bind-Value="@EpGradeType.Name_En" Name="Name_En" />
+                <RadzenRegexValidator Component="Name_En" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                <RadzenRequiredValidator Component="Name_En" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                <RadzenLengthValidator Component="Name_En" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+            </div>
+
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Arabic_Name") +" *")" />
+                <RadzenTextBox Placeholder="@translationState.Translate("Arabic_Name")" @bind-Value="@EpGradeType.Name_Ar" Name="Name_Ar" />
+                <RadzenRegexValidator Component="Name_Ar" Text="@translationState.Translate("Only_Arabic_Characters_Are_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                <RadzenRequiredValidator Component="Name_Ar" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                <RadzenLengthValidator Component="Name_Ar" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+            </div>
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Department") + " *")" />
+                <RadzenDropDown Data="@Departments"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowClear="true"
+                                ValueProperty="Id"
+                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                Placeholder="@translationState.Translate("Select")"
+                                Style="display:block;"
+                @bind-Value="@EpGradeType.DepartmentId"
+                                Name="Department" />
+                <RadzenRequiredValidator DefaultValue="0" Component="Department" Text="@translationState.Translate("Required_Field")" />
+            </div>
+
+            <div class="popup-buttons-alignment">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                              Style="margin-left: 10px; margin-right: 10px;"
+                              ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")" />
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@Button2Click" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

@@ -1,0 +1,304 @@
+﻿@page "/AmsProcess-Details/{ProcessId}"
+
+@using FATWA_DOMAIN.Models.AdminModels.AutomationMonitoring
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.AutomationMonitoring;
+<PageTitle>@translationState.Translate("AMSProcess_Details")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.AutoMonInterface"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Path="/process-list" Text="@translationState.Translate("Process_List")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("AMSProcess_Details")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" Text="@translationState.Translate("AMSProcess_Details")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+        </div>
+    </div>
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <RadzenCard Style="border-radius:8px;">
+                <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+                    <div class="col-12">
+                        <div class="row no-gutters">
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Process_Code"):</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>
+                                        @aMSProcesses?.ProcessCode
+                                    </h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Name"):</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@aMSProcesses?.ProcessName</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Status"):</h3>
+                                </div>
+                                <div class="detailContent">
+                                    @if (@aMSProcesses.IsActive)
+                                    {
+                                        <h3>@translationState.Translate("Active")</h3>
+                                    }
+                                    else
+                                    {
+                                        <h3>@translationState.Translate("Inactive")</h3>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Description"):</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@aMSProcesses.Description</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="col-md-12">
+                    <RadzenAccordion Multiple="true">
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Resources_List")" Selected="true">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <RadzenDataGrid Width="100%"
+                                        @ref="grid"
+                                                        ExpandMode="DataGridExpandMode.Single"
+                                                        SelectionMode="DataGridSelectionMode.Multiple"
+                                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                                        RowExpand="@ExpandResources"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        Count="@(FilteredgetAMSResourcesVM != null ? FilteredgetAMSResourcesVM.Count() : 0)"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        AllowFiltering="false"
+                                                        Data="@FilteredgetAMSResourcesVM"
+                                                        TItem="AMSResourcesVM"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true">
+                                            <Template Context="file">
+                                                <RadzenCard class="bg-light">
+                                                    <div class="row pb-2">
+                                                        <div class="col-md-4">
+                                                            <h2 class="formHeading">@translationState.Translate("Session_logs")</h2>
+                                                            <div class="divider"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row pb-2">
+                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                            <div class="tableContent table-responsive">
+                                                                <RadzenDataGrid @ref="SessionLogsGrid"
+                                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                                AllowPaging="true"
+                                                                                AllowSorting="true"
+                                                                                AllowFiltering="false"
+                                                                                Count="@(FilteredSessionLogs != null ? FilteredSessionLogs.Count() : 0)"
+                                                                                Data="@FilteredSessionLogs"
+                                                                                TItem="AMSSessionLogsVM"
+                                                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                                                ShowPagingSummary="true">
+
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn TItem="AMSSessionLogsVM" Width="45px" FormatString="{0:dd/MM/yyyy hh:mm tt}" Property="DateUpdated" Title="@translationState.Translate("Event_Time")" />
+                                                                        <RadzenDataGridColumn TItem="AMSSessionLogsVM" Width="60px" Property="LogType" Title="@translationState.Translate("Activity")" />
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </RadzenCard>
+                                            </Template>
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="AMSResourcesVM" Width="120px" Property="ResourceName" Title="@translationState.Translate("Resource_Name")" />
+                                                <RadzenDataGridColumn TItem="AMSResourcesVM" Width="260px" FormatString="{0:dd/MM/yyyy}" Property="CurrentSessionDate" Title="@translationState.Translate("Current_Session_Date")" />
+                                                <RadzenDataGridColumn TItem="AMSResourcesVM" Width="360px" Title="@translationState.Translate("Status")">
+                                                    <Template Context="data">
+                                                        <span style="color:@(data.StatusNameEn == "Working" ? "green" : "black")">
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? data.StatusNameEn : data.StatusNameAr)
+                                                        </span>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                            <RadzenAccordionItem Text="@translationState.Translate("Queue_XItem_List")" Selected="true">
+                                <div class="row">
+                                    <div class="col-md-12">
+
+                                        <RadzenDataGrid @ref="QueueDetailsLitGrid"
+                                                        ExpandMode="DataGridExpandMode.Single"
+                                                        SelectionMode="DataGridSelectionMode.Multiple"
+                                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        Count="@(FilteredgetAMSQueueListVM != null ? FilteredgetAMSQueueListVM.Count() : 0)"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        RowExpand="@ExpandQueue"
+                                                        AllowFiltering="false"
+                                                        Data="@FilteredgetAMSQueueListVM"
+                                                        TItem="AMSQueueListVM"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true">
+                                            <Template Context="file">
+                                                <RadzenCard class="bg-light">
+                                                    <div class="row pb-2">
+                                                        <div class="col-md-4">
+                                                            <h2 class="formHeading">@translationState.Translate("Queue_Item_List")</h2>
+                                                            <div class="divider"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row 6">
+                                                        <div class="col-3 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3> @translationState.Translate("Pending_Item"):</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@TotalPendingItems</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-3 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3> @translationState.Translate("Total_Queue_items"):</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@TotalItems</h3>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row pb-2">
+                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                            <div class="tableContent table-responsive">
+                                                                <RadzenDataGrid @ref="QueueGrid"
+                                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                                Count="@(FilteredQueue != null ? FilteredQueue.Count() : 0)"
+                                                                                AllowPaging="true"
+                                                                                AllowSorting="true"
+                                                                                AllowFiltering="false"
+                                                                                Data="@FilteredQueue"
+                                                                                TItem="AutomationMonitoringQueueVM"
+                                                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                                                ShowPagingSummary="true">
+
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="25px" FormatString="{0:dd/MM/yyyy}" Property="CreatedDate" Title="@translationState.Translate("Created_Date")" />
+                                                                        <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="34px" Title="@translationState.Translate("New_ItemAdded")">
+                                                                            <Template Context="rowItem">
+                                                                                @if (rowItem.ItemCount != 0 && rowItem.ItemCount != null)
+                                                                                {
+                                                                                    <a style="cursor: pointer; color: green; text-decoration: underline;" @onclick="() => ViewNewPendingItemList(rowItem)">@((rowItem.ItemCount?.ToString() ?? "-"))</a>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <span>-</span>
+                                                                                }
+
+                                                                            </Template>
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="34px" Title="@translationState.Translate("Completed_Items")">
+                                                                            <Template Context="rowItem">
+                                                                                @if (rowItem.CompletedItems != 0 && rowItem.CompletedItems != null)
+                                                                                {
+                                                                                    <a style="cursor: pointer; color: green; text-decoration: underline;" @onclick="() => ViewCompletedItemList(rowItem)">@((rowItem.CompletedItems?.ToString() ?? "-"))</a>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <span>-</span>
+                                                                                }
+
+                                                                            </Template>
+                                                                        </RadzenDataGridColumn>
+
+                                                                        <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="32px" Title="@translationState.Translate("Exception_Items")">
+                                                                            <Template Context="rowItem">
+                                                                                @if (rowItem.ExceptionItems != 0 && rowItem.ExceptionItems != null)
+                                                                                {
+                                                                                    <a style="cursor: pointer; color: red; text-decoration: underline;" @onclick="() => ViewExceptionItemList(rowItem)">@((rowItem.ExceptionItems?.ToString() ?? "-"))</a>
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    <span>-</span>
+                                                                                }
+                                                                            </Template>
+                                                                        </RadzenDataGridColumn>
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </RadzenCard>
+                                            </Template>
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="AMSQueueListVM" Property="QueueName" Title="@translationState.Translate("Queue_Name")">
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                </div>
+            </RadzenCard>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

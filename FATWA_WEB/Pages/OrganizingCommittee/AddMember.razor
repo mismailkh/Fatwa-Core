@@ -1,0 +1,81 @@
+﻿@page "/add-member"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel.OrganizingCommitteeVMs
+@using static FATWA_DOMAIN.Enums.OrganizingCommittee.OrganizingCommitteeEnum
+
+<RadzenCard class="m-1">
+    <div class="row">
+        @if (update == false)
+        {
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Sectors") + " *")" Component="SectorTypes" />
+                    <RadzenDropDown Data="@operatingSectorTypes" AllowClear="true"
+                                    Name="SectorTypes"
+                                    ValueProperty="Id"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    Style="width:100%;max-width:100%;"
+                                    @bind-Value="@SectorTypeId"
+                                    Change="OnChangeSectorType"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar" )"></RadzenDropDown>
+                </div>
+            </div>
+        }
+        <div class="col-12 col-sm-12  col-md-12 col-lg-12 col-xl-12">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Member_Name") + " *")" Component="User" />
+                <RadzenDropDown Data="@(update ? committeeMembers : newUsers)" AllowClear="true"
+                                Name="User"
+                                ValueProperty="@(update ? "MemberId" : "UserId")" AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                Placeholder="@translationState.Translate("Select")"
+                                Disabled="@update"
+                                Style="width:100%;max-width:100%;"
+                                @bind-Value="@committeeMembersVm.MemberId"
+                                TextProperty="@(!update?(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar" ):(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "MemeberNameEn" : "MemeberNameAr" ))">
+                    <Template Context="data">
+                        @{
+                            var lastActivityDate = !update ? (data as CommitteeUserDataVM).LastActivityDate == null ? translationState.Translate("No_Last_Activity") : (data as CommitteeUserDataVM).LastActivityDate.Value.ToString("dd/MM/yyyy") : (data as CommitteeMembersVMs).LastActivityDate == null ? translationState.Translate("No_Last_Activity") : (data as CommitteeMembersVMs).LastActivityDate.Value.ToString("dd/MM/yyyy");
+                        }
+
+                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (!update ? (data as CommitteeUserDataVM).FullName_En : (data as CommitteeMembersVMs).MemeberNameEn) : (!update ? (data as CommitteeUserDataVM).FullName_Ar : (data as CommitteeMembersVMs).MemeberNameAr)) @translationState.Translate("Total_Committees"): @(!update ? (data as CommitteeUserDataVM).TotalCommittee : (data as CommitteeMembersVMs).TotalCommittee),@translationState.Translate("Current_Tasks"): @(!update ? (data as CommitteeUserDataVM).TotalTasks : (data as CommitteeMembersVMs).TotalTasks), @translationState.Translate("Last_Activity_Date"): @lastActivityDate
+                    </Template>
+                </RadzenDropDown>
+                <div class="rz-message rz-messages-error ">@userValidationMessage</div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-12  col-md-6 col-lg-6 col-xl-6">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Committee_Role") + " *")" Component="Role" />
+                <RadzenDropDown Data="@committeeRoles.Where(x => x.Id != (int)CommitteeRoleEnum.Organizer).ToList()" AllowClear="true"
+                                Name="Role"
+                                ValueProperty="Id"
+                                AllowFiltering="true"
+                                Placeholder="@translationState.Translate("Select")"
+                                Style="width:100%;max-width:100%;"
+                                @bind-Value="@committeeMembersVm.CommitteeRoleId"
+                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr" )">
+                </RadzenDropDown>
+                <div class="rz-message rz-messages-error ">@roleValidationMessage</div>
+
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="popup-buttons-alignment px-0">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate(update?"Update":"Add")" Click="AddMembers" />
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              ButtonType="Radzen.ButtonType.Button"
+                              Click="CloseDialog" />
+            </div>
+        </div>
+
+    </div>
+</RadzenCard>
+
+

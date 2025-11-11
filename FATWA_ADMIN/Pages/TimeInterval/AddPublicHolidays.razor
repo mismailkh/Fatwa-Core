@@ -1,0 +1,37 @@
+﻿@layout MainLayout
+@using FATWA_DOMAIN.Models.TimeInterval
+ 
+<RadzenTemplateForm Data="@PublicHoliday" Visible="@(PublicHoliday != null)" TItem="PublicHoliday" Submit="@AddHoliday">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Description") + " *")" />
+                    <RadzenTextBox @bind-value="@(PublicHoliday.Description)" Placeholder="@translationState.Translate("Description")" Name="Description" Style="width:100%" />
+                    <RadzenRequiredValidator Component="Description" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenLengthValidator Component="Description" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")" />
+                </div>
+                <div class="form-group">
+                    <RadzenLabel Text="@translationState.Translate("From_Date")" />
+                    <RadzenDatePicker Style="width:100%" @bind-Value=@(PublicHoliday.FromDate) DateFormat="dd/MM/yyyy" Min="@DateTime.Today.AddDays(1)" Change="@DateValidityCheck" Placeholder="@translationState.Translate("Select")" Name="From_Date" />
+                </div>
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("To_Date") + " *")" />
+                    <RadzenDatePicker Style="width:100%"
+                    @bind-Value=@(PublicHoliday.ToDate)
+                                      DateFormat="dd/MM/yyyy"
+                                      Min="@(PublicHoliday.FromDate)"
+                                      Placeholder="@translationState.Translate("Select")"
+                                      Name="To_Date" />
+                    <RadzenRequiredValidator Component="To_Date" Text="@translationState.Translate("Required_Field")" />
+                </div>                
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 p-3" style="text-align:end;">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@(Id==null? translationState.Translate("Save") : translationState.Translate("Update"))" style="margin-left: 0.2rem !important" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Cancel")" Click="@OnCancel" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

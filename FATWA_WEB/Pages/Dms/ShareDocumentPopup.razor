@@ -1,0 +1,92 @@
+﻿@page "/share-document"
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.Dms
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Share_Document")</PageTitle>
+    <RadzenTemplateForm Data="@dmsSharedDocument" Visible="@(dmsSharedDocument != null)" TItem="DmsSharedDocument" Submit="@FormSubmit">
+
+    <ChildContent>
+        @if (loginState.UserDetail.SectorTypeId == 0 || loginState.UserDetail.SectorTypeId == null)
+       {
+           <div class=" row pt-3">
+                        <div class="col-12">
+                            <div class="form-group textboxsavemeeting">
+                                    <RadzenDropDown TValue="int"
+                                                AllowClear="true"
+                                                AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                Name="DepartmentName"
+                                                @bind-Value="DepartmentId"
+                                                Placeholder="@translationState.Translate("Select")"
+                                                Data=@department
+                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                Change="@(args => OnChangeDepId(args))"
+                                                ValueProperty="Id"
+                                                Style="display:block;">
+                                    </RadzenDropDown>
+
+                                    <RadzenRequiredValidator Component="DepartmentName" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+
+                               
+                            </div>
+                        </div>
+                      
+                    </div>
+       }
+         
+            <div class=" row pt-3">
+                        <div class="col-12">
+                            <div class="form-group textboxsavemeeting">
+                                    <RadzenDropDown TValue="string"
+                                                AllowClear="true"
+                                                AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                Name="UserName"
+                                                @bind-Value="dmsSharedDocument.RecieverId"
+                                        Placeholder="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate("Select_User") : translationState.Translate("Select_Lawyer"))"
+                                                Data=@users
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FirstNameEnglish" : "FirstNameArabic")"
+                                                ValueProperty="Id"
+                                                Style="display:block;">
+                                        <Template Context="data">
+                                            @((data as UserVM).FirstNameEnglish)
+                                        </Template>
+                                    </RadzenDropDown>
+
+                                    <RadzenRequiredValidator Component="UserName" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+
+                               
+                            </div>
+                        </div>
+                      
+                    </div>
+                    <div class="row">
+                         <div class="col-md-12">
+                            <RadzenTextArea @bind-Value="dmsSharedDocument.Notes"
+                                            class="w-100"
+                                            Placeholder="@translationState.Translate("Notes")"
+                                            Style="display:block;"
+                                            Rows="3" />
+                        </div>
+
+                    </div>
+                     <div class="row mt-4 popup-buttons-alignment">
+                <div class="col-12 p-0" >
+                    @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                    {
+                        <RadzenButton Text="@translationState.Translate("Share")"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  style="margin-right: 0.2rem !important"
+                                  ButtonType="Radzen.ButtonType.Submit" />
+                        <RadzenButton Text="@translationState.Translate("Cancel")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@ButtonCloseDialog" />
+                    }
+                   
+                </div>
+            </div>
+        </ChildContent>
+
+</RadzenTemplateForm>

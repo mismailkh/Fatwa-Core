@@ -1,0 +1,272 @@
+﻿@page "/employee-list"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement;
+@using FATWA_DOMAIN.Models.ViewModel.InventoryManagementVMs;
+@using static FATWA_DOMAIN.Enums.UserEnum;
+<PageTitle>@translationState.Translate("Employees")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.EM.Employee.List"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Employees")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Users")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end ">
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 ">
+                            <RadzenTextBox class="searchBox"
+                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                           Name="Textbox0"
+                                           @bind-Value= "search"
+                                           @oninput="@(async(args) => {search = $"{args.Value}";await OnSearchInput();})" />
+                        </div>
+                        <div class="col-md-8 tableAdditionButton addPrincipleBtn px-0 pb-3">
+                            <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add_Employee")" Click="@AddEmployee" />
+                            <RadzenButton class="addBtn" Icon="person_add"
+                                          Text="@translationState.Translate("Bulk_Import")"
+                                          Click="BulkImport" />
+                            <RadzenButton class="addBtn"
+                                          Icon="search"
+                                          Text="@translationState.Translate("Advanced_Search")"
+                                          Click="ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="row tableContent table-responsive py-4 no-gutters pb-3">
+                        <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Server" @bind-SelectedIndex="selectedTabIndex" Change=@OnTabChange>
+                                <Tabs>
+                                    <RadzenTabsItem Text="@translationState.Translate("Internal_Employees")">
+                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                        @ref="employeeGrid"
+                                                        Count="@(getUsersResult?.Any() == true ? getUsersResult.FirstOrDefault().TotalCount : 0)"
+                                                        AllowPaging="true" ColumnWidth="230px"
+                                                        AllowSorting="true"
+                                                        Data="@FilteredEmployeesList"
+                                                        TItem="EmployeeVM"
+                                                        LoadData=@OnLoadData
+                                                        Sort=@OnSort
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true"
+                                                        @bind-Value=@SelectUsers
+                                                        AllowRowSelectOnRowClick=@allowRowSelectOnRowClick>
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                    <Template Context="UserRowClick">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" title="@translationState.Translate("Edit")" Size="ButtonSize.Small"
+                                                                      Click="@((args) =>EditEmployee(args, UserRowClick.UserId,(int)EmployeeTypeEnum.Internal))" @onclick:stopPropagation="true" />
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="info" Size="ButtonSize.Small" title="@translationState.Translate("View")"
+                                                                      Click="@((args) =>ViewEmployeeDetails(args, UserRowClick))" @onclick:stopPropagation="true" />
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="password" Size="ButtonSize.Small" title="@translationState.Translate("Reset_Password")"
+                                                                      Click="@((args)=> resetPassword(args, UserRowClick.Email ,UserRowClick.EmployeeNameEn,UserRowClick.EmployeeNameAr,(int)EmployeeTypeEnum.Internal,UserRowClick.AdUserName))" @onclick:stopPropagation="true" />
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Click="@((args)=> DelegateEmployeeDialog(args, UserRowClick.SectorTypeId,UserRowClick.RoleId,UserRowClick.UserId, UserRowClick.EmployeeTypeId, UserRowClick.EmployeeStatusId, UserRowClick.DesignationId ))" Icon="person" title="@translationState.Translate("Delegate_An_Employee")" @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="EmployeeId" Title="@translationState.Translate("Employee_Id")" Width="110px" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EmployeeNameEn" : "EmployeeNameAr")"
+                                                                      Title="@translationState.Translate("Employee_Name")" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="CivilId" Title="@translationState.Translate("CivilId")" Width="150px" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorTypeNameEn" : "SectorTypeNameAr")"
+                                                                      Title="@translationState.Translate("Sector_Type")" Width="250px" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DesignationEn" : "DesignationAr")"
+                                                                      Title="@translationState.Translate("Designation")" Width="150px" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StatusEn" : "StatusAr")"
+                                                                      Title="@translationState.Translate("Status")" Width="100px" TextAlign="TextAlign.Center" />
+                                            <RadzenDataGridColumn TItem="EmployeeVM" Property="AdUserName"
+                                                                  Title="@translationState.Translate("AD_UserName")" Width="140px" TextAlign="TextAlign.Center" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CreatedByName_En" : "CreatedByName_Ar")"
+                                                                      Title="@translationState.Translate("CreatedBy")" Width="200px" TextAlign="TextAlign.Center" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="CreatedDate"
+                                                                      Title="@translationState.Translate("CreatedDate")" Width="150px" TextAlign="TextAlign.Center">
+                                                    <Template Context="date">
+                                                        @String.Format("{0:dd/MM/yyyy}", date.CreatedDate)
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ModifiedByName_En" : "ModifiedByName_Ar")"
+                                                                      Title="@translationState.Translate("Modified_By")" Width="200px" TextAlign="TextAlign.Center" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="ModifiedDate"
+                                                                      Title="@translationState.Translate("Modified_Date")" Width="160px" TextAlign="TextAlign.Center">
+                                                    <Template Context="date">
+                                                        @String.Format("{0:dd/MM/yyyy}", date.CreatedDate)
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </RadzenTabsItem>
+                                    <RadzenTabsItem Text="@translationState.Translate("External_Employees")">
+                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                        @ref="employeeGrid"
+                                                        Count="@(FilteredEmployeesList?.FirstOrDefault()?.TotalCount ?? 0)"
+                                                        AllowPaging="true" ColumnWidth="230px"
+                                                        AllowSorting="true"
+                                                        Data="@FilteredEmployeesList"
+                                                        TItem="EmployeeVM"
+                                                        LoadData=@OnLoadData
+                                                        Sort=@OnSort
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true"
+                                                        @bind-Value=@SelectUsersExternal
+                                                        AllowRowSelectOnRowClick=@allowRowSelectOnRowClick>
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                    <Template Context="UserRowClick">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" title="@translationState.Translate("Edit")" Size="ButtonSize.Small"
+                                                                      Click="@((args) =>EditEmployee(args, UserRowClick.UserId,(int)EmployeeTypeEnum.External))" @onclick:stopPropagation="true" />
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="info" Size="ButtonSize.Small" title="@translationState.Translate("View")"
+                                                                      Click="@((args) =>ViewEmployeeDetails(args, UserRowClick))" @onclick:stopPropagation="true" />
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="password" Size="ButtonSize.Small" title="@translationState.Translate("Reset_Password")"
+                                                                      Click="@((args)=> resetPassword(args, UserRowClick.Email ,UserRowClick.EmployeeNameEn,UserRowClick.EmployeeNameAr,(int)EmployeeTypeEnum.External,string.Empty))"
+                                                                      @onclick:stopPropagation="true" />
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Click="@((args)=> DelegateEmployeeDialog(args, UserRowClick.SectorTypeId,UserRowClick.RoleId,UserRowClick.UserId, UserRowClick.EmployeeTypeId, UserRowClick.EmployeeStatusId, UserRowClick.DesignationId ))" Icon="person" title="@translationState.Translate("Delegate_An_Employee")" @onclick:stopPropagation="true" />
+
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="EmployeeId" Title="@translationState.Translate("Employee_Id")" Width="110px" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EmployeeNameEn" : "EmployeeNameAr")"
+                                                                      Title="@translationState.Translate("Employee_Name")" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="CivilId" Title="@translationState.Translate("CivilId")" Width="150px" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorTypeNameEn" : "SectorTypeNameAr")"
+                                                                      Title="@translationState.Translate("Sector_Type")" Width="250px" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DesignationEn" : "DesignationAr")"
+                                                                      Title="@translationState.Translate("Designation")" Width="120px" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StatusEn" : "StatusAr")"
+                                                                      Title="@translationState.Translate("Status")" Width="100px" TextAlign="TextAlign.Center" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CreatedByName_En" : "CreatedByName_Ar")"
+                                                                      Title="@translationState.Translate("CreatedBy")" Width="200px" TextAlign="TextAlign.Center" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="CreatedDate"
+                                                                      Title="@translationState.Translate("CreatedDate")" Width="150px" TextAlign="TextAlign.Center">
+                                                    <Template Context="date">
+                                                        @String.Format("{0:dd/MM/yyyy}", date.CreatedDate)
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ModifiedByName_En" : "ModifiedByName_Ar")"
+                                                                      Title="@translationState.Translate("Modified_By")" Width="200px" TextAlign="TextAlign.Center" />
+                                                <RadzenDataGridColumn TItem="EmployeeVM" Property="ModifiedDate"
+                                                                      Title="@translationState.Translate("Modified_Date")" Width="160px" TextAlign="TextAlign.Center">
+                                                    <Template Context="date">
+                                                        @String.Format("{0:dd/MM/yyyy}", date.CreatedDate)
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </RadzenTabsItem>
+                                </Tabs>
+                            </RadzenTabs>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+    <TelerikWindow Class="advance-search-window" Resizable="false" Size="@(ThemeConstants.Window.Size.Medium)" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Name")" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Name")" @bind-Value="@advanceSearchVM.Name" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("CivilId")" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("CivilId")" @bind-Value="@advanceSearchVM.CivilId" />
+                </div>
+            </div>
+            <div class="row">
+                @if (isAdvanceSearchForInternal)
+                {
+                    <div class="col-md-6 pt-3">
+                        <RadzenLabel Text="@translationState.Translate("Sector_Type")" />
+                        <RadzenDropDown Data="@SectorTypes" AllowFiltering="true" AllowClear="true"
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                        ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;" @bind-Value="@advanceSearchVM.SectorId" />
+                    </div>
+                }
+                else
+                {
+                    <div class="col-md-6 pt-3">
+                        <RadzenLabel Text="@translationState.Translate("Passport_Number")" />
+                        <RadzenTextBox Placeholder="@translationState.Translate("Passport_Number")" @bind-Value="@advanceSearchVM.PassportNumber" />
+                    </div>
+                    <div class="col-md-6 pt-3">
+                        <RadzenLabel Text="@translationState.Translate("Company_Name")" />
+                        <RadzenDropDown Data="@Companies" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                        ValueProperty="CompanyId" Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;" @bind-Value="@advanceSearchVM.CompanyId" />
+                    </div>
+                }
+                <div class="col-md-6 pt-3">
+                    <RadzenLabel Text="@translationState.Translate("Employee_Status")" />
+                    <RadzenDropDown Data="@EmployeeStatuses" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                    ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchVM.EmployeeStatusId" />
+                </div>
+                <div class="col-md-6 pt-3">
+                    <RadzenLabel Text="@translationState.Translate("Designation")" />
+                    <RadzenDropDown Data="@Designations" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                    ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchVM.DesignationId" />
+                </div>
+            </div>
+            <div class=" row justify-content-end pt-3">
+                <div class="col-md-12 popup-buttons-alignment">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

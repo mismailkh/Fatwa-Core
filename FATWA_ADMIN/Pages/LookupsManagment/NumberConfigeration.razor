@@ -1,0 +1,126 @@
+﻿@page "/Numbers-configuration/{PatternTypeId}"
+@using FATWA_DOMAIN.Enums.Common;
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.Lookups;
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@layout MainLayout
+
+@*< History Author = 'Ammaar Naveed' Date = '2024-06-04' Version = "1.0" Branch = "master"> UI fixations in pages and dialogs</History>*@
+<!--<History Author = "Nabeel ur Rehman" Date="2022-07-21" Version="1.0" Branch="master"> Adding/Updating new Group and Assign/Unassign Role and users to it.</History>-->
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-12">
+                        <RadzenCard class="p-3">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <RadzenTextBox class="searchBox"
+                                                   Placeholder="@translationState.Translate("Grid_Search")"
+                                                   Name="Textbox0"
+                                    @bind-Value="search"
+                                    @oninput="@(async(args) => {await grid1.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                                 </div>
+                                @if (PatternTypeId == (int)CmsComsNumPatternTypeEnum.CaseRequestNumber || PatternTypeId == (int)CmsComsNumPatternTypeEnum.ConsultationRequestNumber)
+                                {
+                                    <div class="col-md-8 text-right-custom-gridcolumn">
+                                        <RadzenButton Icon="add_circle" style="margin-bottom: 10px" Text="@translationState.Translate("Add")" Click="@Button1Click" />
+                                    </div>
+                                }
+                                @*   @if (PatternTypeId == (int)CmsComsNumPatternTypeEnum.ConsultationRequestNumber)
+                                {
+                                <div class="col-md-6 text-right-custom-gridcolumn">
+                                <RadzenButton Icon="add_circle" style="margin-bottom: 10px" Text="@translationState.Translate("Add")" Click="@Button1Click" />
+                                </div>
+                                } *@
+                            </div>
+                            <div class="row tableContent pb-3 pb-2 pt-2">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="row table-responsive no-gutters tableContent pb-3 pt-1">
+                                        <RadzenDataGrid @ref="grid1" Width="100%"
+                                                        CellRender="@RowCellRender"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        AllowFiltering="false"
+                                                        Data="@FilteredCmsComsNumPattern"
+                                                        TItem="CmsComsNumPatternVM"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        ShowPagingSummary="true"
+                                                        Count="@(FilteredCmsComsNumPattern != null ? FilteredCmsComsNumPattern.Count() : 0)"
+                                                        PageSize="@loginState.PageSize"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="CmsComsNumPatternVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="80px" TextAlign="TextAlign.Center">
+                                                    <Template Context="UserRowClick">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                      Class="editIcon"
+                                                                      title="@translationState.Translate("Edit")"
+                                                                      Icon="mode"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => EditItem(UserRowClick))"
+                                                        @onclick:stopPropagation="true" />
+                                                        @if (UserRowClick.IsDefault != true)
+                                                        {
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                                          Class="Delete"
+                                                                          title="@translationState.Translate("Delete")"
+                                                                          Icon="delete_outline"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => DeleteItem(UserRowClick))"
+                                                            @onclick:stopPropagation="true" />
+                                                        }
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="LegalPublicationSourceNameVM" Width="110px" Property="IsActive" Title="@translationState.Translate("Active")" Sortable="false" Filterable="false">
+                                                    <Template Context="data">
+                                                        @if (data.IsActive != true)
+                                                        {
+                                                            <RadzenCheckBox TriState="false" TValue="bool" Value="false" Change=@((args) =>GridActiveButtonClick1(data)) />
+                                                        }
+                                                        else
+                                                        {
+
+                                                            <RadzenCheckBox TriState="false" TValue="bool" Value="true" Change=@((args) =>GridActiveButtonClick1(data)) />
+
+                                                        }
+
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CmsComsNumPatternVM" Width="240px" Property="SequanceResult" Title="@translationState.Translate("Sequence_Result")" />
+
+                                                @if (PatternTypeId == (int)CmsComsNumPatternTypeEnum.CaseRequestNumber || PatternTypeId == (int)CmsComsNumPatternTypeEnum.ConsultationRequestNumber)
+                                                {
+                                                    <RadzenDataGridColumn TItem="CmsComsNumPatternVM" Width="240px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") Title="@translationState.Translate("Government_Entity")" />
+                                                    <RadzenDataGridColumn TItem="CmsComsNumPatternVM" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserFullNameEn" : "UserFullNameAr") Title="@translationState.Translate("Created_By")" />
+                                                }
+                                                else if (PatternTypeId == (int)CmsComsNumPatternTypeEnum.CaseFileNumber || PatternTypeId == (int)CmsComsNumPatternTypeEnum.ConsultationFileNumber || PatternTypeId == (int)CmsComsNumPatternTypeEnum.OutboxNumber || PatternTypeId == (int)CmsComsNumPatternTypeEnum.InboxNumber)
+                                                {
+                                                    <RadzenDataGridColumn TItem="CmsComsNumPatternVM" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserFullNameEn" : "UserFullNameAr") Title="@translationState.Translate("Created_By")" />
+                                                }
+
+                                                <RadzenDataGridColumn TItem="CmsComsNumPatternVM" Width="170px" Property="CreatedDate"  FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Created_Date")" />
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenCard>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+<style>
+
+    .rz-datatable-even {
+        background-color: aqua;
+    }
+</style>

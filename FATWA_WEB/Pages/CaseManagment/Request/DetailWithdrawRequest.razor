@@ -1,0 +1,206 @@
+﻿@page "/detail-withdraw-request/{WithdrawRequestId}/{CommunicationTypeId}"
+@page "/detail-withdraw-request/{WithdrawRequestId}/{CommunicationTypeId}/{TaskId}"
+@layout MainLayout
+
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/case-requests" Text="@translationState.Translate("Case_Requests")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Withdraw_Request_Detail_View")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-12">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Withdraw_Request_Detail_View")" />
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center mainContentBlock no-gutters bg-light p-0 tab-webkit-fill">
+            <div class="col-12">
+                <div class="row d-block justify-content-left mainContentBlock p-0">
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Withdraw_Request_Detail_View")" Selected="true">
+                                <div class="row no-gutters">
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Request_Number")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getWithdrawCaseRequest?.RequestNumber</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Reason")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getWithdrawCaseRequest?.Reason</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Correspondence_Type")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @getWithdrawCaseRequest?.CorrespondenceTypeEn : @getWithdrawCaseRequest?.CorrespondenceTypeAr)</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Inbox_Number")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getWithdrawCaseRequest?.FatwaReferenceNo</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Inbox_Date")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getWithdrawCaseRequest?.FatwaReferenceDate?.ToString("dd/MM/yyyy")</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Reference_Number")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getWithdrawCaseRequest?.GeReferenceNo</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Reference_Date")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getWithdrawCaseRequest?.GeReferenceDate?.ToString("dd/MM/yyyy")</h3>
+                                        </div>
+                                    </div>
+                                    @if (getWithdrawCaseRequest?.RejectionReason != null)
+                                    {
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Rejection_Reason")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@getWithdrawCaseRequest?.RejectionReason</h3>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Status")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @getWithdrawCaseRequest?.StatusNameEn : @getWithdrawCaseRequest?.StatusNameAr)</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                </div>
+            </div>
+            <div class="col-12">
+                <RadzenAccordion>
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Document_Viewer")" Selected="true">
+                            <div class="col-md-12">
+                                <div class="row justify-content-right ">
+                                    @if (ShowDocumentViewer)
+                                    {
+                                        @* <TelerikPdfViewer @ref="PdfViewerRef"
+                                                          Width="100%"
+                                                          Height="1000px"
+                                                          Data="@FileData"
+                                                          Class="m-3" /> *@
+                                        <SfPdfViewerServer EnableNavigationToolbar="false"
+                                                           Width="100%"
+                                                           Height="1000px"
+                                                           @ref="@pdfViewer"
+                                                           EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                                           Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                                           ID="pdfviewerDetailCommunication"
+                                                           DocumentPath="@DocumentPath"
+                                                           InteractionMode="InteractionMode.Pan">
+                                        </SfPdfViewerServer>
+                                    }
+                                </div>
+                            </div>
+                        </RadzenAccordionItem>
+                    </Items>
+                </RadzenAccordion>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <RadzenCard>
+                    <div class="row">
+                        <div class="col-4">
+                            <TelerikButton Class="mt-4 cancleBtn"
+                                           ButtonType="Telerik.Blazor.ButtonType.Button"
+                                           ThemeColor="light"
+                                           OnClick="@BtnBack">
+                                @translationState.Translate("Back")
+                            </TelerikButton>
+                        </div>
+                        <div class="col-8 aligmnt">
+                            @if (!managerTaskReminderData.Where(x => x.ManagerId == loginState.UserDetail.UserId).Any())
+                            {
+                                @if (getWithdrawCaseRequest?.WithDrawStatusId == (int)WithdrawRequestStatusEnum.WithdrawRequested)
+                                {
+                                    <TelerikButton Class="mt-4 cancleBtn"
+                                                   ButtonType="Telerik.Blazor.ButtonType.Button"
+                                                   ThemeColor="light"
+                                                   OnClick="@((args) => Decision(getWithdrawCaseRequest, true))">
+                                        @translationState.Translate("Reject")
+                                    </TelerikButton>
+                                    <TelerikButton Class="mt-4 nextBtn"
+                                                   ButtonType="Telerik.Blazor.ButtonType.Button"
+                                                   ThemeColor="light"
+                                                   OnClick="@((args) => Decision(getWithdrawCaseRequest, false))">
+                                        @translationState.Translate("Accept")
+                                    </TelerikButton>
+                                }
+                            }
+                        </div>
+                    </div>
+                </RadzenCard>
+            </div>
+        </div>
+
+    </ChildContent>
+</RadzenContent>

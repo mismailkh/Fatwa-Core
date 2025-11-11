@@ -1,0 +1,42 @@
+﻿@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+
+@*History Author = 'Hassan Abbas' Date='2022-12-15' Version="1.0" Branch="master">Select Primary File for Linking selected Files </History>*@
+<div class="row justify-content-center">
+    <div class="col-md-12">
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@translationState.Translate("Primary_File")" />
+                    <RadzenDropDown TValue="Guid"
+                                    Data="@(IsUnderFile ? LinkedFiles : LinkedRegisteredFiles)"
+                                    AllowFiltering="false"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    TextProperty="FileNumber"
+                                    Name="Primary_File"
+                                    ValueProperty="FileId"
+                                    @bind-Value="linkCaseFile.PrimaryFileId"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;">
+                    </RadzenDropDown>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@translationState.Translate("Linked_Files")" />
+                    <RadzenTextArea Placeholder="@translationState.Translate("Linked_Requests")" Rows="1" class="w-100" Disabled="true" @bind-Value="@LinkedFileNos" Name="LinkedFileNos" />
+                </div>
+            </div>
+        </div>
+        <div class="row d-flex justify-content-center align-items-center py-4 pb-3 mt-2 popup-buttons-alignment">
+            <div class="col-md-12 d-flex justify-content-end">
+                <RadzenButton style="margin-left: 0.2rem !important" ButtonStyle="ButtonStyle.Secondary" Text="@translationState.Translate("Cancel")" Click="@(() => dialogService.Close(null))">
+                </RadzenButton>
+                <RadzenButton style="margin-left: 0.2rem !important" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" Disabled="@(linkCaseFile.PrimaryFileId == Guid.Empty)" Click="@LinkCaseFiles">
+                </RadzenButton>
+            </div>
+        </div>
+    </div>
+</div>

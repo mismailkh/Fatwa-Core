@@ -1,0 +1,626 @@
+﻿@page "/meeting-add"
+@page "/meeting-add/{MeetingId}"
+@page "/meeting-add/{ReferenceId}/{SubModuleId}/{ReceivedBy}"
+@page "/meeting-add/{CommunicationId}/{ReferenceId}/{SubModuleId}/{ReceivedBy}"
+@page "/meeting-add/{CommunicationId}/{ReferenceId}/{SubModuleId}/{ReceivedBy}/{TaskId}/{IsTask}"
+@page "/meeting-add/{ReferenceId}/{SubModuleId}/{ReceivedBy}/{TaskId}/{IsTask}"
+
+
+
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement;
+@using FATWA_DOMAIN.Models.ViewModel.Meet;
+@using FATWA_WEB.Pages.Shared
+@using System.Globalization;
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+@using static FATWA_DOMAIN.Enums.MeetingEnums;
+
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Schedule_Meeting")</PageTitle>
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row justify-content-center align-items-center breadcrumbBar pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem onclick="@PreviousPageUrl" Text="@translationState.Translate("Previous_Page")">
+                        </RadzenBreadCrumbItem>
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Schedule_Meeting")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-start align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Schedule_Meeting")"></RadzenHeading>
+                </div>
+            </div>
+        </div>
+        <div class="row case-party-row">
+            <RadzenTemplateForm Submit="@FormSubmit" InvalidSubmit="@InvalidFormSubmit" Data="@saveMeeting" Visible="@(saveMeeting != null)" TItem="SaveMeetingVM">
+                <ChildContent>
+                    <div class="row">
+                        <div class="col-6">
+                            <RadzenFieldset>
+                                <HeaderTemplate>
+                                    <span class="d-inline-flex align-items-center align-middle">
+                                        <RadzenIcon Class="me-1" /><b>@translationState.Translate("Meeting_Detail")</b>
+                                    </span>
+                                </HeaderTemplate>
+                                <ChildContent>
+                                    <div class="row">
+                                        @if ((ReferenceId == null || Guid.Parse(ReferenceId) == Guid.Empty || saveMeeting.Meeting.MeetingStatusId == (int)MeetingStatusEnum.SaveAsDraft) && isEdit == false)
+                                        {
+                                            <div class="col-12">
+                                                <div class="form-group textboxsavemeeting">
+                                                    <RadzenLabel Text="@(translationState.Translate("Sub_Module")+ "*")" Component="SubModule" />
+                                                    <RadzenDropDown @ref="@ddlSubModule"
+                                                                    @bind-Value="saveMeeting.Meeting.SubModulId"
+                                                                    Data="@SubModules"
+                                                                    AllowFiltering="true"
+                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                    AllowClear="true"
+                                                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                                                    ValueProperty="Id"
+                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    Style="display:block;"
+                                                                    Name="SubModule"
+                                                                    Change="@(args => OnSubModuleChange(args))" />
+                                                    <RadzenRequiredValidator Component="SubModule" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                                </div>
+                                            </div>
+                                        }
+                                        <div class="col-12">
+                                            <div class="form-group textboxsavemeeting">
+                                                <RadzenLabel Text="@(translationState.Translate("Type")+ "*")" Component="Meeting_Type" />
+                                                <RadzenDropDown @ref="@ddlMeetingTypes"
+                                                                @bind-Value="saveMeeting.Meeting.MeetingTypeId"
+                                                                Data="@MeetingTypes"
+                                                                AllowFiltering="true"
+                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                AllowClear="true"
+                                                                Disabled="saveMeeting.Meeting.SubModulId == (int)SubModuleEnum.OrganizingCommittee ? true : false"
+                                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")
+                                                                ValueProperty="MeetingTypeId"
+                                                                Placeholder="@translationState.Translate("Select")"
+                                                                Style="display:block;"
+                                                                Name="Meeting_Type" />
+                                                <RadzenRequiredValidator Component="Meeting_Type" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="form-group textboxsavemeeting">
+                                                <RadzenLabel Text="@(translationState.Translate("Subject")+"*")" Component="Meeting_Subject" />
+                                                <RadzenTextBox Placeholder="@translationState.Translate("Subject")"
+                                                               @bind-Value="@(saveMeeting.Meeting.Subject)"
+                                                               Name="Meeting_Subject" />
+                                                <RadzenRequiredValidator Component="Meeting_Subject" Text="@translationState.Translate("Required_Field")" />
+                                                <RadzenLengthValidator Component="Meeting_Subject" Text="@translationState.Translate("Max_Fifty_Characters")" Max="50" />
+                                                <RadzenRegexValidator Component="Meeting_Subject" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@(translationState.Translate("Description")+ "*")" Component="Meeting_Description" />
+                                                <RadzenTextArea Placeholder="@translationState.Translate("Description")"
+                                                                @bind-Value="@(saveMeeting.Meeting.Description)"
+                                                                Name="Meeting_Description"
+                                                                Style="display:block;" />
+                                                <RadzenRequiredValidator Component="Meeting_Description" Text="@translationState.Translate("Required_Field")" />
+                                                <RadzenLengthValidator Component="Meeting_Description" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")" />
+                                                <RadzenRegexValidator Component="Meeting_Description" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@(translationState.Translate("Agenda")+ "*")" Component="Meeting_Agenda" />
+                                                <RadzenTextArea Placeholder="@translationState.Translate("Agenda")"
+                                                                @bind-Value="@(saveMeeting.Meeting.Agenda)"
+                                                                Name="Meeting_Agenda"
+                                                                Style="display:block;" />
+                                                <RadzenRequiredValidator Component="Meeting_Agenda" Text="@translationState.Translate("Required_Field")" />
+                                                <RadzenLengthValidator Component="Meeting_Agenda" Text="@translationState.Translate("Max_Thousand_Characters")" Max="1000" />
+                                                <RadzenRegexValidator Component="Meeting_Agenda" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+                                            </div>
+                                        </div>
+                                        @if ((ReferenceId == null || Guid.Parse(ReferenceId) == Guid.Empty || saveMeeting.Meeting.MeetingStatusId == (int)MeetingStatusEnum.SaveAsDraft) && isEdit == false)
+                                        {
+                                            <div class="col-12">
+                                                <div class="form-group textboxsavemeeting">
+                                                    <RadzenLabel Text="@(translationState.Translate("Reference_No")+ "*")" Component="File_Number" />
+                                                    <RadzenDropDown @ref="@ddlFileNumber"
+                                                                    @bind-Value="@(saveMeeting.Meeting.ReferenceGuid)"
+                                                                    Data="@FilerefNumbers"
+                                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                    AllowClear="true"
+                                                                    TextProperty="ReferenceNumber"
+                                                                    ValueProperty="ReferenceId"
+                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    Change="@(args => OnReferenceChange(args))"
+                                                                    Style="display:block;"
+                                                                    Name="File_Number" />
+                                                    <RadzenRequiredValidator Component="File_Number" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                                </div>
+                                            </div>
+
+                                        }
+                                        else
+                                        {
+                                            <div class="col-12">
+                                                <div class="form-group textboxsavemeeting">
+                                                    <RadzenLabel Text="@(translationState.Translate("Reference_No")+ "*")" Component="File_Number" />
+                                                    <RadzenTextBox @bind-Value="@(FileNumber)"
+                                                                   Style="display:block;"
+                                                                   Name="File_Number"
+                                                                   Disabled />
+                                                    <RadzenRequiredValidator Component="File_Number" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </ChildContent>
+                            </RadzenFieldset>
+                        </div>
+                        <div class="col-6">
+                            <RadzenFieldset>
+                                <HeaderTemplate>
+                                    <span class="d-inline-flex align-items-center align-middle">
+                                        <RadzenIcon Class="me-1" /><b>@translationState.Translate("Meeting_DateAndTime")</b>
+                                    </span>
+                                </HeaderTemplate>
+                                <ChildContent>
+                                    <div class="row">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Date")" Component="Date" />
+                                                <RadzenDatePicker Min="DateTime.Now.Date" DateFormat="dd/MM/yyyy" Class="w-100" @bind-Value="@(saveMeeting.Meeting.Date)" Change="@OnChangeDate" />
+
+@*                                                 <TelerikDatePicker Min="DateTime.Now.Date" Format="dd/MM/yyyy" @bind-Value="@(saveMeeting.Meeting.Date)" OnChange="@OnChangeDate" />
+ *@                                            </div>
+                                        </div>
+
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Start_Time")" Component="Start_Time" />
+                                                <TelerikTimePicker Format="hh:mm tt"
+                                                                   @bind-Value="@saveMeeting.Meeting.StartTime"
+                                                                   Min="@(saveMeeting.Meeting.Date == DateTime.Now.Date ? saveMeeting.Meeting.StartTime : DateTime.Now.Date)"
+                                                                   OnChange="OnStartTimeChange" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-6">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("End_Time")" Component="End_Time" />
+                                                <TelerikTimePicker Format="hh:mm tt"
+                                                                   @bind-Value="@saveMeeting.Meeting.EndTime"
+                                                                   Min="@saveMeeting.Meeting.StartTime.AddMinutes(05)"
+                                                                   OnChange="OnEndTimeChange" />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </ChildContent>
+                            </RadzenFieldset>
+                            <div class="mt-3">
+                                <RadzenFieldset>
+                                    <HeaderTemplate>
+                                        <span class="d-inline-flex align-items-center align-middle">
+                                            <RadzenIcon Class="me-1" /><b>@translationState.Translate("Meeting_Location")</b>
+                                        </span>
+                                    </HeaderTemplate>
+
+                                    <ChildContent>
+                                        <div class="row">
+
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <RadzenRadioButtonList @bind-Value=saveMeeting.Meeting.IsOnline TValue="bool" Change=@((args) => OnChange(args))>
+                                                        <Items>
+                                                            <RadzenRadioButtonListItem Text="@translationState.Translate("In_Premises")" Value=false TValue="bool" />
+                                                            <RadzenRadioButtonListItem Text="@translationState.Translate("Online")" Value=true TValue="bool" />
+                                                        </Items>
+                                                    </RadzenRadioButtonList>
+                                                </div>
+                                            </div>
+                                            @if (isOnline)
+                                            {
+                                                <div class="col-12">
+                                                    <div class="form-group textboxsavemeeting">
+                                                        <RadzenLabel Text="@(translationState.Translate("Link")+ "*")" Component="Meeting_Link" />
+                                                        <div>
+                                                            <RadzenTextBox Placeholder="@translationState.Translate("Link")"
+                                                                           @bind-Value="@(saveMeeting.Meeting.MeetingLink)"
+                                                                           Name="Meeting_Link" />
+                                                            <RadzenRequiredValidator Component="Meeting_Link" Text="@translationState.Translate("Required_Field")" />
+                                                            <RadzenLengthValidator Component="Meeting_Link" Text="@translationState.Translate("Max_Hundred_Characters")" Max="100" />
+                                                            <RadzenRegexValidator Component="Meeting_Link" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <div class="form-group">
+                                                        <RadzenLabel Text="@translationState.Translate("Require_MeetingPassword")" Component="IsRequire_MeetingPassword" />
+                                                        <RadzenCheckBox TValue="bool"
+                                                                        @bind-Value="@(saveMeeting.Meeting.RequirePassword)"
+                                                                        Name="IsRequire_MeetingPassword"
+                                                                        Change=@(args => IsPasswordRequired(args)) />
+                                                    </div>
+                                                </div>
+
+                                                @if (isPassReq)
+                                                {
+                                                    <div class="col-12">
+                                                        <div class="form-group textboxsavemeeting">
+                                                            <RadzenTextBox Placeholder="@translationState.Translate("password")"
+                                                                           @bind-Value="@(saveMeeting.Meeting.MeetingPassword)"
+                                                                           Name="MeetingPassword" />
+                                                            <RadzenRequiredValidator Component="MeetingPassword" Text="@translationState.Translate("Required_Field")" />
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="col-12">
+                                                        <div class="form-group textboxsavemeeting">
+                                                            <RadzenTextBox Placeholder="@translationState.Translate("password")"
+                                                                           @bind-Value="@(saveMeeting.Meeting.MeetingPassword)"
+                                                                           Name="MeetingPassword"
+                                                                           Disabled />
+                                                        </div>
+                                                    </div>
+                                                }
+                                            }
+                                            @if (!isOnline)
+                                            {
+                                                <div class="col-12">
+                                                    <div class="form-group textboxsavemeeting">
+                                                        <RadzenLabel Text="@(translationState.Translate("Location")+ "*")" Component="Meeting_Location" />
+                                                        <RadzenTextBox Placeholder="@translationState.Translate("Location")"
+                                                                       @bind-Value="@(saveMeeting.Meeting.Location)"
+                                                                       Name="Meeting_Location" />
+                                                        <RadzenLengthValidator Component="Meeting_Location" Text="@translationState.Translate("Max_One_Fifty_Characters")" Max="150" />
+                                                        <RadzenRegexValidator Component="Meeting_Location" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+
+                                                        @if (string.IsNullOrEmpty(saveMeeting.Meeting.Location))
+                                                        {
+                                                            <RadzenRequiredValidator Component="Meeting_Location" Text="@translationState.Translate("Required_Field")" />
+                                                        }
+
+                                                    </div>
+                                                </div>
+                                            }
+                                        </div>
+                                    </ChildContent>
+                                </RadzenFieldset>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (saveMeeting.Meeting.MeetingTypeId == (int)MeetingTypeEnum.External || saveMeeting.Meeting.MeetingTypeId == (int)MeetingTypeEnum.Internal)
+                    {
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <RadzenFieldset>
+                                    <HeaderTemplate>
+                                        <span class="d-inline-flex align-items-center align-middle">
+                                            <RadzenIcon Class="me-1" /><b>@translationState.Translate("LegislationAttendees")</b>
+                                        </span>
+                                    </HeaderTemplate>
+                                    <ChildContent>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <RadzenDropDown @ref="@ddlLegislationAttendees"
+                                                                    Data="@LegislationAttendees"
+                                                                    AllowFiltering="true"
+                                                                    AllowClear="true"
+                                                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FirstNameEnglish" : "FirstNameArabic")
+                                                                    ValueProperty="Id"
+                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    Style="display:block;"
+                                                                    @bind-Value="LegislationAttendee.Id"
+                                                                    Name="Fatwa_User" />
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6">
+                                                <div class="form-group">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                  Text="@translationState.Translate("Add")"
+                                                                  Click="@AddLegislationAttendee" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ChildContent>
+                                </RadzenFieldset>
+                            </div>
+                        </div>
+                        <div class="row pt-4">
+                            <div class="col-12">
+                                <RadzenFieldset>
+                                    <HeaderTemplate>
+                                        <span class="d-inline-flex align-items-center align-middle">
+                                            <RadzenIcon Class="me-1" /><b>@translationState.Translate("Selected")</b>
+                                        </span>
+                                    </HeaderTemplate>
+                                    <ChildContent>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                        @ref="LegislationAttendeeGrid"
+                                                                        Data="@GetLegislationAttendees"
+                                                                        AllowFiltering="false"
+                                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                                        AllowPaging="true"
+                                                                        AllowSorting="true"
+                                                                        TItem="FatwaAttendeeVM"
+                                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                                            <Columns>
+                                                                <RadzenDataGridColumn TItem="FatwaAttendeeVM"
+                                                                                      Width="100px"
+                                                                                      Title="@translationState.Translate("Action")"
+                                                                                      Filterable="false"
+                                                                                      Sortable="false"
+                                                                                      TextAlign="TextAlign.Center">
+                                                                    <Template Context="rowItem">
+                                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                                      Icon="delete"
+                                                                                      Size="ButtonSize.Small"
+                                                                                      Click="@((args) => DeleteLegislationAttendee(rowItem))"
+                                                                                      @onclick:stopPropagation="true" />
+                                                                    </Template>
+                                                                </RadzenDataGridColumn>
+                                                                <RadzenDataGridColumn TItem="FatwaAttendeeVM" Width="150px" Property="SerialNo" Title="@translationState.Translate("Serial_Number")" />
+                                                                <RadzenDataGridColumn TItem="FatwaAttendeeVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FirstNameEnglish" : "FirstNameArabic") Title="@translationState.Translate("Name")" />
+                                                                <RadzenDataGridColumn TItem="FatwaAttendeeVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AttendeeStatusEn" : "AttendeeStatusAr") Title="@translationState.Translate("Status")" />
+
+                                                            </Columns>
+                                                        </RadzenDataGrid>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ChildContent>
+                                </RadzenFieldset>
+                            </div>
+                        </div>
+                    }
+                    @if (saveMeeting.Meeting.MeetingTypeId == (int)MeetingTypeEnum.External)
+                    {
+                        if (!IsConsultationUser)
+                        {
+                            <div class="row pt-4">
+                                <div class="col-12">
+                                    <RadzenFieldset>
+                                        <HeaderTemplate>
+                                            <span class="d-inline-flex align-items-center align-middle">
+                                                <RadzenIcon Class="me-1" /><b>@translationState.Translate("GE_Attendees")</b>
+                                            </span>
+                                        </HeaderTemplate>
+                                        <ChildContent>
+                                            <div class="row">
+                                                <div class="col-6">
+
+                                                    <div class="col-12">
+                                                        <div class="form-group textboxsavemeeting">
+                                                            <RadzenLabel Text="@translationState.Translate("Government_Entity")" Component="Government_Entity" />
+                                                            <RadzenDropDown @ref="@ddlGovtEntities"
+                                                                            Data="@GovtEntities"
+                                                                            AllowFiltering="true"
+                                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                            AllowClear="true"
+                                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                                                            ValueProperty="EntityId"
+                                                                            Placeholder="@translationState.Translate("Select")"
+                                                                            Style="display:block;"
+                                                                            @bind-Value="GeAttendee.GovernmentEntityId"
+                                                                            Change="@(args => OnGEChange(args))"
+                                                                            Name="Government_Entity" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12">
+                                                        <div class="form-group textboxsavemeeting">
+                                                            <RadzenLabel Text="@translationState.Translate("Department")" Component="User_Department" />
+                                                            <RadzenDropDown @ref="@ddlDepartments"
+                                                                            Data="@Departments"
+                                                                            AllowFiltering="false"
+                                                                            AllowClear="true"
+                                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                                                            ValueProperty="Id"
+                                                                            Placeholder="@translationState.Translate("Select")"
+                                                                            Style="display:block;"
+                                                                            @bind-Value="GeAttendee.DepartmentId"
+                                                                            Name="User_Department" />
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="col-6">
+                                                    <div class="col-12">
+                                                        <div class="form-group textboxsavemeeting">
+                                                            <RadzenLabel Text="@translationState.Translate("Representative")" Component="Representative_Name" />
+                                                            <RadzenDropDown Data="@GeRepresentatives" AllowFiltering="true" AllowClear="true"
+                                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                            Style="display:block;" @bind-Value="GeAttendee.RepresentativeId" Name="Representative" />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-12">
+                                                        <div class="form-group">
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                          Text="@translationState.Translate("Add")"
+                                                                          Click="@AddGeAttendee" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </ChildContent>
+                                    </RadzenFieldset>
+                                </div>
+                            </div>
+                        }
+                        <div class="row pt-4">
+                            <div class="col-12">
+                                <RadzenFieldset>
+                                    <HeaderTemplate>
+                                        <span class="d-inline-flex align-items-center align-middle">
+                                            <RadzenIcon Class="me-1" /><b>@translationState.Translate("Selected")</b>
+                                        </span>
+                                    </HeaderTemplate>
+                                    <ChildContent>
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="form-group">
+                                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                        @ref="GeAttendeeGrid"
+                                                                        AllowFiltering="false"
+                                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                                        AllowPaging="true"
+                                                                        AllowSorting="true"
+                                                                        Data="@GetGeAttendees"
+                                                                        TItem="MeetingAttendeeVM"
+                                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                                            <Columns>
+                                                                <RadzenDataGridColumn TItem="MeetingAttendeeVM" Width="100px" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                                    <Template Context="rowItem">
+
+                                                                        @if (rowItem.RepresentativeId != null)
+                                                                        {
+                                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                                          Icon="delete"
+                                                                                          Size="ButtonSize.Small"
+                                                                                          Click="@((args) => DeleteGeAttendee(rowItem))"
+                                                                                          @onclick:stopPropagation="true" />
+                                                                        }
+                                                                    </Template>
+                                                                </RadzenDataGridColumn>
+                                                                <RadzenDataGridColumn TItem="MeetingAttendeeVM" Width="150px" Property="SerialNo" Title="@translationState.Translate("Serial_Number")" />
+                                                                <RadzenDataGridColumn TItem="MeetingAttendeeVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RepresentativeNameEn" : "RepresentativeNameAr") Title="@translationState.Translate("Representative")" />
+
+                                                                <RadzenDataGridColumn TItem="MeetingAttendeeVM" Width="170px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "GovernmentEntityNameEn" : "GovernmentEntityNameAr") Title="@translationState.Translate("Government_Entity")" />
+                                                                <RadzenDataGridColumn TItem="MeetingAttendeeVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DepartmentNameEn" : "DepartmentNameAr") Title="@translationState.Translate("Department")" />
+
+                                                            </Columns>
+                                                        </RadzenDataGrid>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </ChildContent>
+                                </RadzenFieldset>
+                            </div>
+                        </div>
+                    }
+                    @if (HasRendered)
+                    {
+                        if (Ischange)
+                        {
+                            <div class="row mt-4">
+                                <div class="col-12">
+
+                                    <FileUpload ReferenceGuid="@(MeetingId != null ? Guid.Parse(MeetingId) : saveMeeting.Meeting?.MeetingId)"
+                                                @bind-DeletedAttachementIds="@saveMeeting.DeletedAttachementIds"
+                                                Multiple="false"
+                                                MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                                FileTypes="@validFiles"
+                                                UploadFrom="CaseManagement"
+                                                HideView="true"
+                                                MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.RequestForMeeting"
+                                                ModuleId="(int)WorkflowModuleEnum.Meeting" />
+
+                                </div>
+                            </div>
+                        }
+                    }
+                    <div class="row mt-3">
+                        <div class="col-12 d-flex justify-content-end">
+                            @if (AllApproved)
+                            {
+                                if (@saveMeeting.Meeting.SubModulId == (int)SubModuleEnum.OrganizingCommittee)
+                                {
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Button"
+                                                  ButtonStyle="ButtonStyle.Secondary"
+                                                  Click="CreateMeeting"
+                                                  Text="@translationState.Translate("Create_Meeting")" />
+                                }
+                                else
+                                {
+                                    @if (!IsHOS)
+                                    {
+                                        <RadzenButton ButtonType="Radzen.ButtonType.Button"
+                                                      ButtonStyle="ButtonStyle.Secondary"
+                                                      Click="SendToHOS"
+                                                      Text="@translationState.Translate("Send_For_Approval")" />
+                                    }
+                                    @if (IsHOS)
+                                    {
+                                        <RadzenButton ButtonType="Radzen.ButtonType.Button"
+                                                      ButtonStyle="ButtonStyle.Secondary"
+                                                      Click="CreateMeeting"
+                                                      Text="@translationState.Translate("Create_Meeting")" />
+                                    }
+                                }
+                            }
+                            <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          Text="@translationState.Translate("Save_and_Send_To_Internal")" />
+                            @if (saveMeeting.Meeting.MeetingStatusId == 0 || saveMeeting.Meeting.MeetingStatusId == (int)MeetingStatusEnum.SaveAsDraft)
+                            {
+                                <RadzenButton ButtonType="Radzen.ButtonType.Button"
+                                              ButtonStyle="ButtonStyle.Secondary"
+                                              Click="SaveAsDraft"
+                                              Text="@translationState.Translate("Save_As_Draft")" />
+                            }
+                            <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                          Style="margin-left: 1rem"
+                                          Text="@translationState.Translate("Cancel")"
+                                          Click="@BtnCancel" />
+                        </div>
+                    </div>
+                </ChildContent>
+            </RadzenTemplateForm>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+<style>
+    .k-actions {
+        direction: ltr;
+    }
+</style>
+
+
+

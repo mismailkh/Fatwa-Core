@@ -1,0 +1,225 @@
+﻿@page "/detail-serviceRequestItem/{ServiceRequestId}/{ServiceRequestItemId}/{ServiceRequestStatusId}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.InventoryManagementVMs;
+@using Telerik.Blazor.Components
+@using Telerik.Blazor;
+@using static FATWA_DOMAIN.Enums.Inventory.InventoryEnum;
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.INV.Inventory.RequestItemDetailView").Count() > 0)
+{
+    <PageTitle>@translationState.Translate("Details_Of_Requests")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/servicerequest-list" Text="@translationState.Translate("List_of_Requests")" />
+                            @*                  <RadzenBreadCrumbItem Path="@("/servicerequest-view/" + RequestId + "/" + ItemId + "/" + RequestItemId)" Text="@translationState.Translate("Request_Detail")" />*@
+                            <RadzenBreadCrumbItem Path="@("/detail-serviceRequest/" + ServiceRequestId )" Text="@translationState.Translate("Details_Of_Requests")" />
+                            @* <RadzenBreadCrumbItem Path="/servicerequest-view" Text="@translationState.Translate("Request-Detail")" />*@
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Request_Item_View_Details")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Details_Of_Items")" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+                <RadzenCard>
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Details_Of_Items")" Selected="false">
+                                <div class="row pb-2">
+                                    <div class="col-12 datagrid-rz-label">
+                                        <div class="row no-gutters">
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Item_Category")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? ServiceRequestItemDetailVM?.ItemCategoryEn : ServiceRequestItemDetailVM?.ItemCategoryAr)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Item_Name")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? ServiceRequestItemDetailVM?.ItemNameEn : ServiceRequestItemDetailVM?.ItemNameAr)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Item_Code")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@ServiceRequestItemDetailVM?.ItemCode</h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Quantity")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@(ServiceRequestItemDetailVM?.Quantity + " " + translationState.Translate(ServiceRequestItemDetailVM?.Quantity <= 1 ? "piece" : "pieces"))</h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Pending_Quantity")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@(ServiceRequestItemDetailVM?.PendingQuantity + " " + translationState.Translate(ServiceRequestItemDetailVM?.PendingQuantity <= 1 ? "piece" : "pieces"))</h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Approved_Quantity")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(ServiceRequestItemDetailVM?.ApprovedQuantity + " " + translationState.Translate(ServiceRequestItemDetailVM?.ApprovedQuantity <= 1 ? "piece" : "pieces"))
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Issued_Quantiy")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @* @((ServiceRequestItemDetailVM?.Quantity - (ServiceRequestItemDetailVM?.ApprovedQuantity + ServiceRequestItemDetailVM?.PendingQuantity)) + " " + translationState.Translate(ServiceRequestItemDetailVM?.ApprovedQuantity <= 1 ? "piece" : "pieces")) *@
+                                                        @(ServiceRequestItemDetailVM?.IssuedQuantity + " " + translationState.Translate(ServiceRequestItemDetailVM?.ApprovedQuantity <= 1 ? "piece" : "pieces"))
+
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Item_Status")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? ServiceRequestItemDetailVM?.RequestItemStatusEn : ServiceRequestItemDetailVM?.RequestItemStatusAr)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Store_View_Detail")" Selected=false>
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="tableContent table-responsive">
+                                            <RadzenDataGrid @ref="CaseGrid"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            AllowPaging="true"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            Data="@storedetaillist"
+                                                            TItem="StoreDetailVM"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            ShowPagingSummary="true"
+                                                            ColumnWidth="200px"
+                                                            Width="100%"
+                                                            AllowFiltering="false"
+                                                            AllowSorting="true">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="StoreDetailVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StoreName" : "StoreName")" Title="@translationState.Translate("Store_Name")" />
+                                                    <RadzenDataGridColumn TItem="StoreDetailVM" Property="StoreLocation" Title="@translationState.Translate("Store_Location")" />
+                                                    <RadzenDataGridColumn TItem="StoreDetailVM" Property="Quantity" Title="@translationState.Translate("Available_Quantity")" />
+                                                </Columns>
+
+                                            </RadzenDataGrid>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+
+
+                    @*@if ((ServiceRequestItemDetailVM.ItemStatusId == (int)RequestItemStatusEnum.Submitted || ServiceRequestItemDetailVM.ItemStatusId == (int)RequestItemStatusEnum.PartiallyApproved)
+                && ((Convert.ToInt32(ServiceRequestStatusId) != (int)RequestStatusEnum.ApprovedbyHOS)
+                )
+                )
+                {
+                <div class="row d-flex justify-content-center align-items-center pb-3 mt-2">
+                <div class="col-md-12 d-flex justify-content-end">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                class="m-1"
+                Size="ButtonSize.Small"
+                Text="@translationState.Translate("Approve")"
+                Click="@((args) => ApproveServiceRequestItem(ServiceRequestItemDetailVM))"
+                @onclick:stopPropagation="true" />
+
+                <RadzenButton ButtonStyle="ButtonStyle.Light"
+                Size="ButtonSize.Small"
+                Text="@translationState.Translate("Reject")"
+                class="m-1"
+                Click="@((args) => RejectItemReason(ServiceRequestItemDetailVM))"
+                Disabled="(ServiceRequestItemDetailVM.ItemStatusId == (int)RequestItemStatusEnum.Approved || ServiceRequestItemDetailVM.ItemStatusId == (int)RequestItemStatusEnum.PartiallyApproved)"
+                @onclick:stopPropagation="true" />
+                </div>
+                </div>
+                }*@
+                </RadzenCard>
+            </div>
+        </ChildContent>
+        @* (Convert.ToInt32(ServiceRequestStatusId) != (int)RequestStatusEnum.RejectedbyCustodian) *@
+    </RadzenContent>
+
+
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+
+}

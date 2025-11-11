@@ -1,0 +1,386 @@
+﻿@page "/Index"
+
+<PageTitle>@translationState.Translate("Dashboard")</PageTitle>
+<div class="container-fluid">
+    <div class="row">
+        @* <div class="col-12 pt-4 pb-5 px-3 px-lg-5">
+            <h1>Blazor GitHub Issues</h1>
+            <p>
+                Sample dashboard that uses data from the <a href="https://github.com/dotnet/aspnetcore/issues" target="_blank">ASP.NET GitHub repository</a>. Data is updated 24 hours.
+            </p>
+            <div class="container-fluid p-0" style="position: relative">
+                <div class="row no-gutters mx-n2">
+                    <div class="col-xl-3 col-lg-6 p-2">
+                        <div class="rz-card card" id="cMfZXnl6kE" _bl_c1989146-be04-4d96-80eb-fcdbd9f59ab2="">
+                            <h3>Open Issues</h3>
+                            <label style="color: #009B51; position: absolute; font-size: 3rem; left: 2rem; top: 1rem">52</label>
+                            <div class="rz-chart rz-scheme-pastel" style="width: 100%; height: 120px; margin-bottom: -30px;" id="HQFM4Ggb9k" _bl_2c4ee7cf-944c-4d06-920e-e7542aed95d5="">
+                                <svg style="width: 100%; height: 100%">
+                                    <g transform="translate(0, 32)">
+                                        <defs>
+                                            <clipPath id="clipPathHQFM4Ggb9k">
+                                                <path d="M 0 56 L 199.3000030517578 56 L 199.3000030517578 0 L 0 0"></path>
+                                            </clipPath>
+                                        </defs>
+
+
+                                        <g class="rz-column-series rz-series-0">
+                                            <path d="M -12.456250190734863 47.6 A 0 0 0 0 1 -12.456250190734863 47.6 L 12.456250190734863 47.6 A 0 0 0 0 1 12.456250190734863 47.6 L 12.456250190734863 56 L -12.456250190734863 56 Z" fill="#009B51" stroke-width="0" style="clip-path: url(#clipPathHQFM4Ggb9k); -webkit-clip-path: url(#clipPathHQFM4Ggb9k);"></path>
+                                            <path d="M 27.4037504196167 19.6 A 0 0 0 0 1 27.4037504196167 19.6 L 52.316250801086426 19.6 A 0 0 0 0 1 52.316250801086426 19.6 L 52.316250801086426 56 L 27.4037504196167 56 Z" fill="#009B51" stroke-width="0" style="clip-path: url(#clipPathHQFM4Ggb9k); -webkit-clip-path: url(#clipPathHQFM4Ggb9k);"></path>
+                                            <path d="M 67.26375102996826 25.199999999999996 A 0 0 0 0 1 67.26375102996826 25.199999999999996 L 92.17625141143799 25.199999999999996 A 0 0 0 0 1 92.17625141143799 25.199999999999996 L 92.17625141143799 56 L 67.26375102996826 56 Z" fill="#009B51" stroke-width="0" style="clip-path: url(#clipPathHQFM4Ggb9k); -webkit-clip-path: url(#clipPathHQFM4Ggb9k);"></path>
+                                            <path d="M 107.12375164031982 39.2 A 0 0 0 0 1 107.12375164031982 39.2 L 132.03625202178955 39.2 A 0 0 0 0 1 132.03625202178955 39.2 L 132.03625202178955 56 L 107.12375164031982 56 Z" fill="#009B51" stroke-width="0" style="clip-path: url(#clipPathHQFM4Ggb9k); -webkit-clip-path: url(#clipPathHQFM4Ggb9k);"></path>
+                                            <path d="M 146.9837522506714 30.8 A 0 0 0 0 1 146.9837522506714 30.8 L 171.8962526321411 30.8 A 0 0 0 0 1 171.8962526321411 30.8 L 171.8962526321411 56 L 146.9837522506714 56 Z" fill="#009B51" stroke-width="0" style="clip-path: url(#clipPathHQFM4Ggb9k); -webkit-clip-path: url(#clipPathHQFM4Ggb9k);"></path>
+                                            <path d="M 186.84375286102295 28 A 0 0 0 0 1 186.84375286102295 28 L 211.75625324249268 28 A 0 0 0 0 1 211.75625324249268 28 L 211.75625324249268 56 L 186.84375286102295 56 Z" fill="#009B51" stroke-width="0" style="clip-path: url(#clipPathHQFM4Ggb9k); -webkit-clip-path: url(#clipPathHQFM4Ggb9k);"></path>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-6 p-2">
+                        <div class="rz-card card" id="RfZVTEYqsk" _bl_763c8981-b13d-40dd-8ba6-9ef7a5a67337="">
+                            <h3>Closed Issues</h3>
+                            <label style="color: #F31155; position: absolute; font-size: 3rem; left: 2rem; top: 1rem">101</label>
+                            <div class="rz-chart rz-scheme-pastel" style="width: 100%; height: 120px; margin-bottom: -30px;" id="VdtJPyAfFk" _bl_463d6243-1355-45b9-8297-13d9afe0a091="">
+                                <svg style="width: 100%; height: 100%">
+                                    <g transform="translate(0, 32)">
+                                        <defs>
+                                            <clipPath id="clipPathVdtJPyAfFk">
+                                                <path d="M 0 56 L 199.3000030517578 56 L 199.3000030517578 0 L 0 0"></path>
+                                            </clipPath>
+                                        </defs>
+                                        <g class="rz-column-series rz-series-0">
+                                            <path d="M -12.456250190734863 43.4 A 0 0 0 0 1 -12.456250190734863 43.4 L 12.456250190734863 43.4 A 0 0 0 0 1 12.456250190734863 43.4 L 12.456250190734863 56 L -12.456250190734863 56 Z" fill="#F31155" stroke-width="0" style="clip-path: url(#clipPathVdtJPyAfFk); -webkit-clip-path: url(#clipPathVdtJPyAfFk);"></path>
+                                            <path d="M 27.4037504196167 33.599999999999994 A 0 0 0 0 1 27.4037504196167 33.599999999999994 L 52.316250801086426 33.599999999999994 A 0 0 0 0 1 52.316250801086426 33.599999999999994 L 52.316250801086426 56 L 27.4037504196167 56 Z" fill="#F31155" stroke-width="0" style="clip-path: url(#clipPathVdtJPyAfFk); -webkit-clip-path: url(#clipPathVdtJPyAfFk);"></path>
+                                            <path d="M 67.26375102996826 25.199999999999996 A 0 0 0 0 1 67.26375102996826 25.199999999999996 L 92.17625141143799 25.199999999999996 A 0 0 0 0 1 92.17625141143799 25.199999999999996 L 92.17625141143799 56 L 67.26375102996826 56 Z" fill="#F31155" stroke-width="0" style="clip-path: url(#clipPathVdtJPyAfFk); -webkit-clip-path: url(#clipPathVdtJPyAfFk);"></path>
+                                            <path d="M 107.12375164031982 22.4 A 0 0 0 0 1 107.12375164031982 22.4 L 132.03625202178955 22.4 A 0 0 0 0 1 132.03625202178955 22.4 L 132.03625202178955 56 L 107.12375164031982 56 Z" fill="#F31155" stroke-width="0" style="clip-path: url(#clipPathVdtJPyAfFk); -webkit-clip-path: url(#clipPathVdtJPyAfFk);"></path>
+                                            <path d="M 146.9837522506714 33.599999999999994 A 0 0 0 0 1 146.9837522506714 33.599999999999994 L 171.8962526321411 33.599999999999994 A 0 0 0 0 1 171.8962526321411 33.599999999999994 L 171.8962526321411 56 L 146.9837522506714 56 Z" fill="#F31155" stroke-width="0" style="clip-path: url(#clipPathVdtJPyAfFk); -webkit-clip-path: url(#clipPathVdtJPyAfFk);"></path>
+                                            <path d="M 186.84375286102295 36.400000000000006 A 0 0 0 0 1 186.84375286102295 36.400000000000006 L 211.75625324249268 36.400000000000006 A 0 0 0 0 1 211.75625324249268 36.400000000000006 L 211.75625324249268 56 L 186.84375286102295 56 Z" fill="#F31155" stroke-width="0" style="clip-path: url(#clipPathVdtJPyAfFk); -webkit-clip-path: url(#clipPathVdtJPyAfFk);"></path>
+                                        </g>
+                                    </g>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-6 p-2">
+                        <div class="rz-card card" id="YoKZWzng3U" _bl_460d6887-84c2-433e-ac00-bc7988381701="">
+                            <h3>All Issues</h3>
+                            <label style="position: absolute; font-size: 3rem; left: 2rem; top: 1rem">153</label>
+                            <div class="rz-chart rz-scheme-pastel" style="width: 100%; height: 120px; margin-bottom: -30px;" id="0FO-RoXU7U" _bl_03ffa905-eea4-4b6e-b58b-b224dd32e548="">
+                                <svg style="width: 100%; height: 100%">
+                                    <g transform="translate(0, 32)">
+                                        <defs>
+                                            <clipPath id="clipPath0FO-RoXU7U">
+                                                <path d="M 0 56 L 199.3000030517578 56 L 199.3000030517578 0 L 0 0"></path>
+                                            </clipPath>
+                                        </defs>
+                                        <g class="rz-line-series rz-series-0">
+                                            <path d="M 0 52.64 C 13.286666870117188, 48.906666666666666 26.573333740234375, 41.44 39.86000061035156, 41.44C 53.14666748046875, 41.44 66.43333435058594, 42.373333333333335 79.72000122070312, 43.68C 93.00666809082031, 44.986666666666665 106.2933349609375, 49.28 119.58000183105469, 49.28C 132.86666870117188, 49.28 146.15333557128906, 46.66666666666667 159.44000244140625, 45.92C 172.72666931152344, 45.17333333333333 186.01333618164062, 45.17333333333333 199.3000030517578, 44.8" fill="none" stroke="#009B51" stroke-width="2" style="clip-path: url(#clipPath0FO-RoXU7U); -webkit-clip-path: url(#clipPath0FO-RoXU7U);"></path>
+                                            <g class="rz-marker">
+                                            </g>
+                                            <g class="rz-marker">
+                                            </g>
+                                            <g class="rz-marker">
+                                            </g>
+                                            <g class="rz-marker">
+                                            </g>
+                                            <g class="rz-marker">
+                                            </g>
+                                            <g class="rz-marker">
+                                            </g>
+                                        </g><g class="rz-line-series rz-series-1">
+                                            <path d="M 0 45.92 C 13.286666870117188, 43.306666666666665 26.573333740234375, 40.50666666666667 39.86000061035156, 38.08C 53.14666748046875, 35.65333333333333 66.43333435058594, 32.85333333333333 79.72000122070312, 31.36C 93.00666809082031, 29.866666666666667 106.2933349609375, 29.12 119.58000183105469, 29.12C 132.86666870117188, 29.12 146.15333557128906, 36.21333333333333 159.44000244140625, 38.08C 172.72666931152344, 39.946666666666665 186.01333618164062, 39.57333333333333 199.3000030517578, 40.32" fill="none" stroke="#F31155" stroke-width="2" style="clip-path: url(#clipPath0FO-RoXU7U); -webkit-clip-path: url(#clipPath0FO-RoXU7U);"></path>
+                                            <g class="rz-marker">
+                                            </g>
+                                            <g class="rz-marker">
+                                            </g>
+                                            <g class="rz-marker">
+                                            </g>
+                                            <g class="rz-marker">
+                                            </g>
+                                            <g class="rz-marker">
+                                            </g>
+                                            <g class="rz-marker">
+                                            </g>
+                                        </g>
+                                    </g>
+                                </svg>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-6 p-2">
+                        <div class="rz-card card" id="8r7gkXSA60" _bl_aa7c85c3-4614-456f-b5f5-83908037fb10="">
+                            <h3>Progress</h3>
+                            <div style="width: 100%; height: 120px; margin-top: -30px;" class="rz-arc-gauge" id="42R0QtsEZk" _bl_03b9f259-7bf9-4273-ac7c-a92ff7a0b257="">
+                                <svg style="width: 100%; height: 100%">
+
+                                    <g class="rz-arc-gauge-scale">
+                                        <g class="rz-line">
+                                            <path class="rz-scale-line" d="M 59.650001525878906 96 A 56 56 0 0 1 171.6500015258789 96" fill="none" stroke-width="0"></path>
+                                        </g>
+
+                                        <path d="M 59.650001525878906 96 A 56 56 0 0 1 171.6500015258789 96 L 166.0500015258789 96 A 50.4 50.4 0 0 0 65.2500015258789 96 Z" stroke-width="0"></path>
+                                    </g>
+
+                                    <g class="rz-arc-gauge-scale-value">
+                                        <path d="M 59.650001525878906 96 A 56 56 0 0 1 142.64835766981844 46.93790907915765 L 139.9485220554245 51.84411817124188 A 50.4 50.4 0 0 0 65.2500015258789 96 Z" stroke-width="0"></path>
+                                    </g>
+                                </svg>
+                                <div class="rz-arc-gauge-value" style="left: 115.6500015258789px; top: 96px">
+                                    66 %
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row no-gutters mx-n2">
+                    <div class="col-lg-9">
+                        <div class="row no-gutters">
+                            <div class="col-lg-6 p-2">
+                                <div class="rz-card card" style="height: 280px" id="nitgv59Zzk" _bl_9635cbe2-6d6c-4cbf-aa96-e8e1cc3967a8="">
+                                    <h3>Top Issue Labels</h3>
+                                    <div class="rz-chart rz-scheme-pastel" style="width: 100%; height: 200px" id="384UmvO-5U" _bl_cdb3b4e5-845f-408b-aaea-1713c206deea="">
+                                        <div class="rz-legend rz-legend-right">
+                                            <ul class="rz-legend-items">
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-0">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" fill="#bbbbbb" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text">Status: Resolved</span>
+                                                </li>
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-1">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" fill="#7132ba" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text"> Resolution: Answered</span>
+                                                </li>
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-2">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" fill="#cc317c" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text">question</span>
+                                                </li>
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-3">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" fill="#f22307" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text">blazor-wasm</span>
+                                                </li>
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-4">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" fill="#bfe5bf" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text">investigate</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <svg style="width: 100%; height: 100%">
+                                            <g transform="translate(0, 32)">
+                                                <defs>
+                                                    <clipPath id="clipPath384UmvO-5U">
+                                                        <path d="M 0 136 L 193.95001220703125 136 L 193.95001220703125 0 L 0 0"></path>
+                                                    </clipPath>
+                                                </defs>
+                                                <g>
+                                                    <g class="rz-donut-series rz-series-0">
+                                                        <g class="rz-series-item-0">
+                                                            <path d="M 104.97500610351562 0 A 68 68 0 0 1 170.98925501939607 84.31315236464667 L 137.98213056145585 76.15657618232333 A 34 34 0 0 0 104.97500610351562 34" fill="#bbbbbb" stroke-width="0"></path>
+                                                        </g>
+                                                        <g class="rz-series-item-1">
+                                                            <path d="M 170.98925501939607 84.31315236464667 A 68 68 0 0 1 85.0767910760477 133.02354218835399 L 95.02589858978166 100.51177109417699 A 34 34 0 0 0 137.98213056145585 76.15657618232333" fill="#7132ba" stroke-width="0"></path>
+                                                        </g>
+                                                        <g class="rz-series-item-2">
+                                                            <path d="M 85.0767910760477 133.02354218835399 A 68 68 0 0 1 37.22610480343302 73.8383535891265 L 71.10055545347433 70.91917679456324 A 34 34 0 0 0 95.02589858978166 100.51177109417699" fill="#cc317c" stroke-width="0"></path>
+                                                        </g>
+                                                        <g class="rz-series-item-3">
+                                                            <path d="M 37.22610480343302 73.8383535891265 A 68 68 0 0 1 70.51583127068587 9.37777494976438 L 87.74541868710074 38.68888747488219 A 34 34 0 0 0 71.10055545347433 70.91917679456324" fill="#f22307" stroke-width="0"></path>
+                                                        </g>
+                                                        <g class="rz-series-item-4">
+                                                            <path d="M 70.51583127068587 9.37777494976438 A 68 68 0 0 1 104.97500610351561 0 L 104.97500610351562 34 A 34 34 0 0 0 87.74541868710074 38.68888747488219" fill="#bfe5bf" stroke-width="0"></path>
+                                                        </g>
+                                                    </g>
+
+                                                    <g class="rz-donut-title">
+                                                        <text class="rz-donut-title" x="104.97500610351562" y="68">
+                                                            Issues
+                                                        </text>
+                                                    </g>
+                                                </g>
+                                            </g>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6 p-2">
+                                <div class="rz-card card" style="height: 280px" id="lBx7IanCRE" _bl_805d4643-832a-483d-bcdb-72b564f4b920="">
+                                    <h3>Top Contributors</h3>
+                                    <div class="rz-chart rz-scheme-pastel" style="width: 100%; height: 200px" id="lymIvnE5GE" _bl_d227517d-9b2a-424b-8bf8-accc3b05ad56="">
+                                        <div class="rz-legend rz-legend-right">
+                                            <ul class="rz-legend-items">
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-0">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text">pranavkm</span>
+                                                </li>
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-1">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text">SteveSandersonMS</span>
+                                                </li>
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-2">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text">javiercn</span>
+                                                </li>
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-3">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text">vsfeedback</span>
+                                                </li>
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-4">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text">hintsofttech</span>
+                                                </li>
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-5">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text">TanayParikh</span>
+                                                </li>
+                                                <li class="rz-legend-item">
+                                                    <svg width="10" height="10">
+                                                        <g class="rz-series-0 rz-series-item-6">
+                                                            <g class="rz-marker">
+                                                                <path d="M 0 0 L 10 0 L 10 10 L 0 10 Z" stroke-width="0"></path>
+                                                            </g>
+                                                        </g>
+                                                    </svg>
+                                                    <span class="rz-legend-item-text">hakenr</span>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <svg style="width: 100%; height: 100%">
+                                            <g transform="translate(0, 32)">
+                                                <defs>
+                                                    <clipPath id="clipPathlymIvnE5GE">
+                                                        <path d="M 0 136 L 212.32501220703125 136 L 212.32501220703125 0 L 0 0"></path>
+                                                    </clipPath>
+                                                </defs>
+                                                <g class="rz-pie-series rz-series-0">
+                                                    <g class="rz-series-item-0">
+                                                        <path d="M 114.16250610351562 0 A 68 68 0 0 1 182.08548516796017 64.76442972398553 L 114.16250610351562 68 A 0 0 0 0 0 114.16250610351562 68" stroke-width="0"></path>
+                                                    </g>
+                                                    <g class="rz-series-item-1">
+                                                        <path d="M 182.08548516796017 64.76442972398553 A 68 68 0 0 1 133.32031996873286 133.24552220578582 L 114.16250610351562 68 A 0 0 0 0 0 114.16250610351562 68" stroke-width="0"></path>
+                                                    </g>
+                                                    <g class="rz-series-item-2">
+                                                        <path d="M 133.32031996873286 133.24552220578582 A 68 68 0 0 1 83.00310262605171 128.4408105085348 L 114.16250610351562 68 A 0 0 0 0 0 114.16250610351562 68" stroke-width="0"></path>
+                                                    </g>
+                                                    <g class="rz-series-item-3">
+                                                        <path d="M 83.00310262605171 128.4408105085348 A 68 68 0 0 1 49.902450430918165 90.24062150558466 L 114.16250610351562 68 A 0 0 0 0 0 114.16250610351562 68" stroke-width="0"></path>
+                                                    </g>
+                                                    <g class="rz-series-item-4">
+                                                        <path d="M 49.902450430918165 90.24062150558466 A 68 68 0 0 1 52.30753041940838 39.75177911587172 L 114.16250610351562 68 A 0 0 0 0 0 114.16250610351562 68" stroke-width="0"></path>
+                                                    </g>
+                                                    <g class="rz-series-item-5">
+                                                        <path d="M 52.30753041940838 39.75177911587172 A 68 68 0 0 1 77.39893051653499 10.794759767479675 L 114.16250610351562 68 A 0 0 0 0 0 114.16250610351562 68" stroke-width="0"></path>
+                                                    </g>
+                                                    <g class="rz-series-item-6">
+                                                        <path d="M 77.39893051653499 10.794759767479675 A 68 68 0 0 1 114.16250610351561 0 L 114.16250610351562 68 A 0 0 0 0 0 114.16250610351562 68" stroke-width="0"></path>
+                                                    </g>
+                                                </g>
+                                            </g>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 p-2">
+                        <div class="rz-card card" style="height: 280px" id="RWsDD9d6E0" _bl_652f9ca6-f1c0-4fc3-936a-dc54ad48c356="">
+                            <h3>Most Active Member</h3>
+                            <div class="text-center">
+                                <img style="width: 120px; border-radius: 50%; margin: 20px 0;" src="https://avatars.githubusercontent.com/u/1101362?v=4">
+                                <h4>SteveSandersonMS</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="rz-card card mt-5 content-footer" id="ZcI-qvF2q0" _bl_17efcf3e-9ff4-4ef4-82d9-25b5e7ec8a1f="">
+                <div class="row align-items-center">
+                    <div class="col-12 col-lg-7 px-5 py-3 text-center text-lg-left">
+                        <h2 class="mb-3">Boost your Blazor development with Radzen</h2>
+                        <p class="mb-2">Radzen is a desktop tool that gives you the power to create line of business applications. Build and launch Blazor apps visually, while we generate clean code for you.</p>
+                    </div>
+                    <div class="col-12 col-lg-5 px-5 text-center text-lg-right">
+                        <a href="https://www.radzen.com/features/" target="_blank" class="cta-button ml-0 my-2">Learn More</a>
+                        <a href="https://www.radzen.com/download/" target="_blank" class="cta-button primary my-2">Download Radzen</a>
+                    </div>
+                </div>
+            </div>
+            <p class="mt-5 md-3 text-center">
+                <label class="rz-label" id="jftPT4GUsk" _bl_03d81363-07cc-4c5f-96ec-15b1e55736b9="">Radzen Blazor Components, © 2018-2022 Radzen.</label>
+                <a href="https://github.com/radzenhq/radzen-blazor" target="_blank">Source Code</a> licensed under
+                <a href="https://github.com/radzenhq/radzen-blazor/blob/master/LICENSE" target="_blank">MIT</a>
+            </p>
+            <p class="text-center">
+                <iframe title="Follow Radzen on twitter" frameborder="0" scrolling="no" src="https://platform.twitter.com/widgets/follow_button.html?screen_name=radzenhq&amp;show_screen_name=false&amp;show_count=true" width="150px" height="20px"></iframe>
+                <iframe title="Star Radzen on GitHub" src="https://ghbtns.com/github-btn.html?user=radzenhq&amp;repo=radzen-blazor&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="100px" height="20px"></iframe>
+                <iframe title="Watch Radzen YouTube videos" ng-non-bindable="" frameborder="0" hspace="0" marginheight="0" marginwidth="0" scrolling="no" style="position: static; top: 0px; width: 115px; margin: 0px; border-style: none; left: 0px; visibility: visible; height: 24px;" tabindex="0" vspace="0" width="100%" id="I23_1580801975820" name="I23_1580801975820" src="https://www.youtube.com/subscribe_embed?usegapi=1&amp;channelid=UCAX4L9SPAigw41-RqTYEeKg&amp;layout=default&amp;count=default&amp;origin=https%3A%2F%2Fdevelopers-dot-devsite-v2-prod.appspot.com&amp;gsrc=3p&amp;ic=1&amp;jsh=m%3B%2F_%2Fscs%2Fapps-static%2F_%2Fjs%2Fk%3Doz.gapi.en.xh-S9KbEGSE.O%2Fam%3DwQc%2Fd%3D1%2Fct%3Dzgms%2Frs%3DAGLTcCNaUSRWzhd71dAsiMVOstVE3KcJZw%2Fm%3D__features__#_methods=onPlusOne%2C_ready%2C_close%2C_open%2C_resizeMe%2C_renderstart%2Concircled%2Cdrefresh%2Cerefresh&amp;id=I23_1580801975820&amp;_gfid=I23_1580801975820&amp;parent=https%3A%2F%2Fdevelopers-dot-devsite-v2-prod.appspot.com&amp;pfname=&amp;rpctoken=26041136" data-gapiattached="true"></iframe>
+            </p>
+        </div> *@
+    </div>
+</div>

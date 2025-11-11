@@ -1,0 +1,93 @@
+﻿@page "/save-claims/{Id}"
+@layout MainLayout
+
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+
+<!-- <History Author = 'Muhammad Zaeem' Date='2022-03-16' Version="1.0" Branch="master">Show All Literature Types</History> -->
+<PageTitle>@(translationState.Translate("Update_Claims"))</PageTitle>
+
+<div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                <RadzenBreadCrumbItem Path="/claims" Text="@translationState.Translate("Claims")" />
+                <RadzenBreadCrumbItem Text="@( translationState.Translate("Update_Claims"))" />
+            </RadzenBreadCrumb>
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+        <div class="backtoDashboard">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                          class="returnBtn"
+                          Icon="home" Click="@GoBackHomeScreen" />
+        </div>
+    </div>
+</div>
+<div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenHeading Size="H1" class="pageTitle" Text="@( translationState.Translate("Update_Claims"))" />
+        </div>
+    </div>
+</div>
+<RadzenContent Container="main">
+    <ChildContent>
+        <RadzenCard>
+            <RadzenTemplateForm Data="@getClaimsResult" Visible="@(getClaimsResult != null)" TItem="ClaimUms" Submit="@SaveClaimsSubmit">
+                <ChildContent>
+                    <div class="col-12 mt-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-6">
+                                    <RadzenLabel Text="@translationState.Translate("Title_En")" Component="Title_En" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Title_En")" @bind-Value="@(getClaimsResult.Title_En)" Name="Title_En" />
+                                     <RadzenRegexValidator Component="Title_Ar" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                                    <RadzenRequiredValidator Component="Title_En" Text="@translationState.Translate("Required_Field")" />
+                                    <RadzenLengthValidator Component="Title_En" Max="150" Text="@translationState.Translate("Max_One_Fifty_Characters")" />
+                                    <RadzenRegexValidator Component="Title_En" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesPattern" />
+                                </div>
+                                <div class="col-6">
+                                    <RadzenLabel Text="@translationState.Translate("Title_Ar")" Component="Title_Ar" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Title_Ar")" @bind-Value="@(getClaimsResult.Title_Ar)" Name="Title_Ar" />
+                                    <RadzenRequiredValidator Component="Title_Ar" Text="@translationState.Translate("Required_Field")" />
+                                    <RadzenLengthValidator Component="Title_Ar" Max="150" Text="@translationState.Translate("Max_One_Fifty_Characters")" />
+                                    <RadzenRegexValidator Component="Title_Ar" Text="@translationState.Translate("Only_Arabic_Characters_Are_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                                    <RadzenRegexValidator Component="Title_Ar" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesPattern" />
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-6">
+                                    <RadzenLabel Text="@translationState.Translate("Module")" Component="Module" />
+                                    <RadzenTextBox Disabled Placeholder="@translationState.Translate("Module")" @bind-Value="@(getClaimsResult.Module)" Name="Module" />
+                                    <RadzenRequiredValidator Component="Module" Text="@translationState.Translate("Required_Field")" />
+                                    <RadzenLengthValidator Component="Module" Max="150" Text="@translationState.Translate("Max_One_Fifty_Characters")" />
+                                </div>
+                                <div class="col-6">
+                                    <RadzenLabel Text="@translationState.Translate("SubModule")" Component="SubModule" />
+                                    <RadzenTextBox Disabled Placeholder="@translationState.Translate("SubModule")" @bind-Value="@(getClaimsResult.SubModule)" Name="SubModule" />
+                                    <RadzenRequiredValidator Component="SubModule" Text="@translationState.Translate("Required_Field")" />
+                                    <RadzenLengthValidator Component="SubModule" Max="150" Text="@translationState.Translate("Max_One_Fifty_Characters")" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="popup-buttons-alignment">
+                            <RadzenButton Style="margin-left: 10px; margin-right: 10px;" ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@(translationState.Translate("Update"))" />
+                            <RadzenButton Text="@translationState.Translate("Cancel")" ButtonStyle="ButtonStyle.Light"  Click="@Button2Click" />
+                        </div>
+                    </div>
+                </ChildContent>
+            </RadzenTemplateForm>
+        </RadzenCard>
+    </ChildContent>
+</RadzenContent>
+
+
+
+

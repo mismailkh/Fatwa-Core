@@ -1,0 +1,138 @@
+﻿@page "/workflow-instances"
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowEnums
+<PageTitle>@translationState.Translate("Workflow_Instances")</PageTitle>
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.WF.WorkflowInstance.List").Any())
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Workflow_Instances")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Workflow_Instances")" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="row col-md-12 justify-content-center">
+
+                @if (SelectedRow?.Any() == true)
+                {
+                    <div class="row no-gutters mb-2">
+                        <RadzenHeading Size="H1" class="pageTitle rz-badge-WorkflowInstance rz-badge-light mr-3" Text="@(translationState.Translate("Total_Instances_Running_On")+$" {SelectedRow[0].WorkflowName}")" />
+                    </div>
+
+                }
+                else
+                {
+                    <div class="row no-gutters mb-2">
+                        <RadzenHeading Size="H1" class="pageTitle rz-badge-WorkflowInstance rz-badge-light mr-3" Text="@translationState.Translate("Total_Instances_Running")" />
+                    </div>
+                }
+            </div>
+            <div class="row justify-content-center instance_block">
+                <TileComponent Title="@translationState.Translate("Success_Instances")" Value="@_workflowInstanceCount.Success" CSSClass="roundcard-2" />
+                <TileComponent Title="@translationState.Translate("Failed_Instances")" Value="@_workflowInstanceCount.Failed" CSSClass="roundcard-2" />
+                <TileComponent Title="@translationState.Translate("Expired_Instances")" Value="@_workflowInstanceCount.Expired" CSSClass="roundcard-2" />
+                <TileComponent Title="@translationState.Translate("InProgress_Instances")" Value="@_workflowInstanceCount.InProgress" CSSClass="roundcard-2" />
+                <TileComponent Title="@translationState.Translate("Total_Instances")" Value="@_workflowInstanceCount.Total" CSSClass="roundcard-2" />
+                <TileComponent Title="@translationState.Translate("Cancelled_Instances")" Value="@_workflowInstanceCount.Cancel" CSSClass="roundcard-2" />
+            </div>
+            <div class="row justify-content-center">
+
+                <div class="col-md-12 p-3">
+                    <RadzenCard>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <RadzenTextBox class="searchBox"
+                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                               Name="Textbox0"
+                                               @bind-Value="search"
+                                @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+                             </div>
+                           @*  <div class="col-md-6 text-right">
+                                <RadzenSplitButton Icon="download" style="margin-left: 10px; margin-bottom: 10px" Text="@translationState.Translate("Export_Button")">
+                                    <ChildContent>
+                                        <RadzenSplitButtonItem Text="@translationState.Translate("Export_Button_Excel")" Value="xlsx"> </RadzenSplitButtonItem>
+                                        <RadzenSplitButtonItem Text="@translationState.Translate("Export_Button_CSV")" Value="csv"> </RadzenSplitButtonItem>
+                                    </ChildContent>
+                                </RadzenSplitButton>
+                            </div> *@
+                        </div>
+                        <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        @ref="grid0"
+                                            Count="@(getdocumentInstancesResult?.Any() == true ? getdocumentInstancesResult.FirstOrDefault().TotalCount : 0)"
+                                            FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        LoadData="OnLoadData"
+                                        Data="@filteredGetDocumentInstancesResult"
+                                        Sort="OnSortData"
+                                        TItem="WorkflowInstanceDocumentVM"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                        SelectionMode="DataGridSelectionMode.Single"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        @bind-Value="@SelectedRow"
+                                        RowClick="@(args=>OnRowClick(args.Data))">
+
+                            <Columns>
+                                <RadzenDataGridColumn TItem="WorkflowInstanceDocumentVM" Property="Title" Title="@translationState.Translate("Instance_Title")"> </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WorkflowInstanceDocumentVM" Property="WorkflowName" Title="@translationState.Translate("Workflow")"> </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WorkflowInstanceDocumentVM" Property="ActivityName" Title="@translationState.Translate("Activity")">
+                                    <Template Context="activity">
+                                        @translationState.Translate($"{activity.ActivityName}")
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WorkflowInstanceDocumentVM" Property="Status" Title="@translationState.Translate("Workflow_Status")"> </RadzenDataGridColumn>
+                                @*<RadzenDataGridColumn Title="@translationState.Translate("Action")" TItem="WorkflowInstanceDocumentVM" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                            <Template Context="fatwalmsModelsFatwaDbLmsLiteratureType">
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) => EditLiterature( args, fatwalmsModelsFatwaDbLmsLiteratureType ))" @onclick:stopPropagation="true" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" title="@translationState.Translate("delete")" Size="ButtonSize.Small" Click="@((args) => GridDeleteButtonClick(args, fatwalmsModelsFatwaDbLmsLiteratureType))" @onclick:stopPropagation="true" />
+                            </Template>
+                            </RadzenDataGridColumn>*@
+                            </Columns>
+                        </RadzenDataGrid>
+                        </div>
+                    </RadzenCard>
+                </div>
+            </div>
+
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

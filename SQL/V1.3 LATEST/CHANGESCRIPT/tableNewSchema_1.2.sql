@@ -1,0 +1,3000 @@
+﻿/****** Object:  Table [dbo].[CMS_CASE_FILE]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_FILE]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_FILE]
+GO
+
+/****** Object:  Table [dbo].[CMS_CASE_FILE]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_CASE_FILE](
+	[FileId] [uniqueidentifier] NOT NULL,
+	[RequestId] [uniqueidentifier] NOT NULL,
+	[FileNumber] [nvarchar](1000) NOT NULL,
+	[StatusId] [int] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[FileId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+/****** Object:  Table [dbo].[CMS_CASE_FILE_STATUS_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_FILE_STATUS_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_FILE_STATUS_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_CASE_FILE_STATUS_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_CASE_FILE_STATUS_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](100) NOT NULL,
+	[Name_Ar] [nvarchar](100) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_CASE_PARTY_CATEGORY_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_PARTY_CATEGORY_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_PARTY_CATEGORY_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_CASE_PARTY_CATEGORY_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_CASE_PARTY_CATEGORY_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_CASE_PARTY_LINK]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_PARTY_LINK]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_PARTY_LINK]
+GO
+
+/****** Object:  Table [dbo].[CMS_CASE_PARTY_LINK]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_CASE_PARTY_LINK](
+	[Id] [uniqueidentifier] NOT NULL,
+	[RequestId] [uniqueidentifier] NOT NULL,
+	[CategoryId] [int] NOT NULL,
+	[TypeId] [int] NOT NULL,
+	[Name] [nvarchar](500) NULL,
+	[CivilId] [nvarchar](20) NULL,
+	[CRN] [nvarchar](30) NULL,
+	[MinistryId] [int] NULL,
+	[Representative] [nvarchar](500) NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_CASE_PARTY_TYPE_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_PARTY_TYPE_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_PARTY_TYPE_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_CASE_PARTY_TYPE_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_CASE_PARTY_TYPE_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [dbo].[CMS_COURT_VISIT_TYPE]    Script Date: 16/12/2022 12:35:06 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+/****** Object:  Table [dbo].[[CMS_COURT_VISIT_TYPE]]    Script Date: 16/12/2022 11:29:57 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[[CMS_COURT_VISIT_TYPE]]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_COURT_VISIT_TYPE]
+GO
+CREATE TABLE [dbo].[CMS_COURT_VISIT_TYPE](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[NameEn] [nvarchar](150) NULL,
+	[NameAr] [nvarchar](150) NULL,
+ CONSTRAINT [PK_CMS_COURT_VISIT_TYPE] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST]    Script Date: 16/12/2022 11:29:57 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_REQUEST]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_REQUEST]
+GO
+
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST]    Script Date: 16/12/2022 11:29:57 am ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_CASE_REQUEST](
+	[RequestId] [uniqueidentifier] NOT NULL,
+	[RequestNumber] [int] NOT NULL,
+	[RequestDate] [datetime] NOT NULL,
+	[ClaimAmount] [decimal](10, 2) NULL,
+	[ReferenceNo] [nvarchar](50) NULL,
+	[ReferenceDate] [date] NULL,
+	[Remarks] [nvarchar](max) NULL,
+	[CaseRequirements] [nvarchar](max) NULL,
+	[Subject] [nvarchar](1000) NULL,
+	[IsConfidential] [bit] NULL,
+	[GovtEntityId] [int] NULL,
+	[DepartmentId] [int] NULL,
+	[SectorTypeId] [int] NULL,
+	[SubTypeId] [int] NULL,
+	[PriorityId] [int] NULL,
+	[StatusId] [int] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[ReceivedBy] [nvarchar](256) NULL,
+	[ReceivedDate] [datetime] NULL,
+	[ReviewedBy] [nvarchar](256) NULL,
+	[ReviewedDate] [datetime] NULL,
+	[ApprovedBy] [nvarchar](256) NULL,
+	[ApprovedDate] [datetime] NULL,
+	[CourtTypeId] [int] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[RequestId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST_EVENT_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_REQUEST_EVENT_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_REQUEST_EVENT_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST_EVENT_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_CASE_REQUEST_EVENT_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST_STATUS_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_REQUEST_STATUS_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_REQUEST_STATUS_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST_STATUS_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_CASE_REQUEST_STATUS_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](100) NOT NULL,
+	[Name_Ar] [nvarchar](100) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST_STATUS_HISTORY]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_REQUEST_STATUS_HISTORY]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_REQUEST_STATUS_HISTORY]
+GO
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST_STATUS_HISTORY]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_CASE_REQUEST_STATUS_HISTORY](
+	[HistoryId] [uniqueidentifier] NOT NULL,
+	[EventId] [int] NOT NULL,
+	[Remarks] [nvarchar](max) NULL,
+	[StatusId] [int] NOT NULL,
+	[RequestId] [uniqueidentifier] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+ CONSTRAINT [PK_CMS_CASE_REQUEST_STATUS_HISTORY] PRIMARY KEY CLUSTERED 
+(
+	[HistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_CHAMBER_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CHAMBER_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CHAMBER_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_CHAMBER_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_CHAMBER_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Number] [nvarchar](1000) NOT NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+	[Address] [nvarchar](1000) NULL,
+	[CourtId] [int] NULL,
+	[IsActive] [bit] NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_COURT_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_COURT_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_COURT_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_COURT_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_COURT_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Number] [nvarchar](1000) NOT NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+	[District] [nvarchar](500) NULL,
+	[Location] [nvarchar](500) NULL,
+	[TypeId] [int] NULL,
+	[IsActive] [bit] NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_COURT_TYPE_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_COURT_TYPE_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_COURT_TYPE_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_COURT_TYPE_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_COURT_TYPE_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+	[IsActive] [bit] NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+/****** Object:  Table [dbo].[CMS_GOVERNMENT_ENTITY_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[GOVERNMENT_ENTITY]') AND type in (N'U'))
+	EXEC SP_RENAME 'dbo.GOVERNMENT_ENTITY', 'CMS_GOVERNMENT_ENTITY_G2G_LKP'
+GO
+
+
+/****** Object:  Table [dbo].[CMS_MINISTRY_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_MINISTRY_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_MINISTRY_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_MINISTRY_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_MINISTRY_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+/****** Object:  Table [dbo].[CMS_OPERATING_SECTOR_TYPE_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_OPERATING_SECTOR_TYPE_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_OPERATING_SECTOR_TYPE_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_OPERATING_SECTOR_TYPE_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_OPERATING_SECTOR_TYPE_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Code] [nvarchar](100) NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_PRIORITY_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_PRIORITY_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_PRIORITY_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_PRIORITY_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_PRIORITY_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](100) NOT NULL,
+	[Name_Ar] [nvarchar](100) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_Response_Type_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_Response_Type_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_Response_Type_G2G_LKP]   ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_Response_Type_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](100) NOT NULL,
+	[Name_Ar] [nvarchar](100) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ SET IDENTITY_INSERT CMS_Response_Type_G2G_LKP ON
+INSERT INTO CMS_Response_Type_G2G_LKP
+(Id, Name_En, Name_Ar)
+VALUES
+('1','Need More Information',N'Need More Information')
+
+/****** Object:  Table [dbo].[CMS_REGISTERED_CASE]    Script Date: 02/12/2022 3:33:15 pm ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_REGISTERED_CASE]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_REGISTERED_CASE]
+GO
+
+/****** Object:  Table [dbo].[CMS_REGISTERED_CASE]    Script Date: 02/12/2022 3:33:15 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_REGISTERED_CASE](
+	[CaseId] [uniqueidentifier] NOT NULL,
+	[FileId] [uniqueidentifier] NOT NULL,
+	[CANNumber] [nvarchar](1000) NOT NULL,
+	[CaseNumber] [nvarchar](1000) NOT NULL,
+	[CaseDate] [datetime] NULL,
+	[CourtId] [int] NULL,
+	[ChamberId] [int] NULL,
+	[StatusId] [int] NOT NULL,
+	[IsConfidential] [bit] NULL,
+	[GovtEntityId] [int] NULL,
+	[RequirementPercentage] [float] NULL,
+	[HasRequirement] [bit] NULL,
+	[CaseAmount] [int] NULL,
+	[CaseRequirements] [nvarchar](max) NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+ CONSTRAINT [PK__CMS_REGI__6CAE524C70040CBF] PRIMARY KEY CLUSTERED 
+(
+	[CaseId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_CHAMBER] FOREIGN KEY([ChamberId])
+REFERENCES [dbo].[CMS_CHAMBER_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE] CHECK CONSTRAINT [CMS_REGISTERED_CASE_CHAMBER]
+GO
+
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_COURT] FOREIGN KEY([CourtId])
+REFERENCES [dbo].[CMS_COURT_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE] CHECK CONSTRAINT [CMS_REGISTERED_CASE_COURT]
+GO
+
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_FILE] FOREIGN KEY([FileId])
+REFERENCES [dbo].[CMS_CASE_FILE] ([FileId])
+GO
+
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE] CHECK CONSTRAINT [CMS_REGISTERED_CASE_FILE]
+GO
+
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_GOVT_ENTITY] FOREIGN KEY([GovtEntityId])
+REFERENCES [dbo].[CMS_GOVERNMENT_ENTITY_G2G_LKP] ([EntityId])
+GO
+
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE] CHECK CONSTRAINT [CMS_REGISTERED_CASE_GOVT_ENTITY]
+GO
+
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_STATUS] FOREIGN KEY([StatusId])
+REFERENCES [dbo].[CMS_REGISTERED_CASE_STATUS_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE] CHECK CONSTRAINT [CMS_REGISTERED_CASE_STATUS]
+GO
+
+
+
+
+/****** Object:  Table [dbo].[CMS_REGISTERED_CASE_EVENT_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_REGISTERED_CASE_EVENT_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_REGISTERED_CASE_EVENT_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_REGISTERED_CASE_EVENT_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_REGISTERED_CASE_EVENT_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [varchar](500) NOT NULL,
+	[Name_Ar] [varchar](500) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_REGISTERED_CASE_STATUS_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_REGISTERED_CASE_STATUS_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_REGISTERED_CASE_STATUS_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](100) NOT NULL,
+	[Name_Ar] [nvarchar](100) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY]
+GO
+/****** Object:  Table [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY](
+	[HistoryId] [uniqueidentifier] NOT NULL,
+	[EventId] [int] NOT NULL,
+	[Remarks] [nvarchar](max) NULL,
+	[StatusId] [int] NOT NULL,
+	[CaseId] [uniqueidentifier] NOT NULL,
+	[FileId] [uniqueidentifier] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[HistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_SUBTYPE_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_SUBTYPE_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_SUBTYPE_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_SUBTYPE_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_SUBTYPE_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[SectorTypeId] [int] NULL,
+	[Code] [nvarchar](100) NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+	[IsActive] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_WITHDRAW_REQUEST]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_WITHDRAW_REQUEST]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_WITHDRAW_REQUEST]
+GO
+/****** Object:  Table [dbo].[CMS_WITHDRAW_REQUEST]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_WITHDRAW_REQUEST](
+	[Id] [uniqueidentifier] NOT NULL,
+	[Reason] [nvarchar](max) NULL,
+	[RequestNumber] [int] NOT NULL,
+	[RequestDate] [datetime] NOT NULL,
+	[CaseRequestId] [uniqueidentifier] NOT NULL,
+	[StatusId] [int] NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[CMS_WITHDRAW_REQUEST_STATUS_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_WITHDRAW_REQUEST_STATUS_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_WITHDRAW_REQUEST_STATUS_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_WITHDRAW_REQUEST_STATUS_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_WITHDRAW_REQUEST_STATUS_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_FILE]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_FILE_REQUEST] FOREIGN KEY([RequestId])
+REFERENCES [dbo].[CMS_CASE_REQUEST] ([RequestId])
+GO
+ALTER TABLE [dbo].[CMS_CASE_FILE] CHECK CONSTRAINT [CMS_CASE_FILE_REQUEST]
+GO
+ALTER TABLE [dbo].[CMS_CASE_FILE]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_FILE_STATUS] FOREIGN KEY([StatusId])
+REFERENCES [dbo].[CMS_CASE_FILE_STATUS_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CASE_FILE] CHECK CONSTRAINT [CMS_CASE_FILE_STATUS]
+GO
+ALTER TABLE [dbo].[CMS_CASE_PARTY_LINK]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_PARTY_LINK_MINISTRY] FOREIGN KEY([MinistryId])
+REFERENCES [dbo].[CMS_MINISTRY_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CASE_PARTY_LINK] CHECK CONSTRAINT [CMS_CASE_PARTY_LINK_MINISTRY]
+GO
+ALTER TABLE [dbo].[CMS_CASE_PARTY_LINK]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_PARTY_LINK_PARTY_CATEGORY] FOREIGN KEY([CategoryId])
+REFERENCES [dbo].[CMS_CASE_PARTY_CATEGORY_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CASE_PARTY_LINK] CHECK CONSTRAINT [CMS_CASE_PARTY_LINK_PARTY_CATEGORY]
+GO
+ALTER TABLE [dbo].[CMS_CASE_PARTY_LINK]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_PARTY_LINK_PARTY_TYPE] FOREIGN KEY([TypeId])
+REFERENCES [dbo].[CMS_CASE_PARTY_TYPE_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CASE_PARTY_LINK] CHECK CONSTRAINT [CMS_CASE_PARTY_LINK_PARTY_TYPE]
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_REQUEST_DEPARTMENT] FOREIGN KEY([DepartmentId])
+REFERENCES [dbo].[DEPARTMENT] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST] CHECK CONSTRAINT [CMS_CASE_REQUEST_DEPARTMENT]
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_REQUEST_GOVT_ENTITY] FOREIGN KEY([GovtEntityId])
+REFERENCES [dbo].[CMS_GOVERNMENT_ENTITY_G2G_LKP] ([EntityId])
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST] CHECK CONSTRAINT [CMS_CASE_REQUEST_GOVT_ENTITY]
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_REQUEST_PRIORITY] FOREIGN KEY([PriorityId])
+REFERENCES [dbo].[CMS_PRIORITY_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST] CHECK CONSTRAINT [CMS_CASE_REQUEST_PRIORITY]
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_REQUEST_SECTOR_TYPE] FOREIGN KEY([SectorTypeId])
+REFERENCES [dbo].[CMS_OPERATING_SECTOR_TYPE_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST] CHECK CONSTRAINT [CMS_CASE_REQUEST_SECTOR_TYPE]
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_REQUEST_STATUS] FOREIGN KEY([StatusId])
+REFERENCES [dbo].[CMS_CASE_REQUEST_STATUS_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST] CHECK CONSTRAINT [CMS_CASE_REQUEST_STATUS]
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_REQUEST_SUBTYPE] FOREIGN KEY([SubTypeId])
+REFERENCES [dbo].[CMS_SUBTYPE_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST] CHECK CONSTRAINT [CMS_CASE_REQUEST_SUBTYPE]
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_HISTORY_CASE_REQUEST_STATUS] FOREIGN KEY([StatusId])
+REFERENCES [dbo].[CMS_CASE_REQUEST_STATUS_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_STATUS_HISTORY] CHECK CONSTRAINT [CMS_CASE_HISTORY_CASE_REQUEST_STATUS]
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_HISTORY_EVENT] FOREIGN KEY([EventId])
+REFERENCES [dbo].[CMS_CASE_REQUEST_EVENT_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_STATUS_HISTORY] CHECK CONSTRAINT [CMS_CASE_HISTORY_EVENT]
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_STATUS_HISTORY_CASE_REQUEST] FOREIGN KEY([RequestId])
+REFERENCES [dbo].[CMS_CASE_REQUEST] ([RequestId])
+GO
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_STATUS_HISTORY] CHECK CONSTRAINT [CMS_CASE_STATUS_HISTORY_CASE_REQUEST]
+GO
+ALTER TABLE [dbo].[CMS_CHAMBER_G2G_LKP]  WITH CHECK ADD  CONSTRAINT [CMS_CHAMBER_COURT] FOREIGN KEY([CourtId])
+REFERENCES [dbo].[CMS_COURT_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_CHAMBER_G2G_LKP] CHECK CONSTRAINT [CMS_CHAMBER_COURT]
+GO
+ALTER TABLE [dbo].[CMS_COURT_G2G_LKP]  WITH CHECK ADD  CONSTRAINT [CMS_COURT_COURT_TYPE] FOREIGN KEY([TypeId])
+REFERENCES [dbo].[CMS_COURT_TYPE_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_COURT_G2G_LKP] CHECK CONSTRAINT [CMS_COURT_COURT_TYPE]
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_CHAMBER] FOREIGN KEY([ChamberId])
+REFERENCES [dbo].[CMS_CHAMBER_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE] CHECK CONSTRAINT [CMS_REGISTERED_CASE_CHAMBER]
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_COURT] FOREIGN KEY([CourtId])
+REFERENCES [dbo].[CMS_COURT_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE] CHECK CONSTRAINT [CMS_REGISTERED_CASE_COURT]
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_FILE] FOREIGN KEY([FileId])
+REFERENCES [dbo].[CMS_CASE_FILE] ([FileId])
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE] CHECK CONSTRAINT [CMS_REGISTERED_CASE_FILE]
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_GOVT_ENTITY] FOREIGN KEY([GovtEntityId])
+REFERENCES [dbo].[CMS_GOVERNMENT_ENTITY_G2G_LKP] ([EntityId])
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE] CHECK CONSTRAINT [CMS_REGISTERED_CASE_GOVT_ENTITY]
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_STATUS] FOREIGN KEY([StatusId])
+REFERENCES [dbo].[CMS_REGISTERED_CASE_STATUS_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE] CHECK CONSTRAINT [CMS_REGISTERED_CASE_STATUS]
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_STATUS_HISTORY_CASE_EVENT] FOREIGN KEY([EventId])
+REFERENCES [dbo].[CMS_REGISTERED_CASE_EVENT_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY] CHECK CONSTRAINT [CMS_REGISTERED_CASE_STATUS_HISTORY_CASE_EVENT]
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_STATUS_HISTORY_CASE_FILE] FOREIGN KEY([FileId])
+REFERENCES [dbo].[CMS_CASE_FILE] ([FileId])
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY] CHECK CONSTRAINT [CMS_REGISTERED_CASE_STATUS_HISTORY_CASE_FILE]
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_STATUS_HISTORY_CASE_STATUS] FOREIGN KEY([StatusId])
+REFERENCES [dbo].[CMS_REGISTERED_CASE_STATUS_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY] CHECK CONSTRAINT [CMS_REGISTERED_CASE_STATUS_HISTORY_CASE_STATUS]
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_STATUS_HISTORY_CMS_REGISTERED_CASE] FOREIGN KEY([CaseId])
+REFERENCES [dbo].[CMS_REGISTERED_CASE] ([CaseId])
+GO
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE_STATUS_HISTORY] CHECK CONSTRAINT [CMS_REGISTERED_CASE_STATUS_HISTORY_CMS_REGISTERED_CASE]
+GO
+ALTER TABLE [dbo].[CMS_WITHDRAW_REQUEST]  WITH CHECK ADD  CONSTRAINT [CMS_WITHDRAW_CASE_REQUEST] FOREIGN KEY([CaseRequestId])
+REFERENCES [dbo].[CMS_CASE_REQUEST] ([RequestId])
+GO
+ALTER TABLE [dbo].[CMS_WITHDRAW_REQUEST] CHECK CONSTRAINT [CMS_WITHDRAW_CASE_REQUEST]
+GO
+ALTER TABLE [dbo].[CMS_WITHDRAW_REQUEST]  WITH CHECK ADD  CONSTRAINT [CMS_WITHDRAW_STATUS_REQUEST] FOREIGN KEY([StatusId])
+REFERENCES [dbo].[CMS_WITHDRAW_REQUEST_STATUS_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[CMS_WITHDRAW_REQUEST] CHECK CONSTRAINT [CMS_WITHDRAW_STATUS_REQUEST]
+GO
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+--<History Author = 'Hassan Abbas' Date='2022-10-26' Version="1.0" Branch="master"> ABOVE SCRIPT EXECUTED ON FATWA_DB_DEV</History>
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+/****** Object:  Table [dbo].[CMS_TEMPLATE]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_TEMPLATE]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_TEMPLATE]
+GO
+/****** Object:  Table [dbo].[CMS_TEMPLATE]    Script Date: 26/10/2022 9:33:54 am ******/
+
+CREATE TABLE CMS_TEMPLATE
+(
+	Id INT PRIMARY KEY IDENTITY(1,1),
+	NameEn NVARCHAR(500),
+	NameAr NVARCHAR(500),
+	Content NVARCHAR(MAX),
+	[IsActive] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL
+)
+
+
+/****** Object:  Table [dbo].[CMS_TEMPLATE_PARAMETER]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_TEMPLATE_PARAMETER]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_TEMPLATE_PARAMETER]
+GO
+/****** Object:  Table [dbo].[CMS_TEMPLATE_PARAMETER]    Script Date: 26/10/2022 9:33:54 am ******/
+
+CREATE TABLE CMS_TEMPLATE_PARAMETER
+(
+	TemplateId INT,
+	ParameterId INT
+)
+
+ALTER TABLE CMS_TEMPLATE_PARAMETER ADD CONSTRAINT CMS_TEMPLATE_PARAMETER_TEMPLATE FOREIGN KEY(TemplateId)
+REFERENCES CMS_TEMPLATE (Id)
+
+ALTER TABLE CMS_TEMPLATE_PARAMETER ADD CONSTRAINT CMS_TEMPLATE_PARAMETER_PARAMETER FOREIGN KEY(ParameterId)
+REFERENCES PARAMETER (ParameterId)
+
+
+/****** Object:  Table [dbo].[CMS_TEMPLATE_CASE_FILE]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_TEMPLATE_CASE_FILE]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_TEMPLATE_CASE_FILE]
+GO
+/****** Object:  Table [dbo].[CMS_TEMPLATE_CASE_FILE]    Script Date: 26/10/2022 9:33:54 am ******/
+
+CREATE TABLE CMS_TEMPLATE_CASE_FILE
+(
+	Id INT PRIMARY KEY IDENTITY(1,1),
+	TemplateId INT,
+	FileId UNIQUEIDENTIFIER
+)
+
+ALTER TABLE CMS_TEMPLATE_CASE_FILE ADD CONSTRAINT CMS_TEMPLATE_CASE_FILE_TEMPLATE FOREIGN KEY(TemplateId)
+REFERENCES CMS_TEMPLATE(Id)
+
+ALTER TABLE CMS_TEMPLATE_CASE_FILE ADD CONSTRAINT CMS_TEMPLATE_CASE_FILE_FILE FOREIGN KEY(FileId)
+REFERENCES CMS_CASE_FILE(FileId)
+
+/****** Object:  Table [dbo].[CMS_TEMPLATE_CASE_FILE_PARAMETER]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_TEMPLATE_CASE_FILE_PARAMETER]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_TEMPLATE_CASE_FILE_PARAMETER]
+GO
+/****** Object:  Table [dbo].[CMS_TEMPLATE_CASE_FILE_PARAMETER]    Script Date: 26/10/2022 9:33:54 am ******/
+
+CREATE TABLE CMS_TEMPLATE_CASE_FILE_PARAMETER
+(
+	TemplateCaseFileId INT,
+	ParameterId INT,
+	Value NVARCHAR(MAX)
+)
+
+ALTER TABLE CMS_TEMPLATE_CASE_FILE_PARAMETER ADD CONSTRAINT CMS_TEMPLATE_CASE_FILE_PARAMETER_TEMP_FILE_PRMTR FOREIGN KEY(TemplateCaseFileId)
+REFERENCES CMS_TEMPLATE_CASE_FILE(Id)
+
+ALTER TABLE CMS_TEMPLATE_CASE_FILE_PARAMETER ADD CONSTRAINT CMS_TEMPLATE_CASE_FILE_PARAMETER_PRMTR FOREIGN KEY(ParameterId)
+REFERENCES PARAMETER(ParameterId)
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+--<History Author = 'Hassan Abbas' Date='2022-11-03' Version="1.0" Branch="master"> ABOVE SCRIPT EXECUTED ON FATWA_DB_DEV</History>
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+
+/****** Object:  Table [dbo].[CMS_CASE_FILE_STATUS_G2G_LKP]    Script Date: 08/11/2022 4:50:40 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_CASE_FILE_STATUS_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](100) NOT NULL,
+	[Name_Ar] [nvarchar](100) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+--<History Author = 'Hassan Abbas' Date='2022-11-03' Version="1.0" Branch="master"> ABOVE SCRIPT EXECUTED ON FATWA_DB_DEV</History>
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+/****** Object:  Table [dbo].[CMS_CASE_FILE_STATUS_HISTORY]    Script Date: 08/11/2022 5:28:34 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_CASE_FILE_STATUS_HISTORY](
+	[HistoryId] [uniqueidentifier] NOT NULL,
+	[EventId] [int] NOT NULL,
+	[Remarks] [nvarchar](max) NULL,
+	[StatusId] [int] NOT NULL,
+	[FileId] [uniqueidentifier] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[HistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_FILE_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_FILE_HISTORY_EVENT] FOREIGN KEY([EventId])
+REFERENCES [dbo].[CMS_CASE_FILE_EVENT_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_FILE_STATUS_HISTORY] CHECK CONSTRAINT [CMS_CASE_FILE_HISTORY_EVENT]
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_FILE_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_HISTORY_CASE_FILE_STATUS] FOREIGN KEY([StatusId])
+REFERENCES [dbo].[CMS_CASE_FILE_STATUS_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_FILE_STATUS_HISTORY] CHECK CONSTRAINT [CMS_CASE_HISTORY_CASE_FILE_STATUS]
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_FILE_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [CMS_CASE_STATUS_HISTORY_CASE_FILE] FOREIGN KEY([FileId])
+REFERENCES [dbo].[CMS_CASE_FILE] ([FileId])
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_FILE_STATUS_HISTORY] CHECK CONSTRAINT [CMS_CASE_STATUS_HISTORY_CASE_FILE]
+GO
+
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+--<History Author = 'Hassan Abbas' Date='2022-11-03' Version="1.0" Branch="master"> ABOVE SCRIPT EXECUTED ON FATWA_DB_DEV</History>
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]    Script Date: 11/3/2022 5:33:28 PM ******/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]
+GO
+
+
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]    Script Date: 11/3/2022 5:33:28 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT](
+	[Id] [uniqueidentifier] NOT NULL,
+	[RequestId] [uniqueidentifier] NOT NULL,
+	[LawyerId] [nvarchar](450) NOT NULL,
+	[SupervisorId] [nvarchar](450) NULL,
+	[IsPrimary] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [CMS_LAWYER_ASSIGN_CASE_RQST] FOREIGN KEY([RequestId])
+REFERENCES [dbo].[CMS_CASE_REQUEST] ([RequestId])
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT] CHECK CONSTRAINT [CMS_LAWYER_ASSIGN_CASE_RQST]
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [CMS_LAWYER_ASSIGN_USER_LAWYER] FOREIGN KEY([LawyerId])
+REFERENCES [dbo].[UMS_USER] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT] CHECK CONSTRAINT [CMS_LAWYER_ASSIGN_USER_LAWYER]
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [CMS_LAWYER_ASSIGN_USER_SUPERVISOR] FOREIGN KEY([SupervisorId])
+REFERENCES [dbo].[UMS_USER] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT] CHECK CONSTRAINT [CMS_LAWYER_ASSIGN_USER_SUPERVISOR]
+GO
+
+
+---------TABLE [dbo].[CMS_LAWYER_COURT_ASSIGNMENT]  
+
+/****** Object:  Table [dbo].[CMS_LAWYER_COURT_ASSIGNMENT]    Script Date: 11/9/2022 5:46:33 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_LAWYER_COURT_ASSIGNMENT]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_LAWYER_COURT_ASSIGNMENT]
+GO
+
+/****** Object:  Table [dbo].[CMS_LAWYER_COURT_ASSIGNMENT]    Script Date: 11/9/2022 5:46:33 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_LAWYER_COURT_ASSIGNMENT](
+	[Id] [uniqueidentifier] NOT NULL,
+	[LawyerId] [nvarchar](450) NOT NULL,
+	[CourtTypeId] [int] NOT NULL,
+	[CourtId] [int] NOT NULL,
+	[ChamberId] [int] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[CMS_LAWYER_COURT_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [CMS_LAWYER_CHAMBER] FOREIGN KEY([ChamberId])
+REFERENCES [dbo].[CMS_CHAMBER_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_LAWYER_COURT_ASSIGNMENT] CHECK CONSTRAINT [CMS_LAWYER_CHAMBER]
+GO
+
+ALTER TABLE [dbo].[CMS_LAWYER_COURT_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [CMS_LAWYER_COURT] FOREIGN KEY([CourtId])
+REFERENCES [dbo].[CMS_COURT_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_LAWYER_COURT_ASSIGNMENT] CHECK CONSTRAINT [CMS_LAWYER_COURT]
+GO
+
+ALTER TABLE [dbo].[CMS_LAWYER_COURT_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [CMS_LAWYER_COURT_TYPE] FOREIGN KEY([CourtTypeId])
+REFERENCES [dbo].[CMS_COURT_TYPE_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_LAWYER_COURT_ASSIGNMENT] CHECK CONSTRAINT [CMS_LAWYER_COURT_TYPE]
+GO
+
+ALTER TABLE [dbo].[CMS_LAWYER_COURT_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [CMS_LAWYER_COURT_USER] FOREIGN KEY([LawyerId])
+REFERENCES [dbo].[UMS_USER] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_LAWYER_COURT_ASSIGNMENT] CHECK CONSTRAINT [CMS_LAWYER_COURT_USER]
+GO
+
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]    Script Date: 11/11/2022 5:30:49 pm ******/
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]
+GO
+
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]    Script Date: 11/11/2022 5:30:49 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT](
+	[Id] [uniqueidentifier] NOT NULL,
+	[RequestId] [uniqueidentifier] NOT NULL,
+	[LawyerId] [nvarchar](450) NOT NULL,
+	[SupervisorId] [nvarchar](450) NULL,
+	[IsPrimary] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[Reason] [nvarchar](450) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [CMS_LAWYER_ASSIGN_CASE_RQST] FOREIGN KEY([RequestId])
+REFERENCES [dbo].[CMS_CASE_REQUEST] ([RequestId])
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT] CHECK CONSTRAINT [CMS_LAWYER_ASSIGN_CASE_RQST]
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [CMS_LAWYER_ASSIGN_USER_LAWYER] FOREIGN KEY([LawyerId])
+REFERENCES [dbo].[UMS_USER] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT] CHECK CONSTRAINT [CMS_LAWYER_ASSIGN_USER_LAWYER]
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [CMS_LAWYER_ASSIGN_USER_SUPERVISOR] FOREIGN KEY([SupervisorId])
+REFERENCES [dbo].[UMS_USER] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_CASE_REQUEST_LAWYER_ASSIGNMENT] CHECK CONSTRAINT [CMS_LAWYER_ASSIGN_USER_SUPERVISOR]
+GO
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+--<History Author = 'Hassan Abbas' Date='2022-11-03' Version="1.0" Branch="master"> ABOVE SCRIPT EXECUTED ON FATWA_DB_DEV</History>
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+/****** Object:  Table [dbo].[CMS_CASE_FILE_ASSIGNMENT_HISTORY]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_FILE_ASSIGNMENT_HISTORY]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_FILE_ASSIGNMENT_HISTORY]
+GO
+CREATE TABLE CMS_CASE_FILE_ASSIGNMENT_HISTORY
+(
+	HistoryId uniqueidentifier,
+	FileId uniqueidentifier,
+	AssignorId nvarchar(256),
+	AssigneeId nvarchar(256),
+	Date datetime,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL
+)
+
+
+/****** Object:  Table [dbo].[CMS_SECTION]    Script Date: 21/11/2022 11:53:38 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_SECTION]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_SECTION]
+GO
+
+/****** Object:  Table [dbo].[CMS_SECTION]    Script Date: 21/11/2022 11:53:38 am ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_SECTION](
+	[Id] [int] NOT NULL,
+	[NameEn] [nvarchar](500) NULL,
+	[NameAr] [nvarchar](500) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [dbo].[CMS_TEMPLATE_SECTION]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_TEMPLATE_SECTION]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_TEMPLATE_SECTION]
+GO
+
+CREATE TABLE CMS_TEMPLATE_SECTION
+(
+Id uniqueidentifier PRIMARY KEY,
+TemplateId int NOT NULL,
+SectionId int NOT NULL
+)
+
+
+
+
+/****** Object:  Table [dbo].[CMS_TEMPLATE_SECTION]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_TEMPLATE_SECTION_PARAMETER]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_TEMPLATE_SECTION_PARAMETER]
+GO
+
+CREATE TABLE CMS_TEMPLATE_SECTION_PARAMETER
+(
+TemplateSectionId uniqueidentifier NOT NULL,
+ParameterId int NOT NULL,
+)
+
+/****** Object:  Table [dbo].[CMS_DRAFT_DOCUMENT_STATUS]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_DRAFT_DOCUMENT_STATUS]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_DRAFT_DOCUMENT_STATUS]
+GO
+
+CREATE TABLE CMS_DRAFT_DOCUMENT_STATUS
+(
+Id INT PRIMARY KEY,
+NameEn NVARCHAR(100),
+NameAr NVARCHAR(100)
+)
+
+
+/****** Object:  Table [dbo].[CMS_DRAFTER_TEMPLATE]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_DRAFTED_TEMPLATE]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_DRAFTED_TEMPLATE]
+GO
+
+CREATE TABLE CMS_DRAFTED_TEMPLATE
+(
+Id uniqueidentifier PRIMARY KEY,
+Name NVARCHAR(1000) NOT NULL,
+DraftNumber INT NOT NULL,
+VersionNumber float NOT NULL,
+ReferenceId uniqueidentifier NOT NULL,
+TemplateId int NOT NULL,
+AttachmentTypeId int NOT NULL,
+StatusId int NOT NULL,
+[ReviewerUserId] [nvarchar](256),
+[ReviewerRoleId] [nvarchar](256),
+Description NVARCHAR(1000),
+[CreatedBy] [nvarchar](256) NOT NULL,
+[CreatedDate] [datetime] NOT NULL,
+[ModifiedBy] [nvarchar](256) NULL,
+[ModifiedDate] [datetime] NULL,
+[DeletedBy] [nvarchar](256) NULL,
+[DeletedDate] [datetime] NULL,
+[IsDeleted] [bit] NOT NULL,
+)
+
+
+
+/****** Object:  Table dbo].[[COMM_COMMUNICATION_RESPONSE]    Script Date: 26/10/2022 9:33:54 am ******/
+ALTER TABLE [dbo].[COMM_COMMUNICATION_RESPONSE] DROP CONSTRAINT [FK_CMS_Priority_Id]
+GO
+
+ALTER TABLE [dbo].[COMM_COMMUNICATION_RESPONSE] DROP CONSTRAINT [FK_CMS_Goverment_Entity_Id]
+GO
+
+ALTER TABLE [dbo].[COMM_COMMUNICATION_RESPONSE] DROP CONSTRAINT [FK_CMS_Frequency_Id]
+GO
+
+ALTER TABLE [dbo].[COMM_COMMUNICATION_RESPONSE] DROP CONSTRAINT [DF__COMM_COMM__IsUrg__271082AE]
+GO
+
+/****** Object:  Table [dbo].[COMM_COMMUNICATION_RESPONSE]    Script Date: 21/11/2022 4:27:02 pm ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMM_COMMUNICATION_RESPONSE]') AND type in (N'U'))
+DROP TABLE [dbo].[COMM_COMMUNICATION_RESPONSE]
+GO
+
+/****** Object:  Table [dbo].[COMM_COMMUNICATION_RESPONSE]    Script Date: 09/11/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMM_COMMUNICATION_RESPONSE](
+	[CommunicationResponseId] [uniqueidentifier] NOT NULL,
+	[RequestDate] [datetime] NULL,
+	[ResponseDate] [datetime] NULL,
+	[ResponseTypeId] [int] NULL,
+	[Reason] [nvarchar](250) NULL,
+	[Other] [nvarchar](250) NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[CommunicationId] [uniqueidentifier] NULL,
+	[EntityId] [int] NULL,
+	[PriorityId] [int] NULL,
+	[FrequencyId] [int] NULL,
+	[DueDate] [datetime] NULL,
+	[IsUrgent] [bit] NOT NULL,
+ CONSTRAINT [PK_COMM_COMMUNICATION_RESPONSE] PRIMARY KEY CLUSTERED 
+(
+	[CommunicationResponseId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[COMM_COMMUNICATION_RESPONSE] ADD  DEFAULT ((0)) FOR [IsUrgent]
+GO
+
+ALTER TABLE [dbo].[COMM_COMMUNICATION_RESPONSE]  WITH CHECK ADD  CONSTRAINT [FK_CMS_Frequency_Id] FOREIGN KEY([FrequencyId])
+REFERENCES [dbo].[CMS_Frequency_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[COMM_COMMUNICATION_RESPONSE] CHECK CONSTRAINT [FK_CMS_Frequency_Id]
+GO
+
+ALTER TABLE [dbo].[COMM_COMMUNICATION_RESPONSE]  WITH CHECK ADD  CONSTRAINT [FK_CMS_Goverment_Entity_Id] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[CMS_GOVERNMENT_ENTITY_G2G_LKP] ([EntityId])
+GO
+
+ALTER TABLE [dbo].[COMM_COMMUNICATION_RESPONSE] CHECK CONSTRAINT [FK_CMS_Goverment_Entity_Id]
+GO
+
+ALTER TABLE [dbo].[COMM_COMMUNICATION_RESPONSE]  WITH CHECK ADD  CONSTRAINT [FK_CMS_Priority_Id] FOREIGN KEY([PriorityId])
+REFERENCES [dbo].[CMS_PRIORITY_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[COMM_COMMUNICATION_RESPONSE] CHECK CONSTRAINT [FK_CMS_Priority_Id]
+GO
+/****** Object:  Table [dbo].[COMM_COMMUNICATION_RESPONSE]    Script Date: 09/11/2022 9:33:54 am ******/
+/****** Object:  Table [dbo].[CMS_DRAFTED_TEMPLATE_SECTION]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_DRAFTED_TEMPLATE_SECTION]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_DRAFTED_TEMPLATE_SECTION]
+GO
+
+CREATE TABLE CMS_DRAFTED_TEMPLATE_SECTION
+(
+Id uniqueidentifier PRIMARY KEY,
+DraftedTemplateId uniqueidentifier NOT NULL,
+SectionId int NOT NULL,
+AdditionalName NVARCHAR(1000)
+)
+
+/****** Object:  Table [dbo].[CMS_DRAFTED_TEMPLATE_SECTION_PARAMETER]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_DRAFTED_TEMPLATE_SECTION_PARAMETER]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_DRAFTED_TEMPLATE_SECTION_PARAMETER]
+GO
+
+CREATE TABLE CMS_DRAFTED_TEMPLATE_SECTION_PARAMETER
+(
+Id uniqueidentifier PRIMARY KEY,
+DraftedTemplateSectionId uniqueidentifier NOT NULL,
+ParameterId int NOT NULL,
+Value NVARCHAR(MAX)
+)
+
+
+ALTER TABLE CMS_TEMPLATE_SECTION ADD CONSTRAINT CMS_TEMPLATE_SECTION_TEMPLATE FOREIGN KEY(TemplateId)
+REFERENCES CMS_TEMPLATE(Id)
+
+ALTER TABLE CMS_TEMPLATE_SECTION ADD CONSTRAINT CMS_TEMPLATE_SECTION_SECTION FOREIGN KEY(SectionId)
+REFERENCES CMS_SECTION(Id)
+
+ALTER TABLE CMS_TEMPLATE_SECTION_PARAMETER ADD CONSTRAINT CMS_TEMPLATE_SECTION_PARAMETER_PARAM FOREIGN KEY(ParameterId)
+REFERENCES PARAMETER(ParameterId)
+
+ALTER TABLE CMS_TEMPLATE_SECTION_PARAMETER ADD CONSTRAINT CMS_TEMPLATE_SECTION_PARAMETER_SCTN_PRMTR FOREIGN KEY(TemplateSectionId)
+REFERENCES CMS_TEMPLATE_SECTION(Id)
+
+ALTER TABLE CMS_DRAFTED_TEMPLATE ADD CONSTRAINT CMS_DRAFTED_TEMPLATE_TEMPLATE FOREIGN KEY(TemplateId)
+REFERENCES CMS_TEMPLATE(Id)
+
+ALTER TABLE CMS_DRAFTED_TEMPLATE_SECTION ADD CONSTRAINT CMS_DRAFTED_TEMPLATE_SECTION_DRAFT_TEMP FOREIGN KEY(DraftedTemplateId)
+REFERENCES CMS_DRAFTED_TEMPLATE(Id)
+
+ALTER TABLE CMS_DRAFTED_TEMPLATE ADD CONSTRAINT CMS_DRAFTED_TEMPLATE_STATUS FOREIGN KEY(StatusId)
+REFERENCES CMS_DRAFT_DOCUMENT_STATUS(Id)
+
+ALTER TABLE CMS_DRAFTED_TEMPLATE ADD CONSTRAINT CMS_DRAFTED_TEMPLATE_ATTACHMENT_TYPE FOREIGN KEY(AttachmentTypeId)
+REFERENCES ATTACHMENT_TYPE(AttachmentTypeId)
+
+ALTER TABLE CMS_DRAFTED_TEMPLATE_SECTION ADD CONSTRAINT CMS_DRAFTED_TEMPLATE_SECTION_SCTN FOREIGN KEY(SectionId)
+REFERENCES CMS_SECTION(Id)
+
+ALTER TABLE CMS_DRAFTED_TEMPLATE_SECTION_PARAMETER ADD CONSTRAINT CMS_DRFT_TEMP_SCTN_PRMTR_DRFT_TEMP_SCTN FOREIGN KEY(DraftedTemplateSectionId)
+REFERENCES CMS_DRAFTED_TEMPLATE_SECTION(Id)
+
+ALTER TABLE CMS_DRAFTED_TEMPLATE_SECTION_PARAMETER ADD CONSTRAINT CMS_DRFT_TEMP_SCTN_PRMTR_PRMTR FOREIGN KEY(ParameterId)
+REFERENCES PARAMETER(ParameterId)
+
+
+/****** Object:  Table [dbo].[CMS_TEMPLATE_PARAMETER]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_TEMPLATE_PARAMETER]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_TEMPLATE_PARAMETER]
+GO
+ 
+/****** Object:  Table [dbo].[CMS_TEMPLATE_CASE_FILE_PARAMETER]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_TEMPLATE_CASE_FILE_PARAMETER]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_TEMPLATE_CASE_FILE_PARAMETER]
+GO
+ 
+/****** Object:  Table [dbo].[CMS_TEMPLATE_CASE_FILE]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_TEMPLATE_CASE_FILE]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_TEMPLATE_CASE_FILE]
+GO
+ 
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+--<History Author = 'Hassan Abbas' Date='2022-11-21' Version="1.0" Branch="master"> ABOVE SCRIPT EXECUTED ON FATWA_DB_DEV</History>
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+ 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MEET_MEETING]') AND type in (N'U'))
+	DROP TABLE [dbo].[MEET_MEETING]
+GO 
+
+GO
+/****** Object:  Table [dbo].[MEET_MEETING]    Script Date: 29/11/2022 11:18:52 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MEET_MEETING](
+	[MeetingId] [uniqueidentifier] NOT NULL,
+	[Subject] [nvarchar](150) NULL,
+	[Location] [nvarchar](150) NULL,
+	[Description] [nvarchar](250) NULL,
+	[Agenda] [nvarchar](150) NULL,
+	[Date] [datetime] NULL,
+	[StartTime] [datetime] NULL,
+	[EndTime] [datetime] NULL,
+	[MeetingLink] [nvarchar](50) NULL,
+	[RequirePassword] [bit] NULL,
+	[MeetingPassword] [nvarchar](50) NULL,
+	[Comment] [nvarchar](500) NULL,
+	[CreatedBy] [nvarchar](100) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](100) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](100) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NULL,
+	[MeetingTypeId] [int] NULL,
+	[MeetingStatusId] [int] NULL,
+	[FileNumber] [uniqueidentifier] NULL,
+
+ CONSTRAINT [PK_MEET_MEETING] PRIMARY KEY CLUSTERED 
+(
+	[MeetingId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MEET_MEETING_ATTENDEE]') AND type in (N'U'))
+	DROP TABLE [dbo].[MEET_MEETING_ATTENDEE]
+GO 
+
+/****** Object:  Table [dbo].[MEET_MEETING_ATTENDEE]    Script Date: 29/11/2022 11:18:52 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MEET_MEETING_ATTENDEE](
+	[MeetingAttendeeId] [uniqueidentifier] NOT NULL,
+	[RepresentativeName] [nvarchar](150) NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[GovernmentEntityId] [int] NULL,
+	[DepartmentId] [int] NULL,
+	[MeetingAttendeeTypeId] [int] NOT NULL,
+	[MeetingId] [uniqueidentifier] NOT NULL,
+	[IsPresent] [bit] NOT NULL,
+ CONSTRAINT [PK_MEET_MEETING_ATTENDEE] PRIMARY KEY CLUSTERED 
+(
+	[MeetingAttendeeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MEET_MEETING_ATTENDEE_TYPE]') AND type in (N'U'))
+	DROP TABLE [dbo].[MEET_MEETING_ATTENDEE_TYPE]
+GO 
+
+/****** Object:  Table [dbo].[MEET_MEETING_ATTENDEE_TYPE]    Script Date: 29/11/2022 11:18:52 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MEET_MEETING_ATTENDEE_TYPE](
+	[MeetingAttendeeTypeId] [int] NULL,
+	[NameEn] [nvarchar](150) NULL
+) ON [PRIMARY]
+GO
+/****** Object:  Table [dbo].[MEET_MEETING_MOM]    Script Date: 29/11/2022 11:18:52 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MEET_MEETING_MOM](
+	[MeetingMomId] [uniqueidentifier] NOT NULL,
+	[Title] [nvarchar](50) NULL,
+	[Description] [nvarchar](150) NULL,
+	[CreatedBy] [nvarchar](100) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](100) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](100) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NULL,
+	[MeetingId] [uniqueidentifier] NULL,
+ CONSTRAINT [PK_MEET_MEETING_MOM] PRIMARY KEY CLUSTERED 
+(
+	[MeetingMomId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MEET_MEETING_STATUS]') AND type in (N'U'))
+	DROP TABLE [dbo].[MEET_MEETING_STATUS]
+GO  
+
+/****** Object:  Table [dbo].[MEET_MEETING_STATUS]    Script Date: 29/11/2022 11:18:52 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MEET_MEETING_STATUS](
+	[MeetingStatusId] [int] NOT NULL,
+	[NameEn] [nvarchar](150) NULL,
+	[NameAr] [nvarchar](150) NULL,
+ CONSTRAINT [PK_MEET_MEETING_STATUS] PRIMARY KEY CLUSTERED 
+(
+	[MeetingStatusId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[MEET_MEETING_TYPE]') AND type in (N'U'))
+	DROP TABLE [dbo].[MEET_MEETING_TYPE]
+GO  
+
+/****** Object:  Table [dbo].[MEET_MEETING_TYPE]    Script Date: 29/11/2022 11:18:52 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[MEET_MEETING_TYPE](
+	[MeetingTypeId] [int] NOT NULL,
+	[NameEn] [nvarchar](150) NULL,
+	[NameAr] [nvarchar](150) NULL,
+ CONSTRAINT [PK_MEET_MEETING_TYPE] PRIMARY KEY CLUSTERED 
+(
+	[MeetingTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TSK_TODO_LIST]') AND type in (N'U'))
+	DROP TABLE [dbo].[TSK_TODO_LIST]
+GO  
+
+GO
+/****** Object:  Table [dbo].[TSK_TODO_LIST]    Script Date: 29/11/2022 12:45:01 pm ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TSK_TODO_LIST](
+	[TodoItemId] [uniqueidentifier] NOT NULL,
+	[Description] [nchar](10) NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[UserId] [nvarchar](150) NULL,
+ CONSTRAINT [PK_TSK_TODO_ITEM] PRIMARY KEY CLUSTERED 
+(
+	[TodoItemId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+--CMS_REGISTERED_CASE_SUB_CASE
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_REGISTERED_CASE_SUB_CASE]') AND type in (N'U'))
+	DROP TABLE [dbo].[CMS_REGISTERED_CASE_SUB_CASE]
+
+GO
+/****** Object:  Table [dbo].[CMS_REGISTERED_CASE_SUB_CASE]    Script Date: 29/11/2022 12:45:01 pm ******/
+CREATE TABLE CMS_REGISTERED_CASE_SUB_CASE(
+Id uniqueidentifier PRIMARY KEY,
+CaseId uniqueidentifier NOT NULL,
+SubCaseId uniqueidentifier NOT NULL
+)
+
+
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+--<History Author = 'Hassan Abbas' Date='2022-11-30' Version="1.0" Branch="master"> ABOVE SCRIPT EXECUTED ON FATWA_DB_DEV</History>
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------
+
+
+--CMS_REGISTERED_CASE_MERGED_CASE
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_REGISTERED_CASE_MERGED_CASE]') AND type in (N'U'))
+	DROP TABLE [dbo].[CMS_REGISTERED_CASE_MERGED_CASE]
+
+GO
+/****** Object:  Table [dbo].[CMS_REGISTERED_CASE_MERGED_CASE]    Script Date: 29/11/2022 12:45:01 pm ******/
+CREATE TABLE CMS_REGISTERED_CASE_MERGED_CASE(
+Id uniqueidentifier PRIMARY KEY,
+PrimaryCaseId uniqueidentifier NOT NULL,
+MergedCaseId uniqueidentifier NOT NULL
+)
+ 
+
+--CMS_MERGE_REQUEST
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_MERGE_REQUEST]') AND type in (N'U'))
+	DROP TABLE [dbo].[CMS_MERGE_REQUEST]
+
+GO
+CREATE TABLE CMS_MERGE_REQUEST
+(
+Id UNIQUEIDENTIFIER PRIMARY KEY,
+Reason NVARCHAR(MAX),
+PrimaryId UNIQUEIDENTIFIER,
+StatusId INT,
+IsMergeTypeCase bit,
+[CreatedBy] [nvarchar](256) NOT NULL,
+[CreatedDate] [datetime] NOT NULL,
+[ModifiedBy] [nvarchar](256) NULL,
+[ModifiedDate] [datetime] NULL,
+[DeletedBy] [nvarchar](256) NULL,
+[DeletedDate] [datetime] NULL,
+[IsDeleted] [bit] NOT NULL,
+)
+
+
+--CMS_MERGE_REQUEST_SECONDARIES
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_MERGE_REQUEST_SECONDARIES]') AND type in (N'U'))
+	DROP TABLE [dbo].[CMS_MERGE_REQUEST_SECONDARIES]
+
+GO
+CREATE TABLE CMS_MERGE_REQUEST_SECONDARIES
+(
+Id UNIQUEIDENTIFIER PRIMARY KEY,
+MergeRequestId UNIQUEIDENTIFIER,
+SecondaryId UNIQUEIDENTIFIER
+)
+
+
+ALTER TABLE CMS_MERGE_REQUEST_SECONDARIES ADD CONSTRAINT CMS_MERGE_REQUEST_SECONDARIES_MRG_RQST FOREIGN KEY(MergeRequestId)
+REFERENCES CMS_MERGE_REQUEST (Id)
+
+
+--CMS_REGISTERED_CASE
+ALTER TABLE CMS_REGISTERED_CASE
+	 Add SectorTypeId Int NULL
+	Print('CMS_REGISTERED_CASE.SectorTypeId Added')
+
+
+ALTER TABLE [dbo].[CMS_REGISTERED_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_REGISTERED_CASE_TYPE] FOREIGN KEY([SectorTypeId])
+REFERENCES [dbo].[CMS_OPERATING_SECTOR_TYPE_G2G_LKP] ([Id])
+
+
+--CMS_REQUEST_FOR_DOCUMENT
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_REQUEST_FOR_DOCUMENT]') AND type in (N'U'))
+	DROP TABLE [dbo].[CMS_REQUEST_FOR_DOCUMENT]
+
+	/****** Object:  Table [dbo].[CMS_REQUEST_FOR_DOCUMENT]    Script Date: 12/12/2022 7:50:19 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_REQUEST_FOR_DOCUMENT](
+	[Id] [uniqueidentifier] NOT NULL,
+	[AttachmentTypeId] [int] NOT NULL,
+	[CaseId] [uniqueidentifier] NOT NULL,
+	[HearingDate] [datetime] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+	)
+
+	ALTER TABLE [dbo].[CMS_REQUEST_FOR_DOCUMENT]  WITH CHECK ADD  CONSTRAINT [CMS_REQUEST_FOR_DOCUMENT_REGISTERED_CASE] FOREIGN KEY([CaseId])
+REFERENCES [dbo].[CMS_REGISTERED_CASE] ([CaseId])
+GO
+
+
+/****** Object:  Table [dbo].[CMS_HEARING]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_HEARING]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_HEARING]
+GO
+
+CREATE TABLE CMS_HEARING
+(
+	Id UNIQUEIDENTIFIER PRIMARY KEY,
+	CaseId UNIQUEIDENTIFIER NOT NULL,
+	HearingDate date,
+	HearingTime time,
+	StatusId INT,
+	Description NVARCHAR(MAX),
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+)
+
+
+/****** Object:  Table [dbo].[CMS_HEARING_STATUS_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_HEARING_STATUS_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_HEARING_STATUS_G2G_LKP]
+GO
+
+CREATE TABLE CMS_HEARING_STATUS_G2G_LKP
+(
+	Id INT PRIMARY KEY,
+	NameEn NVARCHAR(256),
+	NameAr NVARCHAR(256)
+)
+
+/****** Object:  Table [dbo].[CMS_OUTCOME_HEARING]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_OUTCOME_HEARING]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_OUTCOME_HEARING]
+GO
+
+CREATE TABLE CMS_OUTCOME_HEARING
+(
+	Id UNIQUEIDENTIFIER PRIMARY KEY,
+	HearingId UNIQUEIDENTIFIER NOT NULL,
+	HearingDate date,
+	HearingTime time,
+	LawyerId NVARCHAR(256),
+	Remarks NVARCHAR(MAX),
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+)
+
+
+/****** Object:  Table [dbo].[CMS_MOJ_REGISTRATION_REQUEST]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_MOJ_REGISTRATION_REQUEST]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_MOJ_REGISTRATION_REQUEST]
+GO
+
+CREATE TABLE CMS_MOJ_REGISTRATION_REQUEST
+(
+Id UNIQUEIDENTIFIER PRIMARY KEY,
+FileId UNIQUEIDENTIFIER,
+MessengerId NVARCHAR(256),
+IsRegistered bit,
+[CreatedBy] [nvarchar](256) NOT NULL,
+[CreatedDate] [datetime] NOT NULL,
+[ModifiedBy] [nvarchar](256) NULL,
+[ModifiedDate] [datetime] NULL,
+[DeletedBy] [nvarchar](256) NULL,
+[DeletedDate] [datetime] NULL,
+[IsDeleted] [bit] NOT NULL,
+)
+
+
+/****** Object:  Table [dbo].[CMS_JUDGEMENT]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_JUDGEMENT]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_JUDGEMENT]
+GO
+
+CREATE TABLE CMS_JUDGEMENT
+(
+Id UNIQUEIDENTIFIER PRIMARY KEY,
+OutcomeId UNIQUEIDENTIFIER,
+CaseId UNIQUEIDENTIFIER,
+[HearingDate] [datetime],
+[JudgementDate] [datetime],
+[TypeId] INT,
+SerialNumber NVARCHAR(1000),
+Amount decimal(10,2),
+IsFinal bit,
+[CreatedBy] [nvarchar](256) NOT NULL,
+[CreatedDate] [datetime] NOT NULL,
+[ModifiedBy] [nvarchar](256) NULL,
+[ModifiedDate] [datetime] NULL,
+[DeletedBy] [nvarchar](256) NULL,
+[DeletedDate] [datetime] NULL,
+[IsDeleted] [bit] NOT NULL,
+)
+
+
+ALTER TABLE CMS_JUDGEMENT ADD CONSTRAINT CMS_JUDGEMENT_TYPE FOREIGN KEY (TypeId)
+REFERENCES CMS_JUDGEMENT_TYPE_G2G_LKP(Id)
+
+ALTER TABLE CMS_JUDGEMENT ADD CONSTRAINT CMS_JUDGEMENT_OUTCOME FOREIGN KEY (OutcomeId)
+REFERENCES CMS_OUTCOME_HEARING(Id)
+
+
+/****** Object:  Table [dbo].[CMS_JUDGEMENT_TYPE_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_JUDGEMENT_TYPE_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_JUDGEMENT_TYPE_G2G_LKP]
+GO
+/****** Object:  Table [dbo].[CMS_JUDGEMENT_TYPE_G2G_LKP]    Script Date: 26/10/2022 9:33:54 am ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_JUDGEMENT_TYPE_G2G_LKP](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[NameEn] [nvarchar](100) NOT NULL,
+	[NameAr] [nvarchar](100) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+/****** Object:  Table [dbo].[CMS_POSTPONE_HEARING]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_POSTPONE_HEARING]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_POSTPONE_HEARING]
+GO
+
+CREATE TABLE CMS_POSTPONE_HEARING
+(
+Id UNIQUEIDENTIFIER PRIMARY KEY,
+HearingId UNIQUEIDENTIFIER,
+Reason NVARCHAR(MAX),
+[CreatedBy] [nvarchar](256) NOT NULL,
+[CreatedDate] [datetime] NOT NULL,
+[ModifiedBy] [nvarchar](256) NULL,
+[ModifiedDate] [datetime] NULL,
+[DeletedBy] [nvarchar](256) NULL,
+[DeletedDate] [datetime] NULL,
+[IsDeleted] [bit] NOT NULL,
+)
+
+ALTER TABLE CMS_POSTPONE_HEARING ADD CONSTRAINT CMS_POSTPONE_HEARING_HEARING FOREIGN KEY(HearingId)
+REFERENCES CMS_HEARING(Id)
+
+
+/****** Object:  Table [dbo].[TSK_TASK_RESPONSE_STATUS]    Script Date: 15/12/2022 2:44:36 pm ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TSK_TASK_RESPONSE_STATUS]') AND type in (N'U'))
+DROP TABLE [dbo].[TSK_TASK_RESPONSE_STATUS]
+GO
+/****** Object:  Table [dbo].[TSK_TASK_RESPONSE_STATUS]    Script Date: 15/12/2022 2:44:36 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TSK_TASK_RESPONSE_STATUS](
+	[TaskResponeStatusId] [int] NOT NULL,
+	[NameEn] [nvarchar](150) NULL,
+	[NameAr] [nvarchar](150) NULL,
+ CONSTRAINT [PK_TSK_TASK_RESPONSE_STATUS] PRIMARY KEY CLUSTERED 
+(
+	[TaskResponeStatusId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [dbo].[TSK_TASK_RESPONSE]]    Script Date: 15/12/2022 2:44:36 pm ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TSK_TASK_RESPONSE]]') AND type in (N'U'))
+DROP TABLE [dbo].[TSK_TASK_RESPONSE_STATUS]
+GO
+/****** Object:  Table [dbo].[TSK_TASK_RESPONSE]    Script Date: 15/12/2022 3:50:43 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[TSK_TASK_RESPONSE](
+	[TaskResponseId] [uniqueidentifier] NOT NULL,
+	[Reason] [nvarchar](max) NULL,
+	[TaskResponeStatusId] [int] NULL,
+	[CreatedBy] [nvarchar](100) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](100) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](100) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NULL,
+	[TaskId] [uniqueidentifier] NULL,
+
+ CONSTRAINT [PK_TSK_TASK_RESPONSE] PRIMARY KEY CLUSTERED 
+(
+	[TaskResponseId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[TSK_TASK_RESPONSE]  WITH CHECK ADD  CONSTRAINT [FK_TSK_TASK_RESPONSE_STATUS] FOREIGN KEY([TaskResponeStatusId])
+REFERENCES [dbo].[TSK_TASK_RESPONSE_STATUS] ([TaskResponeStatusId])
+GO
+
+/****** Object:  Table [dbo].[CMS_COURT_VISIT]    Script Date: 16/12/2022 7:10:19 pm ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_COURT_VISIT]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_COURT_VISIT]
+GO
+
+/****** Object:  Table [dbo].[CMS_COURT_VISIT]    Script Date: 16/12/2022 7:10:19 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_COURT_VISIT](
+	[Id] [uniqueidentifier] NOT NULL,
+	[HearingId] [uniqueidentifier] NOT NULL,
+	[VisitTypeId] [int] NULL,
+	[LawyerId] [nvarchar](256) NOT NULL,
+	[ActionName] [nvarchar](1000) NOT NULL,
+	[Notes] [nvarchar](max) NULL,
+	[DueDate] [datetime]  NULL,
+	[IsUrgent] [bit] NOT NULL,
+	[StartTime] [time](7) NOT NULL,
+	[EndTime] [time](7) NOT NULL,
+	[StartDate] [datetime] NULL,
+	[EndDate] [datetime] NULL,
+	[VisitDate] [datetime] NULL,
+	[PurposeName] [nvarchar](1000) NOT NULL,
+	[Other] [nvarchar](max) NULL,
+	[Duration] [nvarchar](256) NULL,
+	[IsReccuring] [bit] NOT NULL,
+
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[TSK_TASK_RESPONSE] CHECK CONSTRAINT [FK_TSK_TASK_RESPONSE_STATUS]
+ 
+GO
+
+
+/****** Object:  Table [dbo].[TSK_TASK]    Script Date: 15/12/2022 2:44:36 pm ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TSK_TASK]') AND type in (N'U'))
+	DROP TABLE [dbo].[TSK_TASK]
+GO
+ 
+/****** Object:  Table [dbo].[TSK_TASK]    Script Date: 22/12/2022 3:22:44 pm ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TSK_TASK](
+	[TaskId] [uniqueidentifier] NOT NULL,
+	[Name] [nvarchar](150) NULL,
+	[Description] [nvarchar](250) NULL,
+	[Date] [datetime] NULL,
+	[Url] [nvarchar](250) NULL,
+	[TaskNumber] [int] NULL,
+	[DueDate] [datetime] NULL,
+	[AssignedBy] [nvarchar](150) NULL,
+	[AssignedTo] [nvarchar](150) NULL,
+	[IsSystemGenerated] [bit] NULL,
+	[CreatedBy] [nvarchar](100) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](100) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](100) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NULL,
+	[TaskStatusId] [int] NULL,
+	[ModuleId] [int] NULL,
+	[SectorId] [int] NULL,
+	[DepartmentId] [int] NULL,
+	[SubTypeId] [int] NULL,
+	[TypeId] [int] NULL,
+	[PriorityId] [int] NULL,
+	[RoleId] [nvarchar](150) NULL,
+	[ReferenceId] [uniqueidentifier] NULL,
+ CONSTRAINT [PK_TSK_TASK] PRIMARY KEY CLUSTERED 
+(
+	[TaskId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+
+/****** Object:  Table [dbo].[TSK_TASK_ACTION]    Script Date: 15/12/2022 2:44:36 pm ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TSK_TASK_ACTION]') AND type in (N'U'))
+	DROP TABLE [dbo].[TSK_TASK_ACTION]
+GO
+/****** Object:  Table [dbo].[TSK_TASK_ACTION]    Script Date: 22/12/2022 3:22:44 pm ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TSK_TASK_ACTION](
+	[ActionId] [uniqueidentifier] NOT NULL,
+	[ActionName] [nvarchar](150) NULL,
+	[DueDate] [datetime] NULL,
+	[CompleteDate] [datetime] NULL,
+	[CreatedBy] [nvarchar](100) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](100) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](100) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NULL,
+	[TaskId] [uniqueidentifier] NOT NULL,
+ CONSTRAINT [PK_TSK_TASK_ACTION] PRIMARY KEY CLUSTERED 
+(
+	[ActionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+ALTER TABLE [dbo].[TSK_TASK]  WITH CHECK ADD  CONSTRAINT [FK_TSK_DEPARTMENT] FOREIGN KEY([DepartmentId])
+REFERENCES [dbo].[Department] ([Id])
+GO
+ALTER TABLE [dbo].[TSK_TASK] CHECK CONSTRAINT [FK_TSK_DEPARTMENT]
+GO
+ALTER TABLE [dbo].[TSK_TASK]  WITH CHECK ADD  CONSTRAINT [FK_TSK_MODULE] FOREIGN KEY([ModuleId])
+REFERENCES [dbo].[MODULE] ([ModuleId])
+GO
+ALTER TABLE [dbo].[TSK_TASK] CHECK CONSTRAINT [FK_TSK_MODULE]
+GO
+ALTER TABLE [dbo].[TSK_TASK]  WITH CHECK ADD  CONSTRAINT [FK_TSK_PRIORITY] FOREIGN KEY([PriorityId])
+REFERENCES [dbo].[CMS_PRIORITY_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[TSK_TASK] CHECK CONSTRAINT [FK_TSK_PRIORITY]
+GO
+ALTER TABLE [dbo].[TSK_TASK]  WITH CHECK ADD  CONSTRAINT [FK_TSK_ROLE] FOREIGN KEY([RoleId])
+REFERENCES [dbo].[UMS_ROLE] ([Id])
+GO
+ALTER TABLE [dbo].[TSK_TASK] CHECK CONSTRAINT [FK_TSK_ROLE]
+GO
+ALTER TABLE [dbo].[TSK_TASK]  WITH CHECK ADD  CONSTRAINT [FK_TSK_SECTOR] FOREIGN KEY([SectorId])
+REFERENCES [dbo].[CMS_OPERATING_SECTOR_TYPE_G2G_LKP] ([Id])
+GO
+ALTER TABLE [dbo].[TSK_TASK] CHECK CONSTRAINT [FK_TSK_SECTOR]
+GO
+ALTER TABLE [dbo].[TSK_TASK]  WITH CHECK ADD  CONSTRAINT [FK_TSK_STATUS] FOREIGN KEY([TaskStatusId])
+REFERENCES [dbo].[TSK_TASK_STATUS] ([TaskStatusId])
+GO
+ALTER TABLE [dbo].[TSK_TASK] CHECK CONSTRAINT [FK_TSK_STATUS]
+GO
+ALTER TABLE [dbo].[TSK_TASK]  WITH CHECK ADD  CONSTRAINT [FK_TSK_SUB_TYPE] FOREIGN KEY([SubTypeId])
+REFERENCES [dbo].[TSK_TASK_SUB_TYPE] ([SubTypeId])
+GO
+ALTER TABLE [dbo].[TSK_TASK] CHECK CONSTRAINT [FK_TSK_SUB_TYPE]
+GO
+ALTER TABLE [dbo].[TSK_TASK]  WITH CHECK ADD  CONSTRAINT [FK_TSK_TYPE] FOREIGN KEY([TypeId])
+REFERENCES [dbo].[TSK_TASK_TYPE] ([TypeId])
+GO
+ALTER TABLE [dbo].[TSK_TASK] CHECK CONSTRAINT [FK_TSK_TYPE]
+GO
+
+
+/****** Object:  Table [dbo].[TSK_TASK_TYPE]    Script Date: 22/12/2022 3:28:38 pm ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TSK_TASK_TYPE]') AND type in (N'U'))
+DROP TABLE [dbo].[TSK_TASK_TYPE]
+GO
+/****** Object:  Table [dbo].[TSK_TASK_TYPE]    Script Date: 22/12/2022 3:28:38 pm ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TSK_TASK_TYPE](
+	[TypeId] [int] NOT NULL,
+	[NameEn] [nvarchar](150) NULL,
+	[NameAr] [nvarchar](150) NULL,
+ CONSTRAINT [PK_TSK_TASK_Type] PRIMARY KEY CLUSTERED 
+(
+	[TypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/****** Object:  Table [dbo].[TSK_TASK_SUB_TYPE]    Script Date: 22/12/2022 3:28:38 pm ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TSK_TASK_SUB_TYPE]') AND type in (N'U'))
+DROP TABLE [dbo].[TSK_TASK_SUB_TYPE]
+GO
+/****** Object:  Table [dbo].[TSK_TASK_SUB_TYPE]    Script Date: 22/12/2022 3:28:38 pm ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TSK_TASK_SUB_TYPE](
+	[SubTypeId] [int] NOT NULL,
+	[NameEn] [nvarchar](150) NULL,
+	[NameAr] [nvarchar](150) NULL,
+ CONSTRAINT [PK_TSK_TASK_SUB_TYPE] PRIMARY KEY CLUSTERED 
+(
+	[SubTypeId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+/****** Object:  Table [dbo].[TSK_TASK_STATUS]    Script Date: 22/12/2022 3:28:38 pm ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[TSK_TASK_STATUS]') AND type in (N'U'))
+DROP TABLE [dbo].[TSK_TASK_STATUS]
+GO
+/****** Object:  Table [dbo].[TSK_TASK_STATUS]    Script Date: 22/12/2022 3:28:38 pm ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[TSK_TASK_STATUS](
+	[TaskStatusId] [int] NOT NULL,
+	[NameEn] [nvarchar](150) NULL,
+	[NameAr] [nvarchar](150) NULL,
+ CONSTRAINT [PK_TSK_TASK_STATUS] PRIMARY KEY CLUSTERED 
+(
+	[TaskStatusId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+/****** Object:  Table [dbo].[CMS_CASE_REQUEST_LINKED_REQUEST]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_REQUEST_LINKED_REQUEST]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_REQUEST_LINKED_REQUEST]
+GO
+
+CREATE TABLE [CMS_CASE_REQUEST_LINKED_REQUEST]
+(
+	Id UNIQUEIDENTIFIER PRIMARY KEY,
+	PrimaryRequestId UNIQUEIDENTIFIER NOT NULL,
+	LinkedRequestId UNIQUEIDENTIFIER NOT NULL,
+	Reason NVARCHAR(MAX),
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+)
+
+/****** Object:  Table [dbo].[CMS_CASE_FILE_LINKED_FILE]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_FILE_LINKED_FILE]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_FILE_LINKED_FILE]
+GO
+
+CREATE TABLE [CMS_CASE_FILE_LINKED_FILE]
+(
+	Id UNIQUEIDENTIFIER PRIMARY KEY,
+	PrimaryFileId UNIQUEIDENTIFIER NOT NULL,
+	LinkedFileId UNIQUEIDENTIFIER NOT NULL,
+	Reason NVARCHAR(MAX),
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+)
+
+
+--[dbo].[CMS_REQUEST_TYPE_G2G_LKP]
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_REQUEST_TYPE_G2G_LKP]') AND type in (N'U'))
+	DROP TABLE [dbo].[CMS_REQUEST_TYPE_G2G_LKP]
+GO
+
+CREATE TABLE [dbo].[CMS_REQUEST_TYPE_G2G_LKP](
+	[Id] INT PRIMARY KEY IDENTITY(1,1) ,
+	[Code] [nvarchar](100) NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+	[IsActive] [bit] NOT NULL
+)
+
+
+/****** Object:  Table [dbo].[CMS_CASE_FILE_SECTOR_ASSIGNMENT]    Script Date: 22/12/2022 3:28:38 pm ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_CASE_FILE_SECTOR_ASSIGNMENT]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_CASE_FILE_SECTOR_ASSIGNMENT]
+GO
+
+CREATE TABLE CMS_CASE_FILE_SECTOR_ASSIGNMENT
+(
+Id UNIQUEIDENTIFIER PRIMARY KEY,
+FileId UNIQUEIDENTIFIER NOT NULL,
+SectorTypeId INT NOT NULL,
+[CreatedBy] [nvarchar](256) NOT NULL,
+[CreatedDate] [datetime] NOT NULL,
+[ModifiedBy] [nvarchar](256) NULL,
+[ModifiedDate] [datetime] NULL,
+[DeletedBy] [nvarchar](256) NULL,
+[DeletedDate] [datetime] NULL,
+[IsDeleted] [bit] NOT NULL,
+)
+
+/****** Object:  Table [dbo].[CMS_CLOSE_CASE]    Script Date: 23/12/2022 2:47:41 pm ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_CLOSE_CASE](
+	[Id] [uniqueidentifier] NOT NULL,
+	[CaseId] [uniqueidentifier] NOT NULL,
+	[ResponseTypeId] [int] NOT NULL,
+	[RequestDate] [datetime] NULL,
+	[DueDate] [datetime] NULL,
+	[Reason] [nvarchar](max) NULL,
+	[Other] [nvarchar](max) NULL,
+	[IsUrgent] [bit] NULL,
+	[EntityId] [int] NULL,
+	[PriorityId] [int] NULL,
+	[FrequencyId] [int] NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[CMS_CLOSE_CASE] ADD  DEFAULT ((0)) FOR [IsUrgent]
+GO
+
+ALTER TABLE [dbo].[CMS_CLOSE_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_CLOSE_CASE_Frequency_Id] FOREIGN KEY([FrequencyId])
+REFERENCES [dbo].[CMS_Frequency_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_CLOSE_CASE] CHECK CONSTRAINT [CMS_CLOSE_CASE_Frequency_Id]
+GO
+
+ALTER TABLE [dbo].[CMS_CLOSE_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_CLOSE_CASE_Goverment_Entity_Id] FOREIGN KEY([EntityId])
+REFERENCES [dbo].[CMS_GOVERNMENT_ENTITY_G2G_LKP] ([EntityId])
+GO
+
+ALTER TABLE [dbo].[CMS_CLOSE_CASE] CHECK CONSTRAINT [CMS_CLOSE_CASE_Goverment_Entity_Id]
+GO
+
+ALTER TABLE [dbo].[CMS_CLOSE_CASE]  WITH CHECK ADD  CONSTRAINT [CMS_CLOSE_CASE_PRIORITY] FOREIGN KEY([PriorityId])
+REFERENCES [dbo].[CMS_PRIORITY_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[CMS_CLOSE_CASE] CHECK CONSTRAINT [CMS_CLOSE_CASE_PRIORITY]
+GO
+
+
+  /****** Object:  Table [dbo].[CMS_APPROVAL_TRACKING]    Script Date: 26/10/2022 9:33:54 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_APPROVAL_TRACKING]') AND type in (N'U'))
+DROP TABLE [dbo].CMS_APPROVAL_TRACKING
+GO
+
+CREATE TABLE CMS_APPROVAL_TRACKING
+(
+  Id UNIQUEIDENTIFIER PRIMARY KEY,
+  ReferenceId UNIQUEIDENTIFIER,
+  StatusId INT,
+  SectorTypeId INT,
+  ProcessTypeId INT,
+  Remarks NVARCHAR(MAX),
+  [CreatedBy] [nvarchar](256) NOT NULL,
+  [CreatedDate] [datetime] NOT NULL,
+  [ModifiedBy] [nvarchar](256) NULL,
+  [ModifiedDate] [datetime] NULL,
+  [DeletedBy] [nvarchar](256) NULL,
+  [DeletedDate] [datetime] NULL,
+  [IsDeleted] [bit] NOT NULL,
+)
+
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------- Consultation Start --------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+/******  
+<Object Scope='Public'> COMS_CONSULTATION_ARTICLE 
+<Copyright> Digital Processing System </Copyright>  
+<Author Company='Business Analytics'> Muhammad Zaeem </Author>  
+<Created> 2023-1-3 </Created>  
+<History Author='' Date=''>  </History>  
+</Object>  
+******/ 
+-- [dbo].[COMS_CONSULTATION_ARTICLE] 
+
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_ARTICLE]    Script Date: 1/3/2023 10:31:31 AM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMS_CONSULTATION_ARTICLE]') AND type in (N'U'))
+DROP TABLE [dbo].[COMS_CONSULTATION_ARTICLE]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_ARTICLE]    Script Date: 1/3/2023 10:31:31 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMS_CONSULTATION_ARTICLE](
+	[ArticleId] [uniqueidentifier] NOT NULL,
+	[ConsultationRequestId] [uniqueidentifier] NOT NULL,
+	[SectionId] [uniqueidentifier] NULL,
+	[ArticleNumber] [int] NOT NULL,
+	[ArticleTitle] [nvarchar](500) NOT NULL,
+	[ArticleStatusId] [int] NOT NULL,
+	[ArticleText] [nvarchar](max) NULL,
+ CONSTRAINT [PK_COMS_CONSULTATION_ARTICLE] PRIMARY KEY CLUSTERED 
+(
+	[ArticleId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+/******  
+<Object Scope='Public'> COMS_CONSULTATION_ARTICLE_STATUS 
+<Copyright> Digital Processing System </Copyright>  
+<Author Company='Business Analytics'> Muhammad Zaeem </Author>  
+<Created> 2023-1-3 </Created>  
+<History Author='' Date=''>  </History>  
+</Object>  
+******/ 
+/****** Object:  Table [dbo].[COMS_CONSULTATION_ARTICLE_STATUS]    Script Date: 1/3/2023 10:34:11 AM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMS_CONSULTATION_ARTICLE_STATUS]') AND type in (N'U'))
+DROP TABLE [dbo].[COMS_CONSULTATION_ARTICLE_STATUS]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_ARTICLE_STATUS]    Script Date: 1/3/2023 10:34:11 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMS_CONSULTATION_ARTICLE_STATUS](
+	[Id] [int] NOT NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+ CONSTRAINT [PK_COMS_CONSULTATION_ARTICLE_STATUS] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/******  
+<Object Scope='Public'> COMS_CONSULTATION_PARTY_TYPE_G2G_LKP 
+<Copyright> Digital Processing System </Copyright>  
+<Author Company='Business Analytics'> Muhammad Zaeem </Author>  
+<Created> 2023-1-3 </Created>  
+<History Author='' Date=''>  </History>  
+</Object>  
+******/
+/****** Object:  Table [dbo].[COMS_CONSULTATION_PARTY_TYPE_G2G_LKP]    Script Date: 1/3/2023 10:47:36 AM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMS_CONSULTATION_PARTY_TYPE_G2G_LKP]') AND type in (N'U'))
+DROP TABLE [dbo].[COMS_CONSULTATION_PARTY_TYPE_G2G_LKP]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_PARTY_TYPE_G2G_LKP]    Script Date: 1/3/2023 10:47:36 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMS_CONSULTATION_PARTY_TYPE_G2G_LKP](
+	[Id] [int] NOT NULL,
+	[Name_En] [nvarchar](500) NOT NULL,
+	[Name_Ar] [nvarchar](500) NOT NULL,
+ CONSTRAINT [PK_COMS_CONSULTATION_PARTY_TYPE_G2G_LKP] PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/******  
+<Object Scope='Public'> COMS_CONSULTATION_REQUEST 
+<Copyright> Digital Processing System </Copyright>  
+<Author Company='Business Analytics'> Muhammad Zaeem </Author>  
+<Created> 2023-1-3 </Created>  
+<History Author='' Date=''>  </History>  
+</Object>  
+******/
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_REQUEST]    Script Date: 1/3/2023 10:49:52 AM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMS_CONSULTATION_REQUEST]') AND type in (N'U'))
+DROP TABLE [dbo].[COMS_CONSULTATION_REQUEST]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_REQUEST]    Script Date: 1/3/2023 10:49:52 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMS_CONSULTATION_REQUEST](
+	[ConsultationRequestId] [uniqueidentifier] NOT NULL,
+	[RequestNumber] [nvarchar](500) NOT NULL,
+	[RequestTypeId] [int] NOT NULL,
+	[RequestSubTypeId] [int] NOT NULL,
+	[RequestDate] [datetime] NOT NULL,
+	[Subject] [nvarchar](500) NOT NULL,
+	[Description] [nvarchar](max) NULL,
+	[Introduction] [nvarchar](max) NOT NULL,
+	[ReferenceNo] [nvarchar](500) NULL,
+	[ReferenceDate] [datetime] NULL,
+	[RequestTitle] [nvarchar](500) NULL,
+	[GEOpinion] [nvarchar](max) NULL,
+	[PriorityId] [int] NOT NULL,
+	[RequestStatusId] [int] NOT NULL,
+	[Pledge] [bit] NOT NULL,
+	[GovtEntityId] [int] NULL,
+	[DepartmentId] [int] NULL,
+	[Remarks] [nvarchar](max) NULL,
+	[ContractAmount75000KD] [bit] NOT NULL,
+	[IsConfidential] [bit] NOT NULL,
+	[OfficialLetterOutboxNumber] [nvarchar](500) NULL,
+	[FatwaInboxNumber] [nvarchar](500) NULL,
+	[TemplateId] [int] NULL,
+	[CreatedBy] [nvarchar](100) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](100) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](100) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+	CONSTRAINT [PK_COMS_CONSULTATION_REQUEST] PRIMARY KEY CLUSTERED 
+(
+	[ConsultationRequestId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+
+
+
+
+
+
+
+
+/******  
+<Object Scope='Public'> COMS_CONSULTATION_SECTION 
+<Copyright> Digital Processing System </Copyright>  
+<Author Company='Business Analytics'> Muhammad Zaeem </Author>  
+<Created> 2023-1-3 </Created>  
+<History Author='' Date=''>  </History>  
+</Object>  
+******/
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_SECTION]    Script Date: 1/3/2023 10:54:25 AM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMS_CONSULTATION_SECTION]') AND type in (N'U'))
+DROP TABLE [dbo].[COMS_CONSULTATION_SECTION]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_SECTION]    Script Date: 1/3/2023 10:54:25 AM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMS_CONSULTATION_SECTION](
+	[SectionId] [uniqueidentifier] NOT NULL,
+	[ConsultationRequestId] [uniqueidentifier] NOT NULL,
+	[SectionParentId] [uniqueidentifier] NULL,
+	[SectionNumber] [int] NOT NULL,
+	[ParentId] [int] NULL,
+	[SectionTitle] [nvarchar](500) NOT NULL,
+	[SectionParentTitle] [nvarchar](500) NULL,
+ CONSTRAINT [PK_COMS_CONSULTATION_SECTION] PRIMARY KEY CLUSTERED 
+(
+	[SectionId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+/******  
+<Object Scope='Public'> [COMS_CONSULTATION_REQUEST_STATUS_HISTORY] 
+<Copyright> Digital Processing System </Copyright>  
+<Author Company='Business Analytics'> Muhammad Zaeem </Author>  
+<Created> 2023-1-3 </Created>  
+<History Author='' Date=''>  </History>  
+</Object>  
+******/
+ALTER TABLE [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY] DROP CONSTRAINT [COMS_STATUS_HISTORY_REQUEST]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY] DROP CONSTRAINT [COMS_HISTORY_REQUEST_STATUS]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY] DROP CONSTRAINT [COMS_HISTORY_EVENT]
+GO
+
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY]    Script Date: 1/6/2023 4:07:59 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY]') AND type in (N'U'))
+DROP TABLE [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY]    Script Date: 1/6/2023 4:07:59 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY](
+	[HistoryId] [uniqueidentifier] NOT NULL,
+	[EventId] [int] NOT NULL,
+	[Remarks] [nvarchar](max) NULL,
+	[StatusId] [int] NOT NULL,
+	[ConsultationRequestId] [uniqueidentifier] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+ CONSTRAINT [PK_COMS_CONSULTATION_REQUEST_STATUS_HISTORY] PRIMARY KEY CLUSTERED 
+(
+	[HistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [COMS_HISTORY_EVENT] FOREIGN KEY([EventId])
+REFERENCES [dbo].[CMS_CASE_REQUEST_EVENT_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY] CHECK CONSTRAINT [COMS_HISTORY_EVENT]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [COMS_HISTORY_REQUEST_STATUS] FOREIGN KEY([StatusId])
+REFERENCES [dbo].[CMS_CASE_REQUEST_STATUS_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY] CHECK CONSTRAINT [COMS_HISTORY_REQUEST_STATUS]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [COMS_STATUS_HISTORY_REQUEST] FOREIGN KEY([ConsultationRequestId])
+REFERENCES [dbo].[COMS_CONSULTATION_REQUEST] ([ConsultationRequestId])
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_REQUEST_STATUS_HISTORY] CHECK CONSTRAINT [COMS_STATUS_HISTORY_REQUEST]
+GO
+
+
+/******  
+<Object Scope='Public'> [COMS_APPROVAL_TRACKING]
+<Copyright> Digital Processing System </Copyright>  
+<Author Company='Business Analytics'> Muhammad Zaeem </Author>  
+<Created> 2023-1-9 </Created>  
+<History Author='' Date=''>  </History>  
+</Object>  
+******/
+/****** Object:  Table [dbo].[COMS_APPROVAL_TRACKING]    Script Date: 1/9/2023 3:29:02 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMS_APPROVAL_TRACKING]') AND type in (N'U'))
+DROP TABLE [dbo].[COMS_APPROVAL_TRACKING]
+GO
+
+/****** Object:  Table [dbo].[COMS_APPROVAL_TRACKING]    Script Date: 1/9/2023 3:29:02 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMS_APPROVAL_TRACKING](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ReferenceId] [uniqueidentifier] NULL,
+	[StatusId] [int] NULL,
+	[SectorTo] [int] NULL,
+	[SectorFrom] [int] NULL,
+	[ProcessTypeId] [int] NULL,
+	[Remarks] [nvarchar](max) NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+
+
+-----------------------------------------------------[COMS_CONSULTATION_ASSIGNMENT]
+ALTER TABLE [dbo].[COMS_CONSULTATION_ASSIGNMENT] DROP CONSTRAINT [COMS_LAWYER_ASSIGN_USER_SUPERVISOR]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_ASSIGNMENT] DROP CONSTRAINT [COMS_LAWYER_ASSIGN_USER_LAWYER]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_ASSIGNMENT]    Script Date: 1/10/2023 5:40:30 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMS_CONSULTATION_ASSIGNMENT]') AND type in (N'U'))
+DROP TABLE [dbo].[COMS_CONSULTATION_ASSIGNMENT]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_ASSIGNMENT]    Script Date: 1/10/2023 5:40:30 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMS_CONSULTATION_ASSIGNMENT](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ReferenceId] [uniqueidentifier] NOT NULL,
+	[LawyerId] [nvarchar](450) NOT NULL,
+	[SupervisorId] [nvarchar](450) NULL,
+	[IsPrimary] [bit] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+	[Remarks] [nvarchar](450) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [COMS_LAWYER_ASSIGN_USER_LAWYER] FOREIGN KEY([LawyerId])
+REFERENCES [dbo].[UMS_USER] ([Id])
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_ASSIGNMENT] CHECK CONSTRAINT [COMS_LAWYER_ASSIGN_USER_LAWYER]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_ASSIGNMENT]  WITH CHECK ADD  CONSTRAINT [COMS_LAWYER_ASSIGN_USER_SUPERVISOR] FOREIGN KEY([SupervisorId])
+REFERENCES [dbo].[UMS_USER] ([Id])
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_ASSIGNMENT] CHECK CONSTRAINT [COMS_LAWYER_ASSIGN_USER_SUPERVISOR]
+GO
+
+/******  
+<Object Scope='Public'> [COMS_CONSULTATION_PARTY]
+<Copyright> Digital Processing System </Copyright>  
+<Author Company='Business Analytics'> Muhammad Zaeem </Author>  
+<Created> 2023-1-11 </Created>  
+<History Author='' Date=''>  </History>  
+</Object>  
+******/
+/****** Object:  Table [dbo].[COMS_CONSULTATION_PARTY]    Script Date: 1/11/2023 4:27:41 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMS_CONSULTATION_PARTY]') AND type in (N'U'))
+DROP TABLE [dbo].[COMS_CONSULTATION_PARTY]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_PARTY]    Script Date: 1/11/2023 4:27:41 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMS_CONSULTATION_PARTY](
+	[PartyId] [uniqueidentifier] NOT NULL,
+	[ConsultationRequestId] [uniqueidentifier] NOT NULL,
+	[PartyTypeId] [int] NOT NULL,
+	[RepresentativeName] [nvarchar](500) NOT NULL,
+	[Designation] [nvarchar](500) NOT NULL,
+	[CivilID_CRN] [nvarchar](500) NULL,
+	[Email] [nvarchar](500) NOT NULL,
+	[PhoneNumber] [nvarchar](100) NOT NULL,
+	[Fax] [nvarchar](100) NULL,
+	[POBox] [nvarchar](300) NULL,
+	[POCode] [nvarchar](300) NULL,
+	[CompanyName] [nvarchar](500) NULL,
+	[Address] [nvarchar](1000) NULL,
+	[CreatedBy] [nvarchar](100) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](100) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](100) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+ CONSTRAINT [PK_COMS_CONSULTATION_PARTY] PRIMARY KEY CLUSTERED 
+(
+	[PartyId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+/******  
+<Object Scope='Public'> [COMS_CONSULTATION_FILE_STATUS_HISTORY]
+<Copyright> Digital Processing System </Copyright>  
+<Author Company='Business Analytics'> Muhammad Zaeem </Author>  
+<Created> 2023-1-17 </Created>  
+<History Author='' Date=''>  </History>  
+</Object>  
+******/
+ALTER TABLE [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY] DROP CONSTRAINT [COMS_CONSULTATION_STATUS_HISTORY_CONSULTATION_FILE]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY] DROP CONSTRAINT [COMS_CONSULTATION_HISTORY_CONSULTATION_FILE_STATUS]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY] DROP CONSTRAINT [COMS_CONSULTATION_FILE_HISTORY_EVENT]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY]    Script Date: 1/17/2023 1:01:47 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY]') AND type in (N'U'))
+DROP TABLE [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY]    Script Date: 1/17/2023 1:01:47 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY](
+	[HistoryId] [uniqueidentifier] NOT NULL,
+	[EventId] [int] NOT NULL,
+	[Remarks] [nvarchar](max) NULL,
+	[StatusId] [int] NOT NULL,
+	[FileId] [uniqueidentifier] NOT NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[HistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [COMS_CONSULTATION_FILE_HISTORY_EVENT] FOREIGN KEY([EventId])
+REFERENCES [dbo].[CMS_CASE_FILE_EVENT_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY] CHECK CONSTRAINT [COMS_CONSULTATION_FILE_HISTORY_EVENT]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [COMS_CONSULTATION_HISTORY_CONSULTATION_FILE_STATUS] FOREIGN KEY([StatusId])
+REFERENCES [dbo].[CMS_CASE_FILE_STATUS_G2G_LKP] ([Id])
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY] CHECK CONSTRAINT [COMS_CONSULTATION_HISTORY_CONSULTATION_FILE_STATUS]
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY]  WITH CHECK ADD  CONSTRAINT [COMS_CONSULTATION_STATUS_HISTORY_CONSULTATION_FILE] FOREIGN KEY([FileId])
+REFERENCES [dbo].[COMS_CONSULTATION_FILE] ([FileId])
+GO
+
+ALTER TABLE [dbo].[COMS_CONSULTATION_FILE_STATUS_HISTORY] CHECK CONSTRAINT [COMS_CONSULTATION_STATUS_HISTORY_CONSULTATION_FILE]
+GO
+
+
+
+
+
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_ASSIGNMENT_HISTORY]    Script Date: 21/01/2023 11:46:34 am ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[COMS_CONSULTATION_ASSIGNMENT_HISTORY]') AND type in (N'U'))
+DROP TABLE [dbo].[COMS_CONSULTATION_ASSIGNMENT_HISTORY]
+GO
+
+/****** Object:  Table [dbo].[COMS_CONSULTATION_ASSIGNMENT_HISTORY]    Script Date: 21/01/2023 11:46:34 am ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[COMS_CONSULTATION_ASSIGNMENT_HISTORY](
+	[HistoryId] [uniqueidentifier] NOT NULL,
+	[ReferenceId] [uniqueidentifier] NOT NULL,
+	[Remarks] [nvarchar](max) NULL,
+	[AssigneeId] [nvarchar](256) NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[HistoryId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------- Consultation End --------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ /****** Object:  Table [dbo].[CMS_APPROVAL_TRACKING]    Script Date: 1/10/2023 5:45:00 PM ******/
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_APPROVAL_TRACKING]') AND type in (N'U'))
+DROP TABLE [dbo].[CMS_APPROVAL_TRACKING]
+GO
+
+/****** Object:  Table [dbo].[CMS_APPROVAL_TRACKING]    Script Date: 1/10/2023 5:45:00 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[CMS_APPROVAL_TRACKING](
+	[Id] [uniqueidentifier] NOT NULL,
+	[ReferenceId] [uniqueidentifier] NULL,
+	[StatusId] [int] NULL,
+	[SectorTo] [int] NULL,
+	[SectorFrom] [int] NULL,
+	[ProcessTypeId] [int] NULL,
+	[Remarks] [nvarchar](max) NULL,
+	[CreatedBy] [nvarchar](256) NOT NULL,
+	[CreatedDate] [datetime] NOT NULL,
+	[ModifiedBy] [nvarchar](256) NULL,
+	[ModifiedDate] [datetime] NULL,
+	[DeletedBy] [nvarchar](256) NULL,
+	[DeletedDate] [datetime] NULL,
+	[IsDeleted] [bit] NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
+---------------------------
+
+/****** Object:  Table [dbo].[CMS_Response_Type]   ******/ 
+IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[CMS_Response_Type]') AND type in (N'U'))
+	DROP TABLE [dbo].[CMS_Response_Type]
+GO
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[CMS_Response_Type](
+	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[Name_En] [nvarchar](100) NOT NULL,
+	[Name_Ar] [nvarchar](100) NOT NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[Id] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO

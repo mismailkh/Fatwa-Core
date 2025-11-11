@@ -1,0 +1,118 @@
+﻿@page "/add-new-legislation-relation"
+@using FATWA_DOMAIN.Models
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Add_New_Legislation")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@legalLegislationForAddRelation" Visible="@(legalLegislationForAddRelation != null)" TItem="LegalLegislation" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row pb-2">
+
+                            <div class="col-12 col-sm-12 col-md-6">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Type") *</label>
+                                        <div class="k-form-field-wrap">
+                                                <RadzenDropDown Data="@GetLegislationTypeDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            @bind-Value="@legalLegislationForAddRelation.Legislation_Type" Name="Legislation_Type"
+                                                            Class="@validations.LegislationType" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Number") *</label>
+                                        <div class="k-form-field-wrap">
+                                            <RadzenTextBox MaxLength="50" Placeholder="@translationState.Translate("Legislation_Number")" @bind-Value="@(legalLegislationForAddRelation.Legislation_Number)" Name="Legislation_Number" Class="@validations.LegislationNumber" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Issue_Date")</label>
+                                        <div class="k-form-field-wrap">
+                                            <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                              Min="@Min"
+                                                              Max="@Max"
+                                                              Class="@validations.IssueDate"
+                                                              @bind-Value="@legalLegislationForAddRelation.IssueDate" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                      @*   <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Issue_Date_Hijri")</label> *@
+                                        <div class="k-form-field-wrap">
+                                          @*   <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                              Min="@Min"
+                                                              Max="@Max"
+                                                              Class="@validations.IssueDate_Hijri"
+                                                              @bind-Value="@legalLegislationForAddRelation.IssueDate_Hijri" /> *@
+                                            <HijriDatePicker Id="1" @bind-HijriDate=@legalLegislationForAddRelation.IssueDate_Hijri
+                                                             InputLabelText="@translationState.Translate("Legislation_Issue_Date_Hijri")">
+                                            </HijriDatePicker>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="destinations" class="k-label k-form-label">@translationState.Translate("Legislation_Subject") *</label>
+                                        <div class="k-form-field-wrap">
+                                            <RadzenTextBox Placeholder="@translationState.Translate("Legislation_Subject")" @bind-Value="@(legalLegislationForAddRelation.LegislationTitle)" Name="LegislationTitle" Class="@validations.TitleEn" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="destinations" class="k-label k-form-label">@translationState.Translate("Legislation_Year")</label>
+                                        <div class="k-form-field-wrap">
+                                            <RadzenTextBox Placeholder="@translationState.Translate("Legislation_Year")" @bind-Value="@(legalLegislationForAddRelation.LegislationYear)" Name="LegislationYear" />
+                                        </div>
+                                        <RadzenLengthValidator Component="LegislationYear" Max="4" Text="@translationState.Translate("Must_Four_Characters")" />
+                                        <RadzenRegexValidator Component="LegislationYear" Text="@translationState.Translate("Only_Digits_Allowed")" Pattern="^[0-9]+$" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="destinations" class="k-label k-form-label">@translationState.Translate("Legislation_Remarks")</label>
+                                        <div class="k-form-field-wrap">
+                                            <RadzenTextBox Placeholder="@translationState.Translate("Legislation_Remarks")" @bind-Value="@(legalLegislationForAddRelation.LegislationRemark)" Name="LegislationRemark" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row popup-buttons-alignment">
+                                <div class="col-12">
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                    </RadzenButton>
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@Button2Click">
+                                    </RadzenButton>
+                                </div>
+                            </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

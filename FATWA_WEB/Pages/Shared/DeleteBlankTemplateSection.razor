@@ -1,0 +1,44 @@
+﻿@page "/delete-blankTemplateSection"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.Shared
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@layout MainLayout
+
+<!-- <History Author = 'Hassan Abbas' Date='2022-10-22' Version="1.0" Branch="master">Add Blank Template Section</History> -->
+<PageTitle>@translationState.Translate("Add_Blank_Section")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@templateSection" Visible="@(templateSection != null)" TItem="CaseTemplateSectionsVM" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@(translationState.Translate("Select_Section") + " *")" Component="Section" />
+                                    <RadzenDropDown Data="@TemplateSections" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                        TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectionNameEn" : "SectionNameAr") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;" @bind-Value="templateSection.Id" Name="Section">
+                                        </RadzenDropDown>
+                                   <div class="rz-message rz-messages-error ">@sectionValidationMsg</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4 popup-buttons-alignment">
+                            <div class="col-9 d-flex justify-content-end p-0">
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                                </RadzenButton>
+                                 </div>
+                                 <div class="col-3 d-flex justify-content-end p-0">
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Delete")">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

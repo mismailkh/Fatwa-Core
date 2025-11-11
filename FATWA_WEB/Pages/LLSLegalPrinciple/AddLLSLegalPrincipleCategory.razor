@@ -1,0 +1,43 @@
+﻿@page "/add-llsprinciplecategory"
+@using FATWA_DOMAIN.Models.LLSLegalPrinciple;
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Add_Principle_Category")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@lLSLegalPrincipleCategory" Visible="@(lLSLegalPrincipleCategory != null)" TItem="LLSLegalPrincipleCategory" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row"> 
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Category_Name")" Component="CategoryName" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Category_Name")" @bind-Value="@lLSLegalPrincipleCategory.Name" Name="CategoryName" />
+                                    <RadzenRequiredValidator Component="CategoryName" Text="@translationState.Translate("Required_Field")" />
+
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Category_Parent_Name")" Component="CategoryParentName" />
+                                    <RadzenDropDown Data="@CategoryParentDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                    TextProperty="Name" ValueProperty="CategoryId" Placeholder="@translationState.Translate("Select")"
+                                                    @bind-Value="@lLSLegalPrincipleCategory.ParentId" Name="CategoryParentName" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row popup-buttons-alignment">
+                            <div class="col-12">
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

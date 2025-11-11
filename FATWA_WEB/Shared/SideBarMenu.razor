@@ -1,0 +1,131 @@
+﻿@inject NavigationManager navManager 
+@inject FATWA_WEB.Data.LoginState loginState
+
+<!-- start sidebar menu -->
+<div class="sidebar-container">
+	<div class="sidemenu-container navbar-collapse collapse fixed-menu">
+		<div id="remove-scroll">
+			<ul class="sidemenu page-header-fixed p-t-20" data-keep-expanded="false" data-auto-scroll="true"
+				data-slide-speed="200">
+				<li class="sidebar-toggler-wrapper hide">
+					<div class="sidebar-toggler">
+						<span></span>
+					</div>
+				</li>
+				<li class="sidebar-user-panel">
+					<div class="user-panel">
+						<div class="row">
+							<div class="sidebar-userpic">
+								<img src="/spiceTheme/assets/img/dp.jpg" class="img-responsive" alt=""> </div>
+						</div>
+						<div class="profile-usertitle">
+							<div class="sidebar-userpic-name"> علي أحمد </div>
+							<div class="profile-usertitle-job"> مدير </div>
+						</div>
+						<div class="sidebar-userpic-btn">
+							<a class="tooltips" href="#" data-placement="top"
+								data-original-title="Profile">
+								<i class="material-icons">person_outline</i>
+							</a>
+							<a class="tooltips" href="#" data-placement="top"
+								data-original-title="Mail">
+								<i class="material-icons">mail_outline</i>
+							</a>
+							<a class="tooltips" href="#" data-placement="top"
+								data-original-title="Chat">
+								<i class="material-icons">chat</i>
+							</a>
+							<a class="tooltips" @onclick=@HandleLogout data-placement="top"
+								data-original-title="Logout">
+								<i class="material-icons">input</i>
+							</a>
+						</div>
+					</div>
+				</li> 
+
+				@*<History Author = 'Zain Ul Islam' Date='2022-03-07' Version="1.0" Branch="Feature_Zain"> Check User's Claim for the specified tab</History>*@
+				@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Menu.Dashboard").Count() > 0)
+				{
+					<li class="menu-heading">
+						<a href="Index">
+							@*Index Page*@
+							<i class="material-icons">home</i>
+							<span>الصفحة الرئيسية</span> 
+						</a>
+					</li>
+				} 
+
+				@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Menu.Users").Count() > 0)
+				{
+					<li class="menu-heading">
+						<a href="userlist">
+							@*User List*@
+							<i class="material-icons">person</i>
+							<span>المستخدمون</span> 
+						</a>
+					</li>
+				}
+
+				@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Menu.Roles").Count() > 0)
+				{
+					<li class="menu-heading">
+						<a href="roleList">
+							@*Role List*@
+							<i class="material-icons">group</i> 
+							<span>الأدوار</span> 
+						</a>
+					</li>
+				}
+					 
+				@if (loginState.IsLoggedIn)
+				{
+					<li class="menu-heading">
+						<a @onclick=@HandleLogout>
+							@*Log Out*@
+							<i class="material-icons">input</i> 
+							<span>-- تسجيل خروج</span> 
+						</a>
+					</li>
+				} 
+				<li class="nav-item">
+						<a href="#" class="nav-link nav-toggle">
+							<i class="material-icons">email</i>
+							<span class="title">Email</span>
+							<span class="arrow"></span>
+							<span class="label label-rouded label-menu label-danger">new</span>
+						</a>
+						<ul class="sub-menu">
+							<li class="nav-item">
+								<a href="email_inbox.html" class="nav-link ">
+									<span class="title">Inbox</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a href="email_view.html" class="nav-link ">
+									<span class="title">View Mail</span>
+								</a>
+							</li>
+							<li class="nav-item">
+								<a href="email_compose.html" class="nav-link ">
+									<span class="title">Compose Mail</span>
+								</a>
+							</li>
+						</ul>
+					</li>
+					  
+			</ul>
+		</div>
+	</div>
+</div>
+<!-- end sidebar menu --> 
+
+	
+@code { 
+    
+    //<History Author = 'Zain Ul Islam' Date='2022-03-07' Version="1.0" Branch="Feature_Zain"> Update Login State on Web Project</History>
+    void HandleLogout()
+    {
+        loginState.SetLogout(false);
+        navManager.NavigateTo("Login", true);
+    }
+}

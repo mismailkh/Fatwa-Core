@@ -1,0 +1,48 @@
+﻿@page "/drafttemplateversionlogs/{versionId}"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@layout MainLayout
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <div class="row pb-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="tableContent table-responsive">
+                            <RadzenDataGrid TItem="CmsDraftTemplateVersionLogVM"
+                                            FilterMode="Radzen.FilterMode.Advanced"
+                                            Count="@(cmsDraftTemplateVersionLogs != null ? cmsDraftTemplateVersionLogs.Count() : 0)"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            AllowFiltering="false"
+                                            Data="@cmsDraftTemplateVersionLogs"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                            ShowPagingSummary="true">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="CmsDraftTemplateVersionLogVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr")" Title="@translationState.Translate("User")" />
+                                    <RadzenDataGridColumn TItem="CmsDraftTemplateVersionLogVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ActionNameEn" : "ActionNameAr")" Title="@translationState.Translate("Entity_Action")" />
+                                    <RadzenDataGridColumn TItem="CmsDraftTemplateVersionLogVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ReviewerUserNameEn" : "ReviewerUserNameAr")" Title="@translationState.Translate("Reviewer_Name")" Width="280px !important" />
+                                    <RadzenDataGridColumn TItem="CmsDraftTemplateVersionLogVM" Property="CreatedDateTime" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")" Width="160px" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4 popup-buttons-alignment">
+                    <div class="col-12 p-0">
+                        <RadzenButton Text="@translationState.Translate("Close")"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Click="@CloseDialog" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

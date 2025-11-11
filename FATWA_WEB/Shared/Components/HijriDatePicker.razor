@@ -1,0 +1,174 @@
+﻿@using Radzen
+@using Radzen.Blazor
+@using System.Globalization;
+<div>
+    <label class="k-label k-form-label"> @InputLabelText </label>
+    @if (Id == 1)
+    {
+
+        <input type="text" class="hijri-date-input @Class" @onfocusout='()=>OpenHijriCalender("initHijrDatePicker")' id="HijriInput"
+               style="@Style" disabled="@((Disabled) ? "disabled" : null)"
+               value=@(HijriDate != null ? Convert.ToDateTime(HijriDate).ToString("dd/MM/yyyy") : "") />
+
+        <div class="icon" onclick="OpenHijriCalendarClickingIcon()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event" viewBox="0 0 16 16" id="HijriIcon">
+                <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z" />
+                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
+            </svg>
+        </div>
+    }
+    else if (Id == 2)
+    {
+        <input type="text" class="hijri-date-inputSecond @Class" @onfocusout='()=>OpenHijriCalender("initHijrDatePickerSecond")' id="HijriInputSecond"
+               style="@Style" disabled="@((Disabled) ? "disabled" : null)"
+               value=@(HijriDateSecond != null ? Convert.ToDateTime(HijriDateSecond).ToString("dd/MM/yyyy") : "") />
+
+        <div class="icon" onclick="OpenSecondHijriCalendarClickingIcon()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event" viewBox="0 0 16 16" id="HijriIconSecond">
+                <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z" />
+                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z" />
+            </svg>
+        </div>
+    }
+
+    <span style="color:red">@OverflowErrorMessage</span>
+</div>
+@code {
+    #region Parameter & properties
+    [Parameter]
+    public int Id { get; set; }
+
+    [Parameter]
+    public String InputLabelText { get; set; } = "Hijri Calender";
+
+    [Parameter]
+    public string Class { get; set; } = "form-control";
+
+    [Parameter]
+    public string? Style { get; set; } = "";
+    /// <summary>
+    /// 2070-01-01 formate
+    /// </summary>
+    [Parameter]
+    public string MaxDate { get; set; } = "2070-01-01";
+    /// <summary>
+    /// 1950-01-01 formate
+    /// </summary>
+    [Parameter]
+    public string MinDate { get; set; } = "1950-01-01";
+
+    [Parameter]
+    public DateTime? HijriDate { get; set; } = DateTime.Today;
+
+    [Parameter]
+    public DateTime? HijriDateSecond { get; set; } = DateTime.Today;
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
+
+    [Parameter]
+    public virtual EventCallback<DateTime?> HijriDateChanged { get; set; }
+    [Parameter]
+    public virtual EventCallback<DateTime?> HijriDateSecondChanged { get; set; }
+
+    public string? OverflowErrorMessage { get; set; }
+
+    #endregion
+
+    #region Functions
+
+    public async Task OpenHijriCalender(string JSFunctionName)
+    {
+        await JsInterop.InvokeVoidAsync(JSFunctionName, DotNetObjectReference.Create(this), "", MaxDate, MinDate);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            if (firstRender == true)
+            {
+                if (Id == 1 && HijriDate == DateTime.Today)
+                {
+                    await OpenHijriCalender<string>("initHijrDatePicker", "");
+                }
+                else if (Id == 1 && HijriDate != DateTime.Today )
+                {
+                    if (HijriDate == null)
+                    {
+                        HijriDate = DateTime.Today;
+                    }
+                    await OpenHijriCalender<DateTime?>("initHijrDatePicker", HijriDate.Value.Date);
+                }
+                else if (Id == 2 && HijriDateSecond.Value.Date == DateTime.Today)
+                {
+                    await OpenHijriCalender<string>("initHijrDatePickerSecond", "");
+                }
+                else if (Id == 2 && HijriDateSecond.Value.Date != DateTime.Today)
+                {
+                    if (HijriDateSecond == null)
+                    {
+                        HijriDateSecond = DateTime.Today;
+                    }
+                    await OpenHijriCalender<DateTime?>("initHijrDatePickerSecond", HijriDateSecond.Value.Date);
+                }
+            }
+        }
+        catch (Exception) { throw; }
+    }
+    public async Task OpenHijriCalender<T>(string JSFunctionName, T HijriDate)
+    {
+        await JsInterop.InvokeVoidAsync(JSFunctionName, DotNetObjectReference.Create(this), HijriDate, MaxDate, MinDate);
+    }
+    [JSInvokable]
+    public async void GetHijriDateFromJS(string HijriDateJS)
+    {
+        //await OnHijriDateChanged(Convert.ToDateTime(HijriDateJS));
+        //StateHasChanged();
+
+        string format = "dd/MM/yyyy";
+        DateTime hijriDate;
+        if (DateTime.TryParseExact(HijriDateJS, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out hijriDate))
+        {
+            await OnHijriDateChanged(hijriDate);
+            StateHasChanged();
+        }
+        else
+        {
+            // Handle the case where the date string is not in the expected format
+            Console.WriteLine("Invalid date format");
+        }
+    }
+    [JSInvokable]
+    public async void GetHijriDateFromJSSecond(string HijriDateJsSec)
+    {
+        //await OnHijriDateChangedSecond(Convert.ToDateTime(HijriDateJsSec));
+        //StateHasChanged();
+
+        string format = "dd/MM/yyyy";
+        DateTime hijriDatee;
+        if (DateTime.TryParseExact(HijriDateJsSec, format, CultureInfo.InvariantCulture, DateTimeStyles.None, out hijriDatee))
+        {
+           // await OnHijriDateChanged(hijriDatee);
+            await OnHijriDateChangedSecond(hijriDatee);
+            StateHasChanged();
+        }
+        else
+        {
+            // Handle the case where the date string is not in the expected format
+            Console.WriteLine("Invalid date format");
+        }
+    }
+
+    public async Task OnHijriDateChanged(DateTime? newValue)
+    {
+        HijriDate = newValue;
+        await HijriDateChanged.InvokeAsync(HijriDate);
+    }
+    public async Task OnHijriDateChangedSecond(DateTime? newValue)
+    {
+        HijriDateSecond = newValue;
+        await HijriDateSecondChanged.InvokeAsync(HijriDateSecond);
+    }
+    #endregion
+}

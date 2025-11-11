@@ -1,0 +1,125 @@
+﻿@page "/public-holidays-view"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.TimeIntervalVMs
+
+@*< History Author = 'Ammaar Naveed' Date = '2024-06-04' Version = "1.0" Branch = "master"> UI fixations in pages and dialogs</History>*@
+<PageTitle>@translationState.Translate("Public_Holidays")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.BackgroundServices"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Public_Holidays")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" Text="@translationState.Translate("Public_Holidays")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <RadzenCard Style="padding: 30px; border-radius: 8px;">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <RadzenAccordion Multiple="true">
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Public_Holidays")" Selected>
+
+                                 <div class="row">
+                                     <div class="col-md-4">
+                                         <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")" Name="Textbox0"
+                                         @oninput="@(async(args) => {await grid.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+ 
+                                     </div>
+                                     <div class="col-md-8 text-right-custom-gridcolumn">
+                                         <RadzenButton Icon="add_circle" style="margin-bottom: 10px" Text="@translationState.Translate("Add")" Click="@AddHoliday">
+                                         </RadzenButton>
+                                     </div>
+                                 </div>
+                                    <div class="row tableContent pb-3">
+
+                                     <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                         <div class="table-responsive">
+                                             <RadzenDataGrid @ref="grid"
+                                                             FilterMode="Radzen.FilterMode.Advanced"
+                                                             AllowPaging="true"
+                                                             AllowSorting="true"
+                                                             AllowFiltering="false"
+                                                             Data="@FilteredpublicHolidaysResult"
+                                                             TItem="PublicHolidaysVM"
+                                                             PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                             PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                             EmptyText="@translationState.Translate("No_record_found")"
+                                                             ShowPagingSummary="true"
+                                                             Count="@(FilteredpublicHolidaysResult.Any() ? FilteredpublicHolidaysResult.Count() : 0)"
+                                                             PageSize="@loginState.PageSize"
+                                                             PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                             PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                                                 <Columns>
+                                                     <RadzenDataGridColumn TItem="PublicHolidaysVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="80px" TextAlign="TextAlign.Center">
+                                                         <Template Context="rowItem">
+                                                             <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                           class="editIcon"
+                                                                           Icon="mode"
+                                                                           Title="@translationState.Translate("Edit")"
+                                                                           Size="ButtonSize.Small"
+                                                                           Disabled="@((rowItem.FromDate.Date <= DateTime.Today && rowItem.ToDate.Date >= DateTime.Today) || rowItem.ToDate.Date < DateTime.Today)"
+                                                                           Click="@((args) => UpdatePublicHoliday(rowItem))"
+                                                             @onclick:stopPropagation="true" />
+
+                                                             <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                                           class="detail"
+                                                                           Icon="delete"
+                                                                           Title="@translationState.Translate("Delete")"
+                                                                           Size="ButtonSize.Small"
+                                                                           Disabled="@((rowItem.FromDate.Date <= DateTime.Today && rowItem.ToDate.Date >= DateTime.Today) || rowItem.ToDate.Date < DateTime.Today)"
+                                                                           Click="@((args) => DeletePublicHoliday(rowItem))"
+                                                             @onclick:stopPropagation="true" />
+                                                         </Template>
+                                                     </RadzenDataGridColumn>
+                                                     <RadzenDataGridColumn TItem="PublicHolidaysVM" Width="200px" Property="Description" Title="@translationState.Translate("Description")"></RadzenDataGridColumn>
+                                                     <RadzenDataGridColumn TItem="PublicHolidaysVM" Width="200px" Property="FromDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("From_Date")" />
+                                                     <RadzenDataGridColumn TItem="PublicHolidaysVM" Width="200px" Property="ToDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("To_Date")" />
+                                                     <RadzenDataGridColumn TItem="PublicHolidaysVM" Width="200px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CreatedByEn" : "CreatedByAr")" Title="@translationState.Translate("CreatedBy")" />
+                                                     <RadzenDataGridColumn TItem="PublicHolidaysVM" Width="200px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("CreatedDate")" />
+                                                 </Columns>
+                                             </RadzenDataGrid>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <br />
+                                 <br />
+                                 @* <div class="row">
+                                <p>@translationState.Translate("NOTE:_Considering_Friday_and_Satutrday_as_Weekend_Holidays")</p>
+                                </div> *@
+                             </RadzenAccordionItem>
+                         </Items>
+                     </RadzenAccordion>
+                 </div>
+             </div>
+         </RadzenCard>
+     </ChildContent>
+ </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

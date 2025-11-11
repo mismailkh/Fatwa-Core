@@ -1,0 +1,98 @@
+﻿@page "/workqueuelog-list/{ItemId}"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.AutomationMonitoring;
+@*< History Author = 'Ijaz Ahmad' Date = '2024-06-24' Version = "1.0" Branch = "master"> Work Queue Log List </History>*@
+<PageTitle>@translationState.Translate("WorkQueue_log_list")</PageTitle>
+
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.AutoMonInterface"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Path="/casedata_extraction" Text="@translationState.Translate("Case_Data_Extraction")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("WorkQueue_log_list")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back")"
+                              class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" Text="@translationState.Translate("WorkQueue_log_list")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+        </div>
+    </div>
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <div class="row col-md-12 p-3">
+                            <div class="col-md-4">
+                                <label for="CANumber">@translationState.Translate("CAN_Number")@CANNumber</label>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="CaseNumber">@translationState.Translate("Case_Number")@CaseNumber</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                                           Style="display: block; margin-bottom: 10px; width: 100%"
+                                           Name="Textbox0"
+                            @oninput="@(async(args) => {await ItemLogsGrid.GoToPage(0); await OnSearchInput($"{args.Value}");})" />
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="tableContent table-responsive no-gutters pb-3">
+                                <RadzenDataGrid @ref="ItemLogsGrid"
+                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                Count="@(FilteredItemLog != null ? FilteredItemLog.Count() : 0)"
+                                                AllowPaging="true"
+                                                AllowSorting="true"
+                                                AllowFiltering="false"
+                                                Data="@FilteredItemLog"
+                                                TItem="AMSItemLogVM"
+                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                ShowPagingSummary="true">
+
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="AMSItemLogVM" Width="45px" FormatString="{0:dd/MM/yyyy}" Property="DateUpdated" Title="@translationState.Translate("Event_Date")" />
+                                        <RadzenDataGridColumn TItem="AMSItemLogVM" Width="60px" Property="LogType" Title="@translationState.Translate("Log_Type")" />
+                                        <RadzenDataGridColumn TItem="AMSItemLogVM" Width="45px" Property="LogMessage" Title="@translationState.Translate("Description")" />
+
+                                    </Columns>
+                                </RadzenDataGrid>
+                            </div>
+                        </div>
+                    </RadzenCard>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

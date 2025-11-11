@@ -1,0 +1,39 @@
+﻿@page "/request-for-document"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@layout MainLayout
+@*<History Author = 'Danish' Date='2022-12-02' Version="1.0" Branch="master"> Request for Document popup </History>*@
+<RadzenContent Container="main">
+    <RadzenTemplateForm Data="@requestForDocument" Visible="@(requestForDocument != null)" TItem="MojRequestForDocument" Submit="@FormSubmit">
+        <ChildContent>
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@translationState.Translate("Hearing_Date")" Component="Hearing_Date" Style="width: 100%" />
+                        <TelerikDatePicker Min="DateTime.Now.Date" Format="dd/MM/yyyy" @bind-Value="@requestForDocument.HearingDate" />
+                        <div class="rz-message rz-messages-error ">@dateValidationMsg</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@translationState.Translate("Required_Portfolio_Documents")" />
+                        <RadzenTextArea Placeholder="@translationState.Translate("Required_Portfolio_Documents")" Cols="10" Rows="6" class="w-100" @bind-Value="@requestForDocument.RequiredDocuments" Name="RequiredDocuments" />
+                    </div>
+                </div>
+            </div>
+            <div class="row popup-buttons-alignment">
+                <div class="col-md-12">
+                    <RadzenButton Text="@translationState.Translate("Submit")"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  ButtonType="Radzen.ButtonType.Submit" />
+                    <RadzenButton Text="@translationState.Translate("Cancel")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@ButtonCloseDialog" />
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenTemplateForm>
+</RadzenContent>

@@ -1,0 +1,120 @@
+﻿@using FATWA_DOMAIN.Models.ViewModel;
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+<RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                Data="@TempFiles"
+                TItem="TempAttachementVM"
+                AllowSorting="true"
+                ExpandMode="DataGridExpandMode.Single"
+                RowExpand="@ExpandRow"
+                RowRender="@RowRender">
+    <Template Context="TempAttachement">
+        <SubGridComponent TempFiles="@ChildTempFiles" MainTempFiles="@MainTempFiles" />
+    </Template>
+    <Columns>
+        <RadzenDataGridColumn TItem="TempAttachementVM" Width="150px" Title="@translationState.Translate("Action")" Frozen="true" Context="attachment" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
+            <Template Context="attachment">
+                <RadzenButton ButtonStyle="ButtonStyle.Info"
+                              Icon="visibility" Class="viewIcon"
+                              Title="@translationState.Translate("View_Detail")"
+                              Click="@(args => ViewAttachement(attachment))"
+                              @onclick:stopPropagation="true"
+                              Disabled="attachment.StoragePath == null" />
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Icon="download" Class="m-1"
+                              Title="@translationState.Translate("Download")"
+                              Click="@(args => DownloadAttachement(attachment))"
+                              @onclick:stopPropagation="true"
+                              Disabled="attachment.StoragePath == null" />
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Icon="repeat_on"
+                              Title="@translationState.Translate("View_Correspondence_Detail")"
+                              Size="ButtonSize.Small"
+                              Click="@((args) => ViewResponse(attachment))"
+                              @onclick:stopPropagation="true" />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="TempAttachementVM"
+                              Width="150px"
+                              Property="AttachmentTypeId" Title="@translationState.Translate("Document_Type")">
+            <Template Context="attachment">
+                @if (attachment.AttachmentTypeId == (int)AttachmentTypeEnum.Other)
+                {
+                    <RadzenLabel Text="@attachment.OtherAttachmentType" />
+
+                }
+                else
+                {
+                    <RadzenLabel Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? $"{AttachmentTypes?.Where(t => t.AttachmentTypeId == attachment.AttachmentTypeId)?.FirstOrDefault()?.Type_En}" : $"{AttachmentTypes?.Where(t => t.AttachmentTypeId == attachment.AttachmentTypeId)?.FirstOrDefault()?.Type_Ar}")" />
+                }
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="TempAttachementVM" Width="150px" Property="Description" Title="@translationState.Translate("Description")">
+            <Template Context="attachment">
+                @if (String.IsNullOrEmpty(attachment.Description) || attachment.Description == "null")
+                {
+                    <RadzenLabel Text="-" />
+                }
+                else
+                {
+                    <RadzenLabel Text="@attachment.Description" />
+                }
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="TempAttachementVM" Width="150px" Property="FileName" Title="@translationState.Translate("File_Name")">
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="TempAttachementVM" Width="90px" Property="DocDateTime" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Document_Date")">
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="TempAttachementVM" Width="150px" Property="ReferenceNo" Title="@translationState.Translate("Reference_No")">
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="TempAttachementVM" Width="90px" Property="ReferenceDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Reference_Date")">
+        </RadzenDataGridColumn>
+
+    </Columns>
+</RadzenDataGrid>
+@if (DisplayDocumentViewer)
+{
+    <RadzenCard>
+        <div class="row pb-2">
+            <div class="col-md-4">
+                <h2 class="formHeading">@translationState.Translate("Document_Viewer")</h2>
+            </div>
+            <div class="col-md-8 d-flex justify-content-end">
+                <RadzenButton ButtonStyle="ButtonStyle.Light"
+                              class="btn-close-custom"
+                              Text="@translationState.Translate("Close")"
+                              Click="@( () => DisplayDocumentViewer = false )" />
+            </div>
+        </div>
+        <div class="row pb-2" style="overflow:scroll">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                @* <TelerikPdfViewer @ref="PdfViewerRef"
+            Width="100%"
+            Height="800px"
+            Data="@FileData">
+            <PdfViewerToolBar>
+            <PdfViewerToolBarSeparator />
+            <PdfViewerToolBarDownloadTool />
+            <PdfViewerToolBarPrintTool />
+            <PdfViewerToolBarPagerTool />
+            <PdfViewerToolBarSpacer />
+            <PdfViewerToolBarZoomTool />
+            <PdfViewerToolBarSelectionTool />
+            <PdfViewerToolBarSearchTool />
+            </PdfViewerToolBar>
+            </TelerikPdfViewer> *@
+                <SfPdfViewerServer EnableNavigationToolbar="false"
+                                   Width="100%"
+                                   Height="1000px"
+                                   @ref="@pdfViewer"
+                                   EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                   Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                   ID="pdfviewerDetailCommunication"
+                                   DocumentPath="@DocumentPath"
+                                   InteractionMode="InteractionMode.Pan">
+                </SfPdfViewerServer>
+            </div>
+        </div>
+    </RadzenCard>
+}

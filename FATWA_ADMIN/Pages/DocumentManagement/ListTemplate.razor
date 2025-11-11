@@ -1,0 +1,147 @@
+﻿@page "/template-list"
+@using FATWA_DOMAIN.Models.ViewModel.DmsVMs
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Template_List")</PageTitle>
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.DMS.Template.List").Count() > 0)
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Path="/" Text="@translationState.Translate("Template_List")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Template_List")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <RadzenCard>
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-4 ">
+                            <RadzenTextBox class="searchBox"
+                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                           Name="Textbox0"
+                            @oninput="@(async(args) => {await grid.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                        </div>
+                        <div class="col-md-8 d-flex justify-content-end tableAdditionButton pb-3">
+                            <RadzenButton class="addBtn btn-margin" Icon="add" Text="@translationState.Translate("Add")" Click="@AddTemplate" />
+                            <RadzenButton class="addBtn"
+                                          Icon="search"
+                                          Text="@translationState.Translate("Advanced_Search")"
+                                          Click="ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        AllowPaging="true"
+                                        Count="@(FilteredTemplateList != null ? FilteredTemplateList.Count() : 0)"
+                                        AllowSorting="true"
+                                        Data="@FilteredTemplateList"
+                                        AllowFiltering="false"
+                                        TItem="DMSTemplateListVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="DMSTemplateListVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      Class="editIcon"
+                                                      Icon="mode"
+                                                      Title="@translationState.Translate("Edit")"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => EditTemplate(rowItem))"
+                                        @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="DMSTemplateListVM" Width="80px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" Title="@translationState.Translate("Name")" />
+                                <RadzenDataGridColumn TItem="DMSTemplateListVM" Width="50px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AttachmentTypeEn" : "AttachmentTypeAr")" Title="@translationState.Translate("Attachment_Type")" />
+                                <RadzenDataGridColumn TItem="DMSTemplateListVM" Width="50px" Property="CreatedBy" Title="@translationState.Translate("Created_By")" />
+                                <RadzenDataGridColumn TItem="DMSTemplateListVM" Width="50px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Created_Date")" />
+                                <RadzenDataGridColumn TItem="DMSTemplateListVM" Width="50px" Sortable="false" TextAlign="TextAlign.Center" Property="isActive" Title="@translationState.Translate("IsActive")">
+                                    <Template Context="rowItem">
+                                        <RadzenCheckBox Placeholder="@translationState.Translate("IsActive")" Disabled="@(rowItem.TemplateId <= (int)CaseTemplateEnum.HeaderAr)" TValue="bool" @bind-Value="@rowItem.isActive" Change=@((args) =>UpdateTemplateStatus(rowItem)) />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </RadzenCard>
+        </ChildContent>
+    </RadzenContent>
+
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Name")" Component="Templatename" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Name")" @bind-Value="@advanceSearchVM.Templatename" Name="Templatename" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Attachment_Type")" Component="AttachmentTypeId" />
+                    <RadzenDropDown Data="@attachmentTypes" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" :"Type_Ar") ValueProperty="AttachmentTypeId" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchVM.AttachmentTypeId" Name="AttachmentTypeId" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Created_From")" Component="CreatedFrom" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="CreatedFrom" @bind-Value="@advanceSearchVM.CreatedFrom" />
+                </div>
+            </div>
+            <div class="row" Style="margin-top:10px;">
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Created_To")" Component="CreatedTo" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="CreatedTo" @bind-Value="@advanceSearchVM.CreatedTo" />
+                </div>
+
+            </div>
+            <div class="row justify-content-end pt-3">
+                <div class="col-md-6" style="text-align:right;">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

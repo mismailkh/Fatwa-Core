@@ -1,0 +1,158 @@
+﻿@page "/time-interval"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.TimeInterval;
+@using FATWA_ADMIN.Pages.LookupsManagment;
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.Lookups;
+@using FATWA_DOMAIN.Models.WorkerService;
+@using FATWA_DOMAIN.Models;
+@using FATWA_DOMAIN.Models.ViewModel.TimeIntervalVMs;
+@inject TooltipService tooltipService;
+
+<PageTitle>@translationState.Translate("Time_Intervals")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.BackgroundServices"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Time_Intervals")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Time_Intervals")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+        </div>
+    </div>
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <div class="row col-md-12 pt-3">
+                            <div class="col-md-4">
+                                <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                                               style="display: block; margin-bottom: 10px; width: 100%"
+                                               Name="Textbox0"
+                                @oninput="@(async(args) => {await grid.GoToPage(0); await OnSearchInput($"{args.Value}");})" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="tableContent pb-3">
+                                <RadzenDataGrid @ref="grid"
+                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                AllowPaging="true"
+                                                AllowSorting="true"
+                                                AllowFiltering="false"
+                                                Data="@FiltergetTimeIntervals"
+                                                RowExpand="@GetTimeIntervalHistoryList"
+                                                TItem="TimeIntervalVM"
+                                                ExpandMode="DataGridExpandMode.Single"
+                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                ShowPagingSummary="true"
+                                                Count="@(FiltergetTimeIntervals != null ? FiltergetTimeIntervals.Count() : 0)"
+                                                PageSize="@loginState.PageSize"
+                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                                    <Template Context="getTimeIntervals">
+                                        <RadzenCard class="bg-light">
+                                            <div class="row pb-2">
+                                                <div class="col-md-4">
+                                                    <h2 class="formHeading">@translationState.Translate("Time_Interval_History")</h2>
+                                                    <div class="divider"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-2">
+                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <div class="tableContent table-responsive">
+                                                        <RadzenDataGrid @ref="gridRemindersHistory"
+                                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                                        AllowFiltering="false"
+                                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                                        AllowPaging="true"
+                                                                        AllowSorting="true"
+                                                                        Data="_CmsComsReminderHistory.Where(x=>x.ReminderId == getTimeIntervals.ID).ToList()"
+                                                                        TItem="TimeIntervalHistoryVM"
+                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                        ShowPagingSummary="true"
+                                                                        Count="@(_CmsComsReminderHistory != null ? _CmsComsReminderHistory.Count() : 0)"
+                                                                        PageSize="@loginState.PageSize"
+                                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                                                            <Columns>
+                                                                <RadzenDataGridColumn TItem="TimeIntervalHistoryVM" TextAlign="TextAlign.Center" Property="SLAInterval" Title="@translationState.Translate("SLA_Interval")" />
+                                                                <RadzenDataGridColumn TItem="TimeIntervalHistoryVM" Sortable="false" TextAlign="TextAlign.Center" Property="FirstReminderDuration" Title="@translationState.Translate("First_Reminder_Duration")" />
+                                                                <RadzenDataGridColumn TItem="TimeIntervalHistoryVM" Sortable="false" TextAlign="TextAlign.Center" Property="SecondReminderDuration" Title="@translationState.Translate("Second_Reminder_Duration")" />
+                                                                <RadzenDataGridColumn TItem="TimeIntervalHistoryVM" Sortable="false" TextAlign="TextAlign.Center" Property="ThirdReminderDuration" Title="@translationState.Translate("Third_Reminder_Duration")" />
+                                                                <RadzenDataGridColumn TItem="TimeIntervalHistoryVM" Property="ExecutionTime" FormatString="{0:hh:mm:ss tt}" Title="@translationState.Translate("Execution_Time")" />
+                                                                <RadzenDataGridColumn TItem="TimeIntervalHistoryVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "CreatedByEn" : "CreatedByAr")" Title="@translationState.Translate("Created_By")" />
+                                                                <RadzenDataGridColumn TItem="TimeIntervalHistoryVM" Property="CreatedDate" Title="@translationState.Translate("Created_Date")" />
+                                                            </Columns>
+                                                        </RadzenDataGrid>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </RadzenCard>
+                                    </Template>
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="TimeIntervalVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="85px" TextAlign="TextAlign.Center">
+                                            <Template Context="rowItem">
+                                                <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                              Class="editIcon"
+                                                              Title="@translationState.Translate("Edit")"
+                                                              Icon="mode"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@((args) => EditTimeInterval(rowItem))"
+                                                @onclick:stopPropagation="true" />
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="TimeIntervalVM" Property="IsActive" Title="@translationState.Translate("Execution_Status")" Sortable="false" Filterable="false" Width="130px" TextAlign="TextAlign.Center">
+                                            <Template Context="data">
+                                                <RadzenCheckBox TriState="false" TValue="bool" @bind-Value="data.IsActive" Change="@(()=>UpdateIntervavlStatus(data))" />
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="TimeIntervalVM" Width="350px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "IntervalNameEn" : "IntervalNameAr")" Title="@translationState.Translate("Service_Name")" />
+                                        <RadzenDataGridColumn TItem="TimeIntervalVM" Width="135px" Sortable="false" Filterable="false" TextAlign="TextAlign.Center" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "CommunicationTypeEn" : "CommunicationTypeAr")" Title="@translationState.Translate("Reminder_Type")" />
+                                        <RadzenDataGridColumn TItem="TimeIntervalVM" Width="120px" TextAlign="TextAlign.Center" Property="SLAInterval" Title="@translationState.Translate("SLA_Interval")" />
+                                        <RadzenDataGridColumn TItem="TimeIntervalVM" Width="180px" Sortable="false" Filterable="false" TextAlign="TextAlign.Center" Property="FirstReminderDuration" Title="@translationState.Translate("First_Reminder_Duration")" />
+                                        <RadzenDataGridColumn TItem="TimeIntervalVM" Width="180px" Sortable="false" Filterable="false" TextAlign="TextAlign.Center" Property="SecondReminderDuration" Title="@translationState.Translate("Second_Reminder_Duration")" />
+                                        <RadzenDataGridColumn TItem="TimeIntervalVM" Width="180px" Sortable="false" Filterable="false" TextAlign="TextAlign.Center" Property="ThirdReminderDuration" Title="@translationState.Translate("Third_Reminder_Duration")" />
+                                        <RadzenDataGridColumn TItem="TimeIntervalVM" Width="140px" Property="ExecutionTime" FormatString="{0:hh:mm:ss tt}" Title="@translationState.Translate("Execution_Time")" />
+                                        <RadzenDataGridColumn TItem="TimeIntervalVM" Width="170px" Property="ModifiedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Last_Modified")" />
+                                    </Columns>
+                                </RadzenDataGrid>
+                            </div>
+                        </div>
+                    </RadzenCard>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+
+

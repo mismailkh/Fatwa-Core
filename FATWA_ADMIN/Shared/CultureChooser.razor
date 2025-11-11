@@ -1,0 +1,68 @@
+﻿@using System.Threading
+
+@inject NavigationManager NavigationManager
+
+<div>
+    <div class="button b2" id="button-17">
+        @if (Thread.CurrentThread.CurrentUICulture.Name == "ar-KW")
+        {
+            <input type="checkbox" class="checkbox" @oninput="CultureChanged" checked />
+        }
+        else
+        {
+            <input type="checkbox" class="checkbox" @oninput="CultureChanged" />
+        }
+        <div class="knobs">
+            <span></span>
+        </div>
+        @*<div class="layer"></div>*@
+    </div>
+</div>
+
+@code{
+   //  public class CultureData
+   //  {
+   //      public string Text { get; set; }
+   //      public string Value { get; set; }
+   //  }
+
+   //  public List<CultureData> Cultures { get; set; } = new List<CultureData>()
+   //  {
+   //      new  CultureData() { Text = "Arabic", Value = "ar-KW" },
+   //      new  CultureData() { Text = "English", Value = "en-US" },
+   //  };
+
+   //  public string SelectedCulture { get; set; } = Thread.CurrentThread.CurrentUICulture.Name;
+   // public string ImageUrl { get; set; } = "https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/120/apple/325/flag-united-states_1f1fa-1f1f8.png";
+
+
+   //  public void OnValueChanged(string eventArgs)
+   //  {
+   //      SelectedCulture = eventArgs;
+
+   //      SetCulture(eventArgs);
+   //  }
+
+   //  public void SetCulture(string culture)
+   //  {
+   //      var uri = new Uri(NavigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+   //      var query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(uri)}";
+
+   //      // use a path that matches your culture redirect controller from the previous steps
+   //      NavigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
+   //  }
+    private void CultureChanged(ChangeEventArgs e)
+    {
+        var culture = (bool)e.Value ? "ar-KW" : "en-US";
+        SetCulture(culture);
+    }
+
+    public void SetCulture(string culture)
+    {
+        var uri = new Uri(NavigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+        var query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(uri)}";
+
+        // use a path that matches your culture redirect controller from the previous steps
+        NavigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
+    }
+}

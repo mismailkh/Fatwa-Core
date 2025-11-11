@@ -1,0 +1,722 @@
+﻿@page "/add-leave-request/{RequestTypeId}/{SectorId}"
+@page "/add-reduceworkinghours-request/{RequestTypeId}/{SectorId}"
+@page "/add-fingerprintexemption-request/{RequestTypeId}/{SectorId}"
+@page "/add-permission-request/{RequestTypeId}/{SectorId}"
+@page "/add-appointment-medicalcouncil-request/{RequestTypeId}/{SectorId}"
+
+@page "/edit-leave-request/{RequestTypeId}/{ServiceRequestId}"
+@page "/edit-reduceworkinghours-request/{RequestTypeId}/{ServiceRequestId}"
+@page "/edit-fingerprintexemption-request/{RequestTypeId}/{ServiceRequestId}"
+@page "/edit-permission-request/{RequestTypeId}/{ServiceRequestId}"
+@page "/edit-appointment-medicalcouncil-request/{RequestTypeId}/{ServiceRequestId}"
+
+@using FATWA_DOMAIN.Models.ServiceRequestModels.ComplaintRequestModels;
+@using FATWA_DOMAIN.Models.ServiceRequestModels.LeaveAndAttendanceRequestModels
+@using FATWA_WEB.Pages.Shared
+@using Syncfusion.Blazor.RichTextEditor
+@using static FATWA_DOMAIN.Enums.ServiceRequests.ServiceRequestEnums
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+@using FATWA_DOMAIN.Models.ServiceRequestModels;
+
+@layout MainLayout
+
+<PageTitle>@PageHeading</PageTitle>
+    
+@if ((loginState.ClaimList.Where(x => x.Value == "Permissions.SR.ServiceRequest.Create").Count() > 0 && ServiceRequestId == null) || (loginState.ClaimList.Where(x => x.Value == "Permissions.SR.ServiceRequest.Edit").Count() > 0 && ServiceRequestId != null))
+{
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/servicerequest-list" Text="@translationState.Translate("Service_Requests")" />
+                        <RadzenBreadCrumbItem Text="@PageHeading" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@(PageHeading)"></RadzenHeading>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+            </div>
+        </div>
+
+        <div class="row justify-content-center mainContentBlock no-gutters   p-0">
+            <div class="col-md-12">
+                <RadzenCard class="m-2">
+                    <div class="row pb-2">
+                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                            <div class="form-group">
+                                <RadzenLabel Style="font-weight:bold"
+                                             Text="@(translationState.Translate("Employee_Name"))"
+                                             Component="Employee_Name" />
+
+                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                {
+                                    <RadzenTextBox @bind-Value="@(loginState.UserDetail.FullNameEn)"
+                                                   Placeholder="@translationState.Translate("Employee_Name")"
+                                                   Name="Employee_Name" Disabled />
+                                }
+                                else
+                                {
+                                    <RadzenTextBox @bind-Value="@(loginState.UserDetail.FullNameAr)"
+                                                   Placeholder="@translationState.Translate("Employee_Name")"
+                                                   Name="Employee_Name" Disabled />
+                                }
+
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                            <div class="form-group">
+                                <RadzenLabel Style="font-weight:bold"
+                                             Text="@(translationState.Translate("Employee_Id"))"
+                                             Component="Employee_Id" />
+
+                                <RadzenTextBox Placeholder="@translationState.Translate("Employee_Id")"
+                                               @bind-Value="loginState.UserDetail.EmployeeId"
+                                               Name="Employee_Id" Disabled />
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                            <div class="form-group">
+                                <RadzenLabel Style="font-weight:bold"
+                                             Text="@(translationState.Translate("Civil_Id"))"
+                                             Component="Civil_Id" />
+
+                                <RadzenTextBox Placeholder="@translationState.Translate("Civil_Id")"
+                                               @bind-Value="loginState.UserDetail.CivilId"
+                                               Name="Civil_Id" Disabled />
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                            <div class="form-group">
+                                <RadzenLabel Style="font-weight:bold"
+                                             Text="@(translationState.Translate("Department"))"
+                                             Component="Subject" />
+                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                {
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Department")"
+                                                   @bind-Value="loginState.UserDetail.DepartmentNameEn"
+                                                   Name="Department" Disabled />
+                                }
+                                else
+                                {
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Department")"
+                                                   @bind-Value="loginState.UserDetail.DepartmentNameAr"
+                                                   Name="Department" Disabled />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </RadzenCard>
+                <RadzenTemplateForm Data="@LeaveAttendanceRequest" TItem="LeaveAttendanceRequest" Submit="@FormSubmit">
+                    <ChildContent>
+                        <RadzenCard class="m-2">
+                            <div class="row pb-2">
+                                @if (ServiceRequestId is not null)
+                                {
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Service_Request_Number"))"
+                                                         Component="Service_Request_Number" />
+
+                                            <RadzenTextBox @bind-Value="@(LeaveAttendanceRequest.ServiceRequest.ServiceRequestNumber)"
+                                                           Placeholder="@translationState.Translate("Service_Request_Number")"
+                                                           Name="Service_Request_Number" Disabled />
+
+                                        </div>
+                                    </div>
+                                }
+                                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                    <div class="form-group">
+                                        <RadzenLabel Style="font-weight:bold"
+                                                     Text="@(translationState.Translate("Request_Date") + "*")"
+                                                     Component="Request_Date" />
+                                        <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Max="DateTime.Now"
+                                                          Placeholder="@translationState.Translate("Request_Date")"
+                                                          ReadOnly="true"
+                                                          Disabled="true"
+                                                          Name="Request_Date" @bind-Value="@LeaveAttendanceRequest.ServiceRequest.CreatedDate" />
+                                    </div>
+                                </div>
+                                @if (requestTypeId == (int)ServiceRequestTypeEnum.SubmitaLeaveRequest)
+                                {
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Leave_Type") + "*")"
+                                                         Component="Leave_Type" />
+                                            <RadzenDropDown Data="@LeaveTypes"
+                                                            Style="width:100%;max-width:100%;"
+                                                            PageSize="20"
+                                                            @bind-Value="@LeaveAttendanceRequest.LeaveTypeId"
+                                                            ValueProperty="Id"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                            AllowClear=true
+                                                            AllowFiltering="true"
+                                                            Placeholder="@translationState.Translate("Select")"
+                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                            Change="@OnChangeLeaveType"
+                                                            @onclick:stopPropagation="true"
+                                                            Name="Leave_Type">
+                                            </RadzenDropDown>
+                                            <RadzenRequiredValidator DefaultValue="null" Component="Leave_Type" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Leave_Balance"))"
+                                                             Component="Leave_Balance" />
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Leave_Balance")"
+                                                               @bind-Value="@LeaveBalance"
+                                                               ShowUpDown="false"
+                                                               Name="Leave_Balance" Disabled />
+                                            </div>
+                                        </div>
+
+                                        
+                                    }
+                                    @if (requestTypeId == (int)ServiceRequestTypeEnum.SubmitaRequestforPermission)
+                                    {
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Permission_Type") + "*")"
+                                                             Component="Leave_Type" />
+                                                <RadzenDropDown Data="@permissionTypes"
+                                                                Style="width:100%;max-width:100%;"
+                                                                PageSize="20"
+                                                                @bind-Value="@LeaveAttendanceRequest.PermissionTypeId"
+                                                                ValueProperty="PermissionId"
+                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                                AllowClear=true
+                                                                AllowFiltering="true"
+                                                                Placeholder="@translationState.Translate("Select")"
+                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                @onclick:stopPropagation="true"
+                                                                Name="Permission_Type">
+                                                </RadzenDropDown>
+                                                <RadzenRequiredValidator DefaultValue="null" Component="Permission_Type" Text="@translationState.Translate("Required_Field")" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Permission_Date") + "*")"
+                                                             Component="PermissionDate" />
+                                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Min="DateTime.Now"
+                                                                  Placeholder="@translationState.Translate("Select")"
+                                                                  AllowInput="false"
+                                                                  Name="PermissionDate" @bind-Value="@LeaveAttendanceRequest.PermissionDate" />
+                                                <RadzenRequiredValidator Component="PermissionDate" Text="@translationState.Translate("Required_Field")" />
+                                            </div>
+                                        </div>
+                                    }
+                                    <!-- Reducing Hour Request Case-->
+                                    @if (requestTypeId == (int)ServiceRequestTypeEnum.RequestToReduceWorkingHours)
+                                    {
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Reason") + "*")"
+                                                             Component="Reason" />
+                                                <RadzenDropDown Data="@ReduceHourReasons"
+                                                                Style="width:100%;max-width:100%;"
+                                                                PageSize="20"
+                                                                @bind-Value="@LeaveAttendanceRequest.ReduceHoursReasonId"
+                                                                ValueProperty="ReasonId"
+                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                                AllowClear=true
+                                                                AllowFiltering="true"
+                                                                Placeholder="@translationState.Translate("Select")"
+                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                @onclick:stopPropagation="true"
+                                                                Name="Reason" Change="@(() => OnChangeReasonType())">
+                                                </RadzenDropDown>
+                                                <RadzenRequiredValidator DefaultValue="null" Component="Reason" Text="@translationState.Translate("Required_Field")" />
+                                            </div>
+                                        </div>
+
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Other"))"
+                                                         Component="Leave_Balance" />
+                                            <RadzenTextBox Placeholder="@translationState.Translate("Other")"
+                                                           @bind-Value="LeaveAttendanceRequest.OtherLeaveReasonType"
+                                                           Name="Leave_Balance" Disabled="@(isOtherFieldDisabled ? false : true)" />
+                                        </div>
+                                    </div>
+                                }
+                                <!-- Reducing Hour Request Case End-->
+                                <!-- Finger Exemption Request Case-->
+                                @if (requestTypeId == (int)ServiceRequestTypeEnum.RequestForFingerprintExemption)
+                                {
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Exemption_Type") + "*")"
+                                                         Component="Exemption_Type" />
+                                            <RadzenDropDown Data="@ExemptionTypes"
+                                                            Style="width:100%;max-width:100%;"
+                                                            PageSize="20"
+                                                            @bind-Value="@LeaveAttendanceRequest.ExemptionTypeId"
+                                                            ValueProperty="Id"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                            AllowClear=true
+                                                            AllowFiltering="true"
+                                                            Placeholder="@translationState.Translate("Select")"
+                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                            @onclick:stopPropagation="true"
+                                                            Name="Exemption_Type">
+                                            </RadzenDropDown>
+                                            <RadzenRequiredValidator DefaultValue="null" Component="Exemption_Type" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Exemption_Time") + "*")"
+                                                         Component="Exemption_Time" />
+                                            <RadzenDropDown Data="@ExemptionTimes"
+                                                            Style="width:100%;max-width:100%;"
+                                                            PageSize="20"
+                                                            @bind-Value="@LeaveAttendanceRequest.ExemptionTimeTypeId"
+                                                            ValueProperty="Id"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                            AllowClear=true
+                                                            AllowFiltering="true"
+                                                            Placeholder="@translationState.Translate("Select")"
+                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                            @onclick:stopPropagation="true"
+                                                            Name="Exemption_Time">
+                                            </RadzenDropDown>
+                                            <RadzenRequiredValidator DefaultValue="null" Component="Exemption_Time" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                }
+                                <!-- Finger Exemption Request Case End-->
+                                @if (requestTypeId == (int)ServiceRequestTypeEnum.RequestforAppointmentwithMedicalCouncil)
+                                {
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Suggested_Appointment_Date") + "*")"
+                                                         Component="Suggested_Appointment_Date" />
+                                            <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Min="DateTime.Now"
+                                                              Placeholder="@translationState.Translate("Suggested_Appointment_Date")"
+                                                              ReadOnly="false"
+                                                              Name="Suggested_Appointment_Date" @bind-Value="@LeaveAttendanceRequest.SuggestedAppointmentDate" />
+                                            <RadzenRequiredValidator Component="Suggested_Appointment_Date" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="row pb-2">
+                                @if (requestTypeId == (int)ServiceRequestTypeEnum.SubmitaLeaveRequest)
+                                {
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Start_Date") + "*")" />
+                                            <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100"
+                                                              Placeholder="@translationState.Translate("Start_Date")"
+                                                              AllowInput="false"
+                                                                  Change="OnChangeStartDate"
+                                                              Name="Start_Date" @bind-Value="@LeaveAttendanceRequest.StartDate" />
+                                                              
+                                            <RadzenRequiredValidator Component="Start_Date" Text="@translationState.Translate("Required_Field")" />
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("End_Date") + "*")"
+                                                         Component="End_Date" />
+                                            <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" 
+                                                              Min="LeaveAttendanceRequest.StartDate"
+                                                              Placeholder="@translationState.Translate("End_Date")"
+                                                              Change="OnChangeDate"
+                                                              AllowInput="false"
+                                                              Name="End_Date" @bind-Value="@LeaveAttendanceRequest.EndDate" />
+                                            <RadzenRequiredValidator Component="End_Date" Text="@translationState.Translate("Required_Field")" />
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Total_Duration"))"
+                                                         Component="Total_Duration" />
+                                                @if (LeaveAttendanceRequest.EndDate is not null && LeaveAttendanceRequest.StartDate is not null)
+                                                {
+                                                    <RadzenNumeric Placeholder="@translationState.Translate("Total_Duration")"
+                                                                   @bind-Value="@daysDuration"
+                                                                   ShowUpDown="false"
+                                                                   Name="Total_Duration" Disabled />
+                                                }
+                                                else
+                                                {
+                                                    <RadzenNumeric Placeholder="@translationState.Translate("Total_Duration")"
+                                                                   Value="0"
+                                                                   ShowUpDown="false"
+                                                                   Name="Total_Duration" Disabled />
+                                                }
+                                        </div>
+                                    </div>
+
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Weekends_Holidays"))"
+                                                             Component="Weekends_Holidays" />
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Weekends_Holidays")"
+                                                               @bind-Value="@WeekendsDaysCount"
+                                                               ShowUpDown="false"
+                                                               Name="Weekends_Holidays" Disabled />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Public_Holidays"))"
+                                                             Component="Public_Holidays" />
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Public_Holidays")"
+                                                               @bind-Value="@PublicHolidayCount"
+                                                               ShowUpDown="false"
+                                                               Name="Public_Holidays" Disabled />
+                                            </div>
+                                        </div>
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Hand_Over_To") + "*")"
+                                                         Component="Complaint_Type" />
+                                            <RadzenDropDown Data="@Employees"
+                                                            Style="width:100%;max-width:100%;"
+                                                            PageSize="20"
+                                                            @bind-Value="@LeaveAttendanceRequest.DelegatedUserId"
+                                                            ValueProperty="UserId"
+                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr")"
+                                                            AllowClear=true
+                                                            AllowFiltering="true"
+                                                            Placeholder="@translationState.Translate("Select")"
+                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                            @onclick:stopPropagation="true"
+                                                            Name="Hand_Over_To">
+                                            </RadzenDropDown>
+                                            <RadzenRequiredValidator DefaultValue="null" Component="Hand_Over_To" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                }
+                                <!--Reducing Hour Request Case-->
+                                @if (requestTypeId == (int)ServiceRequestTypeEnum.RequestToReduceWorkingHours || requestTypeId == (int)ServiceRequestTypeEnum.RequestForFingerprintExemption)
+                                {
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Start_Date") + "*")" />
+                                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100"
+                                                                  Placeholder="@translationState.Translate("Start_Date")"
+                                                                  AllowInput="false"
+                                                                  Change="OnChangeStartDate"
+                                                                  Name="Start_Date" @bind-Value="@LeaveAttendanceRequest.StartDate" />
+
+                                                <RadzenRequiredValidator Component="Start_Date" Text="@translationState.Translate("Required_Field")" />
+
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("End_Date") + "*")"
+                                                             Component="End_Date" />
+                                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100"
+                                                                  Min="LeaveAttendanceRequest.StartDate"
+                                                                  Placeholder="@translationState.Translate("End_Date")"
+                                                                  Change="OnChangeDate"
+                                                                  AllowInput="false"
+                                                                  Name="End_Date" @bind-Value="@LeaveAttendanceRequest.EndDate" />
+                                                <RadzenRequiredValidator Component="End_Date" Text="@translationState.Translate("Required_Field")" />
+
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Total_Duration"))"
+                                                             Component="Total_Duration" />
+                                                @if (LeaveAttendanceRequest.EndDate is not null && LeaveAttendanceRequest.StartDate is not null)
+                                                {
+                                                    <RadzenNumeric Placeholder="@translationState.Translate("Total_Duration")"
+                                                               @bind-Value="@daysDuration"
+                                                               ShowUpDown="false"
+                                                                   Name="Total_Duration" Disabled />
+                                                }
+                                                else
+                                                {
+                                                    <RadzenNumeric Placeholder="@translationState.Translate("Total_Duration")"
+                                                               Value="0"
+                                                               ShowUpDown="false"
+                                                                   Name="Total_Duration" Disabled />
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Weekends_Holidays"))"
+                                                             Component="Weekends_Holidays" />
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Weekends_Holidays")"
+                                                @bind-Value="@WeekendsDaysCount"
+                                                               ShowUpDown="false"
+                                                               Name="Weekends_Holidays" Disabled />
+                                             </div>
+                                         </div>
+
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Public_Holidays"))"
+                                                             Component="Public_Holidays" />
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Public_Holidays")"
+                                                @bind-Value="@PublicHolidayCount"
+                                                               ShowUpDown="false"
+                                                               Name="Public_Holidays" Disabled />
+                                             </div>
+                                         </div>
+
+                                        
+                                    @if (requestTypeId == (int)ServiceRequestTypeEnum.RequestToReduceWorkingHours)
+                                    {
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Days_Of_Absence") + "*")"
+                                                             Component="Days_Of_Absence" />
+                                                    <RadzenDropDown Data="@WorkingDays"
+                                                                Style="width:100%;max-width:100%;"
+                                                                PageSize="20"
+                                                                    SelectAllText="@translationState.Translate("Selected_All")"
+                                                                    SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                                                    Multiple="true"
+                                                                @bind-Value="@LeaveAttendanceRequest.SelectedDays"
+                                                                ValueProperty="Id"
+                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                                AllowClear=true
+                                                                AllowFiltering="true"
+                                                                Placeholder="@translationState.Translate("Select")"
+                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" 
+                                                                Name="Days_Of_Absence">
+                                                </RadzenDropDown>
+                                                <div class="rz-message rz-messages-error ">@DaysOfAbsenceValidationMsg </div>
+
+                                            </div>
+                                        </div>
+                                    }
+                                    @if (requestTypeId == (int)ServiceRequestTypeEnum.RequestForFingerprintExemption)
+                                    {
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold"
+                                                             Text="@(translationState.Translate("Reason") + "*")"
+                                                             Component="Reason" />
+                                                <RadzenTextArea Placeholder="@translationState.Translate("Reason")"
+                                                                @bind-Value="LeaveAttendanceRequest.Reason"
+                                                                Name="Reason" Rows="5" />
+                                                <RadzenRequiredValidator DefaultValue="null" Component="Reason" Text="@translationState.Translate("Required_Field")" />
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                <!-- Reducing Hour request Case End-->
+                            </div>
+                            <div class="row pb-2">
+                                @if (requestTypeId == (int)ServiceRequestTypeEnum.SubmitaRequestforPermission || requestTypeId == (int)ServiceRequestTypeEnum.RequestToReduceWorkingHours)
+                                {
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Start_Time") + "*")" />
+                                          @*   <TelerikTimePicker Class="w-100" Min="@(DateTime.Now)"
+                                                               Placeholder="@translationState.Translate("Start_Time")"
+                                                               @bind-Value="@(LeaveAttendanceRequest.StartTime)" /> *@
+
+                                            <TelerikTimePicker Class="w-100" Min="@(EpStartTime)" Max="@(EpEndTime)"
+                                                               Placeholder="@translationState.Translate("Start_Time")"
+                                                               @bind-Value="@(LeaveAttendanceRequest.StartTime)" />
+                                            <div class="rz-message rz-messages-error ">@StartTimeValidationMsg @startTimeRangeValidationMsg @startTimeFourHourDifferenceValidationMsg</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("End_Time") + "*")" />
+                                            @* <TelerikTimePicker Class="w-100" Min="@(LeaveAttendanceRequest.StartTime.HasValue ? LeaveAttendanceRequest.StartTime.Value : (DateTime.Now))"
+                                                               Placeholder="@translationState.Translate("End_Time")"
+                                                               @bind-Value="@LeaveAttendanceRequest.EndTime" /> *@
+
+                                            <TelerikTimePicker Class="w-100" Min="@(LeaveAttendanceRequest.StartTime.HasValue ? LeaveAttendanceRequest.StartTime.Value : (EpStartTime))"
+                                                               Max="@EpEndTime" Placeholder="@translationState.Translate("End_Time")"
+                                                               @bind-Value="@LeaveAttendanceRequest.EndTime" />
+                                            <div class="rz-message rz-messages-error ">@EndTimeValidationMsg @endTimeRangeValidationMsg @endTimeFourHourDifferenceValidationMsg</div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Total_Time_Duration"))"
+                                                         Component="Total_Duration" />
+                                            @if (LeaveAttendanceRequest.EndTime is not null && LeaveAttendanceRequest.StartTime is not null)
+                                                {
+                                                <RadzenTextBox Placeholder="@translationState.Translate("Total_Time_Duration")"
+                                                               Value="@GetTotalDuration()"
+                                                                   Name="Total_Duration" Disabled />
+                                                }
+                                                else
+                                                {
+                                                <RadzenTextBox Placeholder="@translationState.Translate("Total_Time_Duration")"
+                                                               Value="@translationState.Translate("Total_Time_Duration")"
+                                                               Name="Total_Duration"
+                                                               Disabled />
+                                                }
+                                        </div>
+                                    </div>
+                                }
+                                @if (requestTypeId == (int)ServiceRequestTypeEnum.SubmitaRequestforPermission)
+                                {
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Hand_Over_To") + "*")"
+                                                         Component="Complaint_Type" />
+                                            <RadzenDropDown Data="@Employees"
+                                                            Style="width:100%;max-width:100%;"
+                                                            PageSize="20"
+                                                            @bind-Value="@LeaveAttendanceRequest.DelegatedUserId"
+                                                            ValueProperty="UserId"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr")"
+                                                            AllowClear=true
+                                                            AllowFiltering="true"
+                                                            Placeholder="@translationState.Translate("Select")"
+                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                            @onclick:stopPropagation="true"
+                                                            Name="Hand_Over_To">
+                                            </RadzenDropDown>
+                                            <RadzenRequiredValidator DefaultValue="null" Component="Hand_Over_To" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="row pb-2">
+                                @if (requestTypeId == (int)ServiceRequestTypeEnum.RequestforAppointmentwithMedicalCouncil)
+                                {
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="row algDes">
+                                            <RadzenLabel Text="@(translationState.Translate("Description") + " *")" />
+                                        </div>
+                                        <div class="form-group">
+                                            <SfRichTextEditor EnableAutoUrl="false" EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")" @bind-Value="@LeaveAttendanceRequest.Description">
+                                                <RichTextEditorToolbarSettings Items="@Tools" />
+                                                <RichTextEditorQuickToolbarSettings Image="@ImageTools" />
+                                                <RichTextEditorImageSettings EnableResize="true" AllowedTypes=@allowedTypes SaveFormat="SaveFormat.Base64"></RichTextEditorImageSettings>
+                                            </SfRichTextEditor>
+                                            <div class="rz-message rz-messages-error ">@DescriptionEnValidationMsg</div>
+                                        </div>
+                                    </div>
+                                }
+                                @if (requestTypeId == (int)ServiceRequestTypeEnum.SubmitaRequestforPermission)
+                                {
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Reason") + "*")"
+                                                         Component="Reason" />
+                                            <RadzenTextArea Placeholder="@translationState.Translate("Reason")"
+                                                            @bind-Value="LeaveAttendanceRequest.Reason"
+                                                            Name="Reason" Rows="5" />
+                                            <RadzenRequiredValidator DefaultValue="null" Component="Reason" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="row pb-2">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Style="font-weight:bold"
+                                                     Text="@(translationState.Translate("Remarks") )"
+                                                     Component="Remarks" />
+                                        <RadzenTextArea Placeholder="@translationState.Translate("Remarks")"
+                                                        @bind-Value="LeaveAttendanceRequest.Remarks"
+                                                        Rows="5"
+                                                        Name="Remarks" />
+                                    </div>
+                                </div>
+                            </div>
+                           
+                        </RadzenCard>
+
+                        <div class="m-2">
+                            <FileUpload ReferenceGuid="@LeaveAttendanceRequest.Id"
+                                            MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                        ModuleId="(int)WorkflowModuleEnum.LeaveAndAttendance"
+                                        Multiple="true"
+                                        AutoDelete="true"
+                                        UploadFrom="LeaveAndAttendance"
+                                        @bind-DeletedAttachementIds="@DeletedAttachementIds"
+                                            MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.OtherLeaveAttendance"
+                                            FileTypes="@systemSettingState.FileTypes" />
+                        </div>
+
+                        <RadzenCard class="m-2">
+                            <div class="col-12 p-0 d-flex justify-content-end">
+                                <RadzenButton Click="@(()=>SaveAsDraft())" style="margin-left: 0.5rem !important" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save_As_Draft")" />
+                                @if (ManagerId is not null)
+                                {
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" style="margin-left: 0.5rem !important" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" />
+                                }
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.5rem !important" Text="@translationState.Translate("Cancel")" Click="@CancelForm">
+                                </RadzenButton>
+                            </div>
+                        </RadzenCard>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

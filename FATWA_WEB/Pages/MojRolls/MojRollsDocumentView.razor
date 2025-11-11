@@ -1,0 +1,92 @@
+﻿@page "/mojrolls-documentview/{Id}"
+@layout MainLayout
+@using Radzen
+@using Radzen.Blazor
+@using FATWA_DOMAIN.Models
+<!--<History Author = 'ijaz Ahmad' Date='2023-06-16' Version="1.0" Branch="master">PDF View File</History>-->
+<PageTitle> </PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="row">
+                        <div class="col">
+                            <RadzenCard style="width: 280px;">
+                                <RadzenFieldset Text="@translationState.Translate("Request_Details")" style="font-weight: bold;">
+                                    <label>
+                                        @translationState.Translate("Session_Date"):
+                                    </label>
+                                    <label>
+                                        @SessionDate
+                                    </label>
+                                    <br />
+                                    <label>
+                                        @translationState.Translate("Chamber_Name") :
+                                    </label>
+                                    <label>
+                                        @Chamber_Name
+                                    </label>
+                                    <br />
+                                    <label>
+                                        @translationState.Translate("Chambers_Number"):
+                                    </label>
+                                    <label>
+                                        @ChamberTypeCode_Name
+                                    </label>
+                                    <br />
+                                    <label>
+                                        @translationState.Translate("Court_Type"):
+                                    </label>
+                                    <label>
+                                        @Court_Name
+                                    </label>
+                                </RadzenFieldset>
+                            </RadzenCard>
+                        </div>
+                        <div class="col mt-4">
+                            <RadzenButton ButtonStyle="Radzen.ButtonStyle.Light" Class="cancleBtn" ThemeColor="light" Text="@translationState.Translate("Cancel")" Click="@Button2Click"></RadzenButton>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <RadzenCard>
+                        <RadzenHtml>
+                            @if (ShowDocumentViewer)
+                            {
+                                <TelerikPdfViewer @ref="PdfViewerRef"
+                                                  Width="100%"
+                                                  Height="490px"
+                                                  Data="@FileData">
+                                    <PdfViewerToolBar>
+                                        <PdfViewerToolBarSeparator />
+                                        <PdfViewerToolBarSpacer />
+                                        <PdfViewerToolBarZoomTool />
+                                        <PdfViewerToolBarPagerTool />
+                                        <PdfViewerToolBarPrintTool />
+                                        <PdfViewerToolBarDownloadTool />
+                                    </PdfViewerToolBar>
+                                </TelerikPdfViewer>
+                            }
+                        </RadzenHtml>
+                    </RadzenCard>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+@* <style>
+    .rz-dialog {
+        width: 90% !important;
+    }
+
+    .rz-dialog-titlebar-close {
+        display: none;
+    }
+
+    .rz-dialog-mask {
+        width: 0;
+    }
+</style> *@
+

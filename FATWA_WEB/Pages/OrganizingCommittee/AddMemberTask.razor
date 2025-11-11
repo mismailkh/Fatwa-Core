@@ -1,0 +1,68 @@
+﻿@page "/add-member-task"
+@using FATWA_DOMAIN.Models.ViewModel.OrganizingCommitteeVMs
+
+<RadzenCard class="m-1">
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Member_Name") + " *")" Component="MemberName" />
+                <RadzenDropDown Data="@committeeMembers.Where(x => x.MemberId != loginState.UserDetail.UserId).ToList()" AllowClear="true"
+                                @ref="addedMemberDropDown"
+                                Name="MemberName"
+                                ValueProperty="MemberId"
+                                AllowFiltering="true"
+                                Disabled="@(Update?true:false)"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                Placeholder="@translationState.Translate("Select")"
+                                Style="width:100%;max-width:100%;"
+                                @bind-Value="@committeeTasksVm.MemberId"
+                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "MemeberNameEn" : "MemeberNameAr" )">
+                    <Template Context="data">
+                        @{
+                            var lastActivityDate = (data as CommitteeMembersVMs).LastActivityDate == null ? translationState.Translate("No_Last_Activity") : (data as CommitteeMembersVMs).LastActivityDate.Value.ToString("dd/MM/yyyy");
+                        }
+                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (data as CommitteeMembersVMs)?.MemeberNameEn : (data as CommitteeMembersVMs)?.MemeberNameAr) @translationState.Translate("Total_Committees"): @((data as CommitteeMembersVMs).TotalCommittee),@translationState.Translate("Current_Tasks"): @((data as CommitteeMembersVMs).TotalTasks), @translationState.Translate("Last_Activity_Date"): @lastActivityDate
+                    </Template>
+                </RadzenDropDown>
+                <div class="rz-message rz-messages-error ">@memberValidationMessage</div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Task") + " *")" Component="Task" />
+                <RadzenTextBox @bind-Value="@(committeeTasksVm.Name)" Name="Task" />
+                <div class="rz-message rz-messages-error ">@taskValidationMessage</div>
+
+            </div>
+        </div>
+        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Deadline") + " *")" Component="Deadline" />
+                <RadzenDatePicker @bind-Value="@(committeeTasksVm.TaskDeadline)" Min="@DateTime.Today" DateFormat="dd/MM/yyyy" Class="w-100" Name="Deadline" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Description"))" Component="Description" />
+                <RadzenTextArea @bind-Value="@(committeeTasksVm.Description)" Name="Description" />
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="popup-buttons-alignment px-0">
+                <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" Click="(arg)=>SaveMemberTasks(committeeTasksVm)" />
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              ButtonType="Radzen.ButtonType.Button"
+                              Click="CloseDialog" />
+            </div>
+        </div>
+    </div>
+</RadzenCard>
+
+

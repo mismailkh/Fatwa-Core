@@ -1,0 +1,249 @@
+﻿@page "/statistics-list"
+@using FATWA_DOMAIN.Models.ViewModel.MojStatistics
+@using Telerik.Blazor;
+@using Telerik.Blazor.Components
+@using static FATWA_GENERAL.Helper.Enum;
+@layout MainLayout
+
+@*//<History Author = 'Ijaz Ahmad' Date='2023-7-21' Version="1.0" Branch="master"> Populate MOJ Statistics Grid</History>*@
+@*//<History Author = 'Hassan Abbas' Date='2024-02-13' Version="1.0" Branch="master"> Migrated from Statistics Case Study Project</History>*@
+<PageTitle>@translationState.Translate("Moj_Statistics")</PageTitle>
+
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.ODRP.MojStatistics.List"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Moj_Statistics")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Moj_Statistics")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center pt-4">
+                <div class="col-md-12">
+
+                    <RadzenTabs @bind-SelectedIndex="selectedIndex" Change="OnTabChange">
+                        <Tabs>
+                            <RadzenTabsItem Text="@translationState.Translate("Judgments_Issued")">
+                                <div class="row no-gutters">
+                                    <div class="col-md-4">
+                                        <RadzenTextBox class="searchBox"
+                                                       Placeholder="@translationState.Translate("Grid_Search")"
+                                                       Name="Textbox0"
+                                                       @oninput="@(async(args) => {search = $"{args.Value}";await grid.GoToPage(0);await OnSearchInput();})" />
+                                    </div>
+                                    <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                        <RadzenButton class="addBtn"
+                                                      Icon="search"
+                                                      Text="@translationState.Translate("Advanced_Search")"
+                                                      Click="ToggleAdvanceSearch" />
+                                    </div>
+                                </div>
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid Width="100%"
+                                                    @ref="grid"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    Count="@(getStatisticsDashboardDetail != null ? getStatisticsDashboardDetail.Count() : 0)"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    AllowFiltering="false"
+                                                    Data="@FilteredGetStatisticsDashboardList"
+                                                    TItem="MojStatsDasboardVM"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true"
+                                                    HideGroupedColumn="false">
+                                        <Columns>
+                                            <!-- Government Entity Column -->
+                                            <RadzenDataGridColumn TItem="MojStatsDasboardVM" Width="200px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") Title="@translationState.Translate("Government_Entity")" />
+
+                                            <!-- In Favor of Government Entity Column -->
+                                            <RadzenDataGridColumn TItem="MojStatsDasboardVM" Title="@translationState.Translate("In_Favor_Of_GE")">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="MojStatsDasboardVM" Width="150px" Title="@translationState.Translate("Total_Case")">
+                                                        <Template Context="attachment">
+                                                            <a href="@("/can-view/" + attachment.EntityId + "/" + 1)">@(attachment.TotalInFavourCase.ToString())</a>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="MojStatsDasboardVM" Width="150px" Property="TotalFavourAmount" Title="@translationState.Translate("Total_Amount")">
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="MojStatsDasboardVM" Width="150px" FormatString="{0:dd/MM/yyyy}" Property="InFavourFromDate" Title="@translationState.Translate("Request_From")" />
+                                                    <RadzenDataGridColumn TItem="MojStatsDasboardVM" Width="150px" FormatString="{0:dd/MM/yyyy}" Property="InFavourToDate" Title="@translationState.Translate("Request_To")" />
+                                                </Columns>
+                                            </RadzenDataGridColumn>
+                                            <!-- Against Government Entity Column -->
+                                            <RadzenDataGridColumn TItem="MojStatsDasboardVM" Title="@translationState.Translate("Against_GE")">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="MojStatsDasboardVM" Width="150px" Property="TotalCase" Title="@translationState.Translate("Total_Case")">
+                                                        <Template Context="attachment">
+                                                            <a href="@("/can-view/" + attachment.EntityId + "/" + 0)">@(attachment.TotalAgainstCase.ToString())</a>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="MojStatsDasboardVM" Width="150px" Property="TotalAgainstAmount" Title="@translationState.Translate("Total_Amount")">
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="MojStatsDasboardVM" Width="150px" FormatString="{0:dd/MM/yyyy}" Property="AgainstFromDate" Title="@translationState.Translate("Request_From")" />
+                                                    <RadzenDataGridColumn TItem="MojStatsDasboardVM" Width="150px" FormatString="{0:dd/MM/yyyy}" Property="AgainstToDate" Title="@translationState.Translate("Request_To")" />
+                                                </Columns>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </RadzenTabsItem>
+                            <RadzenTabsItem Text="@translationState.Translate("New_Case_Registered")">
+                                <div class="row no-gutters">
+                                    <div class="col-md-4">
+                                        <RadzenTextBox class="searchBox"
+                                                       Placeholder="@translationState.Translate("Grid_Search")"
+                                                       Name="Textbox0"
+                                                       @oninput="@(async(args) => {search = $"{args.Value}";await gridnewregisteredcase.GoToPage(0);await OnSearchInputNewRegistredCase();})" />
+                                    </div>
+                                    <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                        <RadzenButton class="addBtn"
+                                                      Icon="search"
+                                                      Text="@translationState.Translate("Advanced_Search")"
+                                                      Click="ToggleAdvanceSearch" />
+                                    </div>
+                                </div>
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid Width="100%"
+                                                    @ref="gridnewregisteredcase"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    Count="@(getNewRegisteredStatisticsDashboardDetail != null ? getNewRegisteredStatisticsDashboardDetail.Count() : 0)"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    AllowFiltering="false"
+                                                    Data="@FilteredNewRegisteredStatisticsDashboardList"
+                                                    TItem="MojStatsRegisteredDasboardVM"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true"
+                                                    HideGroupedColumn="false">
+                                        <Columns>
+                                            <!-- Government Entity Column -->
+                                            <RadzenDataGridColumn TItem="MojStatsRegisteredDasboardVM" Width="200px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") Title="@translationState.Translate("Government_Entity")" />
+                                            <!-- In Favor of Government Entity Column -->
+                                            <RadzenDataGridColumn TItem="MojStatsRegisteredDasboardVM" Title="@translationState.Translate("Case_Registered_In_Favor_Of_GE")">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="MojStatsRegisteredDasboardVM" Property="TotalCase" Width="150px" Title="@translationState.Translate("Total_Case")">
+                                                        <Template Context="attachment">
+
+                                                            <RadzenLabel Text="@(attachment.TotalInFavour.ToString())" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+
+                                                    <RadzenDataGridColumn TItem="MojStatsRegisteredDasboardVM" Width="150px" FormatString="{0:dd/MM/yyyy}" Property="InFavourFromDate" Title="@translationState.Translate("Request_From")" />
+                                                    <RadzenDataGridColumn TItem="MojStatsRegisteredDasboardVM" Width="150px" FormatString="{0:dd/MM/yyyy}" Property="InFavourToDate" Title="@translationState.Translate("Request_To")" />
+                                                </Columns>
+                                            </RadzenDataGridColumn>
+                                            <!-- Against Government Entity Column -->
+                                            <RadzenDataGridColumn TItem="MojStatsRegisteredDasboardVM" Title="@translationState.Translate("Case_Registered_Against_GE")">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="MojStatsRegisteredDasboardVM" Width="150px" Property="TotalCase" Title="@translationState.Translate("Total_Case")">
+                                                        <Template Context="attachment">
+
+                                                            <RadzenLabel Text="@(attachment.TotalAgainst.ToString())" />
+
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="MojStatsRegisteredDasboardVM" Width="150px" FormatString="{0:dd/MM/yyyy}" Property="AgainstFromDate" Title="@translationState.Translate("Request_From")" />
+                                                    <RadzenDataGridColumn TItem="MojStatsRegisteredDasboardVM" Width="150px" FormatString="{0:dd/MM/yyyy}" Property="AgainstToDate" Title="@translationState.Translate("Request_To")" />
+                                                </Columns>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+    @*Advance search Window*@
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Government_Entity") + " *")" Component="GovernmentEntity" />
+                        <RadzenDropDown Data="@GovtEntities"
+                                        AllowFiltering="true"
+                                        AllowClear="true"
+                                        TextProperty="EntityName"
+                                        ValueProperty="id"
+                                        Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;"
+                                        @bind-Value="advanceSearchVM.id"
+                                        Name="GovernmentEntity" />
+                        <RadzenRequiredValidator DefaultValue="0" Component="GovernmentEntity" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Request_From")" Component="Request_From" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Request_From" @bind-Value="@advanceSearchVM.CreatedFrom" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Request_To")" Component="Request_To" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Request_To" @bind-Value="@advanceSearchVM.CreatedTo" />
+                </div>
+            </div>
+            <div class="row justify-content-end pt-3">
+                <div class="col-md-6" style="text-align:right;">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+

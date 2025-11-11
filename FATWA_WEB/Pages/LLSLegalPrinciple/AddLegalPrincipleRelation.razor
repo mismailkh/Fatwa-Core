@@ -1,0 +1,87 @@
+﻿@page "/add-legalprinciplerelation"
+@using FATWA_DOMAIN.Models.ViewModel.LLSLegalPrinciple;
+@layout MainLayout
+
+
+@if ((loginState.ClaimList.Where(x => x.Value == "Permissions.LPS.Principles.Create").Count() > 0))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            @*<div class="row">
+                <div class="col-md-12">
+                    <RadzenTemplateForm Data="@PrincipleRelationVMAddResult" Visible="@(PrincipleRelationVMAddResult != null)" TItem="LLSLegalPrinciplesRelationVM">
+                        <ChildContent>
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("File_Type") + "*")" Component="File_Type" />
+                                        <RadzenDropDown TValue="int?" Data="@FileTypeOptions" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                    TextProperty="FileTypeEnumName" ValueProperty="FileTypeEnumValue" Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;" @bind-Value="PrincipleRelationVMAddResult.PrincipleJudgmentTypeId" Name="File_Type">
+                                        </RadzenDropDown>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("From_Date")" Component="Request_From" />
+                                        <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Request_From" @bind-Value="@PrincipleRelationVMAddResult.StartDate" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("To_Date")" Component="Request_From" />
+                                        <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Request_From" @bind-Value="@PrincipleRelationVMAddResult.EndDate" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 searchBtn" style="margin-top:25px;">
+                                    <div class="form-group">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="search" Text="@translationState.Translate("Search")" Click="@( () => SearchRelationButtonClick() )" />
+                                    </div>
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenTemplateForm>
+                </div>
+            </div>*@
+            <div class="row tableContent table-responsive no-gutters pb-3 pt-3">
+                <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")" @ref="gridRelation" AllowGrouping="false"
+                            AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced"
+                            AllowPaging="true" AllowSorting="true" Data="@legalPrinciplesAddVM"
+                            TItem="LLSLegalPrinciplesRelationVM" PageSize="@systemSettingState.Grid_Pagination" ColumnWidth="150px">
+
+                    <Columns>
+                        @* <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" width="100px">
+                            <Template Context="rowItems">
+                                <RadzenButton ButtonStyle="ButtonStyle.Primary" class="addIcon" Icon="add" title="@translationState.Translate("Add")" Size="ButtonSize.Small" Click="@(() =>GridAddRelationButtonClick(rowItems))" @onclick:stopPropagation="true" />
+                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          class="approvalIcon" Icon="visibility" Title="@translationState.Translate("View_Detail")"
+                                          Size="ButtonSize.Small" Click="@((args) => LLSLegalPrincipleDetail(rowItems.PrincipleId))" @onclick:stopPropagation="true" />
+                            </Template>
+                        </RadzenDataGridColumn> *@
+                        @*<RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "JudgmentTypeEn" : "JudgmentTypeAr") Title="@translationState.Translate("Judgement_Type")" />*@
+                        <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="PrincipleContent" Title="@translationState.Translate("The_Principle")" />
+                        <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="StartDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Start_Date")" />
+                        <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="EndDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("End_Date")" />
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+
+            <div class="row mt-4 popup-buttons-alignment">
+                <div class="col-12 p-0">
+                    @*@if (keywords)
+                    {
+                        <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }*@
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                    </RadzenButton>
+                   
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+

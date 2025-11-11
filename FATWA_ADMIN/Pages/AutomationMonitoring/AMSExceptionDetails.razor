@@ -1,0 +1,162 @@
+﻿@page "/exception-details/{ItemId}"
+@page "/exception-details/{ItemId}/{ProcessId}"
+@using FATWA_DOMAIN.Models.AdminModels.AutomationMonitoring;
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.AutomationMonitoring
+@layout MainLayout
+
+@*< History Author = 'Ijaz Ahmad' Date = '2024-06-24' Version = "1.0" Branch = "master"> Case Data Extraction</History>*@
+<PageTitle>@translationState.Translate("Exception-Details")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.AutoMonInterface"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    @if (!String.IsNullOrEmpty(ProcessId))
+                {
+                    <RadzenBreadCrumbItem Path="/process-list" Text="@translationState.Translate("Process_List")" />
+                    <RadzenBreadCrumbItem Path="@detailsprocessViewPath" Text="@translationState.Translate("AMSProcess_Details")" />
+                }
+                <RadzenBreadCrumbItem Text="@translationState.Translate("Exception-Details")" />
+            </RadzenBreadCrumb>
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+        <div class="backtoDashboard">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          title="@translationState.Translate("Go_Back")"
+                          class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                          class="returnBtn"
+                          Icon="home" Click="@GoBackHomeScreen" />
+        </div>
+    </div>
+</div>
+<div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenHeading Size="H1" Text="@translationState.Translate("Exception_Details")" />
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+    </div>
+</div>
+
+
+
+<div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+    <div class="col-md-12 col-sm-12">
+        <div class="row">
+            <div class="col-md-6">
+                <RadzenFieldset Text="@translationState.Translate("Exception_Details")">
+                    <div class="row pb-2">
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-12 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Exception_Type"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@AMSExceptionsDetails?.ExceptionType</h3>
+                                    </div>
+                                </div>
+                                <div class="col-12 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Exception_Message"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@AMSExceptionsDetails?.ExceptionMessage</h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-12 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Exception_Stacktrace"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <RadzenTextArea Name="ExceptionTraceback" @bind-Value="@AMSExceptionsDetails.ExceptionTraceback" Cols="20" Rows="5" class="w-100" ReadOnly="true" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </RadzenFieldset>
+                <RadzenFieldset Text="@translationState.Translate("User_Action")">
+                    <div class="form-group">
+                        @if (Thread.CurrentThread.CurrentCulture.Name == "en-US")
+                        {
+                            <div class="col-6" style="margin-right:-15px">
+                                <RadzenTextArea Placeholder="@translationState.Translate("Comment")" @bind-Value=@ExceptionComment Rows=2 Cols=51 Name="Comment" />
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="col-12" style="margin-left:-15px">
+                                <RadzenTextArea Placeholder="@translationState.Translate("Comment")" @bind-Value=@ExceptionComment Rows=2 Cols=51 Name="Comment" />
+                            </div>
+                        }
+                    </div>
+                    <div class="form-group">
+                        <div class="col-6">
+                            <RadzenCheckBox @bind-Value=@tryException Name="tryException" TValue="bool" />
+                            <RadzenLabel Text="@translationState.Translate("Retry_Exception")" Component="tryException" />
+                        </div>
+                    </div>
+                    <div class="popup-buttons-alignment">
+                        <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                      Style="margin-left: 10px; margin-right: 10px;"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      Disabled=@(AMSExceptionsDetails.ItemId == null)
+                                      Text="@translationState.Translate("Submit")"
+                                      Click="@SaveChanges" />
+                    </div>
+                </RadzenFieldset>
+            </div>
+
+            <div class="col-md-6">
+                <RadzenFieldset Text="@translationState.Translate("Item_logs")">
+
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="tableContent table-responsive">
+                            <RadzenDataGrid @ref="ItemLogsGrid"
+                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                Count="@(FilteredItemLog != null ? FilteredItemLog.Count() : 0)"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            AllowFiltering="false"
+                                            Data="@FilteredItemLog"
+                                            TItem="AMSItemLogVM"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            EmptyText="@translationState.Translate("No_Record_Found")"
+                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                            ShowPagingSummary="true">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="AMSItemLogVM" Width="2px" FormatString="{0:dd/MM/yyyy hh:mm tt}" Property="DateUpdated" Title="@translationState.Translate("Event_Date_Time")" />
+                                    <RadzenDataGridColumn TItem="AMSItemLogVM" Width="5px" Property="LogMessage" Title="@translationState.Translate("Log_Message")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </RadzenFieldset>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-12">
+    </div>
+</div>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

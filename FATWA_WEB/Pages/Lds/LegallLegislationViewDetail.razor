@@ -1,0 +1,415 @@
+﻿@page "/legallegislation-detailview/{LegislationId}"
+@page "/legallegislation-detailview/{LegislationId}/{RedirectFromPage}"
+@layout MainLayout
+
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_DOMAIN.Models
+
+<!--<History Author = "Nabeel Ur Rehman" Date="2022-10-11" Version="1.0" Branch="master"> Adding legal legisation Wizard</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LDS.Documents.View").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            @if(modelName == null)
+            {
+                <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                    <div class="col-md-6">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="@RedirectToPage" Text="@RedirectFromTranslation" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Legal_legislation_Details")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <div class="backtoDashboard">
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.Small"
+                                          title="@translationState.Translate("Go_Back")"
+                                          class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row TitleBar justify-content-center align-items-center py-4">
+                    <div class="col-12">
+                        <div class="row no-gutters">
+                            <RadzenHeading Size="H1" Text="@translationState.Translate("Legal_legislation_Details")" />
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="row d-block justify-content-left mainContentBlock p-0">
+
+                <RadzenAccordion>
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("legallegislation")" Selected="true">
+                            <div class="row no-gutters">
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Legislation_Number")</h3> @*1*@
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@legalLegislationVM?.Legislation_Number</h3>
+                                    </div>
+                                </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Legislation_Type")</h3> @*2*@
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? legalLegislationVM?.LegislationtypeEn : legalLegislationVM?.LegislationtypeAr)</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Subject")</h3> @*3*@
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@legalLegislationVM?.LegislationTitle</h3>
+                                        </div>
+                                    </div>
+                                @if (getLegalArticalSectionResultVM?.Count() != 0)
+                                {
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Number_of_Article")</h3> @*4*@
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getLegalArticalSectionResultVM?.Count()</h3>
+                                        </div>
+                                    </div>
+                                }
+                                @if(getLegalClausesSectionResultVM?.Count() != 0)
+                                {
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Number_of_Clause")</h3> @*4*@
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getLegalClausesSectionResultVM?.Count()</h3>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(legalLegislationVM?.IssueDate.ToString()))
+                                {
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Legislation_Issue_Date")</h3> @*5*@
+                                        </div>
+                                        <div class="detailContent">
+                                        
+                                                <h3>@legalLegislationVM?.IssueDate.Value.ToString("dd/MM/yyyy")</h3>
+                                       
+                                        </div>
+                                    </div>
+                                 }
+                                @if (!string.IsNullOrEmpty(legalLegislationVM?.IssueDate_Hijri.ToString()))
+                                {
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Legislation_Issue_Date_Hijir")</h3> @*6*@
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@legalLegislationVM?.IssueDate_Hijri.Value.ToString("dd/MM/yyyy")</h3>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(legalLegislationVM?.StartDate.ToString()))
+                                {
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Start_Date")</h3> @*7*@
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@legalLegislationVM?.StartDate.Value.ToString("dd/MM/yyyy")</h3>
+                                        </div>
+                                    </div>
+                                }
+                                @if (!string.IsNullOrEmpty(legalLegislationVM?.CanceledDate.ToString()))
+                                {
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Legislation_End_Date")</h3> @*7*@
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@legalLegislationVM?.CanceledDate.Value.ToString("dd/MM/yyyy")</h3>
+                                        </div>
+                                    </div>
+                                }
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Legislation_Status")</h3> @*8*@
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? legalLegislationVM?.StatusNameEn : legalLegislationVM?.StatusNameAr)</h3>
+                                        </div>
+                                    </div>
+                            </div>
+                        </RadzenAccordionItem>
+                        @if (getLegalPublicationSourceResult?.Issue_Number > 0 && getLegalPublicationSourceResult?.Page_Start != 0 && getLegalPublicationSourceResult?.Page_End != 0)
+                        {
+                            <RadzenAccordionItem Text="@translationState.Translate("Publication_Source")" Selected="false">
+                                <div class="row no-gutters">
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Issue_Number")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getLegalPublicationSourceResult?.Issue_Number</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Publication_Source")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? getLegalPublicationSourceResult?.LegalPublicationSourceNameEn : getLegalPublicationSourceResult?.LegalPublicationSourceNameAr)</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Publication_Start_Page")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getLegalPublicationSourceResult?.Page_Start</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Publication_End_Page")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getLegalPublicationSourceResult?.Page_End</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Publication_Date")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getLegalPublicationSourceResult?.PublicationDate</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Publication_Date_Hijri")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@legalLegislationVM?.IssueDate_Hijri?.ToString("dd/MM/yyyy")</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+
+                        }
+                        @*<RadzenAccordionItem Style="word-break: break-word;" Text="@translationState.Translate("ExplanatoryNotes")" Selected="false">
+                            <div Style="word-break: break-word;">
+                                @LegalExplanatoryNotesEn
+                            </div>
+                        </RadzenAccordionItem>*@
+                        @*<RadzenAccordionItem Style="word-break: break-word;" Text="@translationState.Translate("Legislation_Notes_Section")" Selected="false">
+                            <div Style="word-break: break-word;">
+                                @LegalNotesEn
+                            </div>
+                        </RadzenAccordionItem>*@
+                        @*<RadzenAccordionItem Text="@translationState.Translate("Clauses_Section")" Selected="false">
+                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        Width="100%"
+                                        @ref="gridSectionClauses"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        Data="@getLegalClausesSectionResultVM"
+                                        TItem="LegalClausesSectionVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        >
+                                <Columns>
+                                    <RadzenDataGridColumn Width="200px" TItem="LegalClausesSectionVM" Property="Clause_Name" Title="@translationState.Translate("Clause_Name")" />
+                                    <RadzenDataGridColumn Width="200px" TItem="LegalClausesSectionVM" Title="@translationState.Translate("Clause_Content")">
+                                        <Template Context="rowItem">
+                                            @Clausestext
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn Width="200px" TItem="LegalClausesSectionVM" Property="SectionTitle" Title="@translationState.Translate("Section_Title")" />
+                                    <RadzenDataGridColumn Width="200px" TItem="LegalClausesSectionVM" Property="Start_Date" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Start_Date")" />
+                                    @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                    {
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalClausesSectionVM" Property="ClauseStatusEn" Title="@translationState.Translate("Clause_Status")" />
+                                    }
+                                    else
+                                    {
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalClausesSectionVM" Property="ClauseStatusAr" Title="@translationState.Translate("Clause_Status")" />
+
+                                    }
+                                </Columns>
+                            </RadzenDataGrid>
+                        </RadzenAccordionItem>*@
+                        @*<RadzenAccordionItem Text="@translationState.Translate("Legislation_Article_Section")" Selected="false">
+                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        Width="100%"
+                                        @ref="gridSectionArtical"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        Data="@getLegalArticalSectionResultVM"
+                                        TItem="LegalArticalSectionVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        >
+                                <Columns>
+                                    @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                    {
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Property="Article_Name" Title="@translationState.Translate("Article_Name")" />
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Title="@translationState.Translate("Article_Text")">
+                                            <Template Context="rowItem">
+                                                @Articaltext
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Property="Article_Title" Title="@translationState.Translate("Article_Title")" />
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Property="SectionTitle" Title="@translationState.Translate("Section_Title")" />
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Property="Start_Date" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Start_Date")" />
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Property="ArticalStatusEn" Title="@translationState.Translate("Article_Status")" />
+                                    }
+                                    else
+                                    {
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Property="Article_Name" Title="@translationState.Translate("Article_Name")" />
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Title="@translationState.Translate("Article_Text")">
+                                            <Template Context="rowItem">
+                                                @Articaltext
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Property="Article_Title" Title="@translationState.Translate("Article_Title")" />
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Property="SectionTitle" Title="@translationState.Translate("Section_Title")" />
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Property="Start_Date" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Start_Date")" />
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Property="ArticalStatusEn" Title="@translationState.Translate("Article_Status")" />
+                                        <RadzenDataGridColumn Width="200px" TItem="LegalArticalSectionVM" Property="ArticalStatusAr" Title="@translationState.Translate("Article_Status")" />
+                                    }
+                                </Columns>
+                            </RadzenDataGrid>
+                        </RadzenAccordionItem>*@
+                       @* <RadzenAccordionItem Text="@translationState.Translate("Legistion_Introduction")" Selected="false">
+                            <div class="introPrivew">
+                                @introduction
+                            </div>
+                        </RadzenAccordionItem>*@
+                        @*<RadzenAccordionItem Text="@translationState.Translate("Signature")" Selected="false">
+                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        @ref="grid"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        TItem="LegalLegislationSignature"
+                                        Data="@getLegalLegislationSignatureResult"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        Count="@count"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        ShowPagingSummary="true"
+                                        ColumnWidth="200px">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="LegalLegislationSignature" Property="Full_Name" Title="@translationState.Translate("Signature_Full_Name")" />
+                                    <RadzenDataGridColumn TItem="LegalLegislationSignature" Property="Job_Title" Title="@translationState.Translate("Signature_Job_Title")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </RadzenAccordionItem>*@
+                        <RadzenAccordionItem Text="@translationState.Translate("Source_Document")" Selected="false">
+                            @if (VisibleSourceDocument)
+                            {
+                                @* <TelerikPdfViewer @ref="PdfViewerRef"
+                                          Width="100%"
+                                          Height="1000px"
+                                          Data="@FileData" MinZoom="0.5m" MaxZoom="6.0m" Zoom="1.0m">
+                                    <PdfViewerToolBar>
+                                        <PdfViewerToolBarSeparator />
+                                        <PdfViewerToolBarDownloadTool />
+                                        <PdfViewerToolBarPrintTool />
+                                        <PdfViewerToolBarPagerTool />
+                                        <PdfViewerToolBarSpacer />
+                                        <PdfViewerToolBarZoomTool />
+                                        <PdfViewerToolBarSelectionTool />
+                                        <PdfViewerToolBarSearchTool />
+                                    </PdfViewerToolBar>
+                                </TelerikPdfViewer> *@
+
+                                <SfPdfViewerServer EnableNavigationToolbar="false"
+                                           ZoomMode="ZoomMode.FitToWidth"
+                                                   EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                                   ID="pdfviewerDetail"
+                                                   DocumentPath="@DocumentPath">
+                                    <PdfViewerEvents DocumentLoaded="DocumentLoaded"></PdfViewerEvents>
+                                    <PdfViewerToolbarSettings ToolbarItems="ToolbarItems">
+                                    </PdfViewerToolbarSettings>
+                                </SfPdfViewerServer>
+                            }
+                            else
+                            {
+                                <p>@translationState.Translate("No_record_found")</p>
+                            }
+                        </RadzenAccordionItem>
+                        <RadzenAccordionItem Text="@translationState.Translate("Preview")" Selected="false">
+                            <div class="row pb-2 addPriviewContainer">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    @documentPriview
+                                </div>
+                            </div>
+                        </RadzenAccordionItem>
+                        @if(LegalLegislationCommentsDetails.Count() != 0)
+                        {
+                            <RadzenAccordionItem Text="@translationState.Translate("Comments")" Selected="false">
+                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        @ref="gridComments"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        TItem="LegalLegislationCommentVM"
+                                        Data="@LegalLegislationCommentsDetails"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        Count="@LegalLegislationCommentsDetails.Count()"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        ShowPagingSummary="true"
+                                        ColumnWidth="200px">
+                                <Columns>
+                                        <RadzenDataGridColumn TItem="LegalLegislationCommentVM" Property="Comment" Title="@translationState.Translate("Comment")" />
+                                            <RadzenDataGridColumn TItem="LegalLegislationCommentVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StatusNameEn" : "StatusNameAr") Title="@translationState.Translate("Status_Name")" />
+                                        <RadzenDataGridColumn TItem="LegalLegislationCommentVM" Property="CreatedBy" Title="@translationState.Translate("CreatedBy")" />
+                                        <RadzenDataGridColumn TItem="LegalLegislationCommentVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("CreatedDate")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </RadzenAccordionItem>                            
+                        }
+                    </Items>
+                </RadzenAccordion>
+            </div>
+
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+<style>
+    .legalReference {
+        padding: 0px;
+        margin-top: 10px;
+        text-size-adjust: 20px;
+    }
+
+    .PublicationSourcePageEnd {
+        float: left;
+    }
+</style>

@@ -1,0 +1,25 @@
+﻿<div class="container pb-2" style="padding-left: 0px !important; padding-right: 0px !important; margin-left: -12px;">
+    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+
+        <p>@translationState.Translate(Title)</p>
+
+        <!-- Buttons Section -->
+        <div class="popup-buttons-alignment px-0">
+            <RadzenButton Text="@translationState.Translate("OK")"
+                          ButtonStyle="ButtonStyle.Primary"
+                          Click="@OK"/>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    .rz-label {
+        width: -webkit-fill-available;
+    }
+
+    .rz-textbox {
+        width: -webkit-fill-available;
+    }
+
+</style>

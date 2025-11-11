@@ -1,0 +1,86 @@
+﻿@page "/websystem-list"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+<PageTitle>@translationState.Translate("Web_Systems")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.UMS"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Web_Systems")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" Text="@translationState.Translate("Web_Systems")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="col-md-12">
+                <div class="row tableContent no-gutters pb-3">
+                    <RadzenCard>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                                               Style="display: block; margin-bottom: 10px; width: 100%"
+                                               Name="Textbox0"
+                                @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");await websystemGrid.GoToPage(0);})" />
+                              </div>
+                            <div class="col-md-8 text-right-custom-gridcolumn">
+                                @*<RadzenButton Icon="add_circle" style="margin-bottom: 10px" Text="@translationState.Translate("Create_Web_Systems")" Click="@AddWebsystem" />*@
+                            </div>
+                        </div>
+                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        Data="@FilteredWebSystemList"
+                        @ref="websystemGrid"
+                                        TItem="WebSystem"
+                                        Count="@(FilteredWebSystemList != null ? FilteredWebSystemList.Count() : 0)"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        ColumnWidth="230px"
+                                        AllowSorting="true"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="WebSystem" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
+                                    <Template Context="WebSystem">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) =>EditWebSystem(args, WebSystem.WebSystemId))" @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="WebSystem" Property="WebSystemId" Title="@translationState.Translate("Id")" />
+                                <RadzenDataGridColumn TItem="WebSystem" Property=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "NameEn" : "NameAr") Title="@translationState.Translate("Name")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenCard>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} 

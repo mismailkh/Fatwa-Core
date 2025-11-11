@@ -1,0 +1,318 @@
+﻿@page "/executionrequest-detail/{ExecutionId}"
+@page "/executionrequest-detail/{ExecutionId}/{TaskId}"
+
+
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using FATWA_DOMAIN.Common
+@using static FATWA_DOMAIN.Enums.TaskEnums;
+
+@layout MainLayout
+
+<!--<History Author = "Hassan Abbas" Date="2023-03-30" Version="1.0" Branch="master"> Detail View for the Execution Request</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.CMS.MOJ.ExecutionView").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            @if (loginState.UserRoles.Any(r => r.RoleId == SystemRoles.Messenger))
+                            {
+                                <RadzenBreadCrumbItem Path="/execution-requests" Text="@translationState.Translate("Moj_Execution_Requests")" />
+                            }
+                            else
+                            {
+                                <RadzenBreadCrumbItem Path="/usertask-list" Text="@translationState.Translate("Tasks_List")" />
+                            }
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("View_Details")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("View_Details")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+                <RadzenCard>
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Execution_Request_Details")" Selected="true">
+                                <div class="row pb-2">
+                                    <div class="col-12 datagrid-rz-label">
+                                        <div class="row no-gutters">
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Request_Date"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@executionRequest?.CreatedDate.ToString("dd/MM/yyyy")</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Remarks"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@executionRequest?.Remarks</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Case_Details")" Selected="true">
+                                <div class="row pb-2">
+                                    <div class="col-12 datagrid-rz-label">
+                                        <div class="row no-gutters">
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("File_Number"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@caseFile?.FileNumber</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("CAN_Number"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@registeredCase?.CANNumber</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Case_Number"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@registeredCase?.CaseNumber</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Case_Date"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@registeredCase?.CreatedDate.ToString("dd/MM/yyyy")</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Court_Type"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @registeredCase?.CourtTypeNameEn : @registeredCase?.CourtTypeNameAr)</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Court_Name"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @registeredCase?.CourtNameEn : @registeredCase?.CourtNameAr)</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Chamber_Name"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @registeredCase?.ChamberNameEn : @registeredCase?.ChamberNameAr)</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Chamber_Number"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@registeredCase?.ChamberNumber</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Is_Confidential"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    @{
+                                                        bool isConfidential = registeredCase?.IsConfidential ?? false;
+                                                    }
+                                                    @if (isConfidential)
+                                                    {
+                                                        <h3>@translationState.Translate("Yes")</h3>
+                                                    }
+                                                    else
+                                                    {
+                                                        <h3>@translationState.Translate("No")</h3>
+
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Document_Details")" Selected="false">
+                                <FileUpload ReferenceGuid="executionRequest.Id"
+                                            IsViewOnly="true"
+                                            ModuleId="(int)WorkflowModuleEnum.CaseManagement " />
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                    @if (judgementExecution != null && judgementExecution.Id != Guid.Empty)
+                    {
+                        <RadzenAccordion>
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Execution_File_Details")" Selected="false">
+                                    <div class="row pb-2">
+                                        <div class="col-12 datagrid-rz-label">
+                                            <div class="row no-gutters">
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Execution_File_Number"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@judgementExecution?.ExecutionFileNumber</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("File_Opening_Date"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(judgementExecution?.FileOpeningDate == null ? "---" : judgementExecution?.FileOpeningDate.Value.ToString("dd/MM/yyyy"))</h3>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("File_Balance"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(judgementExecution.FileBalance != null ? string.Format("{0:n3}", judgementExecution.FileBalance) : "0.000") @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "(KWD)" : "(د.ك)")</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Remarks"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@judgementExecution?.Remarks</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <FileUpload ReferenceGuid="judgementExecution.Id"
+                                                        IsViewOnly="true"
+                                                        ModuleId="(int)WorkflowModuleEnum.CaseManagement " />
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    }
+                </RadzenCard>
+            </div>
+            <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+                <RadzenCard>
+                    <div class="row"> 
+                        <div class="col-12 d-flex justify-content-end">
+                            @if (taskDetailVM?.TaskStatusId != (int)TaskStatusEnum.Done)
+                            {
+                                @if (loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.Execution)
+                                {
+                                    if (loginState.UserRoles.Any(u => u.RoleId == SystemRoles.HOS))
+                                    {
+                                        @if (judgementExecution != null && judgementExecution.Id != Guid.Empty)
+                                        {
+
+                                            <RadzenButton Text="@translationState.Translate("Send_To_Lawyer")"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Style="margin-left: 1rem"
+                                                          Disabled="@(approvalTracking.StatusId != (int)ApprovalStatusEnum.Pending)"
+                                                          Click="@SendExecutionDetailsToLawyer" />
+                                        }
+                                        else
+                                        {
+                                            <RadzenButton Text="@translationState.Translate("Send_Moj_Team")"
+                                                          ButtonStyle="ButtonStyle.Light"
+                                                          Style="margin-left: 1rem"
+                                                          Disabled="@(approvalTracking.StatusId != (int)ApprovalStatusEnum.Pending)"
+                                                          Click="@SendExecutionRequestToMOJExecution" />
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <div class="row pb-1">
+                                            <div class="col-md-12 d-flex justify-content-end">
+                                                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Prepare_Execution")" Click="@( () => AddPrepareExecution())">
+                                                </RadzenButton>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                                else if (loginState.UserRoles.Any(u => u.RoleId == SystemRoles.HOS || u.RoleId == SystemRoles.ViceHOS))
+                                {
+                                    <RadzenButton Text="@translationState.Translate("Reject")"
+                                                  ButtonStyle="ButtonStyle.Light"
+                                                  Style="margin-left: 1rem"
+                                                  Disabled="@(approvalTracking?.StatusId != (int)ApprovalStatusEnum.Pending)"
+                                                  Click="@RejectExecutionRequest" />
+                                    <RadzenButton Text="@translationState.Translate("Approve")"
+                                                  ButtonStyle="ButtonStyle.Primary"
+                                                  Disabled="@(approvalTracking?.StatusId != (int)ApprovalStatusEnum.Pending)"
+                                                  Click="@ApproveExecutionRequest"
+                                                  ButtonType="Radzen.ButtonType.Submit" />
+                                }
+                            }
+                        </div>
+                    </div>
+
+                </RadzenCard>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

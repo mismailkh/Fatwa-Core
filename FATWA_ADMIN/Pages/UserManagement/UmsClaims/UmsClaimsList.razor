@@ -1,0 +1,102 @@
+﻿@page "/claims"
+@layout MainLayout
+@inherits FATWA_ADMIN.Pages.UserManagement.UmsClaims.UmsClaimsListComponent
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+
+<PageTitle>@translationState.Translate("Claims")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.UMS"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Claims")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Claims")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <RadzenCard>
+                <div class="row tableContent table-responsive no-gutters pb-3">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                                               style="display: block; margin-bottom: 10px; width: 100%"
+                                @oninput="@(async(args) => { await grid.GoToPage(0); await OnSearchInput($"{args.Value}");})" />
+                            </div>
+
+                        </div>
+                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                        @ref="grid"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        Count="@(FilteredGetClaimsResult != null ? FilteredGetClaimsResult.Count() : 0)"
+                                        AllowSorting="true"
+                                        Data="@FilteredGetClaimsResult"
+                                        TItem="ClaimUms"
+                                        ColumnWidth="230px"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="ClaimUms" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      class="editIcon"
+                                                      Icon="mode"
+                                                      Title="@translationState.Translate("Edit")"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => GridEditButtonClick(rowItem))"
+                                        @onclick:stopPropagation="true" />
+
+                                        @*  <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                    class="deleteIcon"
+                                    Icon="delete_outline"
+                                    Title="@translationState.Translate("delete")"
+                                    Size="ButtonSize.Small"
+                                    Click="@((args) =>GridDeleteButtonClick(rowItem))"
+                                    @onclick:stopPropagation="true" /> *@
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ClaimUms" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"?"Title_En":"Title_Ar")" Title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Title_En" : "Title_Ar")" />
+                                <RadzenDataGridColumn TItem="ClaimUms" Property="Module" Title="@translationState.Translate("Module")" />
+                                <RadzenDataGridColumn TItem="ClaimUms" Property="SubModule" Title="@translationState.Translate("SubModule")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </RadzenCard>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+

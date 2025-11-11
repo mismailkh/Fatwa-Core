@@ -1,0 +1,64 @@
+﻿@page "/update-access"
+@using FATWA_DOMAIN.Models.ViewModel.OrganizingCommitteeVMs
+
+@layout MainLayout
+
+
+
+<div class="row pb-4">
+    <div class="col-md-12">
+        <RadzenCard>
+            <RadzenDataGrid Width="100%"
+                            @ref="memberGrid"
+                            FilterMode="Radzen.FilterMode.Advanced"
+                            Count=@(committeeMembers != null ? committeeMembers.Count() : 0)
+                            AllowPaging="true"
+                            AllowSorting="true"
+                            AllowFiltering="false"
+                            Data="@Filtermembers.Where(x=>x.MemberId!=loginState.UserDetail.UserId).ToList()"
+                            TItem="CommitteeMembersVMs"
+                            PageSize="@systemSettingState.Grid_Pagination"
+                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                            EmptyText="@translationState.Translate("No_record_found")"
+                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                            ShowPagingSummary="true">
+                <Columns>
+                    <RadzenDataGridColumn TItem="CommitteeMembersVMs" Width="60px" Sortable="false" Filterable="false">
+                        <HeaderTemplate>
+                            <RadzenCheckBox TriState="false"
+                                            Value="@((Filtermembers != null && SelectedMemberList != null) ? (Filtermembers.Except(SelectedMemberList).Any() ? false : true) : false)"
+                                            TValue="bool"
+                                            Change="(args => OnSelectList(null, args))" />
+                        </HeaderTemplate>
+                        <Template Context="data">
+                            <RadzenCheckBox TriState="false"
+                                            Value="@(SelectedMemberList != null && SelectedMemberList.Contains(data))"
+                                            TValue="bool"
+                                            Change="@(args => {OnSelectList(data, args);if(!allowRowSelectOnRowClick) {memberGrid.SelectRow(data);}})" />
+                        </Template>
+                    </RadzenDataGridColumn>
+
+                    <RadzenDataGridColumn TItem="CommitteeMembersVMs" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "MemeberNameEn" : "MemeberNameAr")" Title="@translationState.Translate("Member_Name")" />
+                    <RadzenDataGridColumn TItem="CommitteeMembersVMs" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RoleNameEn" : "RoleNameAr")" Title="@translationState.Translate("Roles")" />
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenCard>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="popup-buttons-alignment px-0">
+            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Update")" Click="@(() => Update())" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.2rem !important" Text="@translationState.Translate("Cancel")" Click="CloseDialog" />
+        </div>
+    </div>
+</div>
+
+
+
+
+

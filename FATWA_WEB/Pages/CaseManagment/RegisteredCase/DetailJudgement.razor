@@ -1,0 +1,168 @@
+﻿@page "/judgement-view/{judgementId}"
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Judgement_Detail")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+                <div class="col-9">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem onclick=@RedirectBack Text="@translationState.Translate("Case")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Judgement_Detail")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-3 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-12">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Judgement_Detail")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+                <RadzenAccordion>
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Metadata_Section")" Selected="true">
+                            <div class="row no-gutters">
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("Hearing_Date") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@JudgementDetail?.HearingDate?.ToString("dd/MM/yyyy")</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Judgement_Date") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@JudgementDetail?.JudgementDate?.ToString("dd/MM/yyyy")</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row no-gutters">
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Amount") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(JudgementDetail?.Amount != null ? string.Format("{0:n3}", JudgementDetail?.Amount) : "0.000") @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "(KWD)" : "(د.ك)")</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Judgement_Amount_Collected") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(JudgementDetail?.AmountCollected != null ? string.Format("{0:n3}", JudgementDetail?.AmountCollected) : "0.000") @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "(KWD)" : "(د.ك)")</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row no-gutters">
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Category") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? JudgementDetail?.CategoryEn : JudgementDetail?.CategoryAr)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Serial_Number") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@JudgementDetail?.SerialNumber</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row no-gutters">
+                            @if (JudgementDetail.ExecutionFileLevelId > 0)
+                            {
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("Execution_File_Level") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? JudgementDetail?.ExecutionFileLevelEn : JudgementDetail?.ExecutionFileLevelAr)</h3>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Status") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? JudgementDetail?.StatusEn : JudgementDetail?.StatusAr)</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row no-gutters">
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Is_Final") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@((bool)JudgementDetail?.IsFinal ? translationState.Translate("Yes") : translationState.Translate("No"))</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Remarks") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@JudgementDetail?.Remarks</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Text="@translationState.Translate("Document_Details")" Selected="false">
+                        <FileUpload ReferenceGuid="Guid.Parse(JudgementId)"
+                                    IsViewOnly="true"
+                                    ModuleId="(int)WorkflowModuleEnum.CaseManagement " />
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+        </div>
+        <div class="row py-4">
+            <div class="col-md-12 d-flex justify-content-end tableAdditionButton pb-3">
+                <RadzenButton ButtonStyle="ButtonStyle.Light"
+                              Text="@translationState.Translate("Back")"
+                              Click="@BtnBack">
+                </RadzenButton>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

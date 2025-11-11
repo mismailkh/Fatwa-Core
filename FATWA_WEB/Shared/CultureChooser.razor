@@ -1,0 +1,121 @@
+﻿@using System.Threading
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_GENERAL.Helper.Response
+
+@*<History Author = 'Hassan Abbas' Date='2022-08-03' Version="1.0" Branch="master"> UI component updated from dropdown to checkbox with events for new design requirements</History>*@
+<div>
+    <div class="button b2" id="button-17">
+        <input type="checkbox" class="checkbox" checked="@defaultCultureState" @onchange="CultureChanged" />
+        <div class="knobs"><span></span></div>
+    </div>
+</div>
+
+@code {
+    //<History Author = 'Hassan Abbas' Date='2022-08-03' Version="1.0" Branch="master"> Event updated with checkbox change event previously it was with dropdown and old design</History>
+    //<History Author = AttiqueRehman' Date='29/07/2025' >If there are any unsaved draft changes,we'll show a confirmation pop up to user if he want to save them before proceeding with the culture change</History>
+
+    #region Set Culture Event
+    private bool defaultCultureState;
+    protected override void OnInitialized()
+    {
+        defaultCultureState = Thread.CurrentThread.CurrentUICulture.Name == "ar-KW";
+    }
+
+    private async Task CultureChanged(ChangeEventArgs e)
+    {
+        if (HasUnsavedDraftChanges())
+        {
+            await HandleUnsavedChanges((bool)e.Value ? "ar-KW" : "en-US");
+        }
+        else
+        {
+            SetCulture((bool)e.Value ? "ar-KW" : "en-US");
+        }
+    }
+
+    public void SetCulture(string culture, string? redirectPathId = null, bool cancelDraftChanges = false)
+    {
+        var uriToRedirectTo = new Uri(navigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+        string query;
+        if (redirectPathId is null)
+            query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString($"{uriToRedirectTo}")}";
+        else
+        {
+            if (cancelDraftChanges)
+            {
+                if (uriToRedirectTo.Equals("/create-casefile", StringComparison.OrdinalIgnoreCase) || uriToRedirectTo.Equals("/consultationrequest-add", StringComparison.OrdinalIgnoreCase))
+                {
+                    uriToRedirectTo = "/registerd-requests";
+                }
+                query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString($"{uriToRedirectTo}")}";
+            }
+            else
+            {
+                if (navigationManager.Uri.ToLower().Contains(redirectPathId.ToLower()))
+                    query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString($"{uriToRedirectTo}")}";
+                else
+                    query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString($"{uriToRedirectTo}/{redirectPathId}")}";
+            }
+        }
+        navigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
+    }
+
+    #endregion
+    #region Handle Draft Unsaved Changes
+    private bool HasUnsavedDraftChanges()
+    {
+        return (dataCommunicationService?.caseRequest != null && dataCommunicationService.caseRequest.StatusId == (int)CaseRequestStatusEnum.Draft) ||
+               (dataCommunicationService?.consultationRequest != null && dataCommunicationService.consultationRequest.RequestStatusId == (int)CaseRequestStatusEnum.Draft);
+    }
+
+    private void RemovePageUnloadListener()
+    {
+        if (dataCommunicationService?.caseRequest != null) JSRuntime.InvokeVoidAsync("window.removeUnloadListenerCMS");
+        if (dataCommunicationService?.consultationRequest != null) JSRuntime.InvokeVoidAsync("window.removeUnloadListenerCOMS");
+    }
+    private async Task HandleUnsavedChanges(string newCulture)
+    {
+
+
+        var confirmResult = await dialogService.Confirm(
+            translationState.Translate("You_Have_Unsaved_Changes_Do_You_Want_To_Save_Them_As_A_draft?"),
+            translationState.Translate("Confirm"),
+            new ConfirmOptions()
+                {
+                    OkButtonText = translationState.Translate("Save_As_Draft"),
+                    CancelButtonText = translationState.Translate("Leave_Changes")
+                });
+
+        if (confirmResult is null)
+        {
+            defaultCultureState = false;
+            StateHasChanged();
+            dialogService.Close();
+        }
+        else if (confirmResult == true)
+        {
+            spinnerService.Show();
+            RemovePageUnloadListener();
+            ApiCallResponse response;
+
+            if (dataCommunicationService?.caseRequest is not null && draftHandlerService.SaveDraftForCase is not null)
+            {
+                if (await draftHandlerService.SaveDraftForCase(true))
+                    SetCulture(newCulture, dataCommunicationService.caseRequest.RequestId.ToString());
+            }
+            else if (dataCommunicationService?.consultationRequest is not null && draftHandlerService.SaveDraftForConsultation is not null)
+            {
+                if (await draftHandlerService.SaveDraftForConsultation(true))
+                    SetCulture(newCulture, dataCommunicationService.consultationRequest.ConsultationRequestId.ToString());
+            }
+            spinnerService.Hide();
+        }
+        else
+        {
+            RemovePageUnloadListener();
+            SetCulture(newCulture, "", cancelDraftChanges: true);
+        }
+    }
+
+    #endregion
+}

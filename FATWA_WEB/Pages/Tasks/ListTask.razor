@@ -1,0 +1,954 @@
+﻿@page "/usertask-list"
+@page "/usertask-list/{TaskStatus}"
+
+@using FATWA_DOMAIN.Common;
+@using FATWA_DOMAIN.Models.ViewModel.TaskVMs;
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.TaskEnums;
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+
+@layout MainLayout
+
+<!--<History Author = "Zain Ul Islam" Date="2022-11-29" Version="1.0" Branch="master">List of Tasks</History>-->
+<!--<History Author = "Zain Ul Islam" Date="2022-11-30" Version="1.0" Branch="master">Implemented Advance Search</History>-->
+
+<PageTitle>@translationState.Translate("Tasks_List")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.Submenu.Task.TaskList"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Tasks_List")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Tasks_List")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <RadzenTabs Change="OnTabChange" @bind-SelectedIndex="selectedIndex" TabPosition="Radzen.TabPosition.Top" style="margin: 20px auto;" RenderMode="TabRenderMode.Server">
+                        <Tabs>
+                            <RadzenTabsItem Text="@(translationState.Translate("Pending") + "(" + (dashboardVM.Pending != null ? dashboardVM.Pending?.ToString() : "0") + ")")">
+                                @if (loginState.UserDetail.SectorTypeId != null && loginState.UserDetail.SectorTypeId > 0 && (loginState.UserDetail.SectorTypeId <= (int)OperatingSectorTypeEnum.CivilCommercialPartialUrgentCases
+                               || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.Execution || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.PublicOperationalSector
+                               || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.AdministrativeGeneralSupervisor || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.CivilCommercialGeneralSupervisor))
+                                {
+                                    <RadzenCard class="m-2">
+                                        <div class="row pb-2">
+                                            <div class="col-md-4">
+                                                <h2 class="formHeading">@translationState.Translate("Case_Tasks")</h2>
+                                                <div class="divider"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row no-gutters">
+                                            <div class="col-md-4">
+                                                <RadzenTextBox class="searchBox"
+                                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                                               Name="Textbox0"
+                                                               @oninput="@(async(args) => {await OnCmsTasksSearchInput($"{args.Value}");})" />
+                                            </div>
+                                            <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                                <RadzenButton class="addBtn"
+                                                              Icon="search"
+                                                              Text="@translationState.Translate("Advanced_Search")"
+                                                              Click="() => ToggleAdvanceSearch(false)" />
+                                            </div>
+                                        </div>
+                                        <div class="row tableContent table-responsive no-gutters pb-3">
+                                            <RadzenDataGrid @ref="gridCms"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            Count="@(cmsTaskList?.Any() == true ? cmsTaskList.FirstOrDefault().TotalCount : 0)"
+                                                            CellRender="@RowRenderHandler"
+                                                            AllowPaging="true"
+                                                            AllowSorting="true"
+                                                            AllowFiltering="false"
+                                                            LoadData="LoadCmsTasks"
+                                                            Data="@cmsFilteredTaskList"
+                                                            Sort="OnSortDataCmsTasks"
+                                                            TItem="TaskVM"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                            ShowPagingSummary="true">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="TaskVM"
+                                                                          Title="@translationState.Translate("Action")"
+                                                                          Filterable="false"
+                                                                          Sortable="false"
+                                                                          Width="100px"
+                                                                          TextAlign="TextAlign.Center">
+                                                        <Template Context="rowItem">
+                                                            @if (!rowItem.IsSystemGenerated)
+                                                            {
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                              Icon="send"
+                                                                              title="@translationState.Translate("Response")"
+                                                                              Size="ButtonSize.Small"
+                                                                              Click="@((args) => TaskResponse(rowItem))"
+                                                                @onclick:stopPropagation="true" />
+                                                            }
+                                                            @if (rowItem.IsCaseUpdated)
+                                                            {
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                              Class="rz-background-color-info-dark"
+                                                                              title="@translationState.Translate("View_TaskDetails")"
+                                                                              Icon="chrome_reader_mode"
+                                                                              Size="ButtonSize.Small"
+                                                                              Click="@((args) => DetailTaskDetails(rowItem))"
+                                                                @onclick:stopPropagation="true" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                              Class="viewIcon"
+                                                                              title="@translationState.Translate("View_TaskDetails")"
+                                                                              Icon="chrome_reader_mode"
+                                                                              Size="ButtonSize.Small"
+                                                                              Click="@((args) => DetailTaskDetails(rowItem))"
+                                                                @onclick:stopPropagation="true" />
+                                                            }
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="viewIcon"
+                                                                          title="@translationState.Translate("View_Item_History")"
+                                                                          Icon="history"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => ViewItemHistory(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="ReferenceNumber" Title="@translationState.Translate("Reference_No")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="CreatedDate" Title="@translationState.Translate("Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="120px" Property="HearingDate" Title="@translationState.Translate("Hearing_Date")" FormatString="{0:dd/MM/yyyy}">
+                                                        <Template Context="row">
+                                                            @if (row.HearingDate != null && row.HearingDate != default(DateTime))
+                                                            {
+                                                                DateTime HearingDate = Convert.ToDateTime(row.HearingDate);
+                                                                @HearingDate.ToString("dd/MM/yyyy")
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "RequestGovtEntityNameEn" :  "RequestGovtEntityNameAr")" Title="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? translationState.Translate("Govt_Entity") :  translationState.Translate("Govt_Entity"))" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="Name" Title="@translationState.Translate("Action_Required")">
+                                                        <Template Context="rowItem">
+                                                            <RadzenLabel title="@translationState.Translate(rowItem.Name)" Text="@translationState.Translate(rowItem.Name)" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="AssignedBy" Title="@translationState.Translate("Sent_By")">
+                                                        <Template Context="rowItem">
+                                                            @if (rowItem.EntityId != null)
+                                                            {
+                                                                <RadzenLabel title="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" Text="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" />
+                                                            }
+                                                            @if (rowItem.EntityId == null)
+                                                            {
+                                                                <RadzenLabel title="@(Thread.CurrentThread.CurrentCulture.Name== "en-US" ? translationState.Translate(rowItem.AssignedByEn) : translationState.Translate(rowItem.AssignedByAr))" Text="@(Thread.CurrentThread.CurrentCulture.Name=="en-US" ? translationState.Translate(rowItem.AssignedByEn) : translationState.Translate(rowItem.AssignedByAr))" />
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </RadzenCard>
+                                }
+                                @if (loginState.UserDetail.SectorTypeId != null && loginState.UserDetail.SectorTypeId > 0 && (loginState.UserDetail.SectorTypeId > (int)OperatingSectorTypeEnum.CivilCommercialPartialUrgentCases && loginState.UserDetail.SectorTypeId <= (int)OperatingSectorTypeEnum.InternationalArbitration
+                               || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.PublicOperationalSector))
+                                {
+                                    <RadzenCard class="m-2">
+                                        <div class="row pb-2">
+                                            <div class="col-md-4">
+                                                <h2 class="formHeading">@translationState.Translate("Consultation_Tasks")</h2>
+                                                <div class="divider"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row no-gutters">
+                                            <div class="col-md-4">
+                                                <RadzenTextBox class="searchBox"
+                                                @bind-Value="@searchComs"
+                                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                                               Name="Textbox0"
+                                                               @oninput="@(async(args) => {await OnComsTasksSearchInput($"{args.Value}");})" />
+                                             </div>
+                                            <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                                <RadzenButton class="addBtn"
+                                                              Icon="search"
+                                                              Text="@translationState.Translate("Advanced_Search")"
+                                                              Click="() => ToggleAdvanceSearch(false)" />
+                                            </div>
+                                        </div>
+                                        <div class="row tableContent table-responsive no-gutters pb-3">
+                                            <RadzenDataGrid @ref="gridComs"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            Count="@(comsTaskList?.Any() == true ? comsTaskList.FirstOrDefault().TotalCount : 0)"
+                                                            AllowPaging="true"
+                                                            AllowSorting="true"
+                                                            AllowFiltering="false"
+                                                            LoadData="LoadComsTasks"
+                                                            Data="@comsFilteredTaskList"
+                                                            Sort="OnSortDataComsTasks"
+                                                            TItem="TaskVM"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                            ShowPagingSummary="true">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="TaskVM"
+                                                                          Title="@translationState.Translate("Action")"
+                                                                          Filterable="false"
+                                                                          Sortable="false"
+                                                                          Width="100px"
+                                                                          TextAlign="TextAlign.Center">
+                                                        <Template Context="rowItem">
+                                                            @if (!rowItem.IsSystemGenerated)
+                                                            {
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                              Icon="send"
+                                                                              Title="@translationState.Translate("Response")"
+                                                                              Size="ButtonSize.Small"
+                                                                              Click="@((args) => TaskResponse(rowItem))"
+                                                                @onclick:stopPropagation="true" />
+                                                            }
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="viewIcon"
+                                                                          Title="@translationState.Translate("View_TaskDetails")"
+                                                                          Icon="chrome_reader_mode"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => DetailTaskDetails(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="viewIcon"
+                                                                          title="@translationState.Translate("View_Item_History")"
+                                                                          Icon="history"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => ViewItemHistory(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="ReferenceNumber" Title="@translationState.Translate("Reference_No")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="CreatedDate" Title="@translationState.Translate("Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "RequestGovtEntityNameEn" : "RequestGovtEntityNameAr")" Title="@translationState.Translate("Govt_Entity")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="Name" Title="@translationState.Translate("Action_Required")">
+                                                        <Template Context="rowItem">
+                                                            <RadzenLabel title="@translationState.Translate(rowItem.Name)"  Text="@translationState.Translate(rowItem.Name)" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="AssignedBy" Title="@translationState.Translate("Sent_By")">
+                                                        <Template Context="rowItem">
+                                                            @if (rowItem.EntityId != null)
+                                                            {
+                                                                <RadzenLabel title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" />
+                                                            }
+                                                            @if (rowItem.EntityId == null)
+                                                            {
+                                                                <RadzenLabel title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.AssignedByEn) : translationState.Translate(rowItem.AssignedByAr))" Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.AssignedByEn) : translationState.Translate(rowItem.AssignedByAr))" />
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </RadzenCard>
+                                }
+                                @if (loginState.UserDetail.SectorTypeId != null && loginState.UserDetail.SectorTypeId > 0 && (loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.PrivateOperationalSector || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.FatwaPresidentOffice))
+                                {
+                                    <RadzenCard class="m-2">
+                                        <div class="row pb-2">
+                                            <div class="col-md-4">
+                                                <h2 class="formHeading">@translationState.Translate("POO_Tasks")</h2>
+                                                <div class="divider"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row no-gutters">
+                                            <div class="col-md-4">
+                                                <RadzenTextBox class="searchBox"
+                                                @bind-Value="@searchCmsComs"
+                                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                                               Name="Textbox0"
+                                                               @oninput="@(async(args) => {await OnCmsComsTasksSearchInput($"{args.Value}");})" />
+                                             </div>
+                                            <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                                <RadzenButton class="addBtn"
+                                                              Icon="search"
+                                                              Text="@translationState.Translate("Advanced_Search")"
+                                                              Click="() => ToggleAdvanceSearch(false)" />
+                                            </div>
+                                        </div>
+                                        <div class="row tableContent table-responsive no-gutters pb-3">
+                                            <RadzenDataGrid @ref="gridCMSComs"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            Count="@(CMScomsTaskList?.Any() == true ? CMScomsTaskList.FirstOrDefault().TotalCount : 0)"
+                                                            AllowPaging="true"
+                                                            AllowSorting="true"
+                                                            AllowFiltering="false"
+                                                            LoadData="LoadCMSCOMSTasks"
+                                                            Data="@filteredCmsComsTaskList"
+                                                            Sort="OnSortDataCmsComsTasks"
+                                                            TItem="TaskVM"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                            ShowPagingSummary="true">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="TaskVM"
+                                                                          Title="@translationState.Translate("Action")"
+                                                                          Filterable="false"
+                                                                          Sortable="false"
+                                                                          Width="100px"
+                                                                          TextAlign="TextAlign.Center">
+                                                        <Template Context="rowItem">
+                                                            @if (!rowItem.IsSystemGenerated)
+                                                            {
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                              Icon="send"
+                                                                              Title="@translationState.Translate("Response")"
+                                                                              Size="ButtonSize.Small"
+                                                                              Click="@((args) => TaskResponse(rowItem))"
+                                                                @onclick:stopPropagation="true" />
+                                                            }
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="viewIcon"
+                                                                          Title="@translationState.Translate("View_TaskDetails")"
+                                                                          Icon="chrome_reader_mode"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => DetailTaskDetails(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="ReferenceNumber" Title="@translationState.Translate("Reference_No")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="CreatedDate" Title="@translationState.Translate("Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RequestGovtEntityNameEn" : "RequestGovtEntityNameAr")" Title="@translationState.Translate("Govt_Entity")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="Name" Title="@translationState.Translate("Action_Required")">
+                                                        <Template Context="rowItem">
+                                                            <RadzenLabel title="@translationState.Translate(rowItem.Name)"  Text="@translationState.Translate(rowItem.Name)" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="AssignedBy" Title="@translationState.Translate("Sent_By")">
+                                                        <Template Context="rowItem">
+                                                            @if (rowItem.EntityId != null)
+                                                            {
+                                                                <RadzenLabel title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" />
+                                                            }
+                                                            @if (rowItem.EntityId == null)
+                                                            {
+                                                                <RadzenLabel title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.AssignedByEn) : translationState.Translate(rowItem.AssignedByAr))" Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.AssignedByEn) : translationState.Translate(rowItem.AssignedByAr))" />
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </RadzenCard>
+                                }
+                                <RadzenCard class="m-2">
+                                    <div class="row pb-2">
+                                        <div class="col-md-4">
+                                            <h2 class="formHeading">@translationState.Translate("Tasks")</h2>
+                                            <div class="divider"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row no-gutters">
+                                        <div class="col-md-4">
+                                            <RadzenTextBox class="searchBox"
+                                            @bind-Value="@search"
+                                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                                           Name="Textbox0"
+                                                           @oninput="@(async(args) => {await OnTasksSearchInput($"{args.Value}");})" />
+                                         </div>
+                                        <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                            <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add_Task")" Click="@AddTask" />
+                                            <RadzenButton class="addBtn"
+                                                          Icon="search"
+                                                          Text="@translationState.Translate("Advanced_Search")"
+                                                          Click="() => ToggleAdvanceSearch(true)" />
+                                        </div>
+                                    </div>
+                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                        <RadzenDataGrid @ref="grid"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        Count="@(getTaskList?.Any() == true ? getTaskList.FirstOrDefault().TotalCount : 0)"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        AllowFiltering="false"
+                                                        LoadData="LoadTasks"
+                                                        Data="@FilteredTaskList"
+                                                        Sort="OnSortTasks"
+                                                        TItem="TaskVM"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="TaskVM"
+                                                                      Title="@translationState.Translate("Action")"
+                                                                      Filterable="false"
+                                                                      Sortable="false"
+                                                                      Width="120px"
+                                                                      TextAlign="TextAlign.Center">
+                                                    <Template Context="rowItem">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                      Class="viewIcon"
+                                                                      Title="@translationState.Translate("Details")"
+                                                                      Icon="visibility"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => DetailTask(rowItem))"
+                                                        @onclick:stopPropagation="true" />
+                                                        @if (rowItem.TaskStatusId != (int)TaskStatusEnum.Done && loginState.UserRoles.Any(u => u.RoleId == SystemRoles.HOS) && loginState.UserDetail.SectorTypeId == rowItem.SectorId)
+                                                        {
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="editIcon"
+                                                                          Icon="mode"
+                                                                          Title="@translationState.Translate("Edit")"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => EditTask(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                        }
+                                                        @if (!rowItem.IsSystemGenerated)
+                                                        {
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                          Icon="send"
+                                                                          Title="@translationState.Translate("Response")"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => TaskResponse(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                        }
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                      Class="viewIcon"
+                                                                      Title="@translationState.Translate("View_TaskDetails")"
+                                                                      Icon="chrome_reader_mode"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => DetailTaskDetails(rowItem))"
+                                                        @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="ReferenceNumber" Title="@translationState.Translate("Reference_No")" />
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="143px" Property="TaskNo" Title="@translationState.Translate("Task_Number")" />
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="Name" Title="@translationState.Translate("Task_Name")" />
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="80px" Property="Date" Title="@translationState.Translate("Task_Date")" FormatString="{0:dd/MM/yyyy}" />
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AssignedByEn" : "AssignedByAr")" Title="@translationState.Translate("Assigned_By")" />
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="80px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StatusNameEn" : "StatusNameAr")" Title="@translationState.Translate("Status")" />
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </RadzenCard>
+                            </RadzenTabsItem>
+                            <RadzenTabsItem Text="@(translationState.Translate("Completed") + "(" + (dashboardVM.Completed != null ? dashboardVM.Completed?.ToString() : "0") + ")")">
+                                @if (loginState.UserDetail.SectorTypeId != null && loginState.UserDetail.SectorTypeId > 0 && (loginState.UserDetail.SectorTypeId <= (int)OperatingSectorTypeEnum.CivilCommercialPartialUrgentCases
+                               || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.Execution || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.PublicOperationalSector
+                               || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.AdministrativeGeneralSupervisor || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.CivilCommercialGeneralSupervisor))
+                                {
+                                    <RadzenCard class="m-2">
+                                        <div class="row pb-2">
+                                            <div class="col-md-4">
+                                                <h2 class="formHeading">@translationState.Translate("Case_Tasks")</h2>
+                                                <div class="divider"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row no-gutters">
+                                            <div class="col-md-4">
+                                                <RadzenTextBox class="searchBox"
+                                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                                               Name="Textbox0"
+                                                               @oninput="@(async(args) => {await OnCmsTasksSearchInput($"{args.Value}");})" />
+                                            </div>
+                                            <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                                <RadzenButton class="addBtn"
+                                                              Icon="search"
+                                                              Text="@translationState.Translate("Advanced_Search")"
+                                                              Click="() => ToggleAdvanceSearch(false)" />
+                                            </div>
+                                        </div>
+                                        <div class="row tableContent table-responsive no-gutters pb-3">
+                                            <RadzenDataGrid @ref="gridCms"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            Count="@(cmsTaskList?.Any() == true ? cmsTaskList.FirstOrDefault().TotalCount : 0)"
+                                                            AllowPaging="true"
+                                                            AllowSorting="true"
+                                                            AllowFiltering="false"
+                                                            LoadData="LoadCmsTasks"
+                                                            Data="@cmsFilteredTaskList"
+                                                            Sort="OnSortDataCmsTasks"
+                                                            TItem="TaskVM"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                            ShowPagingSummary="true">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="TaskVM"
+                                                                          Title="@translationState.Translate("Action")"
+                                                                          Filterable="false"
+                                                                          Sortable="false"
+                                                                          Width="120px"
+                                                                          TextAlign="TextAlign.Center">
+                                                        <Template Context="rowItem">
+                                                            @if (!rowItem.IsSystemGenerated)
+                                                            {
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                              Icon="send"
+                                                                              Title="@translationState.Translate("Response")"
+                                                                              Size="ButtonSize.Small"
+                                                                              Click="@((args) => TaskResponse(rowItem))"
+                                                                @onclick:stopPropagation="true" />
+                                                            }
+
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="viewIcon"
+                                                                          title="@translationState.Translate("View_TaskDetails")"
+                                                                          Icon="chrome_reader_mode"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => DetailTaskDetails(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="viewIcon"
+                                                                          title="@translationState.Translate("View_Item_History")"
+                                                                          Icon="history"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => ViewItemHistory(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="ReferenceNumber" Title="@translationState.Translate("Reference_No")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="CreatedDate" Title="@translationState.Translate("Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+                                                    @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                    {
+                                                        <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="RequestGovtEntityNameEn" Title="@translationState.Translate("Govt_Entity")" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="RequestGovtEntityNameAr" Title="@translationState.Translate("Govt_Entity")" />
+                                                    }
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="Name" Title="@translationState.Translate("Action_Required")">
+                                                        <Template Context="rowItem">
+                                                            <RadzenLabel title="@translationState.Translate(rowItem.Name)"  Text="@translationState.Translate(rowItem.Name)" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="AssignedBy" Title="@translationState.Translate("Sent_By")">
+                                                        <Template Context="rowItem">
+                                                            @if (rowItem.EntityId != null)
+                                                            {
+                                                                <RadzenLabel title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" />
+                                                            }
+                                                            @if (rowItem.EntityId == null)
+                                                            {
+                                                                <RadzenLabel Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.AssignedByEn) : translationState.Translate(rowItem.AssignedByAr))" />
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </RadzenCard>
+                                }
+                                @if (loginState.UserDetail.SectorTypeId != null && loginState.UserDetail.SectorTypeId > 0 && (loginState.UserDetail.SectorTypeId > (int)OperatingSectorTypeEnum.CivilCommercialPartialUrgentCases && loginState.UserDetail.SectorTypeId <= (int)OperatingSectorTypeEnum.InternationalArbitration
+                               || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.PublicOperationalSector))
+                                {
+                                    <RadzenCard class="m-2">
+                                        <div class="row pb-2">
+                                            <div class="col-md-4">
+                                                <h2 class="formHeading">@translationState.Translate("Consultation_Tasks")</h2>
+                                                <div class="divider"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row no-gutters">
+                                            <div class="col-md-4">
+                                                <RadzenTextBox class="searchBox"
+                                                @bind-Value="@searchComs"
+                                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                                               Name="Textbox0"
+                                                               @oninput="@(async(args) => {await OnComsTasksSearchInput($"{args.Value}");})" />
+                                             </div>
+                                            <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                                <RadzenButton class="addBtn"
+                                                              Icon="search"
+                                                              Text="@translationState.Translate("Advanced_Search")"
+                                                              Click="() => ToggleAdvanceSearch(false)" />
+                                            </div>
+                                        </div>
+                                        <div class="row tableContent table-responsive no-gutters pb-3">
+                                            <RadzenDataGrid @ref="gridComs"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            Count="@(comsTaskList?.Any() == true ? comsTaskList.FirstOrDefault().TotalCount : 0)"
+                                                            AllowPaging="true"
+                                                            AllowSorting="true"
+                                                            AllowFiltering="false"
+                                                            LoadData="LoadComsTasks"
+                                                            Data="@comsFilteredTaskList"
+                                                            Sort="OnSortDataComsTasks"
+                                                            TItem="TaskVM"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                            ShowPagingSummary="true">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="TaskVM"
+                                                                          Title="@translationState.Translate("Action")"
+                                                                          Filterable="false"
+                                                                          Sortable="false"
+                                                                          Width="100px"
+                                                                          TextAlign="TextAlign.Center">
+                                                        <Template Context="rowItem">
+                                                            @if (!rowItem.IsSystemGenerated)
+                                                            {
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                              Icon="send"
+                                                                              Title="@translationState.Translate("Response")"
+                                                                              Size="ButtonSize.Small"
+                                                                              Click="@((args) => TaskResponse(rowItem))"
+                                                                @onclick:stopPropagation="true" />
+                                                            }
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="viewIcon"
+                                                                          Title="@translationState.Translate("View_TaskDetails")"
+                                                                          Icon="chrome_reader_mode"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => DetailTaskDetails(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="viewIcon"
+                                                                          title="@translationState.Translate("View_Item_History")"
+                                                                          Icon="history"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => ViewItemHistory(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="ReferenceNumber" Title="@translationState.Translate("Reference_No")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="CreatedDate" Title="@translationState.Translate("Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RequestGovtEntityNameEn" : "RequestGovtEntityNameAr")" Title="@translationState.Translate("Govt_Entity")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="Name" Title="@translationState.Translate("Action_Required")">
+                                                        <Template Context="rowItem">
+                                                            <RadzenLabel title="@translationState.Translate(rowItem.Name)"  Text="@translationState.Translate(rowItem.Name)" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="AssignedBy" Title="@translationState.Translate("Sent_By")">
+                                                        <Template Context="rowItem">
+                                                            @if (rowItem.EntityId != null)
+                                                            {
+                                                                <RadzenLabel title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" />
+                                                            }
+                                                            @if (rowItem.EntityId == null)
+                                                            {
+                                                                <RadzenLabel title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.AssignedByEn): translationState.Translate(rowItem.AssignedByAr))" Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.AssignedByEn): translationState.Translate(rowItem.AssignedByAr))" />
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </RadzenCard>
+                                }
+                                @if (loginState.UserDetail.SectorTypeId != null && loginState.UserDetail.SectorTypeId > 0 && (loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.PrivateOperationalSector || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.FatwaPresidentOffice))
+                                {
+                                    <RadzenCard class="m-2">
+                                        <div class="row pb-2">
+                                            <div class="col-md-4">
+                                                <h2 class="formHeading">@translationState.Translate("Tasks")</h2>
+                                                <div class="divider"></div>
+                                            </div>
+                                        </div>
+                                        <div class="row no-gutters">
+                                            <div class="col-md-4">
+                                                <RadzenTextBox class="searchBox"
+                                                @bind-Value="@searchCmsComs"
+                                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                                               Name="Textbox0"
+                                                               @oninput="@(async(args) => {await OnCmsComsTasksSearchInput($"{args.Value}");})" />
+                                             </div>
+                                            <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                                <RadzenButton class="addBtn"
+                                                              Icon="search"
+                                                              Text="@translationState.Translate("Advanced_Search")"
+                                                              Click="() => ToggleAdvanceSearch(false)" />
+                                            </div>
+                                        </div>
+                                        <div class="row tableContent table-responsive no-gutters pb-3">
+                                            <RadzenDataGrid @ref="gridCMSComs"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            Count="@(CMScomsTaskList?.Any() == true ? CMScomsTaskList.FirstOrDefault().TotalCount : 0)"
+                                                            AllowPaging="true"
+                                                            AllowSorting="true"
+                                                            AllowFiltering="false"
+                                                            LoadData="LoadCMSCOMSTasks"
+                                                            Data="@filteredCmsComsTaskList"
+                                                            Sort="OnSortDataCmsComsTasks"
+                                                            TItem="TaskVM"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                            ShowPagingSummary="true">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="TaskVM"
+                                                                          Title="@translationState.Translate("Action")"
+                                                                          Filterable="false"
+                                                                          Sortable="false"
+                                                                          Width="100px"
+                                                                          TextAlign="TextAlign.Center">
+                                                        <Template Context="rowItem">
+                                                            @if (!rowItem.IsSystemGenerated)
+                                                            {
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                              Icon="send"
+                                                                              Title="@translationState.Translate("Response")"
+                                                                              Size="ButtonSize.Small"
+                                                                              Click="@((args) => TaskResponse(rowItem))"
+                                                                @onclick:stopPropagation="true" />
+                                                            }
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="viewIcon"
+                                                                          Title="@translationState.Translate("View_TaskDetails")"
+                                                                          Icon="chrome_reader_mode"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => DetailTaskDetails(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="ReferenceNumber" Title="@translationState.Translate("Reference_No")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="CreatedDate" Title="@translationState.Translate("Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+                                                    @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                    {
+                                                        <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="RequestGovtEntityNameEn" Title="@translationState.Translate("Govt_Entity")" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="RequestGovtEntityNameAr" Title="@translationState.Translate("Govt_Entity")" />
+                                                    }
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="Name" Title="@translationState.Translate("Action_Required")">
+                                                        <Template Context="rowItem">
+                                                            <RadzenLabel title="@translationState.Translate(rowItem.Name)" Text="@translationState.Translate(rowItem.Name)" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="AssignedBy" Title="@translationState.Translate("Sent_By")">
+                                                        <Template Context="rowItem">
+                                                            @if (rowItem.EntityId != null)
+                                                            {
+                                                                <RadzenLabel title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))" />
+                                                            }
+                                                            @if (rowItem.EntityId == null)
+                                                            {
+                                                                <RadzenLabel title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.AssignedByEn) : translationState.Translate(rowItem.AssignedByAr))" Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.AssignedByEn) : translationState.Translate(rowItem.AssignedByAr))" />
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </RadzenCard>
+                                }
+                                <RadzenCard class="m-2">
+                                    <div class="row pb-2">
+                                        <div class="col-md-4">
+                                            <h2 class="formHeading">@translationState.Translate("Tasks")</h2>
+                                            <div class="divider"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row no-gutters">
+                                        <div class="col-md-4">
+                                            <RadzenTextBox class="searchBox"
+                                            @bind-Value="@search"
+                                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                                           Name="Textbox0"
+                                                           @oninput="@(async(args) => {await OnTasksSearchInput($"{args.Value}");})" />
+                                         </div>
+                                        <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                            <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add_Task")" Click="@AddTask" />
+                                            <RadzenButton class="addBtn"
+                                                          Icon="search"
+                                                          Text="@translationState.Translate("Advanced_Search")"
+                                                          Click="() => ToggleAdvanceSearch(true)" />
+                                        </div>
+                                    </div>
+                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                        <RadzenDataGrid @ref="grid"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        Count="@(getTaskList?.Any() == true ? getTaskList.FirstOrDefault().TotalCount : 0)"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        AllowFiltering="false"
+                                                        LoadData="LoadTasks"
+                                                        Data="@FilteredTaskList"
+                                                        Sort="OnSortTasks"
+                                                        TItem="TaskVM"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="TaskVM"
+                                                                      Title="@translationState.Translate("Action")"
+                                                                      Filterable="false"
+                                                                      Sortable="false"
+                                                                      Width="100px"
+                                                                      TextAlign="TextAlign.Center">
+                                                    <Template Context="rowItem">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                      Class="viewIcon"
+                                                                      Title="@translationState.Translate("Details")"
+                                                                      Icon="visibility"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => DetailTask(rowItem))"
+                                                        @onclick:stopPropagation="true" />
+                                                        @if (rowItem.TaskStatusId != (int)TaskStatusEnum.Done && loginState.UserRoles.Any(u => u.RoleId == SystemRoles.HOS) && loginState.UserDetail.SectorTypeId == rowItem.SectorId)
+                                                        {
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="editIcon"
+                                                                          Icon="mode"
+                                                                          Title="@translationState.Translate("Edit")"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => EditTask(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                        }
+                                                        @if (!rowItem.IsSystemGenerated)
+                                                        {
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                          Icon="send"
+                                                                          Title="@translationState.Translate("Response")"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => TaskResponse(rowItem))"
+                                                            @onclick:stopPropagation="true" />
+                                                        }
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                      Class="viewIcon"
+                                                                      Title="@translationState.Translate("View_TaskDetails")"
+                                                                      Icon="chrome_reader_mode"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => DetailTaskDetails(rowItem))"
+                                                        @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="160px" Property="ReferenceNumber" Title="@translationState.Translate("Reference_No")" />
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="143px" Property="TaskNo" Title="@translationState.Translate("Task_Number")" />
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="Name" Title="@translationState.Translate("Task_Name")" />
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="80px" Property="Date" Title="@translationState.Translate("Task_Date")" FormatString="{0:dd/MM/yyyy}" />
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="140px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AssignedByEn" : "AssignedByAr" )" Title="@translationState.Translate("Assigned_By")" />
+                                                <RadzenDataGridColumn TItem="TaskVM" Width="100px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StatusNameEn" : "StatusNameAr" )" Title="@translationState.Translate("Status")" />
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </RadzenCard>
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+    @*Advance search Window*@
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="false" Resizable="false" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="() => ToggleAdvanceSearch(false)"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row" Style="margin-top:10px;">
+                <div class="col-md-6" style="padding-left: 10px;">
+                    <RadzenLabel Text="@translationState.Translate("From_Date")" Component="From_Date" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="From_Date" @bind-Value="@advanceSearchVM.FromDate" />
+                </div>
+                <div class="col-md-6" style="padding-left: 10px;">
+                    <RadzenLabel Text="@translationState.Translate("To_Date")" Component="To_Date" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="To_Date" @bind-Value="@advanceSearchVM.ToDate" />
+                </div>
+            </div>
+            <div class="row" Style="margin-top:10px;">
+                <div class="col-md-6" style="padding-left: 10px;">
+                    <RadzenLabel Text="@translationState.Translate("From_Hearing_Date")" Component="From_Date" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="From_Date" @bind-Value="@advanceSearchVM.FromHearingDate" />
+                </div>
+                <div class="col-md-6" style="padding-left: 10px;">
+                    <RadzenLabel Text="@translationState.Translate("To_Hearing_Date")" Component="To_Date" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="To_Date" @bind-Value="@advanceSearchVM.ToHearingDate" />
+                </div>
+            </div>
+            <div class="row" Style="margin-top:10px;">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Goverment_Entity")" Component="Entity" />
+                    <RadzenDropDown Data="@GovermentEntities" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="EntityId" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchVM.GovermentEntityId" Name="Entity" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Refrence_Number")" Component="Number" /> <br />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Refrence_Number")" @bind-Value="@advanceSearchVM.ReferenceNumber" Name="Number" />
+                </div>
+            </div>
+            <div class="row" Style="margin-top:10px;">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Is_Important")" Component="CheckBox" /> <br />
+                    <RadzenCheckBox @bind-Value=@advanceSearchVM.IsImpportant Name="CheckBox" />
+                </div>
+            </div>
+            <div class="row justify-content-end pt-3">
+                <div class="col-md-12 popup-buttons-alignment">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

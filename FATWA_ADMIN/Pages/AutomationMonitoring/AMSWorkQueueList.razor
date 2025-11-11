@@ -1,0 +1,207 @@
+﻿@page "/Queue-list"
+@page "/Queue-list/{ProcessId}"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.AutomationMonitoring;
+@*< History Author = 'Ijaz Ahmad' Date = '2024-06-24' Version = "1.0" Branch = "master"> Queue List </History>*@
+<PageTitle>@translationState.Translate("Queue_List")</PageTitle>
+
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.AutoMonInterface"))
+{
+<div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                @if (@ProcessId != null)
+                {
+                    <RadzenBreadCrumbItem Path="/process-list" Text="@translationState.Translate("Process_List")" />
+                }
+                <RadzenBreadCrumbItem Text="@translationState.Translate("Queue_List")" />
+            </RadzenBreadCrumb>
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+        <div class="backtoDashboard">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                          class="returnBtn"
+                          Icon="home" Click="@GoBackHomeScreen" />
+        </div>
+    </div>
+</div>
+<div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenHeading Size="H1" Text="@translationState.Translate("Queue_List")" />
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end ">
+    </div>
+</div>
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenCard>
+                    <div class="row col-md-12 pt-3">
+
+                        <div class="col-md-12 " style="margin-bottom:5px">
+                            <div class="row pb-2">
+                                <div class="col-9 datagrid-rz-label">
+                                    @if (@ProcessId != null)
+                                    {
+                                        <div class="row no-gutters">
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3> @translationState.Translate("Process_Name"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@ProcessName</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                                           Style="display: block; margin-bottom: 10px; width: 100%"
+                                           Name="Textbox0"
+                                @oninput="@(async(args) => {await QueueGrid.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                         </div>
+                        <div class="col-md-8 tableAdditionButton addPrincipleBtn px-0 d-flex justify-content-end pb-2">
+                            <RadzenButton class="addBtn"
+                                          Icon="search"
+                                          Text="@translationState.Translate("Advanced_Search")"
+                                          Click="ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="tableContent table-responsive no-gutters pb-3">
+                            <RadzenDataGrid @ref="QueueGrid"
+                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                Count="@(FilteredQueue != null ? FilteredQueue.Count() : 0)"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            AllowFiltering="false"
+                                            Data="@FilteredQueue"
+                                            TItem="AutomationMonitoringQueueVM"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                            ShowPagingSummary="true">
+
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="15px" TextAlign="TextAlign.Center">
+                                        <Template Context="rowItem">
+                                            <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                          Class="viewIcon"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DetailsQueueItem(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="38px" Property="QueueName" Title="@translationState.Translate("Name")" />
+                                    <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="25px" FormatString="{0:dd/MM/yyyy}" Property="CreatedDate" Title="@translationState.Translate("Created_Date")" />
+                                    <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="30px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StatusNameEn" : "StatusNameAr")" Title="@translationState.Translate("Status")">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="25px" Property="ItemCount" Title="@translationState.Translate("Item_Count")" />
+                                    <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="30px" Property="PendingItems" Title="@translationState.Translate("Pending_Items")" />
+                                    <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="34px" Property="CompletedItems" Title="@translationState.Translate("Completed_Items")">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="30px" Property="LockedItems" Title="@translationState.Translate("Locked_Items")" />
+                                    <RadzenDataGridColumn TItem="AutomationMonitoringQueueVM" Width="32px" Property="ExceptionItems" Title="@translationState.Translate("Exception_Items")">
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </RadzenCard>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+@*Advance search Window*@
+<TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+    <WindowTitle>
+        <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+    </WindowTitle>
+    <WindowActions>
+        <WindowAction Name="Minimize"></WindowAction>
+        <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+    </WindowActions>
+    <WindowContent>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenLabel Text="@translationState.Translate("Status")" Component="Status" />
+                <RadzenDropDown Data="@Statuses" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                Style="display:block;" @bind-Value="@advanceSearchVM.StatusId" Name="Status" />
+            </div>
+        </div>
+        <div class="row" Style="margin-top:10px;">
+
+            <div class="col-md-6" style="padding-left: 10px;">
+                <RadzenLabel Text="@translationState.Translate("Created_From")" Component="Created_From" />
+                <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Created_From" @bind-Value="@advanceSearchVM.CreatedFrom" />
+            </div>
+            <div class="col-md-6" style="padding-left: 10px;">
+                <RadzenLabel Text="@translationState.Translate("Created_To")" Component="Created_To" />
+                <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Created_To" @bind-Value="@advanceSearchVM.CreatedTo" />
+            </div>
+
+        </div>
+        <div class="row justify-content-end pt-3">
+            <div class="col-md-12 popup-buttons-alignment">
+                <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                @if (Keywords == true)
+                {
+                    <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                }
+            </div>
+        </div>
+    </WindowContent>
+</TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+<style>
+    .rz-switch .rz-switch-circle:before {
+        width: 0.85rem;
+        height: 0.85rem;
+        left: 0.2rem;
+        margin-top: -0.4rem;
+    }
+
+    .rz-switch {
+        width: 2.5rem;
+        min-width: 2.5rem;
+        height: 1.5rem;
+    }
+
+    .rz-switch-circle {
+        top: 1px;
+        left: 1px;
+        right: 0px;
+        bottom: 1px;
+    }
+
+    .txtmsg:hover {
+        font-size: 15px !important;
+    }
+
+    .multilinetext {
+        white-space: pre-wrap;
+    }
+</style>

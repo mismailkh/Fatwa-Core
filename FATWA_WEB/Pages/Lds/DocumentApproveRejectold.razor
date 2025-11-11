@@ -1,0 +1,350 @@
+﻿@*@page "/lds-documents-approve-rject/{DocumentId}"
+@using Blazored.LocalStorage
+@using FATWA_DOMAIN.Models
+@using FATWA_WEB.Services
+@using Syncfusion.Blazor
+@using System.Text.Json
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using System.Reflection
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_GENERAL.Helper.Enum
+@using static FATWA_GENERAL.Helper.Response
+@using static FATWA_DOMAIN.Enums.WorkflowEnums
+@inject ILocalStorageService BrowserStorage
+@inherits DocumentApproveRejectComponent
+@inject FATWA_WEB.Data.LoginState loginState
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LDS.Documents.DocumentApproveReject").Count() > 0)
+{
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/lds-documents-approval" Text="@translationState.Translate("Legal_Document_Approval")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Legal_Document_Approval_Reject")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Legal_Document_Approval_Reject")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            <RadzenTemplateForm TItem="LdsDocument"
+                            Data="@getLdsDocumentViewResult"
+                            Visible="@(getLdsDocumentViewResult != null)"
+                            Submit="@FormSubmit">
+                <ChildContent>
+                    <div class="row d-block justify-content-left mainContentBlock p-0">
+                        <RadzenAccordion>
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Document_MetaData_Information")">
+                                    <div class="row no-gutters">
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Title")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(getLdsDocumentViewResult.Title)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Description")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(getLdsDocumentViewResult.Description)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Created_By")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(getLdsDocumentViewResult.CreatedBy)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Reference")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(getLdsDocumentViewResult.Reference)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Applied_Date")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(getLdsDocumentViewResult.AppliedDate)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Document_Issue_Date")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(getLdsDocumentViewResult.IssueDate)</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    </div>
+                    <div class="row justify-content-center mainContentBlock py-4">
+                        <div class="col-md-12">
+                            <div class="row no-gutters formHeadingSection">
+                                <div class="col-md-6">
+                                    <h3 class="formHeading">@translationState.Translate("Content_Section")</h3>
+                                    <div class="divider"></div>
+                                </div>
+                                <div class="col-md-6 d-flex justify-content-end tableAdditionButton  px-0 pb-3">
+                                </div>
+                            </div>
+                            <div class="row tableContent table-responsive no-gutters pb-3">
+                                <SfPdfViewerServer EnableNavigationToolbar="false" ID="pdfviewer" DocumentPath="@DocumentPath" @ref="@pdfViewer" ToolbarSettings="@ToolbarSettings" InteractionMode="InteractionMode.Pan" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center mainContentBlock py-4">
+                        <div class="col-md-12">
+                            <div class="row no-gutters formHeadingSection">
+                                <div class="col-md-6">
+                                    <h3 class="formHeading">@translationState.Translate("Decision_Section")</h3>
+                                    <div class="divider"></div>
+                                </div>
+                                <div class="col-md-6 d-flex justify-content-end tableAdditionButton  px-0 pb-3">
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top:10px;">
+                                <div class="col-lg-12">
+                                    <RadzenCard Style="width: 100%; overflow: hidden;">
+                                        <div class="flex-row">
+                                            @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                            {
+                                                <div style="margin-bottom: 1rem" class="row">
+                                                    <div class="col-md-3">
+                                                        <RadzenLabel Text="@translationState.Translate("Decision")" Component="Decision" style="width: 100%"> </RadzenLabel>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <RadzenDropDownDataGrid Data="@getDocumentApprovalType"
+                                                                        TextProperty="Name"
+                                                                        ValueProperty="DecisionId"
+                                                                        Placeholder="@translationState.Translate("Select_Decision")"
+                                                                        ShowSearch="false" style="display: block; width: 100%"
+                                                                        @bind-Value="@(getLdsDocumentViewResult.Status)"
+                                                                        Name="DecisionId">
+                                                        </RadzenDropDownDataGrid>
+                                                        <RadzenRequiredValidator Component="DecisionId" Text="@translationState.Translate("Required_Decision")" style="position: absolute" DefaultValue="0">
+                                                        </RadzenRequiredValidator>
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div style="margin-bottom: 1rem" class="row">
+                                                    <div class="col-md-3">
+                                                        <RadzenLabel Text="@translationState.Translate("Decision")" Component="Decision" style="width: 100%"> </RadzenLabel>
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        <RadzenDropDownDataGrid Data="@getDocumentApprovalType"
+                                                                        TextProperty="Name_Ar"
+                                                                        Title="@translationState.Translate("Decision")"
+                                                                        ValueProperty="DecisionId"
+                                                                        Placeholder="@translationState.Translate("Select_Decision")"
+                                                                        ShowSearch="false" style="display: block; width: 100%"
+                                                                        @bind-Value="@(getLdsDocumentViewResult.Status)"
+                                                                        Name="DecisionId">
+                                                            <Columns>
+                                                                <RadzenDropDownDataGridColumn Property="Name_Ar" Title="@translationState.Translate("Name")" />
+                                                            </Columns>
+                                                        </RadzenDropDownDataGrid>
+                                                        <RadzenRequiredValidator Component="DecisionId" Text="@translationState.Translate("Name")" style="position: absolute" DefaultValue="0">
+                                                        </RadzenRequiredValidator>
+
+                                                    </div>
+                                                </div>
+                                            }
+
+
+                                            <div style="margin-bottom: 1rem;" class="row">
+                                                <div class="col-md-3">
+                                                    <RadzenLabel Text="@translationState.Translate("Comment")" Component="Comment" style="width: 100%"> </RadzenLabel>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    @if (getLdsDocumentViewResult.Status == (int)DocumentApprovalStatus.SendAComment)
+                                                    {
+                                                        <RadzenTextArea Placeholder="@translationState.Translate("Comment")" Name="Comment" @bind-Value="@(getLdsDocumentViewResult.Comment)" Cols="54" Rows="3" />
+                                                        <RadzenLengthValidator Component="Comment" Min="2" Text="@translationState.Translate("Required_Comment_Min_Length")" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <RadzenTextArea Placeholder="@translationState.Translate("Comment")" Name="Comment" @bind-Value="@(getLdsDocumentViewResult.Comment)" Cols="54" Rows="3" />
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col offset-sm-3">
+                                                    <RadzenButton Class="nextBtn" Text="@translationState.Translate("Send")"
+                                                              ButtonStyle="ButtonStyle.Success"
+                                                              ButtonType="Radzen.ButtonType.Submit" />
+                                                    <RadzenButton Class="cancleBtn" Text="@translationState.Translate("Cancel")"
+                                                              ButtonStyle="ButtonStyle.Light"
+                                                              Style="margin-left: 1rem"
+                                                              Click="@ButtonCloseDialog" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </RadzenCard>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </ChildContent>
+            </RadzenTemplateForm>
+        </ChildContent>
+    </RadzenContent>
+
+    @code {
+
+    async Task FormSubmit(LdsDocument args)
+    {
+
+        try
+        {
+            string dialogMsg = null;
+            string notificationMsg = null;
+
+            if (args.Status == (int)FATWA_GENERAL.Helper.Enum.DocumentApprovalStatus.Approve)
+            {
+                dialogMsg = @translationState.Translate("Approve_Document_Draft");
+                notificationMsg = @translationState.Translate("Approve_Document_Draft_Success");
+            }
+            else if (args.Status == (int)FATWA_GENERAL.Helper.Enum.DocumentApprovalStatus.Reject)
+            {
+                dialogMsg = @translationState.Translate("Reject_Document_Draft");
+                notificationMsg = @translationState.Translate("Reject_Document_Draft_Success");
+            }
+            else if (args.Status == (int)FATWA_GENERAL.Helper.Enum.DocumentApprovalStatus.NeedToModify)
+            {
+                dialogMsg = @translationState.Translate("Modify_Document_Draft");
+                notificationMsg = @translationState.Translate("Modify_Document_Draft_Success");
+            }
+            else if (args.Status == (int)FATWA_GENERAL.Helper.Enum.DocumentApprovalStatus.SendAComment)
+            {
+                dialogMsg = @translationState.Translate("Send_Comment_Document_Draft");
+                notificationMsg = @translationState.Translate("Send_Comment_Document_Draft_Success");
+            }
+
+            bool? dialogResponse = await DialogService.Confirm(
+    dialogMsg,
+    @translationState.Translate("Confirm"),
+    new ConfirmOptions()
+            {
+                OkButtonText = @translationState.Translate("OK"),
+                CancelButtonText = @translationState.Translate("Cancel")
+            });
+
+            if (dialogResponse == true)
+            {
+
+                legalDocument.DocumentReviewDate = DateTime.Now;
+                legalDocument.DocumentReviewerName = await BrowserStorage.GetItemAsync<string>("User");
+                if (args.Status == (int)FATWA_GENERAL.Helper.Enum.DocumentApprovalStatus.Reject)
+                {
+                    await ShowReasonDialog();
+                }
+                else
+                {
+                    await SavePdfContent();
+                    
+                    await workflowService.ProcessWorkflowActvivities(legalDocument, WorkflowModuleEnum.LDSDocument);
+
+                    notificationService.Notify(new NotificationMessage()
+                    {
+                        Severity = NotificationSeverity.Success, 
+                        Detail = notificationMsg,
+                        Style = "position: fixed !important; left: 0; margin: auto; "
+                    });
+
+                    DialogService.Close(null);
+
+                    navigationManager.NavigateTo("/lds-documents-approval");
+                }
+            }
+            else
+            {
+                dialogResponse = await DialogService.Confirm(
+        @translationState.Translate("Sure_Cancel"),
+        @translationState.Translate("Confirm_Cancel"),
+        new ConfirmOptions()
+                {
+                    CloseDialogOnOverlayClick = true,
+                    OkButtonText = @translationState.Translate("OK"),
+                    CancelButtonText = @translationState.Translate("Cancel")
+                });
+
+                if (dialogResponse == true)
+                {
+                    DialogService.Close(null);
+                    await Load();
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+                notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Detail = translationState.Translate("Something_Went_Wrong"),
+                    Style = "position: fixed !important; left: 0; margin: auto; "
+                });
+        }
+    }
+
+    async Task ShowReasonDialog()
+    {
+        var result = await DialogService.OpenAsync
+        (
+    @translationState.Translate("Rejection_Reason"),
+    ds =>
+    @<div>
+        <RadzenTemplateForm TItem="LdsDocument" Data="@getLdsDocumentViewResult" Visible="@(getLdsDocumentViewResult != null)" Submit="@FormReasonSubmit">
+            <div style="margin-bottom: 1rem;" class="row">
+                <div class="col-md-3">
+                    <RadzenLabel Text="@translationState.Translate("Reason")" Component="Reason" style="width: 100%"> </RadzenLabel>
+                </div>
+                <div class="col-md-9">
+                    <RadzenTextArea Placeholder="@translationState.Translate("Reason")" Name="Reason" @bind-Value="@(getLdsDocumentViewResult.Reason)" Cols="52" Rows="3" />
+                    <RadzenLengthValidator Component="Reason" Min="2" Text="@translationState.Translate("Required_Reason_Min_Length")" />
+                    <RadzenLengthValidator Component="Reason" Max="1000" Text="@translationState.Translate("Required_Reason_Max_Length")" />
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col offset-sm-3">
+                    <RadzenButton Text="@translationState.Translate("Send")" ButtonStyle="ButtonStyle.Success" ButtonType="Radzen.ButtonType.Submit"></RadzenButton>
+                </div>
+            </div>
+        </RadzenTemplateForm>
+    </div>
+    );
+    }
+}
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+*@

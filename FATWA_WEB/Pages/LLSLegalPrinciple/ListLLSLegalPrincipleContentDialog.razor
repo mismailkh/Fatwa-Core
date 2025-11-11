@@ -1,0 +1,90 @@
+﻿@page "/list-principleContents"
+@using FATWA_DOMAIN.Models.LLSLegalPrinciple
+@using FATWA_DOMAIN.Models.ViewModel.LLSLegalPrinciple
+@using System.Text.RegularExpressions
+
+<PageTitle>@translationState.Translate("Principle_Contents")</PageTitle>
+
+        <div class="row justify-content-center mainContentBlock py-4">
+            <div class="col-md-12">
+
+                <div class="row no-gutters">
+                    @* <div class="col-md-4 ">
+                    <RadzenTextBox class="searchBox"
+                    Placeholder="@translationState.Translate("Grid_Search")"
+                    Name="Textbox0"
+                    @oninput="@(async(args) => {search = $"{args.Value}";await grid.GoToPage(0);await OnSearchInput();})" />
+                    </div> *@
+                    @* <div class="col-md-8 tableAdditionButton addPrincipleBtn px-0 pb-3">
+                    <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add_Service_Request")" Click="@AddServiceRequest" />
+                    <RadzenButton class="addBtn"
+                    Icon="search"
+                    Text="@translationState.Translate("Advanced_Search")"
+                    Click="@ToggleAdvanceSearch" />
+                    </div> *@
+                </div>
+
+                <div class="row tableContent table-responsive no-gutters pb-3">
+                    <RadzenDataGrid AllowFiltering="false"
+                                    EmptyText="@translationState.Translate("No_record_found")"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    Data="@FilteredLLSLegalPrincipleContents"
+                                    TItem="LLSLegalPrincipleContent"
+                                    PageSize="@systemSettingState.Grid_Pagination"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                    ShowPagingSummary="true"
+                                    ColumnWidth="200px">
+                        <Columns>
+                            @* <RadzenDataGridColumn TItem="LLSLegalPrincipleContent" Title="@translationState.Translate("Actions")" Filterable="false" Sortable="false" Width="130px" TextAlign="TextAlign.Center">
+                                <Template Context="rowItem">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                  class="approvalIcon"
+                                                  Icon="visibility"
+                                                  Title="@translationState.Translate("View_Detail")"
+                                                  Size="ButtonSize.Small"
+                                                  Click="@((args) => LLSLegalPrincipleDetail(rowItem.PrincipleContentId))"
+                                                  @onclick:stopPropagation="true" />
+                                </Template>
+                            </RadzenDataGridColumn> *@
+                            @* <RadzenDataGridColumn TItem="LLSLegalPrinciplePrincipleContent" Property="StartDate" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Start_Date")" /> *@
+                            @* <RadzenDataGridColumn TItem="LLSLegalPrinciplePrincipleContent" Property="EndDate" Title="@translationState.Translate("End_Date")" /> *@
+                            <RadzenDataGridColumn TItem="LLSLegalPrincipleContent" Property="PrincipleContent" Title="@translationState.Translate("Principle_Content")">
+                                <Template Context="data">
+                                    @if (data.PrincipleContent != null)
+                                    {
+                                        @if (data.PrincipleContent.Length > 300)
+                                        {
+                                            <a style="color:black" href="#" @onclick="@(() => OnPrincipleContentDetail(LLSLegalPrincipleContents.Where(x=>x.PrincipleContentId == data.PrincipleContentId).Select(x=>x.PrincipleContent).FirstOrDefault()))" @onclick:preventDefault>
+
+                                                @(data.PrincipleContent)
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            @data.PrincipleContent
+                                        }
+                                    }
+                                </Template>
+                            </RadzenDataGridColumn>
+                        </Columns>
+                    </RadzenDataGrid>
+                </div>
+            </div>
+        </div>
+
+@code {
+    async Task OnPrincipleContentDetail(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Principle_Content"), ds =>
+    @<div clas s="col-12 mt-0 mb-2">
+        @(new MarkupString(args))
+    </div>
+        , new DialogOptions
+        {
+            Width = "60%"
+        });
+    }
+}

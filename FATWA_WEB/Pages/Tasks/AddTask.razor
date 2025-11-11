@@ -1,0 +1,435 @@
+﻿@page "/usertask-add"
+@page "/usertask-add/{TaskId}"
+
+@using FATWA_DOMAIN.Models.TaskModels;
+@using FATWA_DOMAIN.Models.ViewModel.TaskVMs;
+
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.TaskEnums;
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+
+@layout MainLayout
+
+<!--<History Author = "Zain Ul Islam" Date="2022-12-01" Version="1.0" Branch="master">Add Task </History>-->
+<PageTitle>@translationState.Translate("Add_Task")</PageTitle>
+
+<RadzenContent Container="main">
+    <RadzenTemplateForm Data="@saveTask" Visible="@(saveTask != null)" TItem="SaveTaskVM" Submit="@FormSubmit">
+        <ChildContent>
+            <div class="row justify-content-center align-items-center breadcrumbBar pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/usertask-list" Text="@translationState.Translate("Tasks_List")" />
+                            <RadzenBreadCrumbItem Text="@(!isEdit ? translationState.Translate("Add_Task") :translationState.Translate("Edit_Task"))" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-start align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@(!isEdit ? translationState.Translate("Add_Task") : translationState.Translate("Edit_Task") + "*")"></RadzenHeading>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-6">
+                    <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+                        <HeaderTemplate>
+                            <span class="d-inline-flex align-items-center align-middle">
+                                <RadzenIcon Class="me-1" /><b>@translationState.Translate("Task_Details")</b>
+                            </span>
+                        </HeaderTemplate>
+                        <ChildContent>
+                            <div class="row">
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("Task_Number")" Component="Task_Number" Style="width: 100%" />
+                                        <RadzenNumeric Placeholder="@translationState.Translate("Task_Number")"
+                                                       @bind-Value="@(saveTask.Task.TaskNumber)"
+                                                       Name="Task_Number"
+                                                       Disabled />
+
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group textboxsavemeeting">
+                                        <RadzenLabel Text="@translationState.Translate("Task_Date")" Component="Task_Date" Style="width: 100%" />
+                                        @*<RadzenDatePicker Min="DateTime.Now.Date"
+                                        @bind-Value="@(saveTask.Task.Date)"
+                                        DateFormat="dd/MM/yyyy"
+                                        Disabled />*@
+                                        <TelerikDatePicker Enabled="false" Format="dd/MM/yyyy" Min="DateTime.Now.Date" @bind-Value="@(saveTask.Task.Date)" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Type")+ "*")" Component="Task_Type" Style="width: 100%" />
+                                        <RadzenDropDown @ref="@ddlTaskType"
+                                                        Data="@TaskTypes"
+                                                        @bind-Value="saveTask.Task.TypeId"
+                                                        ValueProperty="TypeId"
+                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "NameEn" : "NameAr")"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        Name="Task_Type"
+                                                        AllowFiltering="true"
+                                                        AllowClear="true"
+                                                        Change=@(args => PopulateFileRequestNumber(true))
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                                        <RadzenRequiredValidator Component="Task_Type" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Sub_Type")+ "*")" Component="Task_Sub_Type" Style="width: 100%" />
+                                        <RadzenDropDown @ref="@ddlTaskSubType"
+                                                        Data="@TaskSubTypes"
+                                                        @bind-Value="saveTask.Task.SubTypeId"
+                                                        ValueProperty="SubTypeId"
+                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "NameEn" : "NameAr" )"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        Name="Task_Sub_Type"
+                                                        AllowFiltering="true"
+                                                        AllowClear="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                                        <RadzenRequiredValidator Component="Task_Sub_Type" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Priority")+ "*")" Component="Task_Priority" Style="width: 100%" />
+                                        <RadzenDropDown @ref="@ddlPriority"
+                                                        @bind-Value="saveTask.Task.PriorityId"
+                                                        Data="@Priorities"
+                                                        ValueProperty="Id"
+                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" :"Name_Ar" )"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        Name="Task_Priority"
+                                                        AllowFiltering="true"
+                                                        AllowClear="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+
+                                        <RadzenRequiredValidator Component="Task_Priority" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("Due_Date")" Component="Due_Date" Style="width: 100%" />
+                                        <TelerikDatePicker Format="dd/MM/yyyy" Min="DateTime.Now.Date" @bind-Value="@(saveTask.Task.DueDate)" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Task_Name")+ "*")" Component="Task_Name" Style="width: 100%" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Name")"
+                                                       @bind-Value="@(saveTask.Task.Name)"
+                                                       Name="Task_Name"
+                                                       Style="width:100%;" />
+                                        <RadzenLengthValidator Component="Task_Name" Min="2" Text="@translationState.Translate("Name_MinLength_Required")" />
+                                        <RadzenLengthValidator Component="Task_Name" Max="55" Text="@translationState.Translate("Name_MaxLength_Required")" />
+                                        <RadzenRegexValidator Component="Task_Name" Text="@translationState.Translate("Cannot_have_trailing_spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Task_Description")+ "*")" Component="Task_Description" Style="width: 100%" />
+                                        <RadzenTextArea Placeholder="@translationState.Translate("Description")"
+                                                        @bind-Value="@(saveTask.Task.Description)"
+                                                        Name="Task_Description" />
+                                        <RadzenLengthValidator Component="Task_Description" Min="2" Text="@translationState.Translate("Description_MinLength_Required")" />
+                                        <RadzenLengthValidator Component="Task_Description" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")" />
+                                        <RadzenRegexValidator Component="Task_Description" Text="@translationState.Translate("Cannot_have_trailing_spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Url")+ "*")" Component="Task_Url" Style="width: 100%" />
+                                        <RadzenTextArea Placeholder="@translationState.Translate("Url")" @bind-Value="@(saveTask.Task.Url)" Name="Task_Url" />
+                                        <RadzenRequiredValidator Component="Task_Url" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenRegexValidator Component="Task_Url" Text="@translationState.Translate("Cannot_have_trailing_spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                                        <RadzenLengthValidator Component="Task_Url" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("FileNoOrRequestNo")+ "*")" Component="Task_FileNoOrRequestNo" Style="width: 100%" />
+                                        <RadzenDropDown @ref="@ddlFileRequestNumber"
+                                                        @bind-Value="saveTask.Task.ReferenceId"
+                                                        Data="@(saveTask.Task.TypeId==(int)TaskTypeEnum.Task ? FileNumbers : RequestNumbers)"
+                                                        ValueProperty="@(saveTask.Task.TypeId==(int)TaskTypeEnum.Task ? "FileId" : "RequestId")"
+                                                        TextProperty="@(saveTask.Task.TypeId==(int)TaskTypeEnum.Task ? "FileNumber" : "RequestNumber")"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        Name="Task_FileNoOrRequestNo"
+                                                        AllowFiltering="true"
+                                                        AllowClear="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                                        <RadzenRequiredValidator Component="Task_FileNoOrRequestNo" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                    </div>
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenFieldset>
+                </div>
+
+                <div class="col-6">
+
+                    <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+                        <HeaderTemplate>
+                            <span class="d-inline-flex align-items-center align-middle">
+                                <RadzenIcon Class="me-1" /><b>@translationState.Translate("Action_Item")</b>
+                            </span>
+                        </HeaderTemplate>
+                        <ChildContent>
+                            <div class="row">
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("Action_Name")" Component="Action_Name" Style="width: 100%" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Action_Name")"
+                                                       @bind-Value="@(ActionItem.ActionName)"
+                                                       Name="Action_Name"
+                                                       Style="width:100%;" />
+                                        <RadzenRegexValidator Component="Action_Name" Text="@translationState.Translate("Cannot_have_trailing_spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                                        <RadzenLengthValidator Component="Action_Name" Max="150" Text="@translationState.Translate("Max_One_Hundred_Fifty_Characters")" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("Due_Date")" Component="Action_Due_Date" Style="width: 100%" />
+                                        <TelerikDatePicker Format="dd/MM/yyyy" Min="DateTime.Now.Date" @bind-Value="@(ActionItem.DueDate)" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                      Text="@translationState.Translate("Add")"
+                                                      Click="@AddActionItem" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                        @ref="ActionItemGrid"
+                                                        Data="@GetActionItemList"
+                                                        AllowFiltering="false"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        TItem="TaskAction"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="TaskAction" Width="120px" Property="ActionName" Title="@translationState.Translate("Name")" />
+                                                <RadzenDataGridColumn TItem="TaskAction" Width="80px" Property="DueDate" Title="@translationState.Translate("Due_Date")" FormatString="{0:dd/MM/yyyy}" />
+                                                <RadzenDataGridColumn TItem="TaskAction"
+                                                                      Title="@translationState.Translate("Action")"
+                                                                      Filterable="false"
+                                                                      Sortable="false"
+                                                                      Width="70px"
+                                                                      TextAlign="TextAlign.Center">
+                                                    <Template Context="rowItem">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                                      Class="deleteIcon"
+                                                                      Icon="delete_outline"
+                                                                      Title="@translationState.Translate("delete")"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => DeleteActionItem(rowItem))"
+                                                                      @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenFieldset>
+
+
+                    <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+                        <HeaderTemplate>
+                            <span class="d-inline-flex align-items-center align-middle">
+                                <RadzenIcon Class="me-1" /><b>@translationState.Translate("Assignee_Details")</b>
+                            </span>
+                        </HeaderTemplate>
+                        <ChildContent>
+                            <div class="row">
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Sector")+ "*")" Component="Sector_Name" Style="width: 100%" />
+                                        <RadzenDropDown @ref="@ddlSector"
+                                                        Data="@Sectors"
+                                                        @bind-Value="saveTask.Task.SectorId"
+                                                        ValueProperty="Id"
+                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        Name="Sector_Name"
+                                                        AllowFiltering="true"
+                                                        AllowClear="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+
+                                        <RadzenRequiredValidator Component="Sector_Name" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Department")+ "*")" Component="Department_Name" Style="width: 100%" />
+                                        <RadzenDropDown @ref="@ddlDepartment"
+                                                        @bind-Value="@saveTask.Task.DepartmentId"
+                                                        Data="@Departments"
+                                                        ValueProperty="Id"
+                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        Name="Department_Name"
+                                                        AllowFiltering="true"
+                                                        AllowClear="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                                        <RadzenRequiredValidator Component="Department_Name" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Module")+ "*")" Component="Module_Name" Style="width: 100%" />
+                                        <RadzenDropDown @ref="@ddlModule"
+                                                        @bind-Value="saveTask.Task.ModuleId"
+                                                        Data="@Modules"
+                                                        ValueProperty="ModuleId"
+                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "ModuleNameEn" : "ModuleNameAr")"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        Name="Module_Name"
+                                                        AllowFiltering="true"
+                                                        AllowClear="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+
+                                        <RadzenRequiredValidator Component="Module_Name" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Role")+ "*")" Component="Role" Style="width: 100%" />
+                                        <RadzenDropDown @ref="@ddlRole"
+                                                        @bind-Value="saveTask.Task.RoleId"
+                                                        Data="@Roles"
+                                                        ValueProperty="Id"
+                                                        TextProperty="Name"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        Name="Role"
+                                                        AllowFiltering="true"
+                                                        AllowClear="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                                        <RadzenRequiredValidator Component="Role" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Assigned_To")+ "*")" Component="Assigned_To" Style="width: 100%" />
+                                        <RadzenDropDown @ref="@ddlAssignTo"
+                                                        @bind-Value="saveTask.Task.AssignedTo"
+                                                        Data="@Assignees"
+                                                        ValueProperty="Id"
+                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "FirstNameEnglish" : "FirstNameArabic")"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        Name="Assigned_To"
+                                                        AllowFiltering="true"
+                                                        AllowClear="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                                        <RadzenRequiredValidator Component="Assigned_To" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                    </div>
+
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenFieldset>
+
+                </div>
+
+                <div class="col-12">
+
+                    <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+                        <HeaderTemplate>
+                            <span class="d-inline-flex align-items-center align-middle">
+                                <RadzenIcon Class="me-1" /><b>@translationState.Translate("Attachment_Details")</b>
+                            </span>
+                        </HeaderTemplate>
+                        <ChildContent>
+                            <div class="row">
+
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("Attachment")" Component="Attachment" Style="width: 100%" />
+                                        <FileUpload ReferenceGuid="@(TaskId != null ? Guid.Parse(TaskId) : saveTask.Task.TaskId)"
+                                                    @bind-DeletedAttachementIds="@saveTask.DeletedAttachementIds"
+                                                    Multiple="true"
+                                                    MaxFileSize="26214400"
+                                                    FileTypes="@( new List<string>() { ".pdf" } )"
+                                                    UploadFrom="Task"
+                                                    HideView="true"
+                                                    MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.Task"
+                                                    ModuleId="(int)WorkflowModuleEnum.Task" />
+                                    </div>
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenFieldset>
+                </div>
+            </div>
+            <div class="row mt-4 popup-buttons-alignment">
+                <div class="col-12 p-0">
+                    <RadzenButton Text="@translationState.Translate("Add")"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  style="margin-right: 1rem"
+                                  ButtonType="Radzen.ButtonType.Submit" />
+                    <RadzenButton Text="@translationState.Translate("Cancel")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@RedirectCancel" />
+
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenTemplateForm>
+</RadzenContent>

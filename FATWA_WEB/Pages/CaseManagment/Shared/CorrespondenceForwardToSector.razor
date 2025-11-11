@@ -1,0 +1,51 @@
+﻿@page "/correspondence-forward-sector/{CommunicationId}"
+
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.CommunicationModels
+@using FATWA_DOMAIN.Models.ViewModel
+
+<PageTitle>@translationState.Translate("Forward_To_Sector")</PageTitle>
+
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-body">
+            <div class="container">
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <RadzenTemplateForm Data="@communicationHistory" Visible="@(communicationHistory != null)" TItem="CommunicationHistory" Submit="@FormSubmit">
+                            <ChildContent>
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Sectors")" Component="Sector" />
+                                    <RadzenDropDown Data="Sectors"
+                                                    AllowFiltering="false"
+                                                    AllowClear="true"
+                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                    ValueProperty="Id"
+                                                    Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;"
+                                                    @bind-Value="@communicationHistory.SectorId"
+                                                    Name="Sector" class="form-control" />
+                                    <RadzenRequiredValidator Component="Sector" Text="@translationState.Translate("Required")" />
+                                </div> 
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Reason")" Component="Reason" />
+                                    <RadzenTextArea Placeholder="@translationState.Translate("Reason")" Cols="20" Rows="5" class="w-100" @bind-Value="@communicationHistory.Reason" Name="Reason" />
+                                    <RadzenRequiredValidator Component="Reason" Text="@translationState.Translate("Required")" />
+                                </div> 
+                                <div class="row popup-buttons-alignment">
+                                    <div class="col-12 p-0"> 
+                                        <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                        </RadzenButton>
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@ButtonCancelClick">
+                                        </RadzenButton>
+                                    </div>
+                                </div>
+                            </ChildContent>
+                        </RadzenTemplateForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

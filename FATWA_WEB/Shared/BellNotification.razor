@@ -1,0 +1,166 @@
+﻿@using FATWA_DOMAIN.Interfaces.Notification
+@using Humanizer
+
+<div class="notificationBar">
+    <div class="notification">
+        <a href="javascript:void(0);">
+            <div class="notBtn" href="#">
+                @if (notificationCount < 99)
+                {
+                    <div class="number notificationtextdirection" style="padding-top: 1.5px;">@notificationCount</div>
+                }
+                else
+                {
+
+                    <div class="number notificationtextdirection" style="width:29px;height:28px">
+                        99+
+                    </div>
+                }
+
+                <RadzenIcon class="material-icons-outlined" Icon="notifications" />
+                <div class="box">
+                    <div class="headingBorder">
+                        <RadzenHeading Text="@translationState.Translate("Notifications")" class="notificationHeading" Size="H2" />
+                    </div>
+                    <div id="unread" class="">
+                        <div class="display">
+                            @if (groupedNotifications != null && groupedNotifications.Any())
+                            {
+                                <div class="cont">
+                                    @foreach (var group in groupedNotifications)
+                                    {
+                                        <details open>
+                                            <summary>@translationState.Translate(group.Key)</summary>
+                                            @foreach (var notification in group.Value)
+                                            {
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <RadzenCard class="notfCard">
+                                                            <div>
+                                                                <div class="Notfclosebar" @onclick="() => ReadNotification(notification, true)" style="top: 10px;" title="@translationState.Translate("Clear")">x</div>
+                                                            </div>
+                                                            <div class="txtmsg col-12" @onclick="@((args) => DetailNotification(notification))" title="@translationState.Translate("Details_Notification")">
+                                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? notification.NotificationMessageEn : notification.NotificationMessageAr)
+
+                                                                <div class="col-12" style="font-size: 0.9rem;">
+                                                                    <div class="row">
+                                                                        <div class="col-9 p-0" style="color: white;">
+                                                                            @*  <span style="background: #8c9196; padding: 5px; border-radius: 15px;">
+                                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? notification.EventNameEn : notification.EventNameAr)
+                                                                </span> *@
+                                                                        </div>
+                                                                        <div class="col-3 p-0" style="text-align: center;">
+                                                                            @DateHumanizeExtensions.Humanize(notification.CreationDate, DateTime.Now)
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </RadzenCard>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </details>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="nothing">
+                                    <i class="fas fa-child stick"></i>
+                                    <div class="cent">@translationState.Translate("No_Notification_Found")</div>
+                                </div>
+                            }
+                        </div>
+                        <div class="row p-3">
+                            <div class="col-9 p-0">
+                                <h3 class="notificationh" style="font-size: 15px;padding-top: 8px;">
+                                    @translationState.Translate("View_All_Notification_Text")
+                                    <a href="/notifications">@translationState.Translate("Notification_Page") </a>
+                                </h3>
+                            </div>
+                            @if (getBellNotifNotifications is not null && getBellNotifNotifications.Any())
+                            {
+                                <div class="col-3 p-0">
+                                    <RadzenButton class="cancleBtn delete_btn"
+                                                  Text="@translationState.Translate("Read_All")"
+                                                  ButtonStyle="ButtonStyle.Light"
+                                                  title="@translationState.Translate("Sure_Want_To_Mark_All_Read")"
+                                                  Click="@ButtonReadAllAsync" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<style>
+    .notification-title1 {
+        margin-top: 29px;
+        margin-right: 144px;
+        border-color: #f4f4f4;
+        font-size: large;
+        border-color: #f4f4f4;
+        border-style: double;
+        border-radius: 0px;
+    }
+
+    .notification-title2 {
+        border-color: #f4f4f4;
+        border: hidden;
+        font-size: large;
+    }
+
+    .box {
+        width: 616px !important;
+        height: auto;
+        padding-left: 20px;
+        padding-left: 20px !important;
+        padding-right: 20px !IMPORTANT;
+        padding-right: 20px;
+    }
+
+    .new1 {
+        border-bottom: 1px solid;
+        border-color: #9a9a9a;
+    }
+
+    a.notification-title2 {
+        color: black !important;
+        font-weight: bold;
+    }
+
+    a.notification-title1 {
+        color: black !important;
+        font-weight: bold;
+    }
+
+    .tab a:hover {
+        color: #8c7b6c !important;
+    }
+
+    .display {
+        overflow-x: hidden !important;
+        /* padding-top: 10px; */
+    }
+
+    .tab-border {
+        border-bottom: 3px solid;
+    }
+
+    .headingBorder {
+        border-bottom: 0.5px solid;
+        padding-top: 20px;
+        border-color: #9a9a9a;
+    }
+
+    summary {
+        margin: 2px;
+        color: black;
+        background: #d9cfc7;
+        padding: 5px;
+    }
+
+</style>

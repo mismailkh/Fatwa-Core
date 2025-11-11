@@ -1,0 +1,54 @@
+﻿@page "/Transfer/{ReferenceId}"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_WEB.Pages.CaseManagment.Files
+@layout MainLayout
+
+<PageTitle>Page Title</PageTitle>
+
+<div class="col-md-12">
+    <RadzenTemplateForm Data="@caseRequest" Visible="@(caseRequest != null)" TItem="CaseRequest" Submit="@FormSubmit">
+        <ChildContent>
+            <div class="row pt-2 pb-2">
+                @if (IsViewOnly==true)
+                {
+                    <ListRegisteredCaseFile IsViewOnly="true" @bind-SelectedFile="@selectedFile" />
+                }
+                <div class="col-12 col-sm-12  col-md-12 col-lg-12 col-xl-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@translationState.Translate("Sector")" Component="SectorType" />
+                        <RadzenDropDown Data="@SectorTypes.Where(x=>x.Id != loginState.UserDetail.SectorTypeId)" AllowFiltering="true" AllowClear="true"
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                        ValueProperty="Id"
+                                        Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;"
+                                        @bind-Value="approvalTracking.SectorTo"
+                                        Name="SectorType"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                        <div class="rz-message rz-messages-error ">@typeValidationMsgSector</div>
+                    </div>
+
+                    <div class="form-group">
+                        <RadzenLabel Text="@translationState.Translate("Reason")" Component="Remarks" style="width: 100%"> </RadzenLabel>
+                        <RadzenTextArea Placeholder="@translationState.Translate("Reason")" Name="Remarks" @bind-Value="@(approvalTracking.Remarks)" Cols="54" Rows="3" />
+                        <RadzenLengthValidator Component="Remarks" Text="@translationState.Translate("Max_Thousand_Characters")" Max="1000" />
+                        <RadzenRegexValidator Component="Remarks" Text="@(translationState.Translate("Cannot_Have_Trailing_Spaces"))" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+
+                        <div class="rz-message rz-messages-error ">@typeValidationMsgReason</div>
+                    </div>
+                    <div class="row mt-4 popup-buttons-alignment">
+                        <div class="col-12 p-0">
+					        <RadzenButton Text="@translationState.Translate("Submit")"
+								          ButtonStyle="ButtonStyle.Primary"
+                                          style="margin-right: 0.2rem !important"
+								          ButtonType="Radzen.ButtonType.Submit" />
+					        <RadzenButton Text="@translationState.Translate("Cancel")"
+								          ButtonStyle="ButtonStyle.Light" 
+								          Click="@ButtonCancelClick" />
+				        </div>
+			        </div>
+                </div>
+            </div>
+        </ChildContent>
+
+    </RadzenTemplateForm>
+</div>

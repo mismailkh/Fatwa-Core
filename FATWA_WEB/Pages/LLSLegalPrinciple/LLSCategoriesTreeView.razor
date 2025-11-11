@@ -1,0 +1,188 @@
+﻿@page "/principle_hierarchy" 
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.LLSLegalPrinciple
+@using Syncfusion.Blazor.Navigations
+@using FATWA_DOMAIN.Models.LLSLegalPrinciple;
+<PageTitle>@translationState.Translate("Principle_Hierarchy")</PageTitle>
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.LPS.PrinciplesHierarchy.List").Any())
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Principle_Hierarchy")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                       @* <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />*@
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Principle_Hierarchy")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+
+            <div class="row justify-content-center overflow-hidden mainContentBlock py-4">
+                <div class="col-md-12 ">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 d-flex">
+                            <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                            class="searchBox" Name="Textbox0"
+                            @bind-Value="search"
+                            @oninput="@(async(args) => {search = $"{args.Value}";await OnSearchInput();})">
+                            </RadzenTextBox>
+                        </div>
+                        <div class="col-md-8 tableAdditionButton addPrincipleBtn px-0 pb-3">
+                            <RadzenButton class="addBtn"
+                            Icon="search"
+                            Text="@translationState.Translate("Advanced_Search")"
+                            Click="ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+                    <div class="row no-gutters rz-tabview-panels pb-3">
+                        <SfTreeView @ref="tree"
+                            TValue="LLSLegalPrincipleCategoriesVM"
+                            AllowEditing="false"
+                            @bind-SelectedNodes="@selectedNodes">
+                            <TreeViewFieldsSettings DataSource="@FilterlLSLegalPrincipleCategoryDetails"
+                                Id="CategoryId"
+                                ParentID="ParentId"
+                                Text="Name"
+                                HasChildren="HasSubChildren"
+                                Expanded="Expanded">
+                            </TreeViewFieldsSettings>
+                            @* <TreeViewEvents TValue="LLSLegalPrincipleCategoriesVM" NodeEdited="NodeEdited" NodeSelected="OnSelect" NodeClicked="nodeClicked"></TreeViewEvents>
+                            <SfContextMenu TValue="MenuItem" @ref="menu" Target="#context" Items="@MenuItems">
+                                <MenuEvents TValue="MenuItem" ItemSelected="MenuSelect" OnOpen="BeforeContextOpen"></MenuEvents>
+                            </SfContextMenu> *@
+                            <SfContextMenu TValue="MenuItem" @ref="Pcontentmenu" Target="#principleContent" Items="@contentMenuItems">
+                                <MenuEvents TValue="MenuItem" ItemSelected="PcontentMenuSelect" Closed="OnClosePContentMenu" OnOpen="BeforePContentMenuOpen"></MenuEvents>
+                            </SfContextMenu>    
+                            <TreeViewTemplates TValue="LLSLegalPrincipleCategoriesVM">
+                                <NodeTemplate>
+                                    <div class="treeviewdiv">
+                                        <div class="nodetext" style="margin-right:10px !important;">
+                                            <span class="treeName">@((context as LLSLegalPrincipleCategoriesVM).Name)</span>
+                                            <div class="border"></div>
+                                            <div class="principle-category-content">
+                                                @foreach (var cont in (context as LLSLegalPrincipleCategoriesVM).PrincipleContent)
+                                                {
+                                                    @if (cont != null)
+                                                    {
+                                                        <span class="principle-category-content-detail" style="@cont.BackgroundColor" @onclick="(e) => OpenPContentMenu(e,cont.PrincipleContentId,context.CategoryId)">@(cont.PrincipleContent.Length > 200 ? cont.PrincipleContent.Substring(0, 200) : cont.PrincipleContent)</span>
+                                                        <br>
+                                                        <div class="border"></div>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </NodeTemplate>
+                            </TreeViewTemplates>
+                        </SfTreeView>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Principle_Content")" Component="Principle_Content" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Principle_Content")" @bind-Value="@advanceSearchVM.PrincipleContent" Name="Principle_Content" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Category")" Component="category" />
+                    <RadzenDropDown Data="@lLSLegalPrincipleCategoryDetails.Where(x=>x.ParentId !=null)"
+                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                    AllowClear="true"
+                    TextProperty="Name"
+                    ValueProperty="CategoryId"
+                    Placeholder="@translationState.Translate("Select")"
+                    Style="display:block;"
+                    @bind-Value="@advanceSearchVM.CategoryId"
+                    Name="category" />
+                </div>
+            </div>
+            <div class="row" Style="margin-top:10px;">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Start_Date")" Component="CreatedFrom" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="CreatedFrom" @bind-Value="@advanceSearchVM.StartDate" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("End_Date")" Component="CreatedTo" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="CreatedTo" @bind-Value="@advanceSearchVM.EndDate" />
+                </div>
+            </div>
+            <div class="row justify-content-end pt-3">
+                <div class="col-md-6" style="text-align:right;">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+<style>
+    span.treeName {
+        font-weight: bold;
+    }
+
+    .e-icons.interaction.e-icon-collapsible {
+        font-weight: bold;
+    }
+
+    .dots {
+        height: 20px;
+        line-height: 0px;
+        overflow: hidden;
+    }
+
+    .principle-category-content .principle-category-content-detail {
+        padding: 3px;
+    }
+    .principle-category-content-detail:hover{
+    background-color: #cfc8c1;
+}
+</style>

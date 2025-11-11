@@ -1,0 +1,260 @@
+﻿@page "/document-view/{DocumentId}/{VersionId}"
+@page "/document-view/{VersionId}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.Dms;
+@using static FATWA_DOMAIN.Enums.DmsEnums;
+@using static FATWA_DOMAIN.Enums.TaskEnums;
+@using FATWA_DOMAIN.Models.ViewModel.DmsVMs;
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+<!--<History Author = "Hassan Abbas" Date="2023-06-23" Version="1.0" Branch="master"> Detail Document</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.DMS.Document.View").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/dashboard" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/document-list" Text="@translationState.Translate("Document_List")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Document_Detail")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Document_Detail")" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row d-block justify-content-center mainContentBlock no-gutters p-0 tab-webkit-fill">
+                <div class="save-case-request-col">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <RadzenFieldset AllowCollapse="false" Style=" margin: 40px auto;">
+                            <HeaderTemplate>
+                                <span class="d-inline-flex align-items-center align-middle">
+                                    <b>@translationState.Translate("Document_Details")</b>
+                                </span>
+                            </HeaderTemplate>
+                            <ChildContent>
+                                <div class="row no-gutters">
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Document_Name"): </h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@AddedDocument?.DocumentName">@AddedDocument?.DocumentName</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Document_Number"): </h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@AddedDocument?.DocumentNumber">@AddedDocument?.DocumentNumber</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Document_Description"): </h3>
+                                        </div> <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@AddedDocument?.Description">@AddedDocument?.Description</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Version_Number"): </h3>
+                                        </div> <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@AddedDocument?.DocumentVersion?.VersionNo">@AddedDocument?.DocumentVersion?.VersionNo</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Created_Datetime"): </h3>
+                                        </div> <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@(AddedDocument?.DocumentVersion?.CreatedDate == null ? "---" : AddedDocument?.DocumentVersion?.CreatedDate.ToString("dd/MM/yyy"))">@(AddedDocument?.DocumentVersion?.CreatedDate == null ? "---" : AddedDocument?.DocumentVersion?.CreatedDate.ToString("dd/MM/yyyy"))</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Is_Confidential"): </h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(AddedDocument.IsConfidential ? translationState.Translate("Yes") : translationState.Translate("No"))</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ChildContent>
+                        </RadzenFieldset>
+                        <RadzenFieldset AllowCollapse="false" Style=" margin: 40px auto;">
+                            <HeaderTemplate>
+                                <span class="d-inline-flex align-items-center align-middle">
+                                    <b>@translationState.Translate("Document_Content")</b>
+                                </span>
+                            </HeaderTemplate>
+                            <ChildContent>
+                                <div class="row pb-2">
+                                    <div class="@(showReasonField ? "col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8" : "col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12") ">
+                                        @if (isVisible)
+                                        {
+                                            @* <TelerikPdfViewer @ref="PdfViewerRef"
+                                            Width="100%"
+                                            Height="800px"
+                                            Data="@FileData">
+                                            <PdfViewerToolBar>
+                                            <PdfViewerToolBarSeparator />
+                                            <PdfViewerToolBarDownloadTool />
+                                            <PdfViewerToolBarPrintTool />
+                                            <PdfViewerToolBarPagerTool />
+                                            <PdfViewerToolBarSpacer />
+                                            <PdfViewerToolBarZoomTool />
+                                            <PdfViewerToolBarSelectionTool />
+                                            <PdfViewerToolBarSearchTool />
+                                            </PdfViewerToolBar>
+                                            </TelerikPdfViewer> *@
+
+                                            <SfPdfViewerServer EnableNavigationToolbar="false"
+                                                               Width="100%"
+                                                               Height="1000px"
+                                                               @ref="@pdfViewer"
+                                                               EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                                               Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                                               ID="pdfviewerDetailCommunication"
+                                                               DocumentPath="@DocumentPath"
+                                                               InteractionMode="InteractionMode.Pan">
+                                            </SfPdfViewerServer>
+                                        }
+                                    </div>
+                                    @if (showReasonField)
+                                    {
+                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                            @if (isVisible)
+                                            {
+                                                <RadzenLabel Text="@translationState.Translate("Reason")" Component="Reason" />
+                                                <RadzenTextArea Placeholder="@translationState.Translate("Reason")" @bind-Value="Reason" @oninput="ChangeOnInput" Rows="28" class="w-100" Name="Reason" />
+                                                <div class="rz-message rz-messages-error ">@reasonValidationMsg</div>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                                @if (AddedDocumentReasons.Any())
+                                {
+                                    <RadzenAccordion>
+                                        <Items>
+                                            <RadzenAccordionItem Text="@translationState.Translate("Reason_Section")" Selected="true">
+                                                @if (AddedDocumentReasons.Any())
+                                                {
+                                                    <div class="row pb-2 pt-4">
+                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                            <div class="tableContent table-responsive">
+                                                                <RadzenDataGrid AllowFiltering="false"
+                                                                                AllowPaging="true"
+                                                                                AllowSorting="true"
+                                                                                Data="@AddedDocumentReasons"
+                                                                                TItem="DmsAddedDocumentReasonVM"
+                                                                                Count="@(AddedDocumentReasons != null ? AddedDocumentReasons.Count() : 0)"
+                                                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                                                ShowPagingSummary="true">
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn TItem="DmsAddedDocumentReasonVM" Property="Reason" Title="@translationState.Translate("Reason")">
+                                                                            <Template Context="reason">
+                                                                                @if (reason.Reason != null)
+                                                                                {
+                                                                                    @if (reason.Reason.Length > 50)
+                                                                                    {
+                                                                                        @reason.Reason.Substring(0, 50) <a href="#" @onclick="@(() => OnDescriptionFullReasonDetail(reason.Reason))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        @reason.Reason
+                                                                                    }
+                                                                                }
+                                                                            </Template>
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="DmsAddedDocumentReasonVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "UserNameEn" : "UserNameAr")" Title="@translationState.Translate("Sent_By")" />
+                                                                        <RadzenDataGridColumn TItem="DmsAddedDocumentReasonVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")" />
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </RadzenAccordionItem>
+                                        </Items>
+                                    </RadzenAccordion>
+                                }
+                            </ChildContent>
+                        </RadzenFieldset>
+                        <div class="row d-flex justify-content-center align-items-center px-4 pb-3 mt-4">
+                            <div class="col-md-6 d-flex justify-content-start">
+                                <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@RedirectBack">@translationState.Translate("Back")</TelerikButton>
+                            </div>
+                            <div class="col-md-6 d-flex justify-content-end">
+                                @if ((loginState.UserRoles.Where(u => u.UserId == AddedDocument.DocumentVersion.ReviewerUserId || u.RoleId == AddedDocument.DocumentVersion.ReviewerRoleId).Any()) || (loginState.Username == AddedDocument.CreatedBy && (AddedDocument.DocumentVersion.StatusId == (int)DocumentStatusEnum.Draft || AddedDocument.DocumentVersion.StatusId == (int)DocumentStatusEnum.Rejected)))@* && taskDetailVM.TaskStatusId == (int)TaskStatusEnum.Pending *@
+                                {
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" class="m-1 prevBtn" Text="@translationState.Translate("Edit")" Click="@EditDocument" />
+                                }
+                                @if (loginState.Username == AddedDocument.CreatedBy && AddedDocument.DocumentVersion.StatusId == (int)DocumentStatusEnum.Published)
+                                {
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" class="m-1 prevBtn" Text="@translationState.Translate("Link_Document")" Click="LinkDocument" />
+                                }
+                                @if ((loginState.UserRoles.Where(u => u.UserId == AddedDocument.DocumentVersion.ReviewerUserId || u.RoleId == AddedDocument.DocumentVersion.ReviewerRoleId).Any()) &&
+                               (ActivityNameKey != null && (WorkflowActivityEnum)Enum.Parse(typeof(WorkflowActivityEnum), ActivityNameKey) != WorkflowActivityEnum.InitiatorDocumentModification) && loginState.Username != AddedDocument.CreatedBy && AddedDocument.DocumentVersion.StatusId != (int)DocumentStatusEnum.Draft)@* && taskDetailVM.TaskStatusId == (int)TaskStatusEnum.Pending *@
+                                {
+                                    <RadzenButton Visible=@(isReasonEntered) ButtonType="Radzen.ButtonType.Button" style="margin-left: 0.5rem !important" Click="@RejectDocument" Text="@translationState.Translate("Reject")">
+                                    </RadzenButton>
+                                    <RadzenButton Visible=@(!isReasonEntered) Text="@translationState.Translate("Remarks_for_Rejection")" class="m-1" ButtonStyle="ButtonStyle.Light" Click="@RemarksForRejection" />
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Click="@ApproveDocument" Text="@translationState.Translate("Approve")">
+                                    </RadzenButton>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+@code
+{
+    async Task OnDescriptionFullReasonDetail(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Reason"), ds =>
+    @<div>
+        <p class="mb-4" style="min-height:200px;min-width:550px;line-height:2.5">@args</p>
+    </div>);
+    }
+}

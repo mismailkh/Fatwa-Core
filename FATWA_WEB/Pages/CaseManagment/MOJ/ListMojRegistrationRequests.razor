@@ -1,0 +1,145 @@
+﻿@page "/moj-registration-requests"
+@using Append.Blazor.Printing
+@inject IPrintingService PrintingService
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@using FATWA_WEB.Services.Lms;
+@layout MainLayout
+
+<!--<History Author = "Hassan Abbas" Date="2022-11-21" Version="1.0" Branch="master"> List of Moj Registration Requests</History>-->
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.Submenu.CMS.MOJ.RegistrationList"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Moj_Registration_Requests")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Moj_Registration_Requests")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <RadzenTabs Change="OnTabChange" @bind-SelectedIndex="selectedIndex" TabPosition="Radzen.TabPosition.Top" style="margin: 20px auto;" RenderMode="TabRenderMode.Server">
+                        <Tabs>
+                            <RadzenTabsItem Text="@(translationState.Translate("Pending"))">
+                                <div class="row no-gutters mb-3">
+                                    <div class="col-md-4 d-flex">
+                                        <RadzenTextBox class="searchBox"
+                                                       Placeholder="@translationState.Translate("Grid_Search")"
+                                                       Name="Textbox0"
+                                        @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+                                     </div>
+                                </div>
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid Width="100%"
+                                                    @ref="grid"
+                                                    TItem="MojRegistrationRequestVM"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    Count="@(mojRegistrationRequests?.Any() == true ? mojRegistrationRequests.FirstOrDefault().TotalCount : 0)"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    AllowFiltering="false"
+                                                    LoadData="OnLoadData"
+                                                    Data="@FilteredMojRegistrationRequests"
+                                                    Sort="OnSortData"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="MojRegistrationRequestVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                                <Template Context="rowItem">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="upload" title="@translationState.Translate("Upload")" Size="ButtonSize.Small" Click="@((args) => UploadAttachments(rowItem))" @onclick:stopPropagation="true" />
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="print" title="@translationState.Translate("Print")" Size="ButtonSize.Small" Click="@((args) => PrintDocument(rowItem))" @onclick:stopPropagation="true" />
+
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="MojRegistrationRequestVM" Width="170px" Property="FileNumber" Title="@translationState.Translate("File_Number")" />
+                                            <RadzenDataGridColumn TItem="MojRegistrationRequestVM" Width="170px" FormatString="{0:dd/MM/yyyy}" Property="CreatedDate" Title="@translationState.Translate("Created_Date")" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </RadzenTabsItem>
+                            <RadzenTabsItem Text="@(translationState.Translate("Completed"))">
+                                <div class="row no-gutters mb-3">
+                                    <div class="col-md-4 d-flex">
+                                        <RadzenTextBox class="searchBox"
+                                                       Placeholder="@translationState.Translate("Grid_Search")"
+                                                       Name="Textbox0"
+                                                       @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+                                     </div>
+                                </div>
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid Width="100%"
+                                                    @ref="grid"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    Count="@(mojRegistrationRequests?.Any() == true ? mojRegistrationRequests.FirstOrDefault().TotalCount : 0)"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    AllowFiltering="false"
+                                                    LoadData="OnLoadData"
+                                                    Data="@FilteredMojRegistrationRequests"
+                                                    Sort="OnSortData"
+                                                    TItem="MojRegistrationRequestVM"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="MojRegistrationRequestVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="75px" TextAlign="TextAlign.Center">
+                                                <Template Context="rowItem">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                  Title="@translationState.Translate("Details")"
+                                                                  Icon="visibility"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => ViewDetail(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="MojRegistrationRequestVM" Width="170px" Property="FileNumber" Title="@translationState.Translate("File_Number")" />
+                                            <RadzenDataGridColumn TItem="MojRegistrationRequestVM" Width="170px" FormatString="{0:dd/MM/yyyy}" Property="CreatedDate" Title="@translationState.Translate("Created_Date")" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

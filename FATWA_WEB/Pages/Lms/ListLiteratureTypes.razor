@@ -1,0 +1,117 @@
+﻿@page "/lms-literature-types"
+@page "/lmsliteraturetype-list"
+
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+
+<PageTitle>@translationState.Translate("Literature_Type")</PageTitle>
+
+<!-- <History Author = 'Umer Zaman' Date='2022-03-16' Version="1.0" Branch="master">Show All Literature Types</History> -->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.LMS.LiteratureType").Count() > 0)
+{ 
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Literature_Type")" />
+                    </RadzenBreadCrumb>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                   <div class="backtoDashboard">
+                        <RadzenButton 
+                            ButtonStyle="ButtonStyle.Secondary" 
+                            Size="ButtonSize.Small" 
+                            title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard"/>
+                        <RadzenButton 
+                            ButtonStyle="ButtonStyle.Secondary" 
+                            Size="ButtonSize.Small"
+                            title="@translationState.Translate("Go_Back_HomeScreen")" 
+                            class="returnBtn" 
+                            Icon="home"  Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-center align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Literature_Type")" />
+
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+               </div>
+            </div>
+            
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4">
+                            <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")" class="searchBox" Name="Textbox0" @oninput="@(async(args) => {search = $"{args.Value}";await grid0.GoToPage(0);await OnSearchInput();})" />
+                          </div>
+                            <div class="col-md-8 d-flex justify-content-end tableAdditionButton  px-0 pb-3">
+                                <RadzenButton class="addBtn" 
+                                    Icon="add" 
+                                    Text="@translationState.Translate("Add")" 
+                                    Click="@AddLiteratureType">
+                                </RadzenButton>
+                            </div>                                               
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid 
+                                    @ref="grid0"
+                                    AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                    FilterMode="Radzen.FilterMode.Advanced"
+                                    Count="@(getLmsLiteratureTypesResult != null ? getLmsLiteratureTypesResult.Count() : 0)"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    AllowFiltering="false"
+                                    Data="@FilteredGetLmsLiteratureTypesResult"
+                                    TItem="LmsLiteratureType"
+                                    PageSize="@systemSettingState.Grid_Pagination"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                    EmptyText="@translationState.Translate("No_record_found")"
+                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                    ShowPagingSummary="true">
+                            <Columns>
+                                    <RadzenDataGridColumn TItem="LmsLiteratureType" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") Title="@translationState.Translate("English_Name")">
+                                    </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LmsLiteratureType" Property="CreatedBy" Title="@translationState.Translate("CreatedBy")" />
+                                <RadzenDataGridColumn TItem="LmsLiteratureType" Property="CreatedDate" Title="@translationState.Translate("Created_Date")" FormatString="{0:dd/MM/yyyy  h:mm tt}" />
+                                <RadzenDataGridColumn TItem="LmsLiteratureType" Filterable="false" Title="@translationState.Translate("Action")" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                    <Template Context="fatwalmsModelsFatwaDbLmsLiteratureType">
+
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                    Icon="mode"
+                                                    class="editIcon"
+                                                    title="@translationState.Translate("Edit")"
+                                                    Size="ButtonSize.Small"
+                                                    Click="@((args) => EditLiteratureType( args, fatwalmsModelsFatwaDbLmsLiteratureType ))"
+                                                    @onclick:stopPropagation="true" />
+
+                                        <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                    Icon="delete_outline"
+                                                    class="deleteIcon"
+                                                    title="@translationState.Translate("delete")"
+                                                    Size="ButtonSize.Small"
+                                                    Click="@((args) => GridDeleteButtonClick(args, fatwalmsModelsFatwaDbLmsLiteratureType))"
+                                                    @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>                    
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

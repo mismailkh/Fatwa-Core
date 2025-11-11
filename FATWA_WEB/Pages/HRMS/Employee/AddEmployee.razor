@@ -1,0 +1,1033 @@
+﻿@page "/add-employee/{EmployeeType:int}"
+@page "/add-employee/{Id}/{EmployeeType:int}"
+@using FATWA_DOMAIN.Common
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement;
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+@using static FATWA_DOMAIN.Enums.UserEnum;
+@layout MainLayout
+<PageTitle>@(Id == null ? translationState.Translate("Add_New_Employee") : translationState.Translate("Edit_Employee"))</PageTitle>
+    <!--<History Author = "Attique ur Rehman" Date="16-10-23" Version="2.0" Branch="master">  Create / Update  Internal/External Employees for fatwa Portal .</History>-->
+    @if (loginState.ClaimList.Any(x => x.Value == "Permissions.EM.Employee.Create"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/employee-list" Text="@translationState.Translate("Employee_List")" />
+                            <RadzenBreadCrumbItem Text="@(Id==null? translationState.Translate("Add_New_Employee"): translationState.Translate("Edit_Employee"))" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        @if (Id == null)
+                        {
+                            <RadzenHeading Size="H1" Text="@(EmployeeType == (int)EmployeeTypeEnum.External? translationState.Translate("Add_External_Employee"):translationState.Translate("Add_Internal_Employee"))" />
+                        }
+                        else
+                        {
+                            <RadzenHeading Size="H1" Text="@(EmployeeType == (int)EmployeeTypeEnum.External? translationState.Translate("Edit_External_Employee"):translationState.Translate("Edit_Internal_Employee"))" />
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+                <RadzenTemplateForm TItem="AddEmployeeVM" Data="@EmployeeVM" Submit="@Form0Submit" InvalidSubmit="@FormInvalidSubmit">
+                    <ChildContent>
+                        <RadzenCard>
+                            <RadzenAccordion Multiple="true">
+                                <Items>
+                                    <RadzenAccordionItem Text="@translationState.Translate("Personal_Information")" Selected="@isCollapseAccordian">
+                                        <div class="form-group">
+                                            <RadzenCard>
+                                                <div class="row">
+                                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="form-group">
+                                                            <RadzenLabel Text="@(translationState.Translate("FirstName_En") + " *")" />
+                                                            <RadzenTextBox Trim Name="FirstName_En" Placeholder="@translationState.Translate("FirstName_En")" @bind-Value="EmployeeVM.userPersonalInformation.FirstName_En" />
+                                                             <RadzenRequiredValidator Component="FirstName_En" Text="@translationState.Translate("Required_Field")" />
+                                                             <RadzenRegexValidator Component="FirstName_En" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="^[A-Za-z ]+$" />
+                                                       <RadzenLengthValidator Component="FirstName_En" Text="@translationState.Translate("Max_Thirty_Characters")" Max="30"/>
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                         <div class="form-group">
+                                                             <RadzenLabel Text="@(translationState.Translate("SecondName_En"))" />
+                                                             <RadzenTextBox Trim Name="SecondName_En" Placeholder="@translationState.Translate("SecondName_En")" @bind-Value="EmployeeVM.userPersonalInformation.SecondName_En" />
+                                                             <RadzenRegexValidator Component="SecondName_En" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="^[A-Za-z ]+$" />
+                                                            <RadzenLengthValidator Component="SecondName_En" Text="@translationState.Translate("Max_Thirty_Characters")" Max="30" />
+                                                      
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                         <div class="form-group">
+                                                             <RadzenLabel Text="@(translationState.Translate("LastName_En") + " *")" />
+                                                             <RadzenTextBox Trim Name="LastName_En" Placeholder="@translationState.Translate("LastName_En")" Change="CheckForPrefix" @bind-Value="EmployeeVM.userPersonalInformation.LastName_En" />
+                                                             <RadzenRequiredValidator Component="LastName_En" Text="@translationState.Translate("Required_Field")" />
+                                                             <RadzenRegexValidator Component="LastName_En" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="^[A-Za-z -]+$" />
+                                                                  <RadzenLengthValidator Component="LastName_En" Text="@translationState.Translate("Max_Thirty_Characters")" Max="30"/>
+
+                                                             <span class="text-muted name-criteria-caption">@translationState.Translate("Last_Name_Criteria_Caption")</span>
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                         <div class="form-group">
+                                                             <RadzenLabel Text="@(translationState.Translate("FirstName_Ar") + " *")" />
+                                                             <RadzenTextBox Trim Name="FirstName_Ar" Placeholder="@translationState.Translate("FirstName_Ar")" @bind-Value="EmployeeVM.userPersonalInformation.FirstName_Ar" />
+                                                             <RadzenRegexValidator Component="FirstName_Ar" Text="@translationState.Translate("Arabic_Name_Is_Allowed")" Pattern="^[\u0621-\u064A ]+$" />
+                                                             <RadzenRequiredValidator Component="FirstName_Ar" Text="@translationState.Translate("Required_Field")" />
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                         <div class="form-group">
+                                                             <RadzenLabel Text="@(translationState.Translate("SecondName_Ar"))" />
+                                                             <RadzenTextBox Trim Name="SecondName_Ar" Placeholder="@translationState.Translate("SecondName_Ar")" @bind-Value="EmployeeVM.userPersonalInformation.SecondName_Ar" />
+                                                             <RadzenRegexValidator Component="SecondName_Ar" Text="@translationState.Translate("Arabic_Name_Is_Allowed")" Pattern="^[\u0621-\u064A ]+$" />
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                         <div class="form-group">
+                                                             <RadzenLabel Text="@(translationState.Translate("LastName_Ar") + " *")" />
+                                                             <RadzenTextBox Trim Name="LastName_Ar" Placeholder="@translationState.Translate("LastName_Ar")" @bind-Value="EmployeeVM.userPersonalInformation.LastName_Ar" />
+                                                             <RadzenRegexValidator Component="LastName_Ar" Text="@translationState.Translate("Arabic_Name_Is_Allowed")" Pattern="^[\u0621-\u064A ]+$" />
+                                                             <RadzenRequiredValidator Component="LastName_Ar" Text="@translationState.Translate("Required_Field")" />
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                         <div class="form-group">
+                                                             <RadzenLabel Text="@(translationState.Translate("email") + " *")" />
+                                                             <RadzenTextBox Trim Name="email" Placeholder="@translationState.Translate("example@domain.kw")" @bind-Value="EmployeeVM.Email" />
+                                                             <RadzenRegexValidator Component="email" Text="@translationState.Translate("Required_Valid_Email")" Pattern="@REGEX_EMAIL_ADDRESS" Popup="true" Style="position: absolute ; top: 23px; right: 146px; transform: translate(99%, 110%);" />
+                                                             <RadzenRequiredValidator Component="email" Text="@translationState.Translate("Required_Field")" />
+
+                                                         </div>
+                                                     </div>
+                                                     @if (Id != null)
+                                                    {
+                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <RadzenLabel Text="@(translationState.Translate("Username"))" />
+                                                                @if (EmployeeType == (int)EmployeeTypeEnum.Internal)
+                                                                {
+                                                                    <RadzenTextBox Disabled @bind-Value="EmployeeVM.ActiveDirectoryUserName" />
+                                                                }
+                                                                @if (EmployeeType == (int)EmployeeTypeEnum.External)
+                                                                {
+                                                                    <RadzenTextBox Disabled @bind-Value="EmployeeVM.ActiveDirectoryUserName" />
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="form-group">
+                                                            <RadzenLabel Text="@(translationState.Translate("Date_Of_Birth") + " *")" />
+                                                            <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Change="@OnChangeDOJ" Max="@MaxDoB" Name="DateOfBirth" Style="display:block;" @bind-Value="EmployeeVM.userPersonalInformation.DateOfBirth" />
+                                                            <RadzenRequiredValidator Component="DateOfBirth" Text="@translationState.Translate("Required_Field")" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="form-group">
+                                                            <RadzenLabel Text="@(translationState.Translate("Nationality") + " *")" />
+                                                            <RadzenDropDown Data="@Nationalities"
+                                                                            AllowFiltering="true"
+                                                                            AllowClear="true"
+                                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                            ValueProperty="Id"
+                                                                            Placeholder="@translationState.Translate("Select")"
+                                                                            Style="display:block;"
+                                                            @bind-Value="EmployeeVM.userPersonalInformation.NationalityId"
+                                                                            Name="Nationality" />
+                                                            <RadzenRequiredValidator DefaultValue="0" Component="Nationality" Text="@translationState.Translate("Required_Field")" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="form-group">
+                                                            <RadzenLabel Text="@(translationState.Translate("Gender") )" />
+                                                            <RadzenDropDown Data="@Genders"
+                                                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                            AllowClear="true"
+                                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                            ValueProperty="Id"
+                                                                            Placeholder="@translationState.Translate("Select")"
+                                                                            Style="display:block;"
+                                                            @bind-Value="EmployeeVM.userPersonalInformation.GenderId"
+                                                                            Name="Gender" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="form-group">
+                                                            <RadzenLabel Text="@(translationState.Translate("CivilId") + " *")" />
+                                                            <RadzenTextBox Trim MaxLength="12" Name="CivilId" Placeholder="@translationState.Translate("CivilId")" @bind-Value="EmployeeVM.userPersonalInformation.CivilId" Change="@(() => OnChangeCivilId(EmployeeVM.userPersonalInformation.CivilId))" />
+                                                             <RadzenLengthValidator Min="12" Component="CivilId" Text="@translationState.Translate("Must_Twelve_Digits")" />
+                                                             <RadzenRegexValidator Component="CivilId" Text="@translationState.Translate("Only_Digits_Allowed")" Pattern="^[0-9]+$" />
+                                                             <RadzenRequiredValidator Component="CivilId" Text="@translationState.Translate("Required_Field")" />
+                                                             <div class="rz-message rz-messages-error ">@civilIdValidationMsg</div>
+                                                         </div>
+                                                     </div>
+                                                     @if (EmployeeType == (int)EmployeeTypeEnum.External)
+                                                    {
+                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <RadzenLabel Text="@(translationState.Translate("Passport_Number")+ " *" )" />
+                                                                <RadzenTextBox MaxLength="10" Name="Passport_Number" Placeholder="@translationState.Translate("Passport_Number")" @bind-Value="EmployeeVM.userPersonalInformation.PassportNumber" />
+                                                                <RadzenRequiredValidator Component="Passport_Number" Text="@translationState.Translate("Required_Field")" />
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <RadzenLabel Text="@(translationState.Translate("Passport_Number"))" />
+                                                                <RadzenTextBox MaxLength="10" Name="Passport_Number" Placeholder="@translationState.Translate("Passport_Number")" @bind-Value="EmployeeVM.userPersonalInformation.PassportNumber" />
+                                                            </div>
+                                                        </div>
+                                                    }
+
+                                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                        <div class="popup-buttons-alignment form-group">
+                                                            <RadzenButton Variant="Variant.Text" Shade="Shade.Lighter"
+                                                                          Text="@(translationState.Translate(@addAddressText))"
+                                                                          ButtonStyle="ButtonStyle.Primary"
+                                                                          Click="PopulateAddresses" />
+
+                                                        </div>
+                                                    </div>
+                                                    @* Employee Addreses Grid *@
+                                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                        <div class="no-gutters pb-3 tableContent table-responsive">
+                                                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                            Data="@EmployeeVM.UserAdresses"
+                                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                            AllowSorting="true"
+                                                            @key="RefreshGrid"
+                                                                            TItem="UserAdress"
+                                                            @ref="addressGrid">
+                                                                <Columns>
+                                                                    <RadzenDataGridColumn TItem="UserAdress" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                                        <Template Context="UserRowClick">
+                                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) =>EditAddress(args, UserRowClick.AddressId))" @onclick:stopPropagation="true" />
+                                                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" title="@translationState.Translate("delete")" Size="ButtonSize.Small" Click="@((args) =>DeleteAddress(args,UserRowClick.AddressId))" @onclick:stopPropagation="true" />
+                                                                        </Template>
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="UserAdress" Property="Address" Title="@translationState.Translate("Address")" />
+                                                                    <RadzenDataGridColumn TItem="UserAdress" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "City.NameEn" : "City.NameAr")" Title="@translationState.Translate("Area")" />
+                                                                    <RadzenDataGridColumn TItem="UserAdress" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "City.Governorate.Name_En" : "City.Governorate.Name_Ar")" Title="@translationState.Translate("Governorate")" />
+                                                                    <RadzenDataGridColumn TItem="UserAdress" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "City.Governorate.Country.NameEn" : "City.Governorate.Country.NameAr")" Title="@translationState.Translate("Country")" />
+                                                                </Columns>
+                                                            </RadzenDataGrid>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                        <div class="popup-buttons-alignment form-group">
+                                                            <RadzenButton Variant="Variant.Text" Shade="Shade.Lighter"
+                                                                          Text="@(translationState.Translate("Add_Contact"))"
+                                                                          ButtonStyle="ButtonStyle.Primary"
+                                                                          Click="AddEmployeeContactInformation" />
+                                                        </div>
+                                                    </div>
+                                                    @* Employee Contacts Grid *@
+                                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                        <div class="no-gutters pb-3 tableContent table-responsive">
+                                                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                            Data="@EmployeeVM.UserContactInformationList"
+                                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                            AllowSorting="true"
+                                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                            @key="RefreshGrid"
+                                                                            TItem="UserContactInformation"
+                                                            @ref="contactInformationGrid">
+                                                                <Columns>
+                                                                    <RadzenDataGridColumn TItem="UserContactInformation" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                                        <Template Context="UserRowClick">
+                                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) =>EditContactInformation(args, UserRowClick.Id))" @onclick:stopPropagation="true" />
+                                                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" title="@translationState.Translate("delete")" Size="ButtonSize.Small" Click="@((args) =>DeleteContactNumberOnButtonClick(args,UserRowClick.Id))" @onclick:stopPropagation="true" />
+                                                                        </Template>
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="UserContactInformation" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ContactType.Name_En" : "ContactType.Name_Ar")" Title="@translationState.Translate("Contact_Type")" />
+                                                                    <RadzenDataGridColumn TItem="UserContactInformation" Property="ContactNumber" Title="@translationState.Translate("Contact_Number")" />
+                                                                    <RadzenDataGridColumn TItem="UserContactInformation" Property="IsPrimary" Title="@translationState.Translate("Primary")">
+                                                                        <Template Context="data">
+                                                                            <RadzenLabel Text="@(data.IsPrimary == true? translationState.Translate("Yes") : translationState.Translate("No"))" />
+                                                                        </Template>
+                                                                    </RadzenDataGridColumn>
+                                                                </Columns>
+                                                            </RadzenDataGrid>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </RadzenCard>
+                                        </div>
+                                    </RadzenAccordionItem>
+                                    @if (EmployeeType == (int)EmployeeTypeEnum.External)
+                                    {
+                                        <RadzenAccordionItem Text="@translationState.Translate("Company_Information")" Selected="@isCollapseAccordian">
+                                            <div class="form-group">
+                                                <RadzenCard>
+                                                    <div class="row">
+                                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                                            <div class="form-group">
+                                                                <RadzenLabel Text="@(translationState.Translate("Company_Name") + " *")" />
+                                                                <RadzenDropDown Data="@Companies"
+                                                                                AllowFiltering="true"
+                                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                AllowClear="true"
+                                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                                                ValueProperty="CompanyId"
+                                                                                Placeholder="@translationState.Translate("Select")"
+                                                                                Style="display:block;"
+                                                                @bind-Value="EmployeeVM.UserEmploymentInformation.CompanyId"
+                                                                                Name="CompanyName"
+                                                                                Change=GetCompanyInfo />
+                                                                <RadzenRequiredValidator DefaultValue="0" Component="CompanyName" Text="@translationState.Translate("Required_Field")" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12 col-sm-12 col-md-1 addBtnBlock">
+                                                            <div class="k-form-field">
+                                                                <label for="sub" class="k-label k-form-label"></label>
+                                                                <div class="k-form-field-wrap">
+                                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                                  Icon="add"
+                                                                                  class="addBtn"
+                                                                                  Style=" margin-top: 6px !important;"
+                                                                                  Title="@translationState.Translate("Add")"
+                                                                                  Size="ButtonSize.Small"
+                                                                                  Click="@((args) => AddNewCompany(args))"
+                                                                    @onclick:stopPropagation="true" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="ccol-4 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class=" form-group">
+                                                                <RadzenLabel Text="@translationState.Translate("Company_Email")" />
+                                                                <RadzenTextBox Disabled Name="CompanyEmail" Placeholder="@translationState.Translate("Company_Email")" @bind-Value="Company.CompanyEmail" />
+                                                             </div>
+                                                         </div>
+                                                         <div class="ccol-4 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                             <div class=" form-group">
+                                                                 <RadzenLabel Text="@translationState.Translate("Company_PhoneNumber")" />
+                                                                 <RadzenTextBox Disabled Name="CompanyPhoneNumber" Placeholder="@translationState.Translate("Company_PhoneNumber")" @bind-Value="Company.CompanyPhoneNumber" />
+                                                             </div>
+                                                         </div>
+                                                         <div class="ccol-4 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                             <div class=" form-group">
+                                                                 <RadzenLabel Text="@translationState.Translate("Company_Address")" />
+                                                                 <RadzenTextBox Disabled Name="CompanyAddress" Placeholder="@translationState.Translate("Company_Address")" @bind-Value="Company.CompanyAddress" />
+                                                             </div>
+                                                         </div>
+                                                         <div class="ccol-4 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                             <div class=" form-group">
+                                                                 <RadzenLabel Text="@translationState.Translate("Company_City")" />
+                                                                 @if (Thread.CurrentThread.CurrentCulture.Name == "en-US")
+                                                                {
+                                                                    <RadzenTextBox Disabled Name="CompanyCity" Placeholder="@translationState.Translate("Company_City")" @bind-Value="Company.City.NameEn" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <RadzenTextBox Disabled Name="CompanyCity" Placeholder="@translationState.Translate("Company_City")" @bind-Value="Company.City.NameAr" />
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        <div class="ccol-4 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class=" form-group">
+                                                                <RadzenLabel Text="@translationState.Translate("Company_Governorate")" />
+                                                                @if (Thread.CurrentThread.CurrentCulture.Name == "en-US")
+                                                                {
+                                                                    <RadzenTextBox Disabled Name="CompanyGovernorate" Placeholder="@translationState.Translate("Company_Governorate")" @bind-Value="Company.City.Governorate.Name_En" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <RadzenTextBox Disabled Name="CompanyGovernorate" Placeholder="@translationState.Translate("Company_Governorate")" @bind-Value="Company.City.Governorate.Name_Ar" />
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                        <div class="ccol-4 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class=" form-group">
+                                                                <RadzenLabel Text="@translationState.Translate("Company_Country")" />
+                                                                @if (Thread.CurrentThread.CurrentCulture.Name == "en-US")
+                                                                {
+                                                                    <RadzenTextBox Disabled Name="CompanyCountry" Placeholder="@translationState.Translate("Company_Country")" @bind-Value="Company.City.Governorate.Country.NameEn" />
+                                                                }
+                                                                else
+                                                                {
+                                                                    <RadzenTextBox Disabled Name="CompanyCountry" Placeholder="@translationState.Translate("Company_Country")" @bind-Value="Company.City.Governorate.Country.NameAr" />
+                                                                }
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </RadzenCard>
+                                            </div>
+                                        </RadzenAccordionItem>
+                                    }
+                                    <RadzenAccordionItem Text="@translationState.Translate("Employment_Information")" Selected="@isCollapseAccordian">
+                                        <div class="form-group">
+                                            <RadzenCard>
+                                                <div class="row">
+                                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="form-group">
+                                                            <RadzenLabel Text="@(translationState.Translate("Employee_Type"))" />
+                                                            <RadzenTextBox Disabled Value="@(EmployeeTyp=="1"? @translationState.Translate("Internal_Employee") : @translationState.Translate("External_Employee"))" />
+                                                         </div>
+                                                     </div>
+                                                     @if (EmployeeType == (int)EmployeeTypeEnum.Internal)
+                                                    {
+                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <RadzenLabel Text="@(translationState.Translate("Contract_Type") + " *")" />
+                                                                <RadzenDropDown Data="@ContractTypeList"
+                                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                AllowClear="true"
+                                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                ValueProperty="Id"
+                                                                                Placeholder="@translationState.Translate("Select")"
+                                                                                Style="display:block;"
+                                                                @bind-Value="EmployeeVM.UserEmploymentInformation.ContractTypeId"
+                                                                                Name="ContractType" />
+                                                                <RadzenRequiredValidator DefaultValue="0" Component="ContractType" Text="@translationState.Translate("Required_Field")" />
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    @if ((EmployeeType == (int)EmployeeTypeEnum.External) || isEditEmployee)
+                                                    {
+                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <RadzenLabel Text="@(translationState.Translate("Employee_Id") + " *")" />
+                                                                <RadzenTextBox Disabled="@(EmployeeType==(int)EmployeeTypeEnum.Internal)" MaxLength="15" Trim Name="Employee_Id" @bind-Value=@EmployeeVM.UserEmploymentInformation.EmployeeId Placeholder="@translationState.Translate("Employee_Id")" />
+                                                                 <RadzenRequiredValidator Component="Employee_Id" Text="@translationState.Translate("Required_Field")" />
+                                                             </div>
+                                                         </div>
+                                                    }
+                                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="form-group">
+                                                            <RadzenLabel Text="@(translationState.Translate("Fingerprint_Id"))" />
+                                                            <RadzenTextBox MaxLength="6" @bind-Value="EmployeeVM.UserEmploymentInformation.FingerPrintId" Trim Name="FingerprintId" Placeholder="@translationState.Translate("Fingerprint_Id")" />
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-44">
+                                                         <div class="form-group">
+                                                             <RadzenLabel Text="@(translationState.Translate("Date_Of_Joining") + " *")" />
+                                                            <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Joining_Date" Change ="@OnChangeDOJ"  Max="@DateTime.Today" @bind-Value=@EmployeeVM.UserEmploymentInformation.DateOfJoining Style="display:block;" />
+                                                             <RadzenRequiredValidator Component="Joining_Date" Text="@translationState.Translate("Required_Field")" />
+                                                            <div class="rz-message rz-messages-error ">@IsDOJValidMsg</div>
+
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                         <div class="form-group">
+                                                             <RadzenLabel Text="@(translationState.Translate("Department") + " *")" />
+                                                             <RadzenDropDown Data="@Departments"
+                                                                             AllowFiltering="true"
+                                                                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                             AllowClear="true"
+                                                                             ValueProperty="Id"
+                                                                             TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                             Placeholder="@translationState.Translate("Select")"
+                                                                             Style="display:block;"
+                                                             @bind-Value="@EmployeeVM.UserEmploymentInformation.DepartmentId"
+                                                                             Name="Department"
+                                                                             Disabled="@IsUserHasAnyTask"
+                                                                             Change=FilterOperatingSectorsOnDepartmentId />
+                                                             <RadzenRequiredValidator DefaultValue="0" Component="Department" Text="@translationState.Translate("Required_Field")" />
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                         <div class=" form-group">
+                                                             <RadzenLabel Text="@(translationState.Translate("Sector_Type") + " *")" />
+                                                             <RadzenDropDown Data="@OperatingSectorTypes"
+                                                                             AllowFiltering="true"
+                                                                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                             AllowClear="true"
+                                                                             ValueProperty="Id"
+                                                                             TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                             Placeholder="@translationState.Translate("Select")"
+                                                                             Style="display:block;"
+                                                                             Disabled="@IsUserHasAnyTask"
+                                                             @bind-Value="@EmployeeVM.UserEmploymentInformation.SectorTypeId"
+                                                                             Name="OperatingSectorTypes"
+                                                                             Change="@(GetSupervisorsBySectorId)" />
+                                                             <RadzenRequiredValidator DefaultValue="0" Component="OperatingSectorTypes" Text="@translationState.Translate("Required_Field")" />
+                                                         </div>
+                                                     </div>
+                                                     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                         <div class=" form-group">
+                                                             <RadzenLabel Text="@(translationState.Translate("Designation") + " *")" />
+                                                             <RadzenDropDown Data="@DesignationList"
+                                                                             AllowFiltering="true"
+                                                                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                             AllowClear="true"
+                                                                             TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                             ValueProperty="Id"
+                                                                             Placeholder="@translationState.Translate("Select")"
+                                                                             Style="display:block;"
+                                                             @bind-Value="EmployeeVM.UserEmploymentInformation.DesignationId"
+                                                                             Change="@(PopulateManagerDropdown)"
+                                                                             Name="Designation">
+                                                             </RadzenDropDown>
+                                                             <RadzenRequiredValidator DefaultValue="0" Component="Designation" Text="@translationState.Translate("Required_Field")" />
+                                                         </div>
+                                                     </div>
+                                                     @* <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                <div class=" form-group">
+                                                <RadzenLabel Text="@(translationState.Translate("Group_Type") + " *")" />
+                                                <RadzenDropDown Data="@groupAccessTypes"
+                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CustomTextEn" : "CustomTextAr")"
+                                                ValueProperty="GroupTypeId"
+                                                Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;"
+                                                @bind-Value="EmployeeVM.GroupTypeId"
+                                                Disabled="@IsUserHasAnyTask"
+                                                Change="LoadGroups"
+                                                Name="GroupType" />
+                                                <RadzenRequiredValidator DefaultValue="0" Component="GroupType" Text="@translationState.Translate("Required_Field")" />
+                                                </div>
+                                                </div>
+                                                <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                <div class=" form-group">
+                                                <RadzenLabel Text="@(translationState.Translate("Group") + " *")" />
+                                                <RadzenDropDown Data="@Groups"
+                                                AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowClear="true"
+                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                ValueProperty="GroupId"
+                                                Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;"
+                                                @bind-Value="@EmployeeVM.GroupId"
+                                                Disabled="@IsUserHasAnyTask"
+                                                Name="Groupz" />
+                                                <RadzenRequiredValidator DefaultValue="Guid.Empty" Component="Groupz" Text="@translationState.Translate("Required_Field")" />
+                                                </div>
+                                                </div> *@
+                                                     @* <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                <div class=" form-group">
+                                                <RadzenLabel Text="@(translationState.Translate("Role") + " *")" />
+                                                <RadzenDropDown Data="@Roles"
+                                                AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowClear="true"
+                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name" : "NameAr")"
+                                                ValueProperty="Id"
+                                                Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;"
+                                                @bind-Value="@EmployeeVM.RoleId"
+                                                Disabled="@IsUserHasAnyTask"
+                                                Name="Roles" />
+                                                <RadzenRequiredValidator DefaultValue="0" Component="Roles" Text="@translationState.Translate("Required_Field")" />
+                                                </div>
+                                                </div> *@
+                                                     <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                         <div class="form-group">
+                                                             <RadzenLabel Text="@(translationState.Translate("Manager"))" />
+                                                             <RadzenDropDown Data="@ManagersList"
+                                                                             AllowFiltering="true"
+                                                                             FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                             AllowClear="true"
+                                                                             TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullNameWithRole_En" : "FullNameWithRole_Ar")"
+                                                                             ValueProperty="UserId"
+                                                                             Placeholder="@translationState.Translate("Select")"
+                                                                             Style="display:block;"
+                                                             @bind-Value="@EmployeeVM.UserEmploymentInformation.ManagerId"
+                                                                             Name="Manager" />
+                                                             @if (EmployeeVM.UserEmploymentInformation.DesignationId == (int)DesignationEnum.Lawyer || EmployeeVM.UserEmploymentInformation.DesignationId == (int)DesignationEnum.Supervisor)
+                                                            {
+                                                                <RadzenRequiredValidator DefaultValue="0" Component="Manager" Text="@translationState.Translate("Required_Field")" />
+                                                            }
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="form-group">
+                                                            <RadzenLabel Text="@(translationState.Translate("Supervisor") )" />
+                                                            <RadzenDropDown Data="@SupervisorsList"
+                                                                            AllowFiltering="true"
+                                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                            AllowClear="true"
+                                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar")"
+                                                                            ValueProperty="UserId"
+                                                                            Placeholder="@translationState.Translate("Select")"
+                                                                            Style="display:block;"
+                                                            @bind-Value="@EmployeeVM.UserEmploymentInformation.SupervisorId"
+                                                                            Name="Supervisor" />
+                                                        </div>
+                                                    </div>
+                                                    @if (EmployeeType == (int)EmployeeTypeEnum.Internal)
+                                                    {
+                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <RadzenLabel Text="@(translationState.Translate("Grade_Type") + " *")" />
+                                                                <RadzenDropDown Data="@GradeTypeList"
+                                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                AllowClear="true"
+                                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                ValueProperty="Id"
+                                                                                Placeholder="@translationState.Translate("Select")"
+                                                                                Style="display:block;"
+                                                                @bind-Value="EmployeeVM.GradeTypeId"
+                                                                                Name="GradeType"
+                                                                                Change="@(() => GetEmployeeGrade(true))" />
+                                                                <RadzenRequiredValidator DefaultValue="0" Component="GradeType" Text="@translationState.Translate("Required_Field")" />
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <RadzenLabel Text="@(translationState.Translate("Grade") + " *")" />
+                                                                <RadzenDropDown Data="@EmployeeGradeList"
+                                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                AllowClear="true"
+                                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                ValueProperty="Id"
+                                                                                Placeholder="@translationState.Translate("Select")"
+                                                                                Style="display:block;"
+                                                                @bind-Value="@EmployeeVM.UserEmploymentInformation.GradeId"
+                                                                                Name="Grade" />
+                                                                <RadzenRequiredValidator DefaultValue="0" Component="Grade" Text="@translationState.Translate("Required_Field")" />
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="form-group">
+                                                            <RadzenLabel Text="@(translationState.Translate("Working_Time") + " *")" />
+                                                            <RadzenDropDown TValue="int"
+                                                                            Data="@WorkingTimes"
+                                                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                            AllowClear="true"
+                                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                            ValueProperty="Id"
+                                                                            Placeholder="@translationState.Translate("Select")"
+                                                                            Style="display:block;"
+                                                            @bind-Value="@EmployeeVM.UserEmploymentInformation.WorkingTimeId"
+                                                                            Name="WorkingTime" />
+                                                            <RadzenRequiredValidator DefaultValue="0" Component="WorkingTime" Text="@translationState.Translate("Required_Field")" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                        <div class="form-group">
+                                                            <RadzenLabel Text="@(translationState.Translate("Employee_Status") + " *")" />
+                                                            <RadzenDropDown Data="@employeeStatuses"
+                                                                            Disabled="true"
+                                                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                            AllowClear="true"
+                                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                            ValueProperty="Id"
+                                                                            Placeholder="@translationState.Translate("Select")"
+                                                                            Style="display:block;"
+                                                            @bind-Value="@EmployeeVM.UserEmploymentInformation.EmployeeStatusId"
+                                                                            Name="EmployeStatus">
+                                                            </RadzenDropDown>
+                                                            <RadzenRequiredValidator DefaultValue="0" Component="EmployeStatus" Text="@translationState.Translate("Required_Field")" />
+                                                        </div>
+                                                    </div>
+
+                                                    @if (Id != null)
+                                                    {
+                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                            <div class="form-group">
+                                                                <RadzenLabel Text="@(translationState.Translate("Resigned/Terminated_Date") )" />
+                                                                <RadzenDatePicker Max="@DateTime.Today" Disabled="true" DateFormat="dd/MMM/yyyy" @bind-Value=@EmployeeVM.UserEmploymentInformation.ResignedTerminationdDate Style="display:block;" />
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </RadzenCard>
+                                        </div>
+                                    </RadzenAccordionItem>
+                                    @if (Id != null)
+                                    {
+                                        <RadzenAccordionItem Text="@translationState.Translate("Additional_Information")" Selected="@isCollapseAccordian">
+                                            <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Server">
+                                                <Tabs>
+                                                    @if (EmployeeType == (int)EmployeeTypeEnum.Internal)
+                                                    {
+                                                        <RadzenTabsItem Text="@translationState.Translate("Educational_Information")">
+                                                            <div class="form-group">
+                                                                <RadzenCard>
+                                                                    <div class="row">
+
+                                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("University_Name")+" *")" />
+                                                                                <RadzenTextBox Trim Placeholder="@translationState.Translate("University_Name")" @bind-Value="EduInformation.UniversityName" />
+                                                                             </div>
+                                                                         </div>
+                                                                         <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                                                                             <div class="form-group">
+                                                                                 <RadzenLabel Text="@(translationState.Translate("University_Address") )" />
+                                                                                 <RadzenTextArea Placeholder="@translationState.Translate("enter_complete_address")"
+                                                                                                 Style="display:block;"
+                                                                                 @bind-Value="EduInformation.UniversityAddress"
+                                                                                                 Name="UniversityAddress">
+                                                                                 </RadzenTextArea>
+                                                                             </div>
+                                                                         </div>
+                                                                         <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                                             <div class="form-group">
+                                                                                 <RadzenLabel Text="@(translationState.Translate("Majoring_Name")+" *")" />
+                                                                                 <RadzenTextBox Trim Placeholder="@translationState.Translate("Majoring_Name")" @bind-Value="EduInformation.MajoringName" />
+                                                                             </div>
+                                                                         </div>
+
+                                                                         <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                                             <div class=" form-group">
+                                                                                 <RadzenLabel Text="@(translationState.Translate("Graduation_Year")+" *")" />
+                                                                                 <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Max="@DateTime.Today" Style="display:block;" @bind-Value="EduInformation.GraduationYear" />
+                                                                             </div>
+                                                                         </div>
+                                                                         <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                                             <div class="form-group">
+                                                                                 <RadzenLabel Text="@(translationState.Translate("Percentage/Grade"))" />
+                                                                                 <RadzenTextBox Trim Placeholder="@translationState.Translate("Percentage/Grade")" @bind-Value="EduInformation.Percentage_Grade" />
+
+                                                                             </div>
+                                                                         </div>
+                                                                         <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                             <div class="form-group">
+                                                                                 <RadzenLabel Text="@(translationState.Translate("Comments"))" />
+                                                                                 <RadzenTextArea Placeholder="@translationState.Translate("Comments")" @bind-Value="EduInformation.Comments" />
+                                                                             </div>
+                                                                         </div>
+                                                                         <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                             <div class="popup-buttons-alignment form-group">
+                                                                                 <RadzenButton Variant="Variant.Text" Shade="Shade.Lighter"
+                                                                                               Text="@(translationState.Translate(@addEducationText))"
+                                                                                               ButtonStyle="ButtonStyle.Primary"
+                                                                                               Click="AddEducation" />
+                                                                             </div>
+                                                                         </div>
+
+                                                                     </div>
+                                                                     <div class="no-gutters pb-3 tableContent table-responsive">
+                                                                         <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                                         Data="@EmployeeVM.UserEducationalInformation"
+                                                                         @key="RefreshGrid"
+                                                                         @ref="educationalInformationGrid"
+                                                                                         TItem="UserEducationalInformation">
+                                                                             <Columns>
+                                                                                 <RadzenDataGridColumn TItem="UserEducationalInformation" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                                                     <Template Context="UserRowClick">
+                                                                                         <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) =>EditEducation(args, UserRowClick.EducationId))" @onclick:stopPropagation="true" />
+                                                                                         <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" title="@translationState.Translate("delete")" Size="ButtonSize.Small" Click="@((args) =>DeleteEducation(args,UserRowClick.EducationId))" @onclick:stopPropagation="true" />
+
+                                                                                     </Template>
+                                                                                 </RadzenDataGridColumn>
+                                                                                 <RadzenDataGridColumn TItem="UserEducationalInformation" Property="UniversityAddress" Title="@translationState.Translate("University_Address")" SortOrder="SortOrder.Descending" />
+                                                                                 <RadzenDataGridColumn TItem="UserEducationalInformation" Property="UniversityName" Title="@translationState.Translate("University_Name")" SortOrder="SortOrder.Descending" />
+                                                                                 <RadzenDataGridColumn TItem="UserEducationalInformation" Property="MajoringName" Title="@translationState.Translate("Majoring_Name")" SortOrder="SortOrder.Descending" />
+                                                                                 <RadzenDataGridColumn TItem="UserEducationalInformation" Property="GraduationYear" Title="@translationState.Translate("Graduation_Year")" SortOrder="SortOrder.Descending">
+                                                                                     <Template Context="item">
+                                                                                         @String.Format("{0:d}", item.GraduationYear)
+                                                                                     </Template>
+                                                                                 </RadzenDataGridColumn>
+                                                                                 <RadzenDataGridColumn TItem="UserEducationalInformation" Property="Percentage_Grade" Title="@translationState.Translate("Percentage/Grade")" SortOrder="SortOrder.Descending" />
+                                                                                 <RadzenDataGridColumn TItem="UserEducationalInformation" Property="Comments" Title="@translationState.Translate("Comments")" SortOrder="SortOrder.Descending" />
+
+                                                                             </Columns>
+                                                                         </RadzenDataGrid>
+                                                                     </div>
+                                                                 </RadzenCard>
+                                                             </div>
+                                                         </RadzenTabsItem>
+                                                        <RadzenTabsItem Text="@translationState.Translate("Work_Experience")">
+                                                            <div class="form-group">
+                                                                <RadzenCard>
+                                                                    <div class="row">
+                                                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("Company_Name") + " *")" />
+                                                                                <RadzenDropDown Data="@Companies"
+                                                                                                AllowFiltering="true"
+                                                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                                AllowClear="true"
+                                                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                                                                ValueProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                                                                Placeholder="@translationState.Translate("Select")"
+                                                                                                Style="display:block;"
+                                                                                @bind-Value="UserWorkExperience.CompanyName"
+                                                                                @ref="@CompanyDropDown"
+                                                                                                Name="CompanyName" />
+                                                                            </div>
+                                                                        </div>
+                                                                        @* Add the company in case if company doesn't exist in the system *@
+                                                                        <div class="col-12 col-sm-12 col-md-1 addBtnBlock">
+                                                                            <div class="k-form-field">
+                                                                                <label for="sub" class="k-label k-form-label"></label>
+                                                                                <div class="k-form-field-wrap">
+                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                                                  Icon="add"
+                                                                                                  class="addBtn"
+                                                                                                  Style=" margin-top: 6px !important;"
+                                                                                                  Title="@translationState.Translate("Add")"
+                                                                                                  Size="ButtonSize.Small"
+                                                                                                  Click="@((args) => AddNewCompany(args))"
+                                                                                    @onclick:stopPropagation="true" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Contact_Designation")+" *")" Component="Designation" />
+                                                                                <RadzenDropDown Data="@DesignationList" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" ValueProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" Placeholder="@translationState.Translate("Select")"
+                                                                                                Style="display:block;" @bind-Value="@UserWorkExperience.JobTitle" @ref="@DesignationDropDown" Name="Designation" />
+                                                                            </div>
+                                                                        </div>
+                                                                        @* Add the designation in case if designation doesn't exist in the system *@
+                                                                        <div class=" col-12 col-sm-12 col-md-1 addBtnBlock">
+                                                                            <div class="k-form-field">
+                                                                                <label for="sub" class="k-label k-form-label"></label>
+                                                                                <div class="k-form-field-wrap">
+                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                                                  Icon="add"
+                                                                                                  class="addBtn"
+                                                                                                  Style=" margin-top: 6px !important;"
+                                                                                                  Title="@translationState.Translate("Add")"
+                                                                                                  Size="ButtonSize.Small"
+                                                                                                  Click="@((args) => AddDesignationButtonClick(args))"
+                                                                                    @onclick:stopPropagation="true" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div><br>
+                                                                        <div class="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("Start_Date") +" *")" />
+                                                                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="StartDate" Style="display:block;" @bind-Value="UserWorkExperience.StartDate" Change=@TenureValidityCheck />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("End_Date")+" *")" />
+                                                                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Style="display:block;" Max="DateTime.Now" @bind-Value="UserWorkExperience.EndDate" Change=@TenureValidityCheck />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("Comments"))" />
+                                                                                <RadzenTextArea Placeholder="@translationState.Translate("Comments")" @bind-Value="UserWorkExperience.JobExperience" />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                            <div class="popup-buttons-alignment form-group">
+                                                                                <RadzenButton Variant="Variant.Text" Shade="Shade.Lighter"
+                                                                                              Text="@(translationState.Translate(addWorkExperienceText))"
+                                                                                              ButtonStyle="ButtonStyle.Primary"
+                                                                                              Click="AddWorkExperience" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="no-gutters pb-3 tableContent table-responsive">
+                                                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                                        Data="@EmployeeVM.UserWorkExperiences"
+                                                                        @key="RefreshGrid"
+                                                                        @ref="workExperienceGrid"
+                                                                                        TItem="UserWorkExperience">
+                                                                            <Columns>
+                                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                                                    <Template Context="UserRowClick">
+                                                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) =>EditWorkExperience(args, UserRowClick.ExperienceId))" @onclick:stopPropagation="true" />
+                                                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" title="@translationState.Translate("delete")" Size="ButtonSize.Small" Click="@((args) =>DeleteWorkExperience(args,UserRowClick.ExperienceId))" @onclick:stopPropagation="true" />
+                                                                                    </Template>
+                                                                                </RadzenDataGridColumn>
+                                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="CompanyName" Title="@translationState.Translate("Company_Name")" SortOrder="SortOrder.Descending" />
+                                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="JobTitle" Title="@translationState.Translate("Job_Title")" SortOrder="SortOrder.Descending" />
+                                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="StartDate" Title="@translationState.Translate("Start_Date")" FormatString="{0:dd/MM/yyyy}" SortOrder="SortOrder.Descending">
+                                                                                    <Template Context="item">
+                                                                                        @String.Format("{0:d}", item.StartDate)
+                                                                                    </Template>
+                                                                                </RadzenDataGridColumn>
+                                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="EndDate" Title="@translationState.Translate("End_Date")" FormatString="{0:dd/MM/yyyy}" SortOrder="SortOrder.Descending">
+                                                                                    <Template Context="item">
+                                                                                        @String.Format("{0:d}", item.EndDate)
+                                                                                    </Template>
+                                                                                </RadzenDataGridColumn>
+                                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="Experience" Title="@translationState.Translate("Tenure_Experience")" SortOrder="SortOrder.Descending" />
+                                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="JobExperience" Title="@translationState.Translate("Comments")" SortOrder="SortOrder.Descending" />
+                                                                            </Columns>
+                                                                        </RadzenDataGrid>
+                                                                    </div>
+                                                                </RadzenCard>
+                                                            </div>
+                                                        </RadzenTabsItem>
+                                                        <RadzenTabsItem Text="@translationState.Translate("Trainings")">
+                                                            <div class="form-group">
+                                                                <RadzenCard>
+                                                                    <div class="row">
+                                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("Training_Name")+" *" )" />
+                                                                                <RadzenTextBox Name="Training_Name" Placeholder="@translationState.Translate("Training_Name")" @bind-Value="UserTrainingAttended.TrainingName" />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("Start_Date")+" *" )" Change=@ValidTrainingDateCheck />
+                                                                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Style="display:block;" @bind-Value="UserTrainingAttended.StartDate" />
+
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("End_Date")+" *")" />
+                                                                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Style="display:block;" @bind-Value="UserTrainingAttended.EndDate" Change=@ValidTrainingDateCheck />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("Training_Center_Name"))" />
+                                                                                <RadzenTextBox Name="Training_Center_Name" Placeholder="@translationState.Translate("Training_Name")" @bind-Value="UserTrainingAttended.TrainingCenterName" />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("Training_Center_Location"))" />
+                                                                                <RadzenDropDown Data="@Countries"
+                                                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                                AllowClear="true"
+                                                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                                                                ValueProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                                                                Placeholder="@translationState.Translate("Select")"
+                                                                                                Style="display:block;"
+                                                                                @bind-Value="UserTrainingAttended.TrainingLocation"
+                                                                                                Name="UniversityCountry">
+                                                                                </RadzenDropDown>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("Percentage/Grade"))" />
+                                                                                <RadzenTextBox Placeholder="@translationState.Translate("Percentage/Grade")" @bind-Value="UserTrainingAttended.Percentage_Grade" />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                            <div class="form-group">
+                                                                                <RadzenLabel Text="@(translationState.Translate("Comments"))" />
+                                                                                <RadzenTextArea Placeholder="@translationState.Translate("Comments")" @bind-Value="UserTrainingAttended.Comments" />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                            <div class="popup-buttons-alignment form-group">
+                                                                                <RadzenButton Variant="Variant.Text" Shade="Shade.Lighter"
+                                                                                              Text="@(translationState.Translate(addTrainingText))"
+                                                                                              ButtonStyle="ButtonStyle.Primary"
+                                                                                              Click="AddTrainings" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="no-gutters pb-3 tableContent table-responsive">
+                                                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                                        Data="@EmployeeVM.userTrainingAttendeds"
+                                                                        @key="RefreshGrid"
+                                                                        @ref="userTrainingsGrid"
+                                                                                        TItem="UserTrainingAttended">
+                                                                            <Columns>
+                                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                                                    <Template Context="UserRowClick">
+                                                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) =>EditTraining(args, UserRowClick.TrainingId))" @onclick:stopPropagation="true" />
+                                                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" title="@translationState.Translate("delete")" Size="ButtonSize.Small" Click="@((args) =>DeleteTraining(args,UserRowClick.TrainingId))" @onclick:stopPropagation="true" />
+                                                                                    </Template>
+                                                                                </RadzenDataGridColumn>
+                                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="TrainingName" Title="@translationState.Translate("Training_Name")" SortOrder="SortOrder.Descending" />
+                                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="StartDate" Title="@translationState.Translate("Start_Date")" FormatString="{0:dd/MM/yyyy}" SortOrder="SortOrder.Descending">
+                                                                                    <Template Context="item">
+                                                                                        @String.Format("{0:d}", item.StartDate)
+                                                                                    </Template>
+                                                                                </RadzenDataGridColumn>
+                                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="EndDate" Title="@translationState.Translate("End_Date")" FormatString="{0:dd/MM/yyyy}" SortOrder="SortOrder.Descending">
+                                                                                    <Template Context="item">
+                                                                                        @String.Format("{0:d}", item.EndDate)
+                                                                                    </Template>
+                                                                                </RadzenDataGridColumn>
+                                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="TrainingCenterName" Title="@translationState.Translate("Training_Center_Name")" SortOrder="SortOrder.Descending" />
+                                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="TrainingLocation" Title="@translationState.Translate("Training_Center_Location")" SortOrder="SortOrder.Descending" />
+                                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="Comments" Title="@translationState.Translate("Comments")" SortOrder="SortOrder.Descending" />
+                                                                            </Columns>
+                                                                        </RadzenDataGrid>
+                                                                    </div>
+                                                                </RadzenCard>
+                                                            </div>
+                                                        </RadzenTabsItem>
+                                                    }
+                                                    <RadzenTabsItem Text="@translationState.Translate("Documents")">
+                                                        <div class="form-group">
+                                                            <RadzenCard>
+                                                                <FileUpload ReferenceGuid="@EmployeeVM.UserId"
+                                                                            Multiple="true"
+                                                                            MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                                                            FileTypes="@systemSettingState.FileTypes"
+                                                                            UploadFrom="UserManagment"
+                                                                            ShowFileNameField="true"
+                                                                            HideView="false"
+                                                                @bind-DeletedAttachementIds="@EmployeeVM.DeletedAttachementIds"
+                                                                            ModuleId="(int)WorkflowModuleEnum.UMS"
+                                                                            IgnoreAttachmentTypeRequiredValidator="true" />
+                                                            </RadzenCard>
+                                                        </div>
+                                                    </RadzenTabsItem>
+                                                </Tabs>
+                                            </RadzenTabs>
+                                        </RadzenAccordionItem>
+                                    }
+                                </Items>
+                            </RadzenAccordion>
+                        </RadzenCard>
+                        <div class="form-group mt-4">
+                            <RadzenCard>
+                                <div class="popup-buttons-alignment">
+                                    <div class="col-12 p-0">
+                                        <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                                      ButtonStyle="ButtonStyle.Primary"
+                                                      Text="@(Id == null ? translationState.Translate("Submit") : translationState.Translate("Update"))"
+                                                      IsBusy="@isBusy" />
+                                        <RadzenButton Text="@translationState.Translate("Cancel")"
+                                                      ButtonStyle="ButtonStyle.Light"
+                                                      Click="@ButtonCancelClick" />
+                                        @if (Id != null)
+                                        {
+                                            <RadzenButton Click="@OpenConfirmEmployeeDeactivationDialog" Text="@(EmployeeVM.UserEmploymentInformation.EmployeeStatusId==1? @translationState.Translate("Deactivate_Employee"): @translationState.Translate("Activate_Employee"))"
+                                                          ButtonStyle="ButtonStyle.Light" />
+                                        }
+                                    </div>
+                                </div>
+                            </RadzenCard>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+<style>
+    .rz-label {
+        width: 100%;
+    }
+
+    .rz-textarea {
+        height: 36px;
+    }
+</style>

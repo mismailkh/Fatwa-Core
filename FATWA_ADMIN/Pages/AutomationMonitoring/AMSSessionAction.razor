@@ -1,0 +1,45 @@
+﻿@page "/session-action/{SessionId}"
+@using FATWA_DOMAIN.Models.AdminModels.AutomationMonitoring;
+@layout MainLayout
+
+@*< History Author = 'Ijaz Ahmad' Date = '2024-06-24' Version = "1.0" Branch = "master"> Session Action</History>*@
+<PageTitle>@translationState.Translate("Session_Action")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.AutoMonInterface"))
+{
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <RadzenTemplateForm Data="@session" Visible="@(session != null)" TItem="AMSSession" Submit="@SaveChanges">
+                <div class="form-group ">
+                    <div class="col-12">
+                        <RadzenLabel Text="@translationState.Translate("Status")" Component="Status" /> <br />
+                        <RadzenDropDown Data="@Statuses" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                        TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;" @bind-Value="@session.StatusId" Name="Status" />
+                        <RadzenRequiredValidator DefaultValue="0" Component="Status" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+
+                </div>
+                <div class="form-group">
+                    <div class="col-12">
+                        <RadzenTextArea Placeholder="@translationState.Translate("Remarks")" @bind-Value="@session.Remarks" Rows=2 Cols=51 Name="Remarks" />
+                    </div>
+                </div>
+                <!-- Buttons Section -->
+                <div class="popup-buttons-alignment">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                  Style="margin-left: 10px; margin-right: 10px;"
+                                  ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                    </RadzenButton>
+                    <RadzenButton Text="@translationState.Translate("Cancel")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@Button2Click">
+                    </RadzenButton>
+                </div>
+            </RadzenTemplateForm>
+        </div>
+    </div>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

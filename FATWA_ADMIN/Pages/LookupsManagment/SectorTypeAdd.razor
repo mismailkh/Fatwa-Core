@@ -1,0 +1,102 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.CaseManagment;
+@using FATWA_DOMAIN.Models.TaskModels;
+@layout MainLayout
+@*< History Author = 'Ammaar Naveed' Date = '2024-06-04' Version = "1.0" Branch = "master"> UI fixations in pages and dialogs</History>*@
+<!-- <History Author = 'Nabeel Ur Rehman' Date='2022-09-09' Version="1.0" Branch="master">Add New Legal Principle Tags</History> -->
+ 
+
+<RadzenTemplateForm Data="@SectorType" Visible="@(SectorType != null)" TItem="OperatingSectorType" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="col-12">
+            <div class=" row">
+                <div class="col-6 form-group">
+                    <RadzenLabel Text="@(translationState.Translate("English_Name") + " *")" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("English_Name")" @bind-Value="@SectorType.Name_En" Name="Name_En"></RadzenTextBox>
+                    <RadzenRegexValidator Component="Name_En" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                    <RadzenRequiredValidator Component="Name_En" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                    <RadzenLengthValidator Component="Name_En" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                </div>
+
+                <div class="col-6 form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Arabic_Name") + " *")" />
+                    <RadzenTextBox class="form-control" Placeholder="@translationState.Translate("Arabic_Name")" @bind-Value="@SectorType.Name_Ar" Name="Name_Ar" />
+                    <RadzenRegexValidator Component="Name_Ar" Text="@translationState.Translate("Only_Arabic_Characters_Are_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                    <RadzenRequiredValidator Component="Name_Ar" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                    <RadzenLengthValidator Component="Name_Ar" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                </div>
+                <div class="col-6 form-group">
+                    <RadzenLabel Text="@translationState.Translate("G2G_BR_Site_ID")" />
+                        <RadzenNumeric class="pt-1 flex-grow-1" Min="1" Max="999" ShowUpDown="false" Name="G2GBRSiteID"
+                                       Style="width:100%"
+                                       Placeholder="@translationState.Translate("G2G_BR_Site_ID")"
+                        @bind-Value="@SectorType.G2GBRSiteID" TValue="int?" />
+                </div>
+                <div class="col-6 form-group">
+                    <RadzenLabel Text="@translationState.Translate("Roles")" />
+                    <RadzenDropDown Data="@SystemRoles"
+                                    SelectAllText="@translationState.Translate("Selected_All")"
+                                    SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                    Multiple="true"
+                                    AllowFiltering="true"
+                                    AllowClear="true"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name" : "NameAr" )"
+                                    ValueProperty="Id"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;"
+                    @bind-Value="SectorType.RoleIds"
+                                    Name="role" />
+                    <RadzenRequiredValidator DefaultValue="0" Component="role" Text="@translationState.Translate("Required_Field")" />
+                </div>
+
+                <div class="col-6 form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Building"))" />
+                    <RadzenDropDown Data="@Buildings"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                    ValueProperty="Id"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;"
+                    @bind-Value="SectorType.BuildingId"
+                                    Name="Building" />
+                    <RadzenRequiredValidator DefaultValue="0" Component="Building" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                </div>
+                <div class="col-6 form-group ">
+                    <RadzenLabel Text="@(translationState.Translate("Floor"))" />
+                    <RadzenDropDown Data="@Floors"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                    ValueProperty="Id"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;"
+                    @bind-Value="SectorType.FloorId"
+                                    Name="Floor" />
+                    <RadzenRequiredValidator DefaultValue="0" Component="Floor" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6">
+                    <RadzenRadioButtonList @bind-Value="@SectorType.IsViceHosResponsibleForAllLawyers" TValue="bool" Orientation=Orientation.Vertical class="mb-5">
+                        <Items>
+                            <RadzenRadioButtonListItem Text="@translationState.Translate("Vice_HOS_Responsible_Assigned")" Value="false" TValue="bool" />
+                            <RadzenRadioButtonListItem Text="@translationState.Translate("Vice_HOS_Responsible")" Value="true" TValue="bool" />
+                        </Items>
+                    </RadzenRadioButtonList>
+                </div>
+                <div class="col-md-6 pt-3">
+                    <RadzenCheckBox @bind-Value="@SectorType.IsOnlyViceHosApprovalRequired" Name="Vice_HOS_Approval" />
+                    <RadzenLabel Text="@translationState.Translate("Vice_HOS_Approval")" />
+                </div>
+            </div>
+            <div class="popup-buttons-alignment">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")"></RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Light"  Text="@translationState.Translate("Cancel")" Click="@Button2Click"></RadzenButton>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

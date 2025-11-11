@@ -1,0 +1,87 @@
+﻿@page "/grouptype-list"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+<PageTitle>@translationState.Translate("Group_Type")</PageTitle>
+
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.UMS"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Group_Type")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@(translationState.Translate("Group_Type"))" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row tableContent table-responsive no-gutters pb-3">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")" style="display: block; margin-bottom: 10px; width: 100%"
+                                               Name="Textbox0"
+                                @oninput="@(async(args) => { await groupAccessTypesGrid.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                            </div>
+                            <div class="col-md-8 text-right-custom-gridcolumn">
+                                <RadzenButton Icon="add_circle" style="margin-bottom: 10px" class="compareBtn" Text="@translationState.Translate("Create_Group_Type")" Click="@Button0Click" />
+                            </div>
+                        </div>
+                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        Data="@FilteredGroupAccessTypeList"
+                        @ref="groupAccessTypesGrid"
+                                        TItem="GroupTypeWebSystemVM"
+                                        Count="@(FilteredGroupAccessTypeList != null ? FilteredGroupAccessTypeList.Count() : 0)"
+                                        AllowFiltering="true"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        ColumnWidth="230px"
+                                        AllowSorting="true"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="GroupTypeWebSystemVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
+                                    <Template Context="GroupType">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) =>EditGroupType(args, GroupType.GroupTypeId))" @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="GroupTypeWebSystemVM" Property="Name" Title="@translationState.Translate("Grouptype_Name")" />
+                                <RadzenDataGridColumn TItem="GroupTypeWebSystemVM" Property=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "WebSystemsEn" : "WebSystemsAr") Title="@translationState.Translate("Websystem_Name")" />
+                            </Columns>
+                        </RadzenDataGrid>
+
+                    </RadzenCard>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

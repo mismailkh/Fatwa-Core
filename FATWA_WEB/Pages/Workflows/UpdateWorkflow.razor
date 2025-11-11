@@ -1,0 +1,1160 @@
+﻿@page "/update-workflow/{WorkflowId:int}"
+@layout MainLayout
+@*
+    @inherits FATWA_WEB.Pages.Workflows.CreateWorkflowComponent
+*@
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.WorkflowModels
+@using Syncfusion.Blazor.Diagram
+@using Syncfusion.Blazor.Diagram.SymbolPalette
+@using System.Collections.ObjectModel
+@using Radzen
+@using Radzen.Blazor
+@using static FATWA_GENERAL.Helper.Enum
+@using Syncfusion.Blazor.Navigations
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.DropDowns
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+@using static FATWA_DOMAIN.Enums.WorkflowParameterEnums;
+@using static FATWA_DOMAIN.Enums.WorkflowEnums;
+
+@*Create-Update-Region*@
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.WF.Workflow.Create").Any())
+{
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/workflows" Text="@translationState.Translate("Workflows")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Create_Workflow")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard"> 
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Create_Workflow")" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row wf-row-main">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 p-0">
+                    <RadzenPanel AllowCollapse="true">
+                        <HeaderTemplate>
+                            <div class="row d-block text-center">
+                                <h2 class="mb-2"></h2>
+                            </div>
+                        </HeaderTemplate>
+                        <ChildContent>
+                            <RadzenCard class="mt-2">
+
+                                <div class="row mt-2">
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="k-form-field">
+                                                    <div class="k-form-field-wrap">
+                                                        <label for="ccs" class="k-label k-form-label">@(translationState.Translate("Name") + "*")</label>
+                                                        <div class="k-form-field-wrap">
+                                                            <RadzenTextBox Style="width:100%;max-width:100%;" Placeholder="@translationState.Translate("Name")" @bind-Value="workflow.Name"></RadzenTextBox>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="k-form-field">
+                                                    <div class="k-form-field-wrap">
+                                                        <label for="ccs" class="k-label k-form-label">@translationState.Translate("Description")</label>
+                                                        <div class="k-form-field-wrap">
+                                                            <RadzenTextArea Style="width:100%;max-width:100%;" Rows="6" Placeholder="@translationState.Translate("Description")" @bind-Value="workflow.Description"></RadzenTextArea>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="k-form-field">
+                                                    <div class="k-form-field-wrap">
+                                                        <label for="ccs" class="k-label k-form-label">@(translationState.Translate("Workflow_Module") + "*")</label>
+                                                        <div class="k-form-field-wrap">
+                                                            <RadzenDropDown TValue="@MainWorkflowModuleEnum"
+                                                                        Data="@ModuleResult"
+                                                                        Style="width:100%;max-width:100%;"
+                                                                        PageSize="20"
+                                                                        @bind-Value="@MainWorkflowModuleId"
+                                                                        TextProperty="mainWorkflowModuleEnumName"
+                                                                        ValueProperty="mainWorkflowModuleEnumValue"
+                                                                        AllowClear=true
+                                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                        Placeholder="@translationState.Translate("Select")"
+                                                                        Change="@GetSubModuleDataList">
+                                                            </RadzenDropDown>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="k-form-field">
+                                                    <div class="k-form-field-wrap">
+                                                        <label for="ccs" class="k-label k-form-label">@translationState.Translate("Sub_Module") *</label>
+                                                        <div class="k-form-field-wrap">
+                                                                <RadzenDropDown TValue="@int"
+                                                                        TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") 
+                                                                        ValueProperty="Id"
+                                                                        Data="@workflowResultList"
+                                                                        @bind-Value="@workflow.SubModuleId"
+                                                                        Style="width:100%;max-width:100%;"
+                                                                        Placeholder="@translationState.Translate("Select")"
+                                                                        AllowClear=true
+                                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                        Change="@PopulateTriggers">
+                                                                </RadzenDropDown>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="k-form-field">
+                                                    <div class="k-form-field-wrap">
+                                                        <label for="ccs" class="k-label k-form-label">@translationState.Translate("Workflow_Trigger") *</label>
+                                                        <div class="k-form-field-wrap">
+                                                            <RadzenDropDown TValue="@int"
+                                                                        Data="@TriggerResultList"
+                                                                        @bind-Value="@workflow.WorkflowTrigger.ModuleTriggerId"
+                                                                        Style="width:100%;max-width:100%;"
+                                                                        TextProperty="Name"
+                                                                        ValueProperty="ModuleTriggerId"
+                                                                        AllowClear=true
+                                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                        Placeholder="@translationState.Translate("Select")"
+                                                                        Change="@GetTriggerDetails"
+                                                                            Disabled="@(workflow.WorkflowTrigger.ModuleTriggerId>0)">
+                                                                <Template Context="trigger">
+                                                                    @translationState.Translate($"{trigger.Name}")
+                                                                </Template>
+                                                            </RadzenDropDown>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12">
+                                                <div class="k-form-field">
+                                                    @if (workflow.WorkflowTrigger.ModuleTriggerId != null && (workflow.WorkflowTrigger.ModuleTriggerId == (int)WorkflowModuleTriggerEnum.UserSubmitsCaseDraft || workflow.WorkflowTrigger.ModuleTriggerId == (int)WorkflowModuleTriggerEnum.UserSubmitsConsultationDraft ||
+                                                   workflow.WorkflowTrigger.ModuleTriggerId == (int)WorkflowModuleTriggerEnum.UserSubmitsDMSDocument))
+                                                    {
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Type_of_Draft") *</label>
+                                                            <div class="k-form-field-wrap">
+                                                                    <RadzenDropDown Data="@draftTypeResult"
+                                                                        Style="width:100%;max-width:100%;"
+                                                                        @bind-Value="@workflow.AttachmentTypeId"
+                                                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                        TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar")
+                                                                        ValueProperty="AttachmentTypeId"
+                                                                        AllowClear=true
+                                                                        SelectAllText="@translationState.Translate("Selected_All")" 
+                                       SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                                                        Multiple="true"
+                                                                        Placeholder="@translationState.Translate("Select")"
+                                                                        Change="@GetTriggerDetails">
+                                                                    </RadzenDropDown>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenCard>
+                        </ChildContent>
+                        <SummaryTemplate>
+                            <div class="d-flex justify-content-center">
+                                <RadzenCard class="mt-2 col-12 text-center">
+                                    <b>@translationState.Translate("Workflow_Details")</b>
+                                </RadzenCard>
+                            </div>
+                        </SummaryTemplate>
+                    </RadzenPanel>
+                    <br />
+                    @if (ShowWorkflowDetail)
+                    {
+                        <RadzenCard class="text-center workflow-detail-card">
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <RadzenPanel AllowCollapse="false">
+                                        <HeaderTemplate>
+                                            <div class="row d-block text-center">
+                                                <h2 class="m-0">
+                                                    <b>@translationState.Translate("Workflow_Trigger")</b>
+                                                </h2>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <ChildContent>
+                                            <div class="d-flex justify-content-center">
+                                                <RadzenCard class="rz-card card m-3 trigger-card">
+                                                    <div class="row">
+                                                        <div class="col-md-12 text-truncate">
+                                                            <h4>@translationState.Translate($"{workflow?.ModuleTriggerVM?.Name}")</h4>
+                                                        </div>
+                                                    </div>
+                                                    @if (workflow.ModuleTriggerVM.IsConditional)
+                                                    {
+                                                        <hr style="border: none;background-color: rgba(0,0,0,.08);height: 1px;margin: 0.5rem 0;">
+                                                        <div class="row mt-2">
+                                                            <div class="col-md-12">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <TelerikCheckBox title="@translationState.Translate("Conditions")" Class="m-2" @bind-Value="@workflow.WorkflowTrigger.HasConditions"></TelerikCheckBox>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </RadzenCard>
+                                            </div>
+                                            @if (workflow.WorkflowTrigger != null && workflow.WorkflowTrigger.HasConditions)
+                                            {
+                                                <RadzenCard class="mt-3 branch-card">
+                                                    <div class="row d-block text-center">
+                                                        <h2 class="m-0">
+                                                            <RadzenIcon Icon="vertical_align_bottom" Class="mr-1" Style="font-size:30px" />
+                                                        </h2>
+                                                    </div>
+                                                    <div class="row mt-3">
+                                                        <div class="col-md-12 text-truncate">
+                                                            <h4>
+                                                                @translationState.Translate("Trigger_Conditions")
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row">
+                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                            <SfTab CssClass="default-tab">
+                                                                <TabItems>
+                                                                    <TabItem>
+                                                                        <ChildContent>
+                                                                            <TabHeader Text="Conditions"></TabHeader>
+                                                                        </ChildContent>
+                                                                        <ContentTemplate>
+                                                                            <TelerikButton Class="mt-3 mb-3" Icon="plus-outline" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="@ThemeConstants.Button.ThemeColor.Dark" OnClick="@( () => InsertRow(false, 0) )" Enabled=@(conditionToInsert == null && optionToInsert == null)>@translationState.Translate("Add_Condition")</TelerikButton>
+                                                                            <div class="table-responsive">
+                                                                                <RadzenDataGrid @ref="triggerConditionsGrid" EmptyText="@translationState.Translate("No_record_found")" AllowPaging="true" PageSize="5" EditMode="DataGridEditMode.Single"
+                                                                                    Data="@workflow.WorkflowTrigger.WorkflowConditions" RowCollapse="@OnRowCollapse" ExpandMode="DataGridExpandMode.Single" Width="100%" TItem="WorkflowCondition" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+                                                                                    <Template Context="condition">
+                                                                                        @if (condition?.IsOption == true && conditionToInsert == null)
+                                                                                        {
+                                                                                            <div class="row justify-content-Center">
+                                                                                                <div class="col-md-12">
+                                                                                                    <RadzenCard>
+                                                                                                        <TelerikButton Class="mt-3 mb-3" Icon="plus-outline" ButtonType="Telerik.Blazor.ButtonType.Button" Enabled=@(optionToInsert == null) ThemeColor="@ThemeConstants.Button.ThemeColor.Dark" OnClick="@( () => InsertOptionRow(true, condition?.ConditionGuid,condition.SequenceNumber) )">@translationState.Translate("Add_Option")</TelerikButton>
+                                                                                                        <div class="table-responsive wf-options-grid">
+                                                                                                            <RadzenDataGrid @ref="myOptionComponents[condition?.ConditionGuid]" EmptyText="@translationState.Translate("No_record_found")" Data="@condition?.workflowConditionOptions" TItem="WorkflowConditionOptions" RowCreate="@OnTriggerConditionOptionCreateRow" RowUpdate="@OnTriggerConditionOptionUpdateRow" AllowPaging="true" PageSize="5" EditMode="DataGridEditMode.Single" ExpandMode="DataGridExpandMode.Single">
+                                                                                                                <Columns>
+                                                                                                                    <RadzenDataGridColumn TItem="WorkflowConditionOptions" Property="OptionName" Title=@translationState.Translate("Condition_Option")>
+                                                                                                                        <EditTemplate Context="option">
+                                                                                                                            <RadzenDropDown @bind-Value="option.ModuleOptionId" Data="@ModuleOptions.ExceptBy(condition.workflowConditionOptions.Where(e => e.ModuleOptionId != option.ModuleOptionId).Select(e => e.ModuleOptionId), x => x.ModuleOptionId).Where(e => e.IsTriggerSpecific == true)" TextProperty="Name" Placeholder="@translationState.Translate("Select")" ValueProperty="ModuleOptionId" Style="width:100%; display: block;">
+                                                                                                                                <Template Context="options">
+                                                                                                                                    @translationState.Translate($"{options.Name}")
+                                                                                                                                </Template>
+                                                                                                                            </RadzenDropDown>
+                                                                                                                        </EditTemplate>
+                                                                                                                        <Template Context="option">
+                                                                                                                            @translationState.Translate($"{option.OptionName}")
+                                                                                                                        </Template>
+                                                                                                                    </RadzenDataGridColumn>
+                                                                                                                    <RadzenDataGridColumn TItem="WorkflowConditionOptions" Property="TrueCaseFlowControlId" Title="@translationState.Translate("Flow_Control")">
+                                                                                                                        <EditTemplate Context="option">
+                                                                                                                            <RadzenDropDown TValue="WorkflowControl" Data="@WorkflowControlOptions" AllowFiltering="true" AllowClear="true"
+                                                                                                                                            TextProperty="WorkflowControlEnumName" ValueProperty="WorkflowControlEnumValue" Placeholder="@translationState.Translate("Select")"
+                                                                                                                            @bind-Value="@(option.TrueCaseFlowControlId)" Style="display:block;"
+                                                                                                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                                                                                                                            </RadzenDropDown>
+                                                                                                                        </EditTemplate>
+                                                                                                                        <Template Context="option">
+                                                                                                                            @translationState.Translate($"{option.TrueCaseFlowControlId}")
+                                                                                                                        </Template>
+                                                                                                                    </RadzenDataGridColumn>
+
+                                                                                                                    <RadzenDataGridColumn TItem="WorkflowConditionOptions" Property="TrueCaseActivityName" Title="Activity" Width="170px">
+                                                                                                                        <EditTemplate Context="option">
+                                                                                                                            <SfDropDownList TItem="WorkflowActivity"
+                                                                                                                                            TValue="int"
+                                                                                                                                            DataSource="@workflow.WorkflowActivities.Where(wa=>wa.SequenceNumber!= option.SequenceNumber)"
+                                                                                                                                            Placeholder="@translationState.Translate("Select")"
+                                                                                                                                            Enabled="option.TrueCaseFlowControlId == WorkflowControl.JumptoStep"
+                                                                                                                            @bind-Value="option.TrueCaseActivityNo"
+                                                                                                                                            PopupWidth="auto"
+                                                                                                                                            CssClass="align-center p-1">
+                                                                                                                                <DropDownListTemplates TItem="WorkflowActivity" Context="item">
+                                                                                                                                    <ValueTemplate>
+                                                                                                                                        @translationState.Translate($"{item.ActivityName}")
+                                                                                                                                    </ValueTemplate>
+                                                                                                                                    <FooterTemplate>
+                                                                                                                                        <hr>
+                                                                                                                                        <RadzenButton Click="@(() => AddActivity(0,true))" ButtonStyle="ButtonStyle.Danger" Icon="add_circle_outline" Style="font-size:50px" Size="ButtonSize.Medium" />
+                                                                                                                                    </FooterTemplate>
+                                                                                                                                </DropDownListTemplates>
+                                                                                                                                <DropDownListFieldSettings IconCss="e-icons e-chevron-down-fill" Value="SequenceNumber"
+                                                                                                                                                           Text="ActivityName">
+                                                                                                                                </DropDownListFieldSettings>
+                                                                                                                            </SfDropDownList>
+                                                                                                                        </EditTemplate>
+                                                                                                                        <Template Context="option">
+                                                                                                                            @translationState.Translate($"{option.TrueCaseActivityName}")
+                                                                                                                        </Template>
+                                                                                                                    </RadzenDataGridColumn>
+                                                                                                                    <RadzenDataGridColumn TItem="WorkflowConditionOptions" Context="condition" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="120px" Title="@translationState.Translate("Actions")">
+                                                                                                                        <Template Context="option">
+                                                                                                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Danger" Style="background-color: #404040 !important;" Class="m-1" Click="@(args => EditOptionRow(option))" @onclick:stopPropagation="true">
+                                                                                                                            </RadzenButton>
+                                                                                                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteOptionRow(condition,option))" @onclick:stopPropagation="true">
+                                                                                                                            </RadzenButton>
+                                                                                                                        </Template>
+                                                                                                                        <EditTemplate Context="option">
+                                                                                                                            <RadzenButton Icon="check"
+                                                                                                                                          ButtonStyle="ButtonStyle.Danger" Style="background-color: #736356;" Class="m-1"
+                                                                                                                                          Disabled="option.ModuleOptionId > 0 && option.TrueCaseFlowControlId > 0
+                                                                                                             ? option.TrueCaseFlowControlId == WorkflowControl.EndofFlow ? false
+                                                                                                             : option.TrueCaseFlowControlId == WorkflowControl.JumptoStep && option.TrueCaseActivityNo > 0 ? false: true: true"
+                                                                                                                                          Click="@((args) => SaveOptionRow(option))">
+                                                                                                                            </RadzenButton>
+                                                                                                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteOptionRow(condition ,option))">
+                                                                                                                            </RadzenButton>
+                                                                                                                        </EditTemplate>
+                                                                                                                    </RadzenDataGridColumn>
+                                                                                                                </Columns>
+                                                                                                            </RadzenDataGrid>
+                                                                                                        </div>
+                                                                                                    </RadzenCard>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        }
+                                                                                    </Template>
+                                                                                    <Columns>
+                                                                                        <RadzenDataGridColumn TItem="WorkflowCondition" Property="ConditionName" Title="Condition">
+                                                                                            <EditTemplate Context="condition">
+                                                                                                <RadzenDropDown @bind-Value="condition.ModuleConditionId" Change="(args => OnConditionChange(condition, null))" Data="@ModuleConditions.Where(x => x.IsTriggerSpecific).ExceptBy(workflow.WorkflowTrigger.WorkflowConditions.Where(e => e.ModuleConditionId != condition.ModuleConditionId).Select(e => e.ModuleConditionId), x => x.ModuleConditionId)" TextProperty="Name" ValueProperty="ModuleConditionId" Style="width:100%; display: block;">
+                                                                                                    <Template Context="conditions">
+                                                                                                        @translationState.Translate($"{conditions.Name}")
+                                                                                                    </Template>
+                                                                                                </RadzenDropDown>
+                                                                                            </EditTemplate>
+                                                                                            <Template Context="condition">
+                                                                                               @translationState.Translate($"{condition.ConditionName}")
+                                                                                            </Template>
+                                                                                        </RadzenDataGridColumn>
+
+                                                                                        <RadzenDataGridColumn TItem="WorkflowCondition" Property="TrueCaseFlowControlId" Title="@translationState.Translate("Flow_Controls")">
+                                                                                            <EditTemplate Context="condition">
+                                                                                                <RadzenDropDown TValue="WorkflowControl" Data="@WorkflowControlOptions" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                                                    TextProperty="WorkflowControlEnumName" ValueProperty="WorkflowControlEnumValue" Placeholder="@translationState.Translate("Select")"
+                                                                                                    @bind-Value="@(condition.TrueCaseFlowControlId)" Style="display:block;">
+                                                                                                </RadzenDropDown>
+                                                                                            </EditTemplate>
+                                                                                            <Template Context="condition">
+                                                                                                @(condition.TrueCaseFlowControlId != 0 ? @translationState.Translate($"{condition.TrueCaseFlowControlId}") : @translationState.Translate("N/A"))
+                                                                                            </Template>
+                                                                                        </RadzenDataGridColumn>
+                                                                                        <RadzenDataGridColumn TItem="WorkflowCondition" Property="TrueCaseActivityName" Title="@translationState.Translate("Activity")">
+                                                                                            <EditTemplate Context="condition">
+                                                                                                <SfDropDownList TItem="WorkflowActivity"
+                                                                                                    TValue="int"
+                                                                                                    DataSource="@workflow.WorkflowActivities.Where(wa=>wa.SequenceNumber!= condition.SequenceNumber)"
+                                                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                                                    Enabled="condition.TrueCaseFlowControlId == WorkflowControl.JumptoStep"
+                                                                                                    @bind-Value="condition.TrueCaseActivityNo"
+                                                                                                    PopupWidth="auto"
+                                                                                                    CssClass="align-center p-1">
+                                                                                                    <DropDownListTemplates TItem="WorkflowActivity" Context="item">
+                                                                                                        <ValueTemplate>
+                                                                                                           @translationState.Translate($"{item.ActivityName}")
+                                                                                                        </ValueTemplate>
+                                                                                                        <FooterTemplate>
+                                                                                                            <hr>
+                                                                                                            <RadzenButton Click="@(() => AddActivity(0,true))" ButtonStyle="ButtonStyle.Danger" Icon="add_circle_outline" Style="font-size:50px" Size="ButtonSize.Medium" />
+                                                                                                        </FooterTemplate>
+                                                                                                    </DropDownListTemplates>
+                                                                                                    <DropDownListFieldSettings Value="SequenceNumber"
+                                                                                                                   Text="ActivityName">
+                                                                                                    </DropDownListFieldSettings>
+                                                                                                </SfDropDownList>
+                                                                                            </EditTemplate>
+                                                                                            <Template Context="condition">
+                                                                                                @translationState.Translate($"{condition.TrueCaseActivityName}")
+                                                                                            </Template>
+                                                                                        </RadzenDataGridColumn>
+                                                                                        <RadzenDataGridColumn TItem="WorkflowCondition" Context="condition" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="120px" Title="@translationState.Translate("Action")">
+                                                                                            <Template Context="condition">
+                                                                                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Danger" Style="background-color: #404040 !important;" Class="m-1" Click="@(args => EditRow(condition))" @onclick:stopPropagation="true">
+                                                                                                </RadzenButton>
+                                                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteRow(condition, null))" @onclick:stopPropagation="true">
+                                                                                                </RadzenButton>
+                                                                                                @if (!condition.workflowConditionOptions.Any())
+                                                                                                {
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Class="m-1" Click="@((args) => ChangeHandler(condition))" Disabled="@(condition.ModuleConditionId <= 0)">
+                                                                                                        @translationState.Translate("Add_Options")
+                                                                                                    </RadzenButton>
+                                                                                                }
+                                                                                                else if (!condition.IsCollapse && condition.workflowConditionOptions.Any())
+                                                                                                {
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Click="@((args) => DeleteConditionOptions(condition))">@translationState.Translate("Delete_Options")</RadzenButton>
+                                                                                                }
+                                                                                                else if (condition.IsCollapse && condition.workflowConditionOptions.Any())
+                                                                                                {
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Click="@((args) => ConditionOptionsDetail(condition))">@translationState.Translate("View_Options")</RadzenButton>
+                                                                                                }
+                                                                                            </Template>
+                                                                                            <EditTemplate Context="condition">
+                                                                                                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Danger" Style="background-color: #736356;" Class="m-1" Disabled="condition.ModuleConditionId > 0 && condition.TrueCaseFlowControlId > 0 ? condition.TrueCaseFlowControlId == WorkflowControl.EndofFlow ? false : condition.TrueCaseFlowControlId == WorkflowControl.JumptoStep && condition.TrueCaseActivityNo > 0 ? false : true : true" Click="@((args) => SaveRow(condition))">
+                                                                                                </RadzenButton>
+                                                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteRow(condition, null))">
+                                                                                                </RadzenButton>
+                                                                                                @if (!condition.workflowConditionOptions.Any())
+                                                                                                {
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Class="m-1" Click="@((args) => ChangeHandler(condition))" Disabled="@(condition.ModuleConditionId <= 0)">
+                                                                                                        @translationState.Translate("Add_Options")
+                                                                                                    </RadzenButton>
+                                                                                                }
+                                                                                                else if (!condition.IsCollapse && condition.workflowConditionOptions.Any())
+                                                                                                {
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Click="@((args) => DeleteConditionOptions(condition))">@translationState.Translate("Delete_Options")</RadzenButton>
+                                                                                                }
+                                                                                                else if (condition.IsCollapse && condition.workflowConditionOptions.Any())
+                                                                                                {
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Click="@((args) => ConditionOptionsDetail(condition))">@translationState.Translate("View_Options")</RadzenButton>
+                                                                                                }
+                                                                                            </EditTemplate>
+                                                                                        </RadzenDataGridColumn>
+                                                                                    </Columns>
+                                                                                </RadzenDataGrid>
+                                                                            </div>
+
+                                                                        </ContentTemplate>
+                                                                    </TabItem>
+                                                                </TabItems>
+                                                            </SfTab>
+                                                        </div>
+                                                    </div>
+                                                </RadzenCard>
+                                            }
+                                         @if (workflow.ModuleTriggerVM != null && workflow.ModuleTriggerVM.IsOptional && (workflow.ModuleTriggerVM.ModuleTriggerId >= (int)WorkflowModuleTriggerEnum.TransferCaseRequest && workflow.ModuleTriggerVM.ModuleTriggerId <= (int)WorkflowModuleTriggerEnum.TransferConfidentialConsultationFile || workflow.ModuleTriggerVM.ModuleTriggerId == (int)WorkflowModuleTriggerEnum.TransferConfidentialConsultationRequestPrivateOffice || workflow.ModuleTriggerVM.ModuleTriggerId == (int)WorkflowModuleTriggerEnum.TransferConfidentialCaseRequestPrivateOffice))
+                                            {
+                                                <RadzenCard class="mt-3 branch-card">
+                                                    <div class="row d-block text-center">
+                                                        <h2 class="m-0">
+                                                            <RadzenIcon Icon="vertical_align_bottom" Class="mr-1" Style="font-size:30px" />
+                                                        </h2>
+                                                    </div>
+                                                    <div class="row mt-3">
+                                                        <div class="col-md-12 text-truncate">
+                                                            <h4>
+                                                                @translationState.Translate("Trigger_Options")
+                                                            </h4>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row">
+                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                            <SfTab CssClass="default-tab">
+                                                                <TabItems>
+                                                                    <TabItem>
+                                                                        <ChildContent>
+                                                                            <TabHeader Text="@translationState.Translate("Trigger_Options")"></TabHeader>
+                                                                        </ChildContent>
+                                                                        <ContentTemplate>
+                                                                            <TelerikButton Class="mt-3 mb-3" Icon="plus-outline" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="@ThemeConstants.Button.ThemeColor.Dark" OnClick="@( () => InsertRowTriggerSectorOption() )" Enabled=@(triggerSectorOptionToInsert == null)>@translationState.Translate("Add_Transfer_Option")</TelerikButton>
+                                                                            <div class="table-responsive">
+                                                                                <RadzenDataGrid @ref="triggerSectorOptionGrid" EmptyText="@translationState.Translate("No_record_found")" AllowPaging="true" PageSize="5" EditMode="DataGridEditMode.Single"
+                                                                                    Data="@workflow.WorkflowTrigger.WorkflowTriggerSectorOptions" TItem="WorkflowTriggerSectorOptions" RowUpdate="@OnUpdateRowTriggerSectorOption" RowCreate="@OnCreateRowTriggerSectorOption">
+                                                                                    <Columns>
+                                                                                        <RadzenDataGridColumn TItem="WorkflowTriggerSectorOptions" Property="SectorFrom" Title="@translationState.Translate("Sector")">
+                                                                                            <EditTemplate Context="option">
+                                                                                                <RadzenDropDown @bind-Value="option.SectorFrom" Data="@(SectorTypes.Except((option.SectorFrom != null ? workflow.WorkflowTrigger.WorkflowTriggerSectorOptions.Where(e => e.SectorFrom.Id != option.SectorFrom.Id) : workflow.WorkflowTrigger.WorkflowTriggerSectorOptions).Select(x => x.SectorFrom).ToList()))" TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" Style="width:100%; display: block;" />
+                                                                                            </EditTemplate>
+                                                                                            <Template Context="option">
+                                                                                                @string.Join(", ", Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? option.SectorFrom.Name_En : option.SectorFrom.Name_Ar)
+                                                                                            </Template>
+                                                                                        </RadzenDataGridColumn>
+                                                                                        <RadzenDataGridColumn TItem="WorkflowTriggerSectorOptions" Property="SectorToIds" Title="@translationState.Translate("Transfer_Options")">
+                                                                                            <EditTemplate Context="option">
+                                                                                                <RadzenDropDown Data="@SectorTypes.Where(s => option.SectorFrom != null && s.Id != option.SectorFrom.Id)"
+                                                                                                    Style="width:100%;max-width:100%;"
+                                                                                                    @bind-Value="@option.SectorToIds"
+                                                                                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                                    AllowClear=true
+                                                                                                                SelectAllText="@translationState.Translate("Selected_All")"
+                                                                                                                SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                                                                                    Multiple="true"
+                                                                                                    Disabled="@(option.SectorFrom == null || option.SectorFrom.Id <= 0)"
+                                                                                                    Placeholder="@translationState.Translate("Select")">
+                                                                                                </RadzenDropDown>
+                                                                                            </EditTemplate>
+                                                                                            <Template Context="option">
+                                                                                                <RadzenLabel Style="white-space: pre-wrap;width:500px;" Text="@string.Join(", ", option.SectorToIds.Select(r => Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? r.Name_En : r.Name_Ar))" />
+                                                                                            </Template>
+                                                                                        </RadzenDataGridColumn>
+                                                                                        <RadzenDataGridColumn TItem="WorkflowTriggerSectorOptions" Context="option" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="120px" Title="@translationState.Translate("Action")">
+                                                                                            <Template Context="option">
+                                                                                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Danger" Style="background-color: #404040 !important;" Class="m-1" Click="@(args => EditRowTriggerSectorOption(option))" @onclick:stopPropagation="true">
+                                                                                                </RadzenButton>
+                                                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteRowTriggerSectorOption(option))" @onclick:stopPropagation="true">
+                                                                                                </RadzenButton>
+                                                                                            </Template>
+                                                                                            <EditTemplate Context="option">
+                                                                                                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Danger" Style="background-color: #736356;" Class="m-1" Disabled="option.SectorFrom == null || !option.SectorToIds.Any()" Click="@((args) => SaveRowTriggerSectorOption(option))">
+                                                                                                </RadzenButton>
+                                                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteRowTriggerSectorOption(option))">
+                                                                                                </RadzenButton>
+                                                                                            </EditTemplate>
+                                                                                        </RadzenDataGridColumn>
+                                                                                    </Columns>
+                                                                                </RadzenDataGrid>
+                                                                            </div>
+
+                                                                        </ContentTemplate>
+                                                                    </TabItem>
+                                                                </TabItems>
+                                                            </SfTab>
+                                                        </div>
+                                                    </div>
+                                                </RadzenCard>
+                                            }
+                                        </ChildContent>
+                                        <SummaryTemplate>
+                                            <div class="d-flex justify-content-center">
+                                                <RadzenCard class="mt-3">
+                                                    <b>@translationState.Translate($"{workflow.ModuleTriggerVM.Name}")</b>
+                                                </RadzenCard>
+                                            </div>
+                                        </SummaryTemplate>
+                                    </RadzenPanel>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <RadzenPanel AllowCollapse="true">
+
+                                        <HeaderTemplate>
+                                            <div class="row d-block text-center">
+                                                <h2 class="m-0">
+                                                    <b>@translationState.Translate("Workflow_Activities")</b>
+                                                </h2>
+                                            </div>
+                                        </HeaderTemplate>
+                                        <ChildContent>
+                                            @foreach (var activity in workflow.WorkflowActivities)
+                                            {
+                                                <RadzenPanel AllowCollapse="true">
+                                                    <HeaderTemplate>
+                                                        <div class="row d-block text-center mt-3">
+                                                            <h4 class="m-0">
+                                                                <RadzenBadge BadgeStyle="BadgeStyle.Light" Text=@(activity.SequenceNumber.ToString()) Class="mr-3" />
+                                                            </h4>
+                                                        </div>
+                                                    </HeaderTemplate>
+                                                    <ChildContent>
+                                                        <div class="d-flex justify-content-center">
+                                                            <RadzenCard class="mt-3 activity-card">
+                                                                <RadzenButton Click="@(() => RemoveActivity(activity))" class="custom-btn btn-delete-workflow-activity" Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" />
+                                                                <div class="row mt-3">
+                                                                    <div class="col-md-12 text-truncate">
+                                                                        <h4>
+                                                                            @translationState.Translate($"{activity.ModuleActivity.Name}")
+                                                                        </h4>
+                                                                    </div>
+                                                                </div>
+                                                                <hr style="border: none; background-color: rgba(0,0,0,.08); height: 1px; margin: 0.5rem 0;" />
+                                                                @if ((MainWorkflowModuleId != MainWorkflowModuleEnum.CaseManagement && MainWorkflowModuleId != MainWorkflowModuleEnum.ConsultationManagement) || (workflow.WorkflowTrigger.ModuleTriggerId == (int)WorkflowModuleTriggerEnum.UserSubmitsDMSDocument))
+                                                                {
+                                                                    @if (!activity.ModuleActivity.IsEndofFlow && (WorkflowActivityEnum)Enum.Parse(typeof(WorkflowActivityEnum), activity.ModuleActivity.AKey) != WorkflowActivityEnum.InitiatorDocumentModification)
+                                                                    {
+                                                                        <div class="row text-center">
+                                                                            @foreach (var param in activity.Parameters)
+                                                                            {
+                                                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mx-auto">
+                                                                                    <div class="k-form-field">
+                                                                                        <div class="k-form-field-wrap">
+                                                                                            <label for="ccs" class="k-label k-form-label">@param.Name @(param.Mandatory ? "*" : "")</label>
+                                                                                            <div class="k-form-field-wrap">
+                                                                                                <WorkflowActivityParameter ParameterType="@((WorkflowParams)Enum.Parse(typeof(WorkflowParams),param.PKey))" @bind-ParamValue="@param.Value" Class="@param.Class" SubModuleId="@workflow.SubModuleId"></WorkflowActivityParameter>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            }
+                                                                        </div>
+
+                                                                    }
+                                                                }
+                                                                @if (MainWorkflowModuleId == MainWorkflowModuleEnum.CaseManagement || MainWorkflowModuleId == MainWorkflowModuleEnum.ConsultationManagement)
+                                                                {
+                                                                    <div class="row mt-2 text-center">
+                                                                        @if ((!activity.ModuleActivity.IsEndofFlow || (workflow.ModuleTriggerVM.ModuleTriggerId > (int)WorkflowModuleTriggerEnum.UserSubmitsDMSDocument && workflow.ModuleTriggerVM.ModuleTriggerId <= (int)WorkflowModuleTriggerEnum.SendCopyCaseFile)) && MainWorkflowModuleId != MainWorkflowModuleEnum.LegalLibrarySystem)
+                                                                        {
+                                                                            <div class="col-md-6">
+                                                                                <div class="row d-block text-center">
+                                                                                    <h4 class="m-0">
+                                                                                        <RadzenIcon title="@translationState.Translate("Generate_Task")" Icon="task" Class="mr-1" Style="font-size:32px;color: #8c7b6c;margin-right: 0px !important;" />
+                                                                                    </h4>
+                                                                                </div>
+                                                                                <div class="row">
+                                                                                    <div class="col-md-12">
+                                                                                        <TelerikCheckBox title="@translationState.Translate("Generate_Task")" Class="m-2" @bind-Value="@activity.IsTask"></TelerikCheckBox>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        }
+
+                                                                        <div class="col-md-6">
+                                                                            <div class="row d-block text-center">
+                                                                                <h4 class="m-0">
+                                                                                    <RadzenIcon title="@translationState.Translate("Generate_Notification")" Icon="notifications" Class="mr-1" Style="font-size:32px;color: #8c7b6c;margin-right: 0px !important;" />
+                                                                                </h4>
+                                                                            </div>
+                                                                            <div class="row">
+                                                                                <div class="col-md-12">
+                                                                                    <TelerikCheckBox title="@translationState.Translate("Generate_Notification")" Class="m-2" @bind-Value="@activity.IsNotification"></TelerikCheckBox>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                }
+                                                                else
+                                                                {
+
+                                                                }
+                                                            </RadzenCard>
+                                                        </div>
+                                                        @if ((bool)activity.HasSLA)
+                                                        {
+                                                            <RadzenCard class="mt-3 branch-card">
+                                                                <div class="row">
+                                                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                        <SfTab CssClass="default-tab">
+                                                                            <TabItems>
+                                                                                <TabItem>
+                                                                                    <ChildContent>
+                                                                                        <TabHeader Text="@translationState.Translate("SLAs")"></TabHeader>
+                                                                                    </ChildContent>
+                                                                                    <ContentTemplate>
+                                                                                        <TelerikButton Class="mt-3 mb-3" Icon="plus-outline" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="primary" OnClick="@( () => InsertRowSLA(activity.SequenceNumber) )" Enabled=@(slaToInsert == null && activity.SLAs.Count() < 1)>@translationState.Translate("SLA")</TelerikButton>
+                                                                                        <div class="">
+                                                                                            <RadzenDataGrid @ref="mySLAs[activity.SequenceNumber]" EmptyText="@translationState.Translate("No_record_found")" AllowPaging="true" PageSize="5" EditMode="DataGridEditMode.Single"
+                                                                                            Data="@activity.SLAs" ExpandMode="DataGridExpandMode.Single" TItem="SLA" RowUpdate="@OnUpdateRowSLA" RowCreate="@OnCreateRowSLA">
+                                                                                                <Template Context="sla">
+                                                                                                    @if (sla.Parameters?.Count() > 0)
+                                                                                                    {
+                                                                                                        <RadzenCard Style="margin-bottom:20px">
+                                                                                                            <h5>@translationState.Translate("Configure_SLA_Properties")</h5>
+                                                                                                            <div class="row text-center">
+                                                                                                                @foreach (var param in sla.Parameters)
+                                                                                                                {
+                                                                                                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 mx-auto">
+                                                                                                                        <div class="k-form-field">
+                                                                                                                            <div class="k-form-field-wrap">
+                                                                                                                                <label for="ccs" class="k-label k-form-label">@param.Name @(param.Mandatory ? "*" : "")</label>
+                                                                                                                                <div class="k-form-field-wrap">
+                                                                                                                                    <WorkflowActivityParameter ParameterType="@((WorkflowParams)Enum.Parse(typeof(WorkflowParams),param.PKey))" @bind-ParamValue="@param.Value" Class="@param.Class"></WorkflowActivityParameter>
+                                                                                                                                </div>
+                                                                                                                            </div>
+                                                                                                                        </div>
+                                                                                                                    </div>
+                                                                                                                }
+                                                                                                            </div>
+                                                                                                        </RadzenCard>
+                                                                                                    }
+                                                                                                </Template>
+                                                                                                <Columns>
+                                                                                                    <RadzenDataGridColumn TItem="SLA" Property="Duration" Title="@translationState.Translate("Duration_Days")">
+                                                                                                        <EditTemplate Context="sla">
+                                                                                                            <RadzenNumeric Min="1" @bind-Value="@sla.Duration">
+                                                                                                            </RadzenNumeric>
+                                                                                                        </EditTemplate>
+                                                                                                    </RadzenDataGridColumn>
+                                                                                                    <RadzenDataGridColumn TItem="SLA" Property="ActionId" Title="@translationState.Translate("When_Expired")">
+                                                                                                        <EditTemplate Context="condition">
+                                                                                                            <RadzenDropDown TValue="SlaAction" Data="@SlaActionOptions" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                                            TextProperty="SlaActionEnumName" ValueProperty="SlaActionEnumValue" Placeholder="@translationState.Translate("Select")"
+                                                                                                            @bind-Value="@(condition.ActionId)" Style="display:block;">
+                                                                                                            </RadzenDropDown>
+                                                                                                        </EditTemplate>
+                                                                                                    </RadzenDataGridColumn>
+                                                                                                    <RadzenDataGridColumn TItem="SLA" Context="sla" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="120px">
+                                                                                                        <Template Context="sla">
+                                                                                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Danger" Style="background-color: #404040 !important;" Class="m-1" Click="@(args => EditRowSLA(sla))" @onclick:stopPropagation="true">
+                                                                                                            </RadzenButton>
+                                                                                                        </Template>
+                                                                                                        <EditTemplate Context="sla">
+                                                                                                            <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Primary" Class="m-1" Disabled=@(sla.Duration == 0 || sla.ActionId == 0) Click="@((args) => SaveRowSLA(sla))">
+                                                                                                            </RadzenButton>
+                                                                                                            @*<RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Class="m-1" Click="@((args) => CancelEditSLA(sla))">
+                                                                                            </RadzenButton>*@
+                                                                                                        </EditTemplate>
+                                                                                                    </RadzenDataGridColumn>
+                                                                                                    <RadzenDataGridColumn TItem="SLA" Context="sla" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="60px">
+                                                                                                        <Template Context="sla">
+                                                                                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteRowSLA(sla))" @onclick:stopPropagation="true">
+                                                                                                            </RadzenButton>
+                                                                                                        </Template>
+                                                                                                        <EditTemplate Context="sla">
+                                                                                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteRowSLA(sla))">
+                                                                                                            </RadzenButton>
+                                                                                                        </EditTemplate>
+                                                                                                    </RadzenDataGridColumn>
+                                                                                                </Columns>
+                                                                                            </RadzenDataGrid>
+                                                                                        </div>
+                                                                                    </ContentTemplate>
+                                                                                </TabItem>
+                                                                            </TabItems>
+                                                                        </SfTab>
+                                                                    </div>
+                                                                </div>
+                                                            </RadzenCard>
+                                                        }
+                                                        @if (activity.BranchId == WorkflowBranch.ConditionalBranch)
+                                                        {
+                                                            @if (!activity.ModuleActivity.IsEndofFlow)
+                                                            {
+                                                                <RadzenCard class="mt-3 branch-card">
+                                                                    <div class="row d-block text-center">
+                                                                        <h2 class="m-0">
+                                                                            <RadzenIcon Icon="vertical_align_bottom" Class="mr-1" Style="font-size:30px" />
+                                                                        </h2>
+                                                                    </div>
+                                                                    <div class="row mt-3">
+                                                                        <div class="col-md-12 text-truncate">
+                                                                            <h4>
+                                                                                @translationState.Translate("Conditional_Branch")
+                                                                            </h4>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                            <SfTab CssClass="default-tab">
+                                                                                <TabItems>
+                                                                                    <TabItem>
+                                                                                        <ChildContent>
+                                                                                            <TabHeader Text="@translationState.Translate("Workflow_Conditions")"></TabHeader>
+                                                                                        </ChildContent>
+                                                                                        <ContentTemplate>
+                                                                                            <TelerikButton Class="mt-3 mb-3" Icon="plus-outline" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="@ThemeConstants.Button.ThemeColor.Dark" OnClick="@( () => InsertRow(true, activity.SequenceNumber) )" Enabled=@(conditionToInsert == null)>@translationState.Translate("Add_Condition")</TelerikButton>
+                                                                                            <div class="table-responsive wf-conditions-grid">
+                                                                                                <RadzenDataGrid @ref="myComponents[activity.SequenceNumber]" EmptyText="@translationState.Translate("No_record_found")" AllowPaging="true" PageSize="5" EditMode="DataGridEditMode.Single"
+                                                                                            Data="@activity.WorkflowConditions" RowCollapse="@OnRowCollapse" ExpandMode="DataGridExpandMode.Single" Width="100%" TItem="WorkflowCondition" RowUpdate="@OnUpdateRow" RowCreate="@OnCreateRow">
+                                                                                                    <Template Context="condition">
+
+                                                                                                        @if (condition?.IsOption == true && conditionToInsert == null)
+                                                                                                        {
+                                                                                                            <div class="row justify-content-Center">
+                                                                                                                <div class="col-md-12">
+                                                                                                                    <RadzenCard>
+                                                                                                                        <TelerikButton Class="mt-3 mb-3" Icon="plus-outline" ButtonType="Telerik.Blazor.ButtonType.Button" Enabled=@(optionToInsert == null) ThemeColor="@ThemeConstants.Button.ThemeColor.Dark" OnClick="@( () => InsertOptionRow(true, condition?.ConditionGuid,condition.SequenceNumber) )">@translationState.Translate("Add_Option")</TelerikButton>
+                                                                                                                        <div class="table-responsive wf-options-grid">
+                                                                                                                            <RadzenDataGrid @ref="myOptionComponents[condition?.ConditionGuid]" EmptyText="@translationState.Translate("No_record_found")" Data="@condition?.workflowConditionOptions" TItem="WorkflowConditionOptions" RowCreate="@OnOptionCreateRow" RowUpdate="@OnOptionUpdateRow" AllowPaging="true" PageSize="5" EditMode="DataGridEditMode.Single" ExpandMode="DataGridExpandMode.Single">
+                                                                                                                                <Columns>
+                                                                                                                                    <RadzenDataGridColumn TItem="WorkflowConditionOptions" Property="OptionName" Title=@translationState.Translate("Condition_Option")>
+                                                                                                                                        <EditTemplate Context="option">
+                                                                                                                                            <RadzenDropDown @bind-Value="option.ModuleOptionId" Data="@ModuleOptions.ExceptBy(condition.workflowConditionOptions.Where(e => e.ModuleOptionId != option.ModuleOptionId).Select(e => e.ModuleOptionId), x => x.ModuleOptionId).Where(e => !(e.IsTriggerSpecific == true))" TextProperty="Name" Placeholder="@translationState.Translate("Select")" ValueProperty="ModuleOptionId" Style="width:100%; display: block;">
+                                                                                                                                                <Template Context="options">
+                                                                                                                                                    @translationState.Translate($"{options.Name}")
+                                                                                                                                                </Template>
+                                                                                                                                            </RadzenDropDown>
+                                                                                                                                        </EditTemplate>
+                                                                                                                                        <Template Context="option">
+                                                                                                                                            @translationState.Translate($"{option.OptionName}")
+                                                                                                                                        </Template>
+                                                                                                                                    </RadzenDataGridColumn>
+                                                                                                                                    <RadzenDataGridColumn TItem="WorkflowConditionOptions" Property="TrueCaseFlowControlId" Title="@translationState.Translate("Flow_Control")">
+                                                                                                                                        <EditTemplate Context="option">
+                                                                                                                                            <RadzenDropDown TValue="WorkflowControl" Data="@WorkflowControlOptions" AllowFiltering="true" AllowClear="true"
+                                                                                                                                    TextProperty="WorkflowControlEnumName" ValueProperty="WorkflowControlEnumValue" Placeholder="@translationState.Translate("Select")"
+                                                                                                                                    @bind-Value="@(option.TrueCaseFlowControlId)" Style="display:block;"
+                                                                                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                                                                                                                                            </RadzenDropDown>
+                                                                                                                                        </EditTemplate>
+                                                                                                                                        <Template Context="option">
+                                                                                                                                            @translationState.Translate($"{option.TrueCaseFlowControlId}")
+                                                                                                                                        </Template>
+                                                                                                                                    </RadzenDataGridColumn>
+
+                                                                                                                                    <RadzenDataGridColumn TItem="WorkflowConditionOptions" Property="TrueCaseActivityName" Title="Activity" Width="170px">
+                                                                                                                                        <EditTemplate Context="option">
+                                                                                                                                            <SfDropDownList TItem="WorkflowActivity"
+                                                                                                                                    TValue="int"
+                                                                                                                                    DataSource="@workflow.WorkflowActivities.Where(wa=>wa.SequenceNumber!= option.SequenceNumber)"
+                                                                                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                                                                                    Enabled="option.TrueCaseFlowControlId == WorkflowControl.JumptoStep"
+                                                                                                                                    @bind-Value="option.TrueCaseActivityNo"
+                                                                                                                                    PopupWidth="auto"
+                                                                                                                                    CssClass="align-center p-1">
+                                                                                                                                                <DropDownListTemplates TItem="WorkflowActivity" Context="item">
+                                                                                                                                                    <ValueTemplate>
+                                                                                                                                                        @translationState.Translate($"{item.ActivityName}")
+                                                                                                                                                    </ValueTemplate>
+                                                                                                                                                    <FooterTemplate>
+                                                                                                                                                        <hr>
+                                                                                                                                                        <RadzenButton Click="@(() => AddActivity(activity.SequenceNumber,false))" ButtonStyle="ButtonStyle.Danger" Icon="add_circle_outline" Style="font-size:50px" Size="ButtonSize.Medium" />
+                                                                                                                                                    </FooterTemplate>
+                                                                                                                                                </DropDownListTemplates>
+                                                                                                                                                <DropDownListFieldSettings IconCss="e-icons e-chevron-down-fill" Value="SequenceNumber"
+                                                                                                                                                   Text="ActivityName">
+                                                                                                                                                </DropDownListFieldSettings>
+                                                                                                                                            </SfDropDownList>
+                                                                                                                                        </EditTemplate>
+                                                                                                                                        <Template Context="option">
+                                                                                                                                            @translationState.Translate($"{option.TrueCaseActivityName}")
+                                                                                                                                        </Template>
+                                                                                                                                    </RadzenDataGridColumn>
+                                                                                                                                    <RadzenDataGridColumn TItem="WorkflowConditionOptions" Context="condition" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="120px" Title="@translationState.Translate("Actions")">
+                                                                                                                                        <Template Context="option">
+                                                                                                                                            <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Danger" Style="background-color: #404040 !important;" Class="m-1" Click="@(args => EditOptionRow(option))" @onclick:stopPropagation="true">
+                                                                                                                                            </RadzenButton>
+                                                                                                                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteOptionRow(condition,option))" @onclick:stopPropagation="true">
+                                                                                                                                            </RadzenButton>
+                                                                                                                                        </Template>
+                                                                                                                                        <EditTemplate Context="option">
+                                                                                                                                            <RadzenButton Icon="check"
+                                                                                                                                  ButtonStyle="ButtonStyle.Danger" Style="background-color: #736356;" Class="m-1"
+                                                                                                                                  Disabled="option.ModuleOptionId > 0 && option.TrueCaseFlowControlId > 0
+                                                                                                             ? option.TrueCaseFlowControlId == WorkflowControl.EndofFlow ? false
+                                                                                                             : option.TrueCaseFlowControlId == WorkflowControl.JumptoStep && option.TrueCaseActivityNo > 0 ? false: true: true"
+                                                                                                                                  Click="@((args) => SaveOptionRow(option))">
+                                                                                                                                            </RadzenButton>
+                                                                                                                                            <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteOptionRow(condition ,option))">
+                                                                                                                                            </RadzenButton>
+                                                                                                                                        </EditTemplate>
+                                                                                                                                    </RadzenDataGridColumn>
+                                                                                                                                </Columns>
+                                                                                                                            </RadzenDataGrid>
+                                                                                                                        </div>
+                                                                                                                    </RadzenCard>
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                        }
+                                                                                                    </Template>
+
+
+                                                                                                    <Columns>
+                                                                                                        <RadzenDataGridColumn TItem="WorkflowCondition" Property="ConditionName" Title="@translationState.Translate("Condition")">
+                                                                                                            <EditTemplate Context="condition">
+                                                                                                                <RadzenDropDown @bind-Value="condition.ModuleConditionId" Change="(args => OnConditionChange(condition,activity))"
+                                                                                                            Data="@ModuleConditions.Where(x => x.IsTriggerSpecific == false).ExceptBy(activity.WorkflowConditions.Where(e => e.ModuleConditionId != condition.ModuleConditionId ).Select(e => e.ModuleConditionId), x => x.ModuleConditionId)"
+                                                                                                            Placeholder="@translationState.Translate("Select")"
+                                                                                                            TextProperty="Name" ValueProperty="ModuleConditionId" Style="width:100%; display: block;" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                                                                                                                    <Template Context="conditions">
+                                                                                                                        @translationState.Translate($"{conditions.Name}")
+                                                                                                                    </Template>
+                                                                                                                </RadzenDropDown>
+                                                                                                            </EditTemplate>
+                                                                                                            <Template Context="conditions">
+                                                                                                                @translationState.Translate($"{conditions.ConditionName}")
+                                                                                                            </Template>
+                                                                                                        </RadzenDataGridColumn>
+                                                                                                        <RadzenDataGridColumn TItem="WorkflowCondition" Property="TrueCaseFlowControlId" Title="@translationState.Translate("Flow_Control")">
+                                                                                                            <EditTemplate Context="condition">
+                                                                                                                <RadzenDropDown TValue="WorkflowControl" Data="@WorkflowControlOptions" AllowFiltering="true" AllowClear="true"
+                                                                                                            TextProperty="WorkflowControlEnumName" Disabled="condition.IsOption == true ? true : false" Change="(args => OnFlowControlChange(condition,activity))" ValueProperty="WorkflowControlEnumValue" Placeholder="@translationState.Translate("Select")"
+                                                                                                            @bind-Value="@(condition.TrueCaseFlowControlId)" Style="display:block;"
+                                                                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+                                                                                                                </RadzenDropDown>
+                                                                                                            </EditTemplate>
+                                                                                                            <Template Context="conditions">
+                                                                                                                @(conditions.TrueCaseFlowControlId != 0 ? @translationState.Translate($"{conditions.TrueCaseFlowControlId}") : @translationState.Translate("N/A"))
+                                                                                                            </Template>
+                                                                                                        </RadzenDataGridColumn>
+
+                                                                                                        <RadzenDataGridColumn TItem="WorkflowCondition" Property="TrueCaseActivityName" Title="@translationState.Translate("Activity")" Width="170px">
+                                                                                                            <EditTemplate Context="condition">
+                                                                                                                <SfDropDownList TItem="WorkflowActivity"
+                                                                                                            TValue="int"
+                                                                                                            DataSource="@workflow.WorkflowActivities.Where(wa=>wa.SequenceNumber!= condition.SequenceNumber)"
+                                                                                                            Placeholder="@translationState.Translate("Select")"
+                                                                                                            Enabled="condition.TrueCaseFlowControlId == WorkflowControl.JumptoStep"
+                                                                                                            @bind-Value="condition.TrueCaseActivityNo"
+                                                                                                            PopupWidth="auto"
+                                                                                                            CssClass="align-center p-1">
+                                                                                                                    <DropDownListTemplates TItem="WorkflowActivity" Context="item">
+                                                                                                                        <ValueTemplate>
+                                                                                                                            @translationState.Translate($"{item.ActivityName}")
+                                                                                                                        </ValueTemplate>
+                                                                                                                        <FooterTemplate>
+                                                                                                                            <hr>
+                                                                                                                            <RadzenButton Click="@(() => AddActivity(activity.SequenceNumber,false))" ButtonStyle="ButtonStyle.Danger" Icon="add_circle_outline" Style="font-size:50px" Size="ButtonSize.Medium" />
+                                                                                                                        </FooterTemplate>
+                                                                                                                    </DropDownListTemplates>
+                                                                                                                    <DropDownListFieldSettings IconCss="e-icons e-chevron-down-fill" Value="SequenceNumber"
+                                                                                                                           Text="ActivityName">
+                                                                                                                    </DropDownListFieldSettings>
+                                                                                                                </SfDropDownList>
+                                                                                                            </EditTemplate>
+                                                                                                            <Template Context="condition">
+                                                                                                                @translationState.Translate($"{condition.TrueCaseActivityName}")
+                                                                                                            </Template>
+                                                                                                        </RadzenDataGridColumn>
+                                                                                                        <RadzenDataGridColumn TItem="WorkflowCondition" Context="condition" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="120px" Title="@translationState.Translate("Action")">
+                                                                                                            <Template Context="condition">
+                                                                                                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Danger" Style="background-color: #404040 !important;" Class="m-1" Click="@(args => EditRow(condition))" @onclick:stopPropagation="true">
+                                                                                                                </RadzenButton>
+                                                                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteRow(condition,activity))" @onclick:stopPropagation="true">
+                                                                                                                </RadzenButton>
+                                                                                                                @if (!condition.workflowConditionOptions.Any())
+                                                                                                                {
+                                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Class="m-1" Click="@((args) => ChangeHandler(condition))" Disabled="@(condition.ModuleConditionId <= 0)">
+                                                                                                                        @translationState.Translate("Add_Options")
+                                                                                                                    </RadzenButton>
+                                                                                                                }
+                                                                                                                else if (!condition.IsCollapse && condition.workflowConditionOptions.Any())
+                                                                                                                {
+                                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Click="@((args) => DeleteConditionOptions(condition))">@translationState.Translate("Delete_Options")</RadzenButton>
+                                                                                                                }
+                                                                                                                else if (condition.IsCollapse && condition.workflowConditionOptions.Any())
+                                                                                                                {
+                                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Click="@((args) => ConditionOptionsDetail(condition))">@translationState.Translate("View_Options")</RadzenButton>
+                                                                                                                }
+                                                                                                            </Template>
+                                                                                                            <EditTemplate Context="condition">
+                                                                                                                <RadzenButton Icon="check"
+                                                                                                          ButtonStyle="ButtonStyle.Danger" Style="background-color: #736356;" Class="m-1"
+                                                                                                          Disabled="condition.IsOption == true ? false :
+                                                                                                                                        (condition.ModuleConditionId > 0 && condition.TrueCaseFlowControlId > 0
+                                                                                                                                        ? condition.TrueCaseFlowControlId == WorkflowControl.EndofFlow ? false
+                                                                                                                                        : condition.TrueCaseFlowControlId == WorkflowControl.JumptoStep && condition.TrueCaseActivityNo > 0 ? false
+
+                                                                                                                                        : true
+
+                                                                                                                                        : true)" Click="@((args) => SaveRow(condition))">
+                                                                                                                </RadzenButton>
+                                                                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteRow(condition ,activity))">
+                                                                                                                </RadzenButton>
+                                                                                                                @if (!condition.workflowConditionOptions.Any())
+                                                                                                                {
+                                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Class="m-1" Click="@((args) => ChangeHandler(condition))" Disabled="@(condition.ModuleConditionId <= 0)">
+                                                                                                                        @translationState.Translate("Add_Options")
+                                                                                                                    </RadzenButton>
+                                                                                                                }
+                                                                                                                else if (!condition.IsCollapse && condition.workflowConditionOptions.Any())
+                                                                                                                {
+                                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Click="@((args) => DeleteConditionOptions(condition))">@translationState.Translate("Delete_Options")</RadzenButton>
+                                                                                                                }
+                                                                                                                else if (condition.IsCollapse && condition.workflowConditionOptions.Any())
+                                                                                                                {
+                                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Click="@((args) => ConditionOptionsDetail(condition))">@translationState.Translate("View_Options")</RadzenButton>
+                                                                                                                }
+                                                                                                            </EditTemplate>
+                                                                                                        </RadzenDataGridColumn>
+
+                                                                                                    </Columns>
+
+                                                                                                </RadzenDataGrid>
+                                                                                            </div>
+
+                                                                                        </ContentTemplate>
+                                                                                    </TabItem>
+                                                                                </TabItems>
+                                                                            </SfTab>
+                                                                        </div>
+                                                                    </div>
+                                                                </RadzenCard>
+                                                            }
+                                                        }
+
+                                                        @if (activity.BranchId == WorkflowBranch.OptionBranch)
+                                                        {
+                                                            @if (!activity.ModuleActivity.IsEndofFlow)
+                                                            {
+                                                                <RadzenCard class="mt-3 branch-card">
+                                                                    <div class="row d-block text-center">
+                                                                        <h2 class="m-0">
+                                                                            <RadzenIcon Icon="vertical_align_bottom" Class="mr-1" Style="font-size:30px" />
+                                                                        </h2>
+                                                                    </div>
+                                                                    <div class="row mt-3">
+                                                                        <div class="col-md-12 text-truncate">
+                                                                            <h4>
+                                                                                @translationState.Translate("Option_Branch")
+                                                                            </h4>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                            <SfTab CssClass="default-tab">
+                                                                                <TabItems>
+                                                                                    <TabItem>
+                                                                                        <ChildContent>
+                                                                                            <TabHeader Text="@translationState.Translate("Workflow_Options")"></TabHeader>
+                                                                                        </ChildContent>
+                                                                                        <ContentTemplate>
+                                                                                            <TelerikButton Class="mt-3 mb-3" Icon="plus-outline" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="@ThemeConstants.Button.ThemeColor.Dark" OnClick="@( () => InsertActivityOptionRow(true, activity.SequenceNumber) )" Enabled=@(activityoptionToInsert == null)>@translationState.Translate("Add_Options")</TelerikButton>
+                                                                                            <div class="table-responsive">
+                                                                                                <RadzenDataGrid @ref="myComponentsOption[activity.SequenceNumber]" EmptyText="@translationState.Translate("No_record_found")" AllowPaging="true" PageSize="5" EditMode="DataGridEditMode.Single"
+                                                                                            Data="@activity.WorkflowOptions" Width="100%" TItem="WorkflowOption" RowUpdate="@OnActivityOptionUpdateRow" RowCreate="@OnActivityOptionCreateRow">
+
+                                                                                                    <Columns>
+                                                                                                        <RadzenDataGridColumn TItem="WorkflowOption" Property="OptionName" Title="@translationState.Translate("Option")">
+                                                                                                            <EditTemplate Context="option">
+                                                                                                                <RadzenDropDown @bind-Value="option.ModuleOptionId" Data="@ModuleOptions.ExceptBy(activity.WorkflowOptions.Where(e => e.ModuleOptionId != option.ModuleOptionId).Select(e => e.ModuleOptionId), x => x.ModuleOptionId)" Placeholder="@translationState.Translate("Select")" TextProperty="Name" ValueProperty="ModuleOptionId" Style="width:100%; display: block;">
+                                                                                                                    <Template Context="options">
+                                                                                                                        @translationState.Translate($"{options.Name}")
+                                                                                                                    </Template>
+                                                                                                                </RadzenDropDown>
+                                                                                                            </EditTemplate>
+                                                                                                        </RadzenDataGridColumn>
+                                                                                                        <RadzenDataGridColumn TItem="WorkflowOption" Context="option" Title="@translationState.Translate("True")">
+                                                                                                            <Columns>
+                                                                                                                <RadzenDataGridColumn TItem="WorkflowOption" Property="TrueCaseFlowControlId" Title="@translationState.Translate("Flow_Control")">
+                                                                                                                    <EditTemplate Context="option">
+                                                                                                                        <RadzenDropDown TValue="WorkflowControl" Data="@WorkflowControlOptions" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                                                                    TextProperty="WorkflowControlEnumName" ValueProperty="WorkflowControlEnumValue" Placeholder="@translationState.Translate("Select")"
+                                                                                                                    @bind-Value="@(option.TrueCaseFlowControlId)" Style="display:block;">
+                                                                                                                        </RadzenDropDown>
+                                                                                                                    </EditTemplate>
+                                                                                                                </RadzenDataGridColumn>
+                                                                                                                <RadzenDataGridColumn TItem="WorkflowOption" Property="TrueCaseActivityName" Title="@translationState.Translate("Activity")">
+                                                                                                                    @* <EditTemplate Context="option">
+                                                                                                <RadzenDropDown @bind-Value="option.TrueCaseActivityNo" Data="@(option.TrueCaseFlowControlId == WorkflowControl.JumptoStep ? workflow.WorkflowActivities.Where(wa => wa.SequenceNumber != option.SequenceNumber) : new List<WorkflowActivity>())" TextProperty="ActivityName" ValueProperty="SequenceNumber" Style="width:100%; display: block;" />
+                                                                                                </EditTemplate> *@
+                                                                                                                    <EditTemplate Context="option">
+                                                                                                                        <SfDropDownList TItem="WorkflowActivity"
+                                                                                                                    TValue="int"
+                                                                                                                    DataSource="@workflow.WorkflowActivities.Where(wa=>wa.SequenceNumber!= option.SequenceNumber)"
+                                                                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                                                                    Enabled="option.TrueCaseFlowControlId == WorkflowControl.JumptoStep"
+                                                                                                                    @bind-Value="option.TrueCaseActivityNo"
+                                                                                                                    PopupWidth="auto"
+                                                                                                                    CssClass="align-center p-1">
+                                                                                                                            <DropDownListTemplates TItem="WorkflowActivity" Context="item">
+                                                                                                                                <ValueTemplate>
+                                                                                                                                    @translationState.Translate($"{item.ActivityName}")
+                                                                                                                                </ValueTemplate>
+                                                                                                                                <FooterTemplate>
+                                                                                                                                    <hr>
+                                                                                                                                    <RadzenButton Click="@(() => AddActivity(activity.SequenceNumber,false))" ButtonStyle="ButtonStyle.Danger" Icon="add_circle_outline" Style="font-size:50px" Size="ButtonSize.Medium" />
+                                                                                                                                </FooterTemplate>
+                                                                                                                            </DropDownListTemplates>
+                                                                                                                            <DropDownListFieldSettings Value="SequenceNumber"
+                                                                                                                                   Text="ActivityName">
+                                                                                                                            </DropDownListFieldSettings>
+                                                                                                                        </SfDropDownList>
+                                                                                                                    </EditTemplate>
+                                                                                                                </RadzenDataGridColumn>
+                                                                                                            </Columns>
+                                                                                                        </RadzenDataGridColumn>
+                                                                                                        <RadzenDataGridColumn TItem="WorkflowOption" Context="option" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="120px" Title="@translationState.Translate("Action")">
+                                                                                                            <Template Context="option">
+                                                                                                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Danger" Style="background-color: #404040 !important;" Class="m-1" Click="@(args => EditActivityOptionRow(option))" @onclick:stopPropagation="true">
+                                                                                                                </RadzenButton>
+                                                                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteActivityOptionRow(option,activity))" @onclick:stopPropagation="true">
+                                                                                                                </RadzenButton>
+                                                                                                            </Template>
+                                                                                                            <EditTemplate Context="option">
+                                                                                                                <RadzenButton Icon="check"
+                                                                                                          ButtonStyle="ButtonStyle.Danger" Style="background-color: #736356;" Class="m-1"
+                                                                                                          Disabled="option.ModuleOptionId > 0 && option.TrueCaseFlowControlId > 0 ? option.TrueCaseFlowControlId == WorkflowControl.EndofFlow ? false : option.TrueCaseFlowControlId == WorkflowControl.JumptoStep && option.TrueCaseActivityNo > 0 ? false : true : true" Click="@((args) => SaveActivityOptionRow(option))">
+                                                                                                                </RadzenButton>
+                                                                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="m-1" Click="@(args => DeleteActivityOptionRow(option ,activity))">
+                                                                                                                </RadzenButton>
+                                                                                                            </EditTemplate>
+                                                                                                        </RadzenDataGridColumn>
+
+                                                                                                    </Columns>
+                                                                                                </RadzenDataGrid>
+                                                                                            </div>
+
+                                                                                        </ContentTemplate>
+                                                                                    </TabItem>
+                                                                                </TabItems>
+                                                                            </SfTab>
+                                                                        </div>
+                                                                    </div>
+                                                                </RadzenCard>
+                                                            }
+                                                        }
+                                                        <div class="d-flex justify-content-center mt-3">
+                                                            <div class="row">
+                                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                    <RadzenButton Click="@(() => AddActivity(activity.SequenceNumber,false))" ButtonStyle="ButtonStyle.Danger" Icon="add_circle_outline" Style="font-size:50px" Size="ButtonSize.Medium" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </ChildContent>
+                                                    <SummaryTemplate>
+                                                        <div class="d-flex justify-content-center">
+                                                            <RadzenCard class="mt-2 activity-card">
+                                                                <b>@activity.ModuleActivity.Name</b>
+                                                            </RadzenCard>
+                                                        </div>
+                                                    </SummaryTemplate>
+                                                </RadzenPanel>
+                                            }
+                                            @if (workflow.WorkflowActivities.Count() == 0)
+                                            {
+                                                <div class="d-flex justify-content-center mt-3">
+                                                    <div class="row">
+                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                            <RadzenButton Click="@(() => AddActivity(0,false))" ButtonStyle="ButtonStyle.Danger" Icon="add_circle_outline" Style="font-size:50px" Size="ButtonSize.Medium" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            }
+                                        </ChildContent>
+                                    </RadzenPanel>
+                                </div>
+                            </div>
+                        </RadzenCard>
+                    }
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 text-right">
+                            <RadzenCard>
+                                <div class="col-md-12 justify-content-end">
+                                    <label>@translationState.Translate("Create_Another")</label>
+                                    <TelerikCheckBox Class="m-2" @bind-Value="@CreateAnother"></TelerikCheckBox>
+                                    <RadzenButton Click="@(()=>SubmitWorkflow())" Style="width: 120px ">@translationState.Translate("Submit")</RadzenButton>
+                                    <RadzenButton Click="@(() => CancelWorkflow())" Style="width: 120px; background-color:#404040;">@translationState.Translate("Cancel")</RadzenButton>
+                                </div>
+                            </RadzenCard>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+<style>
+    .rz-grid-table-fixed {
+        table-layout: inherit;
+    }
+</style>

@@ -1,0 +1,66 @@
+﻿@page "/select-cases-merge"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@using FATWA_WEB.Services.Lms;
+
+<RadzenCard class="bg-light mt-4">
+    <div class="row pb-2">
+        <div class="col-md-4">
+            <h2 class="formHeading">@translationState.Translate("Cases")</h2>
+            <div class="divider"></div>
+        </div>
+    </div>
+    <div class="row pb-2">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="tableContent table-responsive">
+                <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                Width="100%"
+                                @ref="grid"
+                                AllowFiltering="false"
+                                FilterMode="Radzen.FilterMode.Advanced"
+                                AllowPaging="true"
+                                AllowSorting="true"
+                                Data="@mergedCases"
+                                TItem="CmsRegisteredCaseVM"
+                                PageSize="@systemSettingState.Grid_Pagination"
+                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                AllowColumnResize="true"
+                                ExpandMode="DataGridExpandMode.Single"
+                                @bind-Value=@selectedCases
+                                SelectionMode="DataGridSelectionMode.Multiple"
+                                AllowRowSelectOnRowClick="@allowRowSelectOnRowClick">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Width="40px" Sortable="false" Filterable="false">
+                            <HeaderTemplate>
+                                <RadzenCheckBox TriState="false"
+                                                TValue="bool"
+                                                Change="@(args => selectedCases = args ? mergedCases.ToList() : null)" />
+                            </HeaderTemplate>
+                            <Template Context="data">
+                                <RadzenCheckBox TriState="false"
+                                                Value="@(selectedCases != null && selectedCases.Contains(data))"
+                                                TValue="bool"
+                                                Change=@(args => { if(!allowRowSelectOnRowClick) { grid.SelectRow(data); }}) />
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Width="150px" Property="CANNumber" Title="@translationState.Translate("CAN_Number")" />
+                        <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Width="150px" Property="CaseNumber" Title="@translationState.Translate("Case_Number")" />
+                        <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CourtNameEn" : "CourtNameAr") Title="@translationState.Translate("Court_Name")" />
+                        <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Width="170px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ChamberNameEn" : "ChamberNameAr") Title="@translationState.Translate("Chamber_Name")" />
+                        <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Width="170px" Property="ChamberNumber" Title="@translationState.Translate("Chamber_Number")" />
+                        <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Width="130px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StatusNameEn" : "StatusNameAr") Title="@translationState.Translate("Status")" />
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+    <div class="row mt-2 mx-2 popup-buttons-alignment">
+        <div class="col-12 p-0 d-flex justify-content-end">
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+            </RadzenButton>
+            <RadzenButton style="margin-left: 0.2rem !important" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" Disabled="@(selectedCases == null || selectedCases?.Count() < 2)" Click="@MergeCases">
+            </RadzenButton>
+        </div>
+    </div>
+</RadzenCard>

@@ -1,0 +1,71 @@
+﻿@page "/lms-lookups"
+@using FATWA_DOMAIN.Models
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@layout MainLayout
+
+<!--<History Author = "Nabeel ur Rehman" Date="2022-07-21" Version="1.0" Branch="master"> Adding/Updating new Group and Assign/Unassign Role and users to it.</History>-->
+
+<PageTitle>@translationState.Translate("LLS_Lookups")</PageTitle>
+<div class="row">
+    <div class="col-md-12">
+        <RadzenHeading Size="H1" Text="@translationState.Translate("LLS_Lookups")"></RadzenHeading>
+    </div>
+    <div class="col-md-12">
+        <RadzenCard>
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                <RadzenBreadCrumbItem Text="@translationState.Translate("Lookups_Managment")" />
+                <RadzenBreadCrumbItem Path="/" Text="@translationState.Translate("LLS_Lookups")" />
+            </RadzenBreadCrumb>
+        </RadzenCard>
+    </div>
+</div>
+
+<RadzenContent>
+    <ChildContent>
+        <div class="row justify-content-center mainContentBlock no-gutters bg-light p-0 tab-webkit-fill">
+            <div class="col-md-12  save-case-request-col k-overflow-y-scroll">
+
+                <RadzenAccordion>
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Request_Details")" Icon="account_balance_wallet">
+                            <RadzenTemplateForm Data="@lmsLiteratureType" Visible="@(lmsLiteratureType != null)" TItem="LmsLiteratureType" Submit="@SaveChanges">
+
+                            <div class="row" style="margin-top:10px;">
+                                <div class="col-md-6 col-lg-6 col-xl-6">
+                                    <div class="k-form-field">
+                                        <div class="k-form-field-wrap">
+                                            <label for="sub" class="k-label k-form-label">@translationState.Translate("User_Name_Arabic")*</label>
+                                            <div class="k-form-field-wrap">
+                                                <TelerikTextBox Placeholder="@translationState.Translate("User_Name_Arabic")" @bind-Value="@lmsLiteratureType.Name_En"></TelerikTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-xl-6">
+                                    <div class="k-form-field">
+                                        <div class="k-form-field-wrap">
+                                            <label for="sub" class="k-label k-form-label">@translationState.Translate("User_Name_English") *</label>
+                                            <div class="k-form-field-wrap">
+                                                <TelerikTextBox Placeholder="@translationState.Translate("User_Name_English")" @bind-Value="@lmsLiteratureType.Name_Ar"></TelerikTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <TelerikButton Class="mt-3 mb-3 mr-2"
+                                               ButtonType="Telerik.Blazor.ButtonType.Button"
+                                               ThemeColor="error">@translationState.Translate("Cancel")</TelerikButton>
+                               
+                                <TelerikButton Class="" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="primary"
+                                               OnClick="@SaveChanges">@translationState.Translate("Submit")</TelerikButton>
+                            </div>
+                            </RadzenTemplateForm>
+                        </RadzenAccordionItem>
+                    </Items>
+                </RadzenAccordion>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

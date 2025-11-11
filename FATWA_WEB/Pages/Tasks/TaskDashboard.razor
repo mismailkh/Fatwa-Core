@@ -1,0 +1,148 @@
+﻿@page "/usertask-todo-list"
+@using static FATWA_DOMAIN.Enums.TaskEnums;
+@using Radzen.Blazor.Rendering
+
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("My_Tasks")</PageTitle>
+    @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.Task.Taskdashboard").Count() > 0)
+{
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Todo_List")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4 mt-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Todo_List")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <RadzenHtmlEditor class="draftEditor" @ref="editor" @bind-Value=@dashboardVM.ToDoItem Style="height: 500px; margin-bottom: 1rem;">
+                        <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                        <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                        <RadzenHtmlEditorSeparator />
+                        <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                        <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                        <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                        <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                        <RadzenHtmlEditorSeparator />
+                        <RadzenHtmlEditorAlignLeft Title=@translationState.Translate("Align_Left") />
+                        <RadzenHtmlEditorAlignCenter Title=@translationState.Translate("Align_Centre") />
+                        <RadzenHtmlEditorAlignRight Title=@translationState.Translate("Align_Right") />
+                        <RadzenHtmlEditorJustify Title=@translationState.Translate("Justify") />
+                        <RadzenHtmlEditorSeparator />
+                        <RadzenHtmlEditorIndent Title=@translationState.Translate("Indent") />
+                        <RadzenHtmlEditorOutdent Title=@translationState.Translate("Outdent") />
+                        <RadzenHtmlEditorUnorderedList Title=@translationState.Translate("Bullet_List") />
+                        <RadzenHtmlEditorOrderedList Title=@translationState.Translate("Ordered_List") />
+                        <RadzenHtmlEditorSeparator />
+                        <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                        <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                        <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                        <RadzenHtmlEditorSeparator />
+                        <RadzenHtmlEditorSubscript Title=@translationState.Translate("Subscript") />
+                        <RadzenHtmlEditorSuperscript Title=@translationState.Translate("Superscript") />
+                        <RadzenHtmlEditorSeparator />
+                        <RadzenHtmlEditorLink Title=@translationState.Translate("Link")
+                                              UrlText=@translationState.Translate("Web_Address")
+                                              LinkText=@translationState.Translate("Text")
+                                              OpenInNewWindowText=@translationState.Translate("Open_in_new_window")
+                                              OkText=@translationState.Translate("OK")
+                                              CancelText=@translationState.Translate("Cancel") />
+                        <RadzenHtmlEditorUnlink Title=@translationState.Translate("Unlink") />
+                        <RadzenHtmlEditorFontName Placeholder="@translationState.Translate("Font")" Title="@translationState.Translate("Font")">
+                            <ChildContent>
+                                <RadzenHtmlEditorFontNameItem Text="Sultan" Value="Sultan" />
+                                <RadzenHtmlEditorFontNameItem Text="Sultan Medium" Value='"Sultan Medium"' />
+                            </ChildContent>
+                        </RadzenHtmlEditorFontName>
+                        <RadzenHtmlEditorFontSize Placeholder="@translationState.Translate("Font_Size")" Title="@translationState.Translate("Font_Size")" />
+                        <RadzenHtmlEditorFormatBlock Placeholder="@translationState.Translate("Format_Block")" Title="@translationState.Translate("Format_Block")" />
+                    </RadzenHtmlEditor>
+                </div>
+            </div>
+            <div class="row mt-4 popup-buttons-alignment">
+                <div class="col-12 p-0">
+                    <RadzenButton Text="@translationState.Translate("Submit")"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  style="margin-right: 0.2rem !important"
+                                  Click="@SaveToDoList"
+                                  ButtonType="Radzen.ButtonType.Submit" />
+                    <RadzenButton Text="@translationState.Translate("Cancel")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@ButtonCancelClick" />
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+
+}
+
+<style>
+    .moduleBlock .rz-card {
+        box-shadow: 0px 0px 8px 2px rgb(0 0 0 / 28%);
+        border-top-left-radius: 20px;
+        border-bottom-left-radius: 20px;
+        transition: all 0.1s linear;
+        padding: 2.25rem;
+    }
+
+    .moduleBlock .pending-card:hover {
+        background-color: #8C7B6C;
+        color: #fff;
+        transition: all 0.1s linear;
+    }
+
+    .rz-layout .rz-body {
+        background: #fff !important;
+        border-top-left-radius: 0px !important;
+        border-top-right-radius: 0px !important;
+        padding-top: 0px;
+    }
+
+    .TitleBar {
+        background: #8C7B6C;
+        margin: 0px !important;
+    }
+
+        .TitleBar .pageTitle {
+            color: #fff !important;
+        }
+
+    .mt-3 {
+        margin-top: 3rem !important;
+    }
+</style>

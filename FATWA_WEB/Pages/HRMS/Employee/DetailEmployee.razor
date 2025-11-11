@@ -1,0 +1,648 @@
+﻿@page "/employee-view/{Id}"
+
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement;
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+@using static FATWA_DOMAIN.Enums.UserEnum;
+@layout MainLayout
+<PageTitle>@translationState.Translate("View_Employee")</PageTitle>
+@*@if (loginState.ClaimList.Where(x => x.Value == "Permissions.EM.Employee.View").Count() > 0)
+{*@
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class=" no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/employee-list" Text="@translationState.Translate("Employees")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("View_Employee_Detail")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div> 
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Employee_Detail")" />
+                </div>
+            </div>
+        </div>
+        <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+            <RadzenCard>
+                <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Server">
+                    <Tabs>
+                        <RadzenTabsItem Text="@translationState.Translate("Employee_Detail")">
+                            <RadzenAccordion Multiple="true">
+                                <Items>
+                                    @if (EmployeeVM.UserEmploymentInformation.EmployeeTypeId > 0)
+                                    {
+                                        <RadzenAccordionItem Text="@translationState.Translate("Personal_Information")" Selected="true">
+                                            <div class="form-group">
+                                                <RadzenCard>
+                                                    <div class="row">
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("FirstName_En")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.userPersonalInformation?.FirstName_En</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("FirstName_Ar")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.userPersonalInformation?.FirstName_Ar</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("SecondName_En")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.userPersonalInformation?.SecondName_En</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("SecondName_Ar")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.userPersonalInformation?.SecondName_Ar</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("LastName_En")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.userPersonalInformation?.LastName_En</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("LastName_Ar")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.userPersonalInformation?.LastName_Ar</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("email")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.Email</h3>
+                                                            </div>
+                                                        </div>
+                                                        @if (EmployeeVM.UserEmploymentInformation.EmployeeTypeId == (int)EmployeeTypeEnum.Internal)
+                                                        {
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("AD_UserName")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3>@EmployeeVM.ActiveDirectoryUserName</h3>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Date_Of_Birth")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.userPersonalInformation.DateOfBirth?.ToString("dd/MM/yyyy")</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Nationality")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.userPersonalInformation.Nationality.Name_En : EmployeeVM.userPersonalInformation.Nationality.Name_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Gender")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.userPersonalInformation.Gender?.Name_En : EmployeeVM.userPersonalInformation.Gender?.Name_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("CivilId")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.userPersonalInformation.CivilId</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Passport_Number")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.userPersonalInformation.PassportNumber</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection"></div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("CreatedBy")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.CreatedByName_En : EmployeeVM.CreatedByName_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("CreatedDate")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.CreatedDate.ToString("dd/MM/yyyy")</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Modified_By")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.ModifiedByName_En : EmployeeVM.ModifiedByName_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Modified_Date")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.ModifiedDate?.ToString("dd/MM/yyyy")</h3>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                    Data="@EmployeeVM.UserAdresses"
+                                                    @key="RefreshGrid"
+                                                                    TItem="UserAdress">
+                                                        <Columns>
+                                                            <RadzenDataGridColumn TItem="UserAdress" Property="Address" Title="@translationState.Translate("Address")" />
+                                                            <RadzenDataGridColumn TItem="UserAdress" Property="City.NameEn" Title="@translationState.Translate("City")" />
+                                                            <RadzenDataGridColumn TItem="UserAdress" Property="City.Governorate.Name_En" Title="@translationState.Translate("Governorate")" />
+                                                            <RadzenDataGridColumn TItem="UserAdress" Property="City.Governorate.Country.NameEn" Title="@translationState.Translate("Country")" />
+                                                        </Columns>
+                                                    </RadzenDataGrid>
+                                                    <br/>
+                                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                    Data="@EmployeeVM.UserContactInformationList"
+                                                                   TItem="UserContactInformation">                                                                   
+                                                        <Columns>
+                                                            <RadzenDataGridColumn TItem="UserContactInformation" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ContactType.Name_En" : "ContactType.Name_Ar")" Title="@translationState.Translate("Contact_Type")" />
+                                                            <RadzenDataGridColumn TItem="UserContactInformation" Property="ContactNumber" Title="@translationState.Translate("Contact_Number")" />
+                                                            <RadzenDataGridColumn TItem="UserContactInformation" Property="IsPrimary" Title="@translationState.Translate("Primary")">
+                                                                <Template Context="data">
+                                                                    <RadzenLabel Text="@(data.IsPrimary == true? translationState.Translate("Yes") : translationState.Translate("No"))" />
+                                                                </Template>
+                                                            </RadzenDataGridColumn>
+                                                        </Columns>
+                                                    </RadzenDataGrid>
+                                                </RadzenCard>
+                                            </div>
+                                        </RadzenAccordionItem>
+                                        @if (EmployeeVM.UserEmploymentInformation.EmployeeTypeId == (int)EmployeeTypeEnum.External)
+                                        {
+                                            <RadzenAccordionItem Text="@translationState.Translate("Company_Information")" Selected="false">
+                                                <div class="form-group">
+                                                    <RadzenCard>
+                                                        <div class="row">
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("Company_Name")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.Company?.NameEn : EmployeeVM.UserEmploymentInformation.Company?.NameAr)</h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("Company_Email")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3>@EmployeeVM.UserEmploymentInformation.Company.CompanyEmail </h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("Company_PhoneNumber")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3>@EmployeeVM.UserEmploymentInformation.Company.CompanyPhoneNumber </h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("Company_Alternate_PhoneNumber")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3>@EmployeeVM.UserEmploymentInformation.Company.CompanyAlternatePhoneNumber </h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("Company_Address")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3>@EmployeeVM.UserEmploymentInformation.Company.CompanyAddress </h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("Company_City")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.Company.City?.NameEn : EmployeeVM.UserEmploymentInformation.Company.City?.NameAr)</h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("Company_Governorate")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.Company.City.Governorate?.Name_En : EmployeeVM.UserEmploymentInformation.Company.City.Governorate?.Name_Ar)</h3>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("Company_Country")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.Company.City.Governorate.Country?.NameEn : EmployeeVM.UserEmploymentInformation.Company.City.Governorate.Country?.NameAr)</h3>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </RadzenCard>
+                                                </div>
+                                            </RadzenAccordionItem>
+                                        }
+                                        <RadzenAccordionItem Text="@translationState.Translate("Employment_Information")" Selected="false">
+                                            <div class="form-group">
+                                                <RadzenCard>
+                                                    <div class="row">
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Employee_Type")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3> @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.EmployeeType?.Name_En : EmployeeVM.UserEmploymentInformation.EmployeeType?.Name_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                        @if (EmployeeVM.UserEmploymentInformation.EmployeeTypeId == (int)EmployeeTypeEnum.Internal)
+                                                        {
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("Contract_Type")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation?.ContractType?.Name_En : EmployeeVM.UserEmploymentInformation?.ContractType?.Name_Ar)</h3>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Employee_Id")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.UserEmploymentInformation.EmployeeId</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Fingerprint_Id")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@EmployeeVM.UserEmploymentInformation.FingerPrintId</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Designation")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.Designation?.Name_En : EmployeeVM.UserEmploymentInformation.Designation?.Name_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Date_Of_Joining")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@String.Format("{0:dd/MM/yyyy}", EmployeeVM.UserEmploymentInformation.DateOfJoining)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@((Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate("User_Department_English") : translationState.Translate("User_Department_Arabic")))</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.SectorType?.Department?.Name_En : EmployeeVM.UserEmploymentInformation.SectorType?.Department?.Name_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Sector_Type")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.SectorType?.Name_En : EmployeeVM.UserEmploymentInformation.SectorType?.Name_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Group_Type")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? groupAccessType?.CustomTextEn : groupAccessType?.CustomTextAr)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Groups")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.Group?.Name_En : EmployeeVM.Group?.Name_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                        @if (EmployeeVM.UserEmploymentInformation.EmployeeTypeId == (int)EmployeeTypeEnum.Internal)
+                                                        {
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("Roles")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.Role?.Name : EmployeeVM.Role?.NameAr)</h3>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Supervisor")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>
+                                                                    @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.Supervisor?.FirstName_En + " " + EmployeeVM.UserEmploymentInformation.Supervisor?.LastName_En
+                                                                        : EmployeeVM.UserEmploymentInformation.Supervisor?.FirstName_Ar + " " + EmployeeVM.UserEmploymentInformation.Supervisor?.LastName_Ar)
+                                                                </h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Manager")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>
+                                                                    @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.Manager?.FirstName_En + " " + EmployeeVM.UserEmploymentInformation.Manager?.LastName_En
+                                                                        : EmployeeVM.UserEmploymentInformation.Manager?.FirstName_Ar + " " + EmployeeVM.UserEmploymentInformation.Manager?.LastName_Ar)
+                                                                </h3>
+                                                            </div>
+                                                        </div>
+                                                        @if (EmployeeVM.UserEmploymentInformation.EmployeeTypeId == (int)EmployeeTypeEnum.Internal)
+                                                        {
+                                                            <div class="col-6 detailSection">
+                                                                <div class="detailHeading">
+                                                                    <h3>@translationState.Translate("Grade")</h3>
+                                                                </div>
+                                                                <div class="detailContent">
+                                                                    <h3> @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.Grade?.Name_En : EmployeeVM.UserEmploymentInformation.Grade?.Name_Ar)</h3>
+                                                                </div>
+                                                            </div>
+                                                        }
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Working_Time")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3> @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.WorkingTime?.Name_En : EmployeeVM.UserEmploymentInformation.WorkingTime?.Name_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Employee_Status")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3> @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.UserEmploymentInformation.EmployeeStatus?.Name_En : EmployeeVM.UserEmploymentInformation.EmployeeStatus?.Name_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Resigned/Terminated_Date")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@String.Format("{0:dd/MM/yyyy}", EmployeeVM.UserEmploymentInformation.ResignedTerminationdDate)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Delegated_Employee")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? EmployeeVM.DelegatedEmployeeName_En : EmployeeVM.DelegatedEmployeeName_Ar)</h3>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </RadzenCard>
+                                            </div>
+                                        </RadzenAccordionItem>
+                                        @if (EmployeeVM.UserEmploymentInformation.EmployeeTypeId == (int)EmployeeTypeEnum.Internal)
+                                        {
+                                            <RadzenAccordionItem Text="@translationState.Translate("Education_Information")" Selected="false">
+                                                <div class="form-group">
+                                                    <RadzenCard>
+                                                        <div class="row">
+                                                        </div>
+                                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                        Data="@EmployeeVM.UserEducationalInformation"
+                                                        @key="RefreshGrid"
+                                                                        TItem="UserEducationalInformation">
+                                                            <Columns>
+                                                                @* <RadzenDataGridColumn TItem="UserEducationalInformation" Property="UniversityCountry" Title="@translationState.Translate("University_Country")" />
+                                                        <RadzenDataGridColumn TItem="UserEducationalInformation" Property="UniversityCity" Title="@translationState.Translate("University_City")" /> *@
+                                                                <RadzenDataGridColumn TItem="UserEducationalInformation" Property="UniversityName" Title="@translationState.Translate("University_Name")" />
+                                                                <RadzenDataGridColumn TItem="UserEducationalInformation" Property="UniversityAddress" Title="@translationState.Translate("University_Address")" Width="180px" />
+                                                                <RadzenDataGridColumn TItem="UserEducationalInformation" Property="MajoringName" Title="@translationState.Translate("Majoring_Name")" />
+                                                                <RadzenDataGridColumn TItem="UserEducationalInformation" Property="GraduationYear" Title="@translationState.Translate("Graduation_Year")" />
+                                                                <RadzenDataGridColumn TItem="UserEducationalInformation" Property="Percentage_Grade" Title="@translationState.Translate("Percentage/Grade")" />
+                                                                <RadzenDataGridColumn TItem="UserEducationalInformation" Property="Comments" Title="@translationState.Translate("Comments")" />
+                                                            </Columns>
+                                                        </RadzenDataGrid>
+                                                    </RadzenCard>
+                                                </div>
+                                            </RadzenAccordionItem>
+                                            <RadzenAccordionItem Text="@translationState.Translate("Work_Experience")" Selected="false">
+                                                <div class="form-group">
+                                                    <RadzenCard>
+                                                        <div class="row">
+                                                        </div>
+                                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                        Data="@EmployeeVM.UserWorkExperiences"
+                                                        @key="RefreshGrid"
+                                                                        TItem="UserWorkExperience">
+                                                            <Columns>
+                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="CompanyName" Title="@translationState.Translate("Company_Name")" />
+                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="JobTitle" Title="@translationState.Translate("Job_Title")" />
+                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="JobExperience" Title="@translationState.Translate("Job_Experience")" />
+                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="StartDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Start_Date")" />
+                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="EndDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("End_Date")" />
+                                                                <RadzenDataGridColumn TItem="UserWorkExperience" Property="Experience" Title="@translationState.Translate("Job_Experience")" />
+                                                            </Columns>
+                                                        </RadzenDataGrid>
+                                                    </RadzenCard>
+                                                </div>
+                                            </RadzenAccordionItem>
+                                            <RadzenAccordionItem Text="@translationState.Translate("Trainings")" Selected="false">
+                                                <div class="form-group">
+                                                    <RadzenCard>
+                                                        <div class="row">
+                                                        </div>
+                                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                        Data="@EmployeeVM.userTrainingAttendeds"
+                                                        @key="RefreshGrid"
+                                                                        TItem="UserTrainingAttended">
+                                                            <Columns>
+                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="TrainingName" Title="@translationState.Translate("Training_Name")" />
+                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="StartDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Start_Date")" />
+                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="EndDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("End_Date")" />
+                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="TrainingCenterName" Title="@translationState.Translate("Training_Center_Name")" />
+                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="TrainingLocation" Title="@translationState.Translate("Training_Center_Location")" />
+                                                                <RadzenDataGridColumn TItem="UserTrainingAttended" Property="Comments" Title="@translationState.Translate("Comments")" />
+                                                            </Columns>
+                                                        </RadzenDataGrid>
+                                                    </RadzenCard>
+                                                </div>
+                                            </RadzenAccordionItem>
+                                        }
+                                        <RadzenAccordionItem Text="@translationState.Translate("Documents")" Selected="false">
+                                            <div class="form-group">
+                                                <RadzenCard>
+                                                    <FileUpload ReferenceGuid="@EmployeeVM.UserId" IsViewOnly="true" />
+                                                </RadzenCard>
+                                            </div>
+                                        </RadzenAccordionItem>
+                                        <RadzenAccordionItem Text="@translationState.Translate("Employee_Password_History")" Selected="false">
+                                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                            AllowFiltering="false"
+                                                            AllowPaging="true" ColumnWidth="230px"
+                                                            AllowSorting="false"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            Data="@getEmployeePasswordHistory"
+                                                            TItem="UserPasswordHistory"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSize="@loginState.PageSize">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="UserPasswordHistory" Property="CreatedBy" Title="@translationState.Translate("Modified_By")" Width="150px" />
+                                                    <RadzenDataGridColumn TItem="UserPasswordHistory" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Modified_Date")" Width="150px" />
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </RadzenAccordionItem>
+                                        <RadzenAccordionItem Text="@translationState.Translate("Employee_Activity")" Selected="false">
+                                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                            AllowFiltering="false"
+                                                            AllowPaging="true" ColumnWidth="230px"
+                                                            AllowSorting="false"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            Data="@UserActivities"
+                                                            TItem="UserActivity"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSize="@loginState.PageSize">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="UserActivity" Property="ComputerName" Title="@translationState.Translate("Computer_Name")" Width="150px" />
+                                                    <RadzenDataGridColumn TItem="UserActivity" Property="IsLoggedIn" Title="@translationState.Translate("Logged_In")" Width="150px">
+                                                        <Template Context="data">
+                                                            <RadzenLabel Text="@(data.IsLoggedIn == true? translationState.Translate("Success") : translationState.Translate("Not_Logged_In"))" />
+                                                        </Template>
+                                                        </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="UserActivity" Property="LoginDateTime" FormatString="{0:dd/MM/yyyy  h:mm tt}" Title="@translationState.Translate("Login_Timestamp")" Width="150px" />
+                                                    <RadzenDataGridColumn TItem="UserActivity" Property="IsLoggedOut" Title="@translationState.Translate("Logged_Out")" Width="150px">
+                                                        <Template Context="data">
+                                                            <RadzenLabel Text="@(data.IsLoggedOut == true? translationState.Translate("Yes") : translationState.Translate("No"))" />
+                                                        </Template>
+                                                        </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="UserActivity" Property="LogoutDateTime" FormatString="{0:dd/MM/yyyy  h:mm tt}" Title="@translationState.Translate("Logout_Timestamp")" Width="150px" />
+                                                    <RadzenDataGridColumn TItem="UserActivity" Property="ExceptionMessage" Title="@translationState.Translate("Exception")" Width="150px">
+                                                        <Template Context="data">
+                                                            <RadzenLabel Text="@(data.ExceptionMessage == null? translationState.Translate("None") : data.ExceptionMessage)" />
+                                                        </Template>
+                                                        </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </RadzenAccordionItem>
+
+                                        <RadzenAccordionItem Text="@translationState.Translate("Employee_Leave_Delegation_Record")" Selected="false">
+                                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                            AllowFiltering="false"
+                                                            AllowPaging="true" ColumnWidth="230px"
+                                                            AllowSorting="false"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            Data="@EmployeeLeaveDelegationRecords"
+                                                            TItem="EmployeeDelegationHistoryVM"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSize="@loginState.PageSize">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="EmployeeDelegationHistoryVM" Property="FromDate" Title="@translationState.Translate("From_Date")" Width="150px" >
+                                                        <Template Context="item">
+                                                            @String.Format("{0:dd/MM/yyyy}", item.FromDate)
+                                                        </Template>
+                                                        </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="EmployeeDelegationHistoryVM" Property="ToDate" Title="@translationState.Translate("To_Date")" Width="150px">
+                                                        <Template Context="item">
+                                                            @String.Format("{0:dd/MM/yyyy}", item.ToDate)
+                                                        </Template>
+                                                        </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="EmployeeDelegationHistoryVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar")" Title="@translationState.Translate("Delegated_Employee")" Width="150px" />
+                                                    <RadzenDataGridColumn TItem="EmployeeDelegationHistoryVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DelegatorName_En" : "DelegatorName_Ar")" Title="@translationState.Translate("Delegated_By")" Width="150px" />
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </RadzenAccordionItem>
+                                    }                               
+                                </Items>
+                            </RadzenAccordion>
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@translationState.Translate("Request_Detail")">
+                        </RadzenTabsItem>
+                    </Tabs>
+                </RadzenTabs> 
+            </RadzenCard>
+        </div> 
+    </ChildContent>
+</RadzenContent>
+@*}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}*@
+<style>
+    .rz-label {
+        width: 100%;
+    }
+
+    .detailHeading {
+        width: 100% !important;
+    }
+</style>

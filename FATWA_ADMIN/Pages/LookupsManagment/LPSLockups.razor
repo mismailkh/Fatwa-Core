@@ -1,0 +1,204 @@
+﻿@page "/lps-lookups"
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.LegalPrinciple;
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.Lookups;
+
+@layout MainLayout
+
+<!--<History Author = "Nabeel ur Rehman" Date="2022-07-21" Version="1.0" Branch="master"> Adding/Updating new Group and Assign/Unassign Role and users to it.</History>-->
+<PageTitle>@translationState.Translate("Legal_Principle_Lookups")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.LLS.Configuration"))
+{
+<div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                <RadzenBreadCrumbItem Text="@translationState.Translate("Legal_Principle_Lookups")" />
+            </RadzenBreadCrumb>
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+        <div class="backtoDashboard">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                          class="returnBtn"
+                          Icon="home" Click="@GoBackHomeScreen" />
+        </div>
+    </div>
+</div>
+<div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Legal_Principle_Lookups")" />
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end ">
+    </div>
+</div>
+<RadzenContent Container="main">
+    <ChildContent>
+        <RadzenCard Style="padding: 30px; border-radius: 8px;">
+            <div class="row">
+                <div class="col-md-12">
+                        <RadzenAccordion Multiple="true">
+                            <Items>
+                                <RadzenAccordionItem Selected="true" Text="@translationState.Translate("Legal_Principle_Type")">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")" style="display: block; margin-bottom: 10px; width: 100%"
+                                            Name="Textbox0"
+                                            @oninput="@(async(args) => {await LegalPrinciplegrid.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                                         </div>
+                                        <div class="col-md-8 text-right-custom-gridcolumn">
+                                            <RadzenButton Icon="add_circle" style="margin-bottom: 10px" Text="@translationState.Translate("Add")" Click="@Button1Click" />
+                                        </div>
+                                    </div>
+                                    <div class="row tableContent pb-3">
+                                        <div class="col-md-12">
+                                            <RadzenDataGrid @ref="LegalPrinciplegrid"
+                                                            AllowPaging="true"
+                                                            Data="@FilteredlegalPrincipleTypes"
+                                                            TItem="LegalPrincipleTypeVM"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            AllowFiltering="false"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            AllowSorting="true"
+                                                            ShowPagingSummary="true"
+                                                            RowExpand="@Expendlegalprinciplehistorylist"
+                                                            ExpandMode="DataGridExpandMode.Single"
+                                                            Count="@(FilteredlegalPrincipleTypes != null ? FilteredlegalPrincipleTypes.Count() : 0)"
+                                                            PageSize="@loginState.PageSize"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                                                <Template Context="legalprincipletype">
+                                                    <RadzenCard class="bg-light">
+
+                                                        <div class="row pb-2">
+                                                            <div class="col-md-4">
+                                                                @translationState.Translate("Legal_Principle_Type_History")
+                                                                <div class="divider"></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row pb-2">
+
+                                                            <div class="col-md-12 tableAdditionButton d-flex justify-content-end px-0 pb-3">
+                                                            </div>
+                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                <div class="tableContent table-responsive">
+                                                                    <RadzenDataGrid @ref="gridLookupHistoryVM"
+                                                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                                                    Width="100%"
+                                                                                    AllowFiltering="false"
+                                                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                                                    AllowPaging="true"
+                                                                                    AllowSorting="true"
+                                                                                    Data="@LookupHistoryVM?.Where(LookupsHistory => searchHistory == null ||
+																													(LookupsHistory.NameEn?.Contains(searchHistory, StringComparison.OrdinalIgnoreCase) == true) ||
+																													(LookupsHistory.NameAr?.Contains(searchHistory, StringComparison.OrdinalIgnoreCase) == true))"
+                                                                                    TItem="LookupsHistory"
+                                                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                    ShowPagingSummary="true"
+                                                                                    Count="@(legalPrincipleTypes != null ? legalPrincipleTypes.Count() : 0)"
+                                                                                    PageSize="@loginState.PageSize"
+                                                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                                    SelectionMode="DataGridSelectionMode.Multiple"
+                                                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                                                                        <Columns>
+                                                                            <RadzenDataGridColumn TItem="LookupsHistory" Width="155px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr") Title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")">
+                                                                                <Template Context="historydata">
+                                                                                    <div>
+                                                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @historydata.NameEn + "(" + @historydata.NameAr + ")" : @historydata.NameAr + "(" + @historydata.NameEn + ")")
+                                                                                    </div>
+                                                                                </Template>
+                                                                            </RadzenDataGridColumn>
+                                                                            <RadzenDataGridColumn TItem="LookupsHistory" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserFullNameEn" : "UserFullNameAr" ) Title="@translationState.Translate("Modified_By")" />
+                                                                            <RadzenDataGridColumn TItem="LookupsHistory" Width="140px" Property="CreatedDate" Title="@translationState.Translate("Modified_Date")" />
+                                                                            <RadzenDataGridColumn TItem="LookupsHistory" Width="150px" Property="Status" Title="@translationState.Translate("Remarks")">
+                                                                                <Template Context="lookupshistory">
+                                                                                    <RadzenLabel Text='@(lookupshistory.StatusId == 1 ? translationState.Translate("Added") : translationState.Translate("Updated"))'></RadzenLabel>
+                                                                                </Template>
+                                                                            </RadzenDataGridColumn>
+
+                                                                            <RadzenDataGridColumn TItem="LookupsHistory" Width="110px" Property="IsActive" Title="@translationState.Translate("Active")" TextAlign="TextAlign.Center" Sortable="false" Filterable="false">
+                                                                                <Template Context="data">
+                                                                                    <RadzenCheckBox TriState="false" TValue="bool" Value="@data.IsActive" Disabled />
+                                                                                 </Template>
+                                                                            </RadzenDataGridColumn>
+
+
+                                                                        </Columns>
+                                                                    </RadzenDataGrid>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </RadzenCard>
+                                                </Template>
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="LegalPrincipleTypeVM" Width="90px" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                        <Template Context="rowItem">
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                          Class="editIcon"
+                                                                          Title="@translationState.Translate("Edit")"
+                                                                          Icon="mode"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => EditRowItem(rowItem))"
+                                                                          @onclick:stopPropagation="true" />
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                                          Class="Delete"
+                                                                          Title="@translationState.Translate("delete")"
+                                                                          Icon="delete_outline"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => DeleteRowItem(rowItem))"
+                                                                          @onclick:stopPropagation="true" />
+
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="LegalPrincipleTypeVM" Width="155px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") Title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")">
+                                                        <Template Context="data">
+                                                            <div>
+                                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @data.Name_En + "(" + @data.Name_Ar + ")" : @data.Name_Ar + "(" + @data.Name_En + ")")
+                                                            </div>
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="LegalPrincipleTypeVM" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserFullNameEn" : "UserFullNameAr") Title="@translationState.Translate("Created_By")" />
+                                                    <RadzenDataGridColumn TItem="LegalPrincipleTypeVM" Width="140px" Property="CreatedDate" Title="@translationState.Translate("Created_Date")" />
+
+                                                    <RadzenDataGridColumn TItem="LegalPrincipleTypeVM" Width="110px" Property="IsActive" Title="@translationState.Translate("Active")" TextAlign="TextAlign.Center"  Sortable="false" Filterable="false">
+                                                        <Template Context="data">
+                                                            @if (data.IsActive != true)
+                                                            {
+                                                                <RadzenCheckBox TriState="false" TValue="bool" Value="false" Change=@((args) =>GridActiveButtonClick(data)) />
+                                                            }
+                                                            else
+                                                            {
+
+                                                                <RadzenCheckBox TriState="false" TValue="bool" Value="true" Change=@((args) =>GridActiveButtonClick(data)) />
+
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+
+                                                </Columns>
+                                            </RadzenDataGrid>
+
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                </div>
+            </div>
+        </RadzenCard>
+    </ChildContent>
+</RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

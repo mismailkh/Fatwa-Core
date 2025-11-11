@@ -1,0 +1,274 @@
+﻿@*@page "/merge-request-detail/{MergeRequestId}"*@
+@page "/mergerequest-view/{MergeRequestId}"
+@page "/mergerequest-view/{MergeRequestId}/{TaskId}"
+
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@layout MainLayout
+
+<!--<History Author = "Hassan Abbas" Date="2022-11-30" Version="1.0" Branch="master"> Merge Request Detail</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.CMS.RegisteredCase.MergeCases").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/case-files" Text="@translationState.Translate("Merge_Requests")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Merge_Request_Detail")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Merge_Request_Detail")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row d-block justify-content-center mainContentBlock no-gutters bg-light p-0 tab-webkit-fill">
+                <RadzenCard>
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Merge_Request_Detail")" Selected="true">
+                                <RadzenTabs RenderMode="TabRenderMode.Client">
+                                    <Tabs>
+                                        <RadzenTabsItem Text="@translationState.Translate("Request_Info")">
+                                            <div class="row pb-2">
+                                                <div class="col-12 datagrid-rz-label">
+                                                    <div class="row no-gutters">
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Primary_CAN_Number")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@mergeRequest?.PrimaryCANNumber</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Primary_Case_Number")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@mergeRequest?.PrimaryCaseNumber</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12 detailSection">
+                                                            <div class="detailHeading detailAlignment">
+                                                                <h3>@translationState.Translate("Merged_CANs")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@MergedCANs</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12 detailSection">
+                                                            <div class="detailHeading detailAlignment">
+                                                                <h3>@translationState.Translate("Reason")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@mergeRequest?.Reason</h3>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </RadzenTabsItem>
+                                        <RadzenTabsItem Text="@translationState.Translate("Primary_Case_Info")">
+                                            <div class="row pb-2">
+                                                <div class="col-12 datagrid-rz-label">
+                                                    <div class="row no-gutters">
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("CAN_Number")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@primaryCase?.CANNumber</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Case_Number")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@primaryCase?.FileNumber</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Case_Date")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@primaryCase?.CreatedDate.ToString("dd/MM/yyyy")</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Court_Type")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @primaryCase?.CourtTypeNameEn : @primaryCase?.CourtTypeNameAr)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Court_Number")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@primaryCase?.CourtNumber</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Court_Name")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @primaryCase?.CourtNameEn : @primaryCase?.CourtNameAr)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Chamber_Name")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @primaryCase?.ChamberNameEn : @primaryCase?.ChamberNameAr)</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Chamber_Number")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@primaryCase?.ChamberNumber</h3>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Is_Confidential")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                @{
+                                                                    bool isConfidential = primaryCase?.IsConfidential ?? false;
+                                                                }
+                                                                @if (isConfidential)
+                                                                {
+                                                                    <h3>@translationState.Translate("Yes")</h3>
+
+                                                                }
+                                                                else
+                                                                {
+                                                                    <h3>@translationState.Translate("No")</h3>
+
+                                                                }
+                                                                @*<h3>@primaryCase?.IsConfidential</h3>*@
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 detailSection">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("Subject")</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                @*<h3>@registeredCase.subject</h3>*@
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </RadzenTabsItem>
+                                    </Tabs>
+                                </RadzenTabs>
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Merged_Cases")" Selected="false">
+
+                                <div class="row pb-2">
+                                    <div class="col-md-4">
+                                        <h2 class="formHeading">@translationState.Translate("Merged_Cases")</h2>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="tableContent table-responsive">
+                                            <RadzenDataGrid AllowFiltering="false" AllowPaging="true" AllowSorting="true" Data="@mergedCases" TItem="CmsRegisteredCaseVM">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Property="CANNumber" Title="@translationState.Translate("CAN_Number")" />
+                                                    <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Property="CaseNumber" Title="@translationState.Translate("Case_Number")" />
+                                                    <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CourtNameEn" : "CourtNameAr") Title="@translationState.Translate("Court_Name")" />
+                                                    <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Property="CourtNumber" Title="@translationState.Translate("Court_Number")" />
+                                                    <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ChamberNameEn" : "ChamberNameAr") Title="@translationState.Translate("Chamber_Name")" />
+                                                    <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Property="ChamberNumber" Title="@translationState.Translate("Chamber_Number")" />
+                                                    <RadzenDataGridColumn TItem="CmsRegisteredCaseVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="100px" TextAlign="TextAlign.Center">
+                                                        <Template Context="row">
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="visibility" Size="ButtonSize.Small" Click="@((args) => DetailRegisteredCase(row))" @onclick:stopPropagation="true" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Document_Detail")" Selected="false">
+                                <FileUpload ReferenceGuid="@mergeRequest.Id"
+                                            MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                            FileTypes="@systemSettingState.FileTypes"
+                                        IsViewOnly="true"
+                                        ModuleId="(int)WorkflowModuleEnum.CaseManagement" />
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                    <div class="row d-flex justify-content-center align-items-center py-4 pb-3 mt-2">
+                        <div class="col-md-6 d-flex justify-content-start">
+                            <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@RedirectCancel">@translationState.Translate("Cancel")</TelerikButton>
+                        </div>
+                        @if (!managerTaskReminderData.Where(x => x.ManagerId == loginState.UserDetail.UserId).Any())
+                        {
+                            <div class="col-md-6 d-flex justify-content-end">
+                                <RadzenButton ButtonStyle="ButtonStyle.Primary" Click="@Reject" Text="@translationState.Translate("Reject")">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Click="@Approve" Text="@translationState.Translate("Approve")">
+                                </RadzenButton>
+                            </div>
+                        }
+                    </div>
+                </RadzenCard>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

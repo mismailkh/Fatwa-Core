@@ -1,0 +1,162 @@
+﻿@page "/Detail-Sub-Case/{CaseId}"
+@layout MainLayout
+
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_DOMAIN.Models
+
+<!--<History Author = "Nabeel ur Rehman" Date="2022-10-11" Version="1.0" Branch="master"> View Sub Detail of Case File </History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.CMS.CaseRequest.ViewDetailNeedMoreInfo").Count() > 0)
+{
+   <RadzenContent Container="main">
+                <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/registerd-requests" Text="@translationState.Translate("Case_Files")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Detail_Sub_Case")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Detail_Sub_Case")" />
+                    </div>
+                </div>
+            </div>
+
+                    <div class="row d-block justify-content-left mainContentBlock p-0">
+
+                        <RadzenAccordion>
+                            <Items>
+                       
+                            <RadzenAccordionItem Text="@translationState.Translate("Detail_Sub_Case")" Selected="true">
+                                <div class="row no-gutters">
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Case_Number")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@detailSubCaseVM?.CaseNumber</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                        <h3>@translationState.Translate("Case_Date")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@detailSubCaseVM?.CaseDate.ToString("dd/MM/yyyy")</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                        <h3>@translationState.Translate("Case_Number")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@detailSubCaseVM?.CaseNumber</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                        <h3>@translationState.Translate("CourtName")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                          @*//      <h3>@detailSubCaseVM?.CourtName</h3>*@
+                                            </div>
+                                        </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                        <h3>@translationState.Translate("Chamber_Number")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@detailSubCaseVM?.ChamberNumber</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Chamber_Name")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                      @*//      <h3>@detailSubCaseVM?.ChamberName</h3>*@
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                        <h3>@translationState.Translate("Case_Amount")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                         @*   <h3>@detailSubCaseVM?.CaseAmount</h3>*@
+                                        </div>
+                                    </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                        <h3>@translationState.Translate("Case_Requirment")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                        <h3>@detailSubCaseVM?.CaseRequirements</h3>
+                                            </div>
+                                        </div>
+                                    
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                        <h3>@translationState.Translate("Case_Requirmen")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                        @*    <h3>@detailSubCaseVM?.CaseRequirmen</h3>*@
+                                        </div>
+                                    </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Requirment")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                    @*    <h3>@detailSubCaseVM?.Requirment</h3>*@
+                                    </div>
+                                </div>
+                                </div>
+                            </RadzenAccordionItem>
+                       
+                    </Items>
+                        </RadzenAccordion>
+                        <div class="col-md-12">
+                    
+                            @*<TelerikButton Class="cancleBtn"
+                                   ButtonType="Telerik.Blazor.ButtonType.Button"
+                                   ThemeColor="light"
+                                   OnClick="@GoBacktoFileRequest">
+                                @translationState.Translate("Back")
+                            </TelerikButton>*@
+                   
+                </div>
+                    </div>
+                
+                </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

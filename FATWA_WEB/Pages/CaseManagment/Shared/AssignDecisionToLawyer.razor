@@ -1,0 +1,89 @@
+﻿@page "/assign-decisiontolawyer"
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.Consultation
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@layout MainLayout
+<RadzenContent Container="main">
+
+    <RadzenTemplateForm Data="@cmsCaseDecisionAssignee" Visible="@(cmsCaseDecisionAssignee != null)" TItem="CmsCaseDecisionAssignee" Submit="@FormSubmit">
+		<ChildContent>
+			<RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+				<HeaderTemplate>
+					<span class="d-inline-flex align-items-center align-middle">
+						<RadzenIcon Class="me-1" /><b>@translationState.Translate("Lawyer_Selection")</b>
+					</span>
+				</HeaderTemplate>
+				<ChildContent>
+					<div class=" row">
+						<div class="col-8">
+							<RadzenDropDown TValue="string"
+											AllowClear="true"
+											AllowFiltering="true"
+											FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+											Name="LawyerName"
+											@bind-Value="@LawyerId"
+											Placeholder="@translationState.Translate("Select_Lawyer")"
+											Data=@lawyers
+											Change="@(args => OnTypeChange(args))"
+											TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr")
+											ValueProperty="Id"
+											Style="display:block;">
+									<Template Context="data">
+										@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (data as LawyerVM).UserNameEn : (data as LawyerVM).UserNameAr + ", " + translationState.Translate("Current_Tasks") + ": " + (data as LawyerVM).TotalTasks)
+									</Template>
+								</RadzenDropDown>
+							@if(selectedLawyer is not null)
+							{
+								<div class="row mt-2">
+									<div class="col-6">
+										<label for="ccs" class="k-label k-form-label col-12 text-center">@translationState.Translate("Last_Activity_Date")</label>
+										<label for="ccs" class="k-label k-form-label col-12 text-center">@(selectedLawyer?.LastActivityDate == null ? "---" : selectedLawyer?.LastActivityDate.Value.ToString("dd/MM/yyyy"))</label> 
+									</div>
+									<div class="col-6">
+										<label for="ccs" class="k-label k-form-label col-12 text-center">@translationState.Translate("Current_Tasks")</label>
+										<label for="ccs" class="k-label k-form-label col-12 text-center">@selectedLawyer?.TotalTasks</label>
+									</div>
+								</div> 
+							}
+
+							@if (!IsVisible)
+							{
+								<RadzenRequiredValidator Component="LawyerName"
+													 Text="@translationState.Translate("Required_Field")"
+													 Style="position: absolute"
+													 DefaultValue="0" />
+							}
+						</div>
+					</div>
+				</ChildContent>
+			</RadzenFieldset>
+		
+			<div class="row mt-4 popup-buttons-alignment">
+				<div class="col-12 p-0">
+					<RadzenButton Text="@translationState.Translate("Assign")"
+								  ButtonStyle="ButtonStyle.Primary"
+								  style="margin-right: 0.2rem !important"
+								  ButtonType="Radzen.ButtonType.Submit" />
+					 @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+					 {
+						<RadzenButton Text="@translationState.Translate("Cancel")"
+								  ButtonStyle="ButtonStyle.Light"
+								  Click="@ButtonCloseDialog" />
+					}
+					else
+					{
+						<RadzenButton Text="@translationState.Translate("Cancel")"
+								  ButtonStyle="ButtonStyle.Light"
+								  Style="margin-left: 1rem"
+								  Click="@ButtonCloseDialog" />
+					}
+				</div>
+			</div>
+		</ChildContent>
+	</RadzenTemplateForm>
+
+
+</RadzenContent>

@@ -1,0 +1,389 @@
+﻿@page "/meeting-list"
+
+@using FATWA_DOMAIN.Common;
+@using FATWA_DOMAIN.Models.ViewModel.Meet
+@using static FATWA_DOMAIN.Enums.MeetingEnums;
+
+@layout MainLayout
+
+<!--<History Author = "Zain Ul Islam" Date="2022-11-22" Version="1.0" Branch="master">Meeting List Page</History>-->
+<!--<History Author = "Zain Ul Islam" Date="2022-11-28" Version="1.0" Branch="master">Meeting Status checks added</History>-->
+<PageTitle>@translationState.Translate("Meetings_List")</PageTitle>
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.Meeting.MeetingList").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Meetings_List")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Meetings_List")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+
+
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4">
+                            <RadzenTextBox class="searchBox"
+                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                           Name="Textbox0"
+                                           @oninput="@(async(args) => {search = $"{args.Value}";
+						                await OnSearchInput();})" />
+                        </div>
+                        <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                            <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Schedule_Meeting")" Click="@AddMeeting" />
+                        </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid"
+                                        ColumnWidth="200px"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(getMeetingList?.Any() == true ? getMeetingList.FirstOrDefault().TotalCount : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        AllowFiltering="false"
+                                        Data="@FilteredGetMeetingList"
+                                        TItem="MeetingVM"
+                                        LoadData=@OnLoadData
+                                        Sort=@OnSort
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                @*	<RadzenDataGridColumn TItem="MeetingVM" Width="150px" Property="SerialNo" Title="@translationState.Translate("Serial_Number")" />*@
+                                <RadzenDataGridColumn TItem="MeetingVM"
+                                                      Title="@translationState.Translate("Action")"
+                                                      Filterable="false"
+                                                      Sortable="false"
+                                                      Width="150px"
+                                                      TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        @if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.OnHold || rowItem.MeetingStatusId == (int)MeetingStatusEnum.ApprovedByViceHos)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DetailMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+
+
+                                            if (
+                                            ((rowItem.CreatedBy == loginState.Username) && (rowItem.IsSendToHOS != true) && (rowItem.MeetingStatusId != (int)MeetingStatusEnum.ApprovedByViceHos)) ||
+                                            (loginState.UserRoles.Any(i => i.RoleId == SystemRoles.HOS) ||
+                                            loginState.UserRoles.Any(i => i.RoleId == SystemRoles.ComsHOS)) &&
+                                            (rowItem.CommunicationId == null)
+                                            )
+                                            {
+                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                              Class="editIcon"
+                                                              Icon="mode"
+                                                              Title="@translationState.Translate("Edit")"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@((args) => EditMeeting(rowItem))"
+                                                              @onclick:stopPropagation="true" />
+                                                @*@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.Meeting.MeetingList.MeetingDecision").Count() > 0)
+                                    {
+                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                    class="approvalIcon"
+                                    Icon="rule"
+                                    Title="@translationState.Translate("Decision")"
+                                    Size="ButtonSize.Small"
+                                    Click="@((args) => DecisionMeeting(rowItem))"
+                                    @onclick:stopPropagation="true" />
+                                    }*@
+                                            }
+                                        }
+
+                                        @if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.ApprovedByHOS)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DetailMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.Meeting.MeetingList.AddMOM").Count() > 0 && rowItem.MeetingTypeId == (int)MeetingTypeEnum.Internal)
+                                            {
+                                                if (rowItem.MOMStatusId == (int)MeetingStatusEnum.SaveAsDraft)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                  Class="editIcon"
+                                                                  Title="@translationState.Translate("Edit_MOM")"
+                                                                  Icon="assignment_late"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => EditMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                                else if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.Held && rowItem.MOMStatusId == (int)MeetingStatusEnum.OnHold)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                                  Class="viewIcon"
+                                                                  Title="@translationState.Translate("Review_MOM")"
+                                                                  Icon="assignment_late"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => ReviewMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                                else if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.Held)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Success"
+                                                                  Title="@translationState.Translate("Add_MOM")"
+                                                                  Icon="pending_actions"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => AddMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                            }
+                                        }
+
+                                        @if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.RejectedByHOS || rowItem.MeetingStatusId == (int)MeetingStatusEnum.RejectedByViceHos)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DetailMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Class="editIcon"
+                                                          Icon="mode"
+                                                          Title="@translationState.Translate("Edit")"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => EditMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                        }
+                                        @if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.SaveAsDraft)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DetailMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Class="editIcon"
+                                                          Icon="mode"
+                                                          Title="@translationState.Translate("Edit")"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => EditMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                        }
+                                        @if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.PendingForReviewByGE)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DetailMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                        }
+
+                                        @if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.ApprovedByGE || rowItem.MeetingStatusId == (int)MeetingStatusEnum.Scheduled)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DetailMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Class="viewIcon"
+                                                          Icon="rule"
+                                                          Title="@translationState.Translate("Decision_Held")"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DecisionHeld(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+
+                                            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.Meeting.MeetingList.AddMOM").Count() > 0)
+                                            {
+                                                if (rowItem.MOMStatusId == (int)MeetingStatusEnum.SaveAsDraft)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                  Class="editIcon"
+                                                                  Title="@translationState.Translate("Edit_MOM")"
+                                                                  Icon="assignment_late"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => EditMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                                else if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.Held && rowItem.MOMStatusId == (int)MeetingStatusEnum.OnHold)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                                  Class="viewIcon"
+                                                                  Title="@translationState.Translate("Review_MOM")"
+                                                                  Icon="assignment_late"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => ReviewMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                                else if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.Held)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Success"
+                                                                  Title="@translationState.Translate("Add_MOM")"
+                                                                  Icon="pending_actions"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => AddMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                            }
+                                        }
+
+                                        @if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.RejectedByGE)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DetailMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Class="editIcon"
+                                                          Icon="mode"
+                                                          Title="@translationState.Translate("Edit")"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => EditMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+
+
+                                            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.Meeting.MeetingList.AddMOM").Count() > 0)
+                                            {
+                                                if (rowItem.MOMStatusId == (int)MeetingStatusEnum.SaveAsDraft)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                  Class="editIcon"
+                                                                  Title="@translationState.Translate("Edit_MOM")"
+                                                                  Icon="assignment_late"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => EditMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                                else if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.Held && rowItem.MOMStatusId == (int)MeetingStatusEnum.OnHold)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                                  Class="viewIcon"
+                                                                  Title="@translationState.Translate("Review_MOM")"
+                                                                  Icon="assignment_late"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => ReviewMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                                else if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.Held)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Success"
+                                                                  Title="@translationState.Translate("Add_MOM")"
+                                                                  Icon="pending_actions"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => AddMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                            }
+                                        }
+
+                                        @if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.Held)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DetailMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+
+                                            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.Meeting.MeetingList.AddMOM").Count() > 0)
+                                            {
+                                                if (rowItem.MOMStatusId == (int)MeetingStatusEnum.SaveAsDraft)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                  Class="editIcon"
+                                                                  Title="@translationState.Translate("Edit_MOM")"
+                                                                  Icon="assignment_late"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => EditMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                                else if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.Held && rowItem.MOMStatusId == (int)MeetingStatusEnum.OnHold)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                                  Class="viewIcon"
+                                                                  Title="@translationState.Translate("Review_MOM")"
+                                                                  Icon="assignment_late"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => ReviewMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                                else if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.Held)
+                                                {
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Success"
+                                                                  Title="@translationState.Translate("Add_MOM")"
+                                                                  Icon="pending_actions"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => AddMOM(rowItem))"
+                                                                  @onclick:stopPropagation="true" />
+                                                }
+                                            }
+                                        }
+
+                                        @if (rowItem.MeetingStatusId == (int)MeetingStatusEnum.Complete)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DetailMeeting(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                        }
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MeetingVM" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                <RadzenDataGridColumn TItem="MeetingVM" Width="100px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "TypeEn" : "TypeAr") Title="@translationState.Translate("Type")" />
+                                <RadzenDataGridColumn TItem="MeetingVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr") Title="@translationState.Translate("Initiator")" />
+                                <RadzenDataGridColumn TItem="MeetingVM" Width="120px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StatusEn" : "StatusAr") Title="@translationState.Translate("Status")" />
+                                @*	<RadzenDataGridColumn TItem="MeetingVM" Property="FileNumber" Title="@translationState.Translate("FileNumber")" />*@
+                                <RadzenDataGridColumn TItem="MeetingVM" Width="150px" Property="DateTime" Title="@translationState.Translate("Meeting_DateTime")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} 

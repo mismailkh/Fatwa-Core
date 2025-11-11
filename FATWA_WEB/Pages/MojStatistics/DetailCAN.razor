@@ -1,0 +1,622 @@
+﻿@page "/can-view/{EntityId}/{CaseSide}"
+@using FATWA_DOMAIN.Models.ViewModel.MojStatistics;
+@using Telerik.Blazor;
+@using Telerik.Blazor.Components
+@layout MainLayout
+
+@*//<History Author = 'Ijaz Ahmad' Date='2023-08-08' Version="1.0" Branch="master"> Populate Request Grid</History>*@
+@*//<History Author = 'Hassan Abbas' Date='2024-02-13' Version="1.0" Branch="master"> Migrated from Statistics Case Study Project</History>*@
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.ODRP.MojStatistics.View"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/statistics-list" Text="@translationState.Translate("MOJ_Statistics")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Detail_Can")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Detail_Can")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row no-gutters">
+                <h2>@EntityName</h2>
+                <h2 style="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "margin-left:20px" : "margin-right:20px")">(@translationState.Translate(CaseSide == "1" ? "In_Favor_Of_GE" : "Against_GE"))</h2>
+            </div>
+            <div class="row pb-2">
+                <div class="col-12 datagrid-rz-label">
+                    <div class="row no-gutters">
+                        <div class="col-md-6 detailSection">
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("Created_From"):</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>@rPAStatisticsProcessLogsVMs?.CreatedFrom.ToString("dd/MM/yyyy")</h3>
+                            </div>
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("Created_To"):</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>@rPAStatisticsProcessLogsVMs?.CreatedTo.ToString("dd/MM/yyyy")</h3>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock px-0">
+                <div class="row">
+                    <div class="col-md-5">
+                        <div class="row">
+
+                            <div class="col-lg-12 d-flex">
+                                <RadzenCard Style="width: 100%; overflow: hidden;">
+                                    <div class="col-lg-12 d-flex flex-row">
+
+                                        <div class="row">
+
+                                            <div class="col-md-6 text-right-custom-gridcolumn">
+                                            </div>
+                                        </div>
+                                        <div class="row tableContent">
+                                            <div class="row no-gutters w-100">
+                                                <div class="col-md-9">
+                                                    <RadzenTextBox class="searchBox"
+                                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                                               Name="Textbox0"
+                                                               @oninput="@(async(args) => {search = $"{args.Value}";await JudgementsyearGrid.GoToPage(0);await OnSearchInput();})" />
+                                                </div>
+                                            </div>
+                                            <div class="row pb-2">
+                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <div class="tableContent table-responsive">
+                                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                    Width="120%"
+                                                                    @ref="JudgementsyearGrid"
+                                                                    AllowPaging="true"
+                                                                    AllowSorting="true"
+                                                                    Data="@FilteredGetJudgementsYearList"
+                                                                    TItem="MojStatsJudgementsYearVM"
+                                                                    RowExpand="@ExpandeCaseCanNumber"
+                                                                    SelectionMode="DataGridSelectionMode.Single"
+                                                                    ExpandMode="DataGridExpandMode.Single"
+                                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                                            <Template Context="CaseAutomatedNumberDetails">
+                                                                <div class="row pb-2">
+                                                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                        <div class="tableContent table-responsive">
+                                                                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                                        Width="120%"
+                                                                                        @ref="grid0"
+                                                                                        AllowPaging="true"
+                                                                                        AllowSorting="true"
+                                                                                        Data="@getCaseAutomatedNumberVM"
+                                                                                        TItem="MojStatsCaseAutomatedNumberVM"
+                                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+
+                                                                                <Columns>
+                                                                                    <RadzenDataGridColumn TItem="MojStatsCaseAutomatedNumberVM" Property="CaseAutmatedNumber" Width="172px" Title="@translationState.Translate("CaseAutomated_Number")" />
+                                                                                    <RadzenDataGridColumn TItem="MojStatsCaseAutomatedNumberVM" Property="TotalAmount" Width="105px" Title="@translationState.Translate("Total_Amount")" />
+                                                                                    <RadzenDataGridColumn TItem="MojStatsCaseAutomatedNumberVM" Width="50px" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                                                        <Template Context="row">
+                                                                                            <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                                                      Icon="visibility"
+                                                                                                      Size="ButtonSize.Small"
+                                                                                                      Title="@translationState.Translate("Details")"
+                                                                                                      Class="viewIcon"
+                                                                                                      Click="@((args) => ViewJudgments(row))" @onclick:stopPropagation="true" />
+                                                                                        </Template>
+                                                                                    </RadzenDataGridColumn>
+                                                                                </Columns>
+                                                                            </RadzenDataGrid>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+
+                                                            </Template>
+                                                            <Columns>
+
+                                                                <RadzenDataGridColumn TItem="MojStatsJudgementsYearVM" Width="47px" Property="JudgementYear" Title="@translationState.Translate("Year")" />
+                                                                <RadzenDataGridColumn TItem="MojStatsJudgementsYearVM" Width="150px" Property="TotalCaseAutomatedNumber" Title="@translationState.Translate("Total_Automated_Number")" />
+                                                                <RadzenDataGridColumn TItem="MojStatsJudgementsYearVM" Width="100px" Property="TotalAmount" Title="@translationState.Translate("Total_Amount")" />
+
+                                                            </Columns>
+                                                        </RadzenDataGrid>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </RadzenCard>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+                            <RadzenCard Style="width: 100%; overflow: hidden;">
+                                <RadzenAccordion>
+                                    <Items>
+                                        <div class="row pb-2">
+                                            <div class="col-12 datagrid-rz-label">
+                                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                {
+                                                    <div class="row no-gutters" style="margin-left:20px !important">
+                                                        <div class="detailHeading">
+                                                            <h2>@translationState.Translate("Details")</h2>
+                                                        </div>
+                                                        <div class="col-12 detailSection" style="margin-top: -12px">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("CaseAutomatedNumber"):</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@CaseautomatedNumber</h3>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <div class="row no-gutters" style="margin-left:318px  !important">
+                                                        <div class="detailHeading">
+                                                            <h2 style="margin-left: 32px !important">@translationState.Translate("Details")</h2>
+                                                        </div>
+                                                        <div class="col-12 detailSection" style="margin-top: -12px">
+                                                            <div class="detailHeading">
+                                                                <h3>@translationState.Translate("CaseAutomatedNumber"):</h3>
+                                                            </div>
+                                                            <div class="detailContent">
+                                                                <h3>@CaseautomatedNumber</h3>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+
+                                            </div>
+                                        </div>
+                                        <RadzenAccordionItem Text="@translationState.Translate("Case_Details")" Selected="true">
+                                            <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Client">
+                                                <Tabs>
+
+                                                    <div class="row pb-2">
+                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                            <div class="tableContent table-responsive">
+
+                                                                <RadzenDataGrid @ref="CaseDetailsGrid"
+                                                                            Data="@caseDetails"
+                                                                            TItem="MojStatsCaseDetailsVM"
+                                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                                            Width="100%"
+                                                                            AllowPaging="true"
+                                                                            AllowSorting="true"
+                                                                            AllowColumnResize="true"
+                                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                            SelectionMode="DataGridSelectionMode.Single"
+                                                                            ExpandMode="DataGridExpandMode.Single"
+                                                                            AllowRowSelectOnRowClick="@allowRowSelectOnRowClick">
+
+                                                                    <Columns>
+
+                                                                        <RadzenDataGridColumn TItem="MojStatsCaseDetailsVM" Property="CaseNumber" Width="122px" Title="@translationState.Translate("Case_Number")">
+
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="MojStatsCaseDetailsVM" FormatString="{0:dd/MM/yyyy}" Width="108px" Property="CaseDate" Title="@translationState.Translate("Case_Date")">
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="MojStatsCaseDetailsVM" Property="CourtName" Width="120px" Title="@translationState.Translate("Court_Name")">
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="MojStatsCaseDetailsVM" Property="ChamberType" Width="135px" Title="@translationState.Translate("Chamber_Type")">
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="MojStatsCaseDetailsVM" Property="ChamberNumber" Width="150px" Title="@translationState.Translate("Chamber_Number")">
+                                                                        </RadzenDataGridColumn>
+
+
+
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </Tabs>
+                                            </RadzenTabs>
+                                        </RadzenAccordionItem>
+                                        <RadzenAccordionItem Text="@translationState.Translate("Parties_Detail")" Selected="false">
+                                            <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Client">
+                                                <Tabs>
+
+
+                                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                                        <div class="col-md-12">
+
+                                                            <RadzenDataGrid @ref="PartiesGrid"
+                                                                        Data="@partiesDetails"
+                                                                        TItem="MojStatsPartiesDetailsVM"
+                                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                                        Width="100%"
+                                                                        AllowPaging="true"
+                                                                        AllowSorting="true"
+                                                                        AllowColumnResize="true"
+                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                        SelectionMode="DataGridSelectionMode.Single"
+                                                                        ExpandMode="DataGridExpandMode.Single"
+                                                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick">
+
+                                                                <Columns>
+                                                                    <RadzenDataGridColumn TItem="MojStatsPartiesDetailsVM" Property="PartyType" Width="115px" Title="@translationState.Translate("Party_Type")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsPartiesDetailsVM" Property="CaseNumber" Width="125px" Title="@translationState.Translate("Case_Number")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsPartiesDetailsVM" Property="PartyName" Title="@translationState.Translate("Party_Name")">
+                                                                    </RadzenDataGridColumn>
+                                                                </Columns>
+                                                            </RadzenDataGrid>
+
+                                                        </div>
+                                                    </div>
+                                                </Tabs>
+                                            </RadzenTabs>
+                                        </RadzenAccordionItem>
+                                        <RadzenAccordionItem Text="@translationState.Translate("Hearing_Detail")" Selected="false">
+                                            <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Client">
+                                                <Tabs>
+
+                                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                                        <div class="col-md-12">
+
+                                                            <RadzenDataGrid @ref="HearingDetailsGrid"
+                                                                        Data="@hearingDetails"
+                                                                        TItem="MojStatsHearingVM"
+                                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                                        Width="100%"
+                                                                        AllowPaging="true"
+                                                                        AllowSorting="true"
+                                                                        AllowColumnResize="true"
+                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                        SelectionMode="DataGridSelectionMode.Single"
+                                                                        ExpandMode="DataGridExpandMode.Single"
+                                                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick">
+
+                                                                <Columns>
+
+                                                                    <RadzenDataGridColumn TItem="MojStatsHearingVM" Property="CaseNumber" Width="118px" Title="@translationState.Translate("Case_Number")">
+
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsHearingVM" Width="120px" FormatString="{0:dd/MM/yyyy}" Property="HearingDate" Title="@translationState.Translate("Hearing_Date")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsHearingVM" Width="110px" Property="CourtName" Title="@translationState.Translate("Court_Name")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsHearingVM" Width="130px" Property="ChamberType" Title="@translationState.Translate("Chamber_Type")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsHearingVM" Width="152px" Property="ChamberNumber" Title="@translationState.Translate("Chamber_Number")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsHearingVM" Width="170px" Property="CourtDecisionCode" Title="@translationState.Translate("Court_Decision_Code")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsHearingVM" Width="130px" Property="CourtDecision" Title="@translationState.Translate("Court_Decision")">
+                                                                    </RadzenDataGridColumn>
+                                                                </Columns>
+                                                            </RadzenDataGrid>
+
+                                                        </div>
+                                                    </div>
+
+                                                </Tabs>
+                                            </RadzenTabs>
+                                        </RadzenAccordionItem>
+                                        <RadzenAccordionItem Text="@translationState.Translate("Judgements_Detail")" Selected="false">
+                                            <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Client">
+                                                <Tabs>
+
+
+                                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                                        <div class="col-md-12">
+
+                                                            <RadzenDataGrid @ref="JudgmentsGrid"
+                                                                        Data="@judgementsDetailsList"
+                                                                        TItem="MojStatsViewJudgementsVM"
+                                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                                        Width="100%"
+                                                                        RowExpand="@ExpandCases"
+                                                                        AllowColumnResize="true"
+                                                                        SelectionMode="DataGridSelectionMode.Single"
+                                                                        ExpandMode="DataGridExpandMode.Single"
+                                                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick">
+                                                                <Template Context="veiwJudgements">
+                                                                    <RadzenCard class="bg-light">
+                                                                        <div class="row pb-2">
+                                                                            <div class="col-md-4">
+                                                                                <h2 class="formHeading">@translationState.Translate("Judgement_Statement")</h2>
+                                                                                <div class="divider"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row pb-2">
+                                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                                <div class="tableContent table-responsive">
+                                                                                    <div class=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "detailContent detailContentTextBalence" : "detailContentar detailContentTextBalence")>
+                                                                                        @JudgementsStatements
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </RadzenCard>
+                                                                </Template>
+                                                                <Columns>
+                                                                    <RadzenDataGridColumn TItem="MojStatsViewJudgementsVM" Property="CaseNumber" Width="115px" Title="@translationState.Translate("Case_Number")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsViewJudgementsVM" Property="JudgementType" Width="130px" Title="@translationState.Translate("Judgement_Type")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsViewJudgementsVM" Property="JudgementCategory" Width="155px" Title="@translationState.Translate("Judgement_Category")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsViewJudgementsVM" Property="CourtName" Width="90px" Title="@translationState.Translate("Court_Name")">
+                                                                    </RadzenDataGridColumn>
+
+                                                                    <RadzenDataGridColumn TItem="MojStatsViewJudgementsVM" FormatString="{0:dd/MM/yyyy}" Property="JudgementDate" Width="90px" Title="@translationState.Translate("Judgement_Date")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsViewJudgementsVM" Property="JudgementStatement" Width="172px" Title="@translationState.Translate("Judgement_Statement")">
+                                                                    </RadzenDataGridColumn>
+                                                                </Columns>
+                                                            </RadzenDataGrid>
+
+                                                        </div>
+                                                    </div>
+                                                </Tabs>
+                                            </RadzenTabs>
+                                        </RadzenAccordionItem>
+                                        <RadzenAccordionItem Text="@translationState.Translate("Execution_Details")" Selected="false">
+                                            <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Client">
+                                                <Tabs>
+                                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                                        <div class="col-md-12">
+
+                                                            <RadzenDataGrid @ref="ExecutionDetailsGrid"
+                                                                        Data="@executionVMs"
+                                                                        TItem="MojStatsExecutionVM"
+                                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                                        Width="100%"
+                                                                        AllowPaging="true"
+                                                                        RowExpand="@ExpandExecution"
+                                                                        AllowSorting="true"
+                                                                        AllowColumnResize="true"
+                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                        SelectionMode="DataGridSelectionMode.Single"
+                                                                        ExpandMode="DataGridExpandMode.Single"
+                                                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick">
+                                                                <Template Context="executionexpend">
+                                                                    <RadzenCard class="bg-light">
+                                                                        <div class="row pb-2">
+                                                                            <div class="col-md-4">
+                                                                                <h2 class="formHeading">@translationState.Translate("Execution_Financial")</h2>
+                                                                                <div class="divider"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row pb-2">
+                                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                                <div class="tableContent table-responsive">
+
+                                                                                    <RadzenDataGrid @ref="ExecutionFinancialGrid"
+                                                                                                Data="@executionFinancialslist"
+                                                                                                TItem="MojStatsExecutionFinancialVM"
+                                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                                Width="100%"
+                                                                                                AllowPaging="true"
+                                                                                                AllowSorting="true"
+                                                                                                AllowColumnResize="true"
+                                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                                SelectionMode="DataGridSelectionMode.Single"
+                                                                                                ExpandMode="DataGridExpandMode.Single"
+                                                                                                AllowRowSelectOnRowClick="@allowRowSelectOnRowClick">
+                                                                                        <Columns>
+                                                                                            <RadzenDataGridColumn TItem="MojStatsExecutionFinancialVM" Property="DocumentNumber" Width="175px" Title="@translationState.Translate("Document_Number")">
+                                                                                            </RadzenDataGridColumn>
+                                                                                            <RadzenDataGridColumn TItem="MojStatsExecutionFinancialVM" Width="172px" Property="ProcedureType" Title="@translationState.Translate("Procedure_Type")">
+                                                                                            </RadzenDataGridColumn>
+                                                                                            <RadzenDataGridColumn TItem="MojStatsExecutionFinancialVM" Width="133px" Property="ProcedureDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Procedure_Date")">
+                                                                                            </RadzenDataGridColumn>
+                                                                                            <RadzenDataGridColumn TItem="MojStatsExecutionFinancialVM" Width="145px" Property="PayerName" Title="@translationState.Translate("Payer_Name")">
+                                                                                            </RadzenDataGridColumn>
+
+                                                                                            <RadzenDataGridColumn TItem="MojStatsExecutionFinancialVM" Width="138px" Property="ReceiverName" Title="@translationState.Translate("Receiver_Name")">
+                                                                                            </RadzenDataGridColumn>
+
+                                                                                            <RadzenDataGridColumn TItem="MojStatsExecutionFinancialVM" Width="145px" Property="Amount" Title="@translationState.Translate("Total_Amount")">
+                                                                                            </RadzenDataGridColumn>
+                                                                                        </Columns>
+                                                                                    </RadzenDataGrid>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+
+                                                                        <div class="row pb-2">
+                                                                            <div class="col-md-4">
+                                                                                <h2 class="formHeading">@translationState.Translate("Execution_Procedure")</h2>
+                                                                                <div class="divider"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row pb-2">
+                                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                                <div class="tableContent table-responsive">
+
+                                                                                    <RadzenDataGrid @ref="ExecutionProceduresGrid"
+                                                                                                Data="@executionprocedurelist"
+                                                                                                TItem="MojStatsExecutionProcedureVM"
+                                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                                Width="100%"
+                                                                                                AllowPaging="true"
+                                                                                                AllowSorting="true"
+                                                                                                AllowColumnResize="true"
+                                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                                SelectionMode="DataGridSelectionMode.Single"
+                                                                                                ExpandMode="DataGridExpandMode.Single"
+                                                                                                AllowRowSelectOnRowClick="@allowRowSelectOnRowClick">
+                                                                                        <Columns>
+                                                                                            <RadzenDataGridColumn TItem="MojStatsExecutionProcedureVM" Property="DocumentNumber" Width="175px" Title="@translationState.Translate("Document_Number")">
+                                                                                            </RadzenDataGridColumn>
+                                                                                            <RadzenDataGridColumn TItem="MojStatsExecutionProcedureVM" Width="172px" Property="ProcedureType" Title="@translationState.Translate("Procedure_Type")">
+                                                                                            </RadzenDataGridColumn>
+                                                                                            <RadzenDataGridColumn TItem="MojStatsExecutionProcedureVM" Width="138px" Property="ProcedureDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Procedure_Date")">
+                                                                                            </RadzenDataGridColumn>
+                                                                                            <RadzenDataGridColumn TItem="MojStatsExecutionProcedureVM" Width="145px" Property="FileStatus" Title="@translationState.Translate("File_Status")">
+                                                                                            </RadzenDataGridColumn>
+                                                                                            <RadzenDataGridColumn TItem="MojStatsExecutionProcedureVM" Width="185px" Property="Balance" Title="@translationState.Translate("Total_Amount")">
+                                                                                            </RadzenDataGridColumn>
+                                                                                        </Columns>
+                                                                                    </RadzenDataGrid>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </RadzenCard>
+                                                                </Template>
+
+                                                                <Columns>
+
+                                                                    <RadzenDataGridColumn TItem="MojStatsExecutionVM" Property="ExecutionFileNumber" Width="175px" Title="@translationState.Translate("Execution_FileNumber")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsExecutionVM" Width="172px" Property="ExecutionType" Title="@translationState.Translate("Execution_Type")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsExecutionVM" Width="105px" Property="FileStatus" Title="@translationState.Translate("File_Status")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsExecutionVM" Width="145px" Property="FileOpeningDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("File_OpeningDate")">
+                                                                    </RadzenDataGridColumn>
+
+                                                                    <RadzenDataGridColumn TItem="MojStatsExecutionVM" Width="118px" Property="FileBalance" Title="@translationState.Translate("File_Balance")">
+                                                                    </RadzenDataGridColumn>
+
+                                                                    <RadzenDataGridColumn TItem="MojStatsExecutionVM" Width="185px" Property="Notes" Title="@translationState.Translate("Notes")">
+                                                                    </RadzenDataGridColumn>
+                                                                </Columns>
+                                                            </RadzenDataGrid>
+
+                                                        </div>
+                                                    </div>
+                                                </Tabs>
+                                            </RadzenTabs>
+                                        </RadzenAccordionItem>
+                                        <RadzenAccordionItem Text="@translationState.Translate("Announcement_Details")" Selected="false">
+                                            <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Client">
+                                                <Tabs>
+                                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                                        <div class="col-md-12">
+                                                            <RadzenDataGrid @ref="AnnouncementDetailsGrid"
+                                                                        Data="@announcementVMs"
+                                                                        TItem="MojStatsAnnouncementVM"
+                                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                                        Width="100%"
+                                                                        AllowPaging="true"
+                                                                        AllowSorting="true"
+                                                                        AllowColumnResize="true"
+                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                        SelectionMode="DataGridSelectionMode.Single"
+                                                                        ExpandMode="DataGridExpandMode.Single"
+                                                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick">
+                                                                <Columns>
+                                                                    <RadzenDataGridColumn TItem="MojStatsAnnouncementVM" Property="CaseNumber" Width="185px" Title="@translationState.Translate("Case_Number")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsAnnouncementVM" Property="PartyName" Width="220px" Title="@translationState.Translate("Party_Name")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsAnnouncementVM" Property="AnnouncementNumber" Width="185px" Title="@translationState.Translate("Announcement_Number")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsAnnouncementVM" Property="HearingDate" FormatString="{0:dd/MM/yyyy}" Width="125px" Title="@translationState.Translate("Hearing_Date")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsAnnouncementVM" Property="AnnouncementMakingDate" FormatString="{0:dd/MM/yyyy}" Width="215px" Title="@translationState.Translate("Announcement_MakingDate")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsAnnouncementVM" Property="AnnouncementGoOutDate" FormatString="{0:dd/MM/yyyy}" Width="208px" Title="@translationState.Translate("Announcement_GoOutDate")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsAnnouncementVM" Property="ActualAnnouncementDate" FormatString="{0:dd/MM/yyyy}" Width="206px" Title="@translationState.Translate("ActualAnnouncement_Date")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsAnnouncementVM" Property="AnnouncementResult" Width="175px" Title="@translationState.Translate("Announcement_Result")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsAnnouncementVM" Property="Reason" Width="150px" Title="@translationState.Translate("Reason")">
+                                                                    </RadzenDataGridColumn>
+
+                                                                </Columns>
+                                                            </RadzenDataGrid>
+                                                        </div>
+                                                    </div>
+                                                </Tabs>
+                                            </RadzenTabs>
+                                        </RadzenAccordionItem>
+                                        <RadzenAccordionItem Text="@translationState.Translate("Releted_Files")" Selected="false">
+                                            <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Client">
+                                                <Tabs>
+                                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                                        <div class="col-md-12">
+                                                            <RadzenDataGrid @ref="RelatedFilesGrid"
+                                                                        Data="@filesDetails"
+                                                                        TItem="MojStatsFilesDetailsVM"
+                                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                                        Width="100%"
+                                                                        AllowPaging="true"
+                                                                        AllowSorting="true"
+                                                                        AllowColumnResize="true"
+                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                        SelectionMode="DataGridSelectionMode.Single"
+                                                                        ExpandMode="DataGridExpandMode.Single"
+                                                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick">
+                                                                <Columns>
+
+                                                                    <RadzenDataGridColumn TItem="MojStatsFilesDetailsVM" Property="CaseNumber" Width="125px" Title="@translationState.Translate("Case_Number")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsFilesDetailsVM" Property="DocumentTypeName" Width="170px" Title="@translationState.Translate("Document_Type_Name")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsFilesDetailsVM" FormatString="{0:dd/MM/yyyy}" Width="170px" Property="DocumentDate" Title="@translationState.Translate("Document_Date")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsFilesDetailsVM" Property="NumberofPages" Width="142px" Title="@translationState.Translate("Numberof_Pages")">
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="MojStatsFilesDetailsVM" Width="65px" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                                        <Template Context="row">
+                                                                            <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                                      Icon="visibility"
+                                                                                      Size="ButtonSize.Small"
+                                                                                      Class="viewIcon"
+                                                                                      Click="@((args) => ViewFiles(row))" @onclick:stopPropagation="true" />
+                                                                        </Template>
+                                                                    </RadzenDataGridColumn>
+                                                                </Columns>
+                                                            </RadzenDataGrid>
+                                                        </div>
+                                                    </div>
+                                                </Tabs>
+                                            </RadzenTabs>
+                                        </RadzenAccordionItem>
+                                    </Items>
+                                </RadzenAccordion>
+                            </RadzenCard>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

@@ -1,0 +1,348 @@
+﻿@page "/usertask-detail/{taskId}"
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.TaskEnums;
+
+@layout MainLayout
+
+<!-- <History Author = 'Zain Ul Islam' Date='2022-12-08' Version="1.0" Branch="master">Task Details View</History> -->
+<PageTitle>@translationState.Translate("Task_Details")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/usertask-list" Text="@translationState.Translate("Tasks_List")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Task_Details")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  Title="@translationState.Translate("Go_Back_Dashboard")"
+                                  Class="returnBtn"
+                                  Icon="dashboard"
+                                  Click="@GoBackDashboard" />
+
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  Title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  Class="returnBtn"
+                                  Icon="home"
+                                  Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Task_Details")" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mainContentBlock no-gutters bg-light p-0 tab-webkit-fill">
+            <div class="col-md-12 detail-case-request-col">
+                <RadzenAccordion>
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Task_MetaData_Information")" Selected="true">
+                            <div class="row">
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Task_Number")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@taskDetailVM?.TaskNumber">@taskDetailVM?.TaskNumber</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Task_Date")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@taskDetailVM?.TaskDate.ToString("dd/MM/yyyy")">@taskDetailVM?.TaskDate.ToString("dd/MM/yyyy")</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Type")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.TypeEn : taskDetailVM?.TypeAr)">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.TypeEn : taskDetailVM?.TypeAr)</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Sub_Type")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.SubTypeEn : taskDetailVM?.SubTypeAr)">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.SubTypeEn : taskDetailVM?.SubTypeAr)</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Priority")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.PriorityEn : taskDetailVM?.PriorityAr)">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.PriorityEn : taskDetailVM?.PriorityAr)</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Due_Date")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@(taskDetailVM?.DueDate == null ? "---" : taskDetailVM?.DueDate.Value.ToString("dd/MM/yyyy"))">@(taskDetailVM?.DueDate == null ? "---" : taskDetailVM?.DueDate.Value.ToString("dd/MM/yyyy"))</h3>
+
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Name")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@taskDetailVM?.Name">@translationState.Translate(taskDetailVM?.Name)</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Description")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@taskDetailVM?.Description">@taskDetailVM?.Description</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("File_Number")</h3>
+                                    </div> <div class="detailContent">
+@*                                         <h3 class="myoverflow" Title="@taskDetailVM?.ReferenceNumber">@taskDetailVM?.ReferenceNumber</h3>
+ *@
+                                        <h3 class="myoverflow" Title="@(taskDetailVM?.ModuleId == (int)WorkflowModuleEnum.COMSConsultationManagement ? taskDetailVM?.ConsultationFileNo : taskDetailVM?.FileNumber)">@(taskDetailVM?.ModuleId == (int)WorkflowModuleEnum.COMSConsultationManagement ? taskDetailVM?.ConsultationFileNo : taskDetailVM?.FileNumber)</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Sector")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? taskDetailVM?.SectorEn : taskDetailVM?.SectorAr)">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.SectorEn : taskDetailVM?.SectorAr)</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Department")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? taskDetailVM?.DepartmentEn : taskDetailVM?.DepartmentAr)">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.DepartmentEn : taskDetailVM?.DepartmentAr)</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Module")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? taskDetailVM?.ModuleEn : taskDetailVM?.ModuleAr)">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.ModuleEn : taskDetailVM?.ModuleAr)</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Status")</h3>
+                                    </div> <div class="detailContent">
+                                        <h3 class="myoverflow" Title="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? taskDetailVM?.TaskStatusEn : taskDetailVM?.TaskStatusAr)">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.TaskStatusEn : taskDetailVM?.TaskStatusAr)</h3>
+                                    </div>
+                                </div>
+                                @if (taskDetailVM?.TaskStatusId == (int)TaskStatusEnum.Rejected || taskDetailVM?.TaskStatusId == (int)TaskStatusEnum.Done)
+                                {
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Reason")</h3>
+                                        </div> <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@taskDetailVM?.Reason">@taskDetailVM?.Reason</h3>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="row mt-3">
+                                <div class="col-6 detailSection">
+                                    @if (taskDetailVM != null){
+                                        @if ((taskDetailVM.ModuleId != (int)WorkflowModuleEnum.ServiceRequest))
+                                        {
+                                            <TelerikButton Class="cancleBtn"
+                                                           ButtonType="Telerik.Blazor.ButtonType.Button"
+                                                           OnClick="@ButtonCancel">@translationState.Translate("Cancel")</TelerikButton>
+                                        }
+                                    }
+                                    
+                                </div>
+                                <div class="col-6 detailSection d-flex justify-content-end">
+                                    <TelerikButton Class="prevBtn"
+                                                   ButtonType="Telerik.Blazor.ButtonType.Button"
+                                                   OnClick="@ButtonViewInformation"
+                                                   ThemeColor="success">@translationState.Translate("View_Details")</TelerikButton>
+                                    @if (taskDetailVM != null)
+                                    {
+                                        @if (taskDetailVM.ModuleId == (int)WorkflowModuleEnum.DMS || taskDetailVM.ModuleId == (int)WorkflowModuleEnum.CaseManagement || (taskDetailVM.ModuleId == (int)WorkflowModuleEnum.COMSConsultationManagement || (taskDetailVM.ModuleId == (int)WorkflowModuleEnum.ServiceRequest))
+                                       && ((taskDetailVM.TypeId == (int)TaskTypeEnum.Assignment)
+                                       || (taskDetailVM.TypeId == (int)TaskTypeEnum.Transfer)
+                                       || (taskDetailVM.TypeId == (int)TaskTypeEnum.Task)))
+                                        {
+                                            
+                                        }
+                                        else
+                                        {
+                                            <TelerikButton Class="nextBtn"
+                                                           ButtonType="Telerik.Blazor.ButtonType.Button"
+                                                           OnClick="@ButtonReject"
+                                                           Enabled="@(taskDetailVM != null && taskDetailVM.TaskStatusId == (int)TaskStatusEnum.Pending)"
+                                                           ThemeColor="success">@translationState.Translate("Reject")</TelerikButton>
+
+                                            <TelerikButton Class="submitBtn"
+                                                           ButtonType="Telerik.Blazor.ButtonType.Button"
+                                                           OnClick="@ButtonAccept"
+                                                           Enabled="@(taskDetailVM != null && taskDetailVM.TaskStatusId == (int)TaskStatusEnum.Pending)"
+                                                           ThemeColor="success">@translationState.Translate("Accept")</TelerikButton>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </RadzenAccordionItem>
+
+                    </Items>
+                </RadzenAccordion>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+
+<style>
+
+
+
+    .official_letters .formHeading {
+        margin-bottom: 20px !important;
+    }
+
+    .official_letters .col-md-12 {
+        padding: 25px !important;
+        background: #fdfbf9;
+    }
+
+    .official_letters {
+        padding: 0px 10px;
+    }
+
+    .detail-case-request-col .rz-tabview-panels {
+        overflow: hidden;
+    }
+
+    .case_info .rz-tabview-title {
+        background: url('images/request-1.png')no-repeat;
+    }
+
+    .communication .rz-tabview-title {
+        background: url('images/request-2.png')no-repeat;
+    }
+
+    .history_details .rz-tabview-title {
+        background: url('images/request-3.png')no-repeat;
+    }
+
+    .request_main_tab .rz-tabview-title {
+        padding-top: 70px;
+        background-size: 68px;
+        background-position: center top;
+        font-size: 20px;
+        font-weight: 600;
+        color: #262526;
+    }
+
+    .detail-case-request-col {
+        background: transparent !important;
+        padding: 0px !important;
+    }
+
+        .detail-case-request-col ul.rz-tabview-nav {
+            margin-bottom: 30px;
+            padding: 10px !important;
+        }
+
+        .detail-case-request-col li.rz-tabview-selected {
+            box-shadow: 0px 1px 6px #8b6c7b !important;
+        }
+
+        .detail-case-request-col .rz-tabview-nav .request_main_tab {
+            border: none !important;
+            background-color: #fff !important;
+            transition: all 0.1s linear;
+            height: 145px;
+            box-shadow: 1px 1px 8px #ccc;
+            border-top-left-radius: 0px !important;
+            border-bottom-right-radius: 5px !important;
+            border-top-right-radius: 5px !important;
+            border-left: 2px solid #8C7B6C !important;
+        }
+
+        .detail-case-request-col .rz-tabview-nav li:nth-child(2) {
+            margin: 0px 35px !important;
+        }
+
+        .detail-case-request-col .detailHeading h3 {
+            margin-bottom: 5px !important;
+        }
+
+        .detail-case-request-col .rz-tabview-panels {
+            background: transparent !important;
+            border: 0px !important;
+            padding: 0px 10px !important;
+        }
+
+        .detail-case-request-col .rz-tabview-panel {
+            padding: 0px !important;
+        }
+
+        .detail-case-request-col .rz-accordion-header:has(.rzi-chevron-down) {
+            border-bottom: 0px !important;
+        }
+
+        .detail-case-request-col .rz-accordion-content-wrapper {
+            padding: 25px !important;
+            background: #fdfbf9;
+        }
+
+        .detail-case-request-col .rz-accordion-content {
+            background-color: transparent;
+            padding-top: 0px;
+        }
+
+        .detail-case-request-col .rz-tabview-nav li a {
+            display: flex;
+            justify-content: center;
+            height: 100% !important;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .detail-case-request-col .rz-accordion {
+            padding: 0px !important;
+            margin-bottom: 20px;
+        }
+
+        .detail-case-request-col table {
+            padding: 0px !important;
+        }
+
+    .mainContentBlock {
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    .myoverflow {
+        -webkit-box-orient: vertical;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+    }
+</style>

@@ -1,0 +1,128 @@
+﻿@*@page "/lms-literature-borrow-approval"*@
+@page "/lmsliteratureborrowdetail-approval-list"
+@layout MainLayout
+
+@using FATWA_DOMAIN.Models.ViewModel
+@using static FATWA_DOMAIN.Enums.LiteratureEnum;
+
+<PageTitle>@translationState.Translate("Literature_Borrow_Approval")</PageTitle>
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.LMS.LiteratureBorrowDetail.Approval").Count() > 0)
+{
+    
+    <RadzenContent Container="main">
+        <ChildContent>
+          <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Literature_Borrow_Approval")" />
+                        </RadzenBreadCrumb>
+                 </div>       
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>  
+          </div>
+
+
+                <div class="row TitleBar justify-content-center align-items-center py-4">
+                        <div class="col-md-6">          
+                            <div class="row no-gutters">
+                                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Literature_Borrow_Approval")" />
+                            </div>
+                        </div>
+                <div class="col-md-6 d-flex justify-content-end tableAdditionButton  px-0 pb-3">
+                    
+                </div>
+                </div>
+
+
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 tableAdditionButton px-0 pb-3">
+                            <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                                       class="searchBox"
+                                       Name="TextboxSearchGrid"
+                            @oninput="@(async(args) => {search = $"{args.Value}";await grid.GoToPage(0);await OnSearchInput();})" />
+                        </div>
+                        <div class="col-md-8 d-flex justify-content-end tableAdditionButton  px-0 pb-3">
+                           
+                        </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid 
+                                    @ref="grid"
+                                    FilterMode="Radzen.FilterMode.Advanced"
+                                    Count="@(literatureBorrowApprovalList != null ? literatureBorrowApprovalList.Count() : 0)"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    AllowFiltering="false"
+                                    Data="@FilteredliteratureBorrowApprovalList"
+                                    TItem="BorrowDetailVM"
+                                    PageSize="@systemSettingState.Grid_Pagination"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                    EmptyText="@translationState.Translate("No_record_found")"
+                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                    ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn Title="@translationState.Translate("Action")" Width="140px" TItem="BorrowDetailVM" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                    <Template Context="literatureBorrowDetail">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                  class="editIcon"
+                                                  Icon="mode"
+                                                  Title="@translationState.Translate("Edit")"
+                                                  Size="ButtonSize.Small"
+                                                  Click="@((args) => EditLmsLiteratureBorrowDetail( args, literatureBorrowDetail ))"
+                                                  @onclick:stopPropagation="true" />
+
+                                        @if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.LiteratureBorrowDetail.BorrowApprovalStatusDiv").Count() > 0)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      class="approvalIcon"
+                                                      Icon="rule"
+                                                      Title="@translationState.Translate("Details_and_Desicions")"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => DecisionLmsLiteratureBorrowDetail( args, literatureBorrowDetail ))"
+                                                      @onclick:stopPropagation="true" />
+                                        }
+
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="BorrowDetailVM" Property="LiteratureName" Title="@translationState.Translate("Book_Name")" />
+                                <RadzenDataGridColumn TItem="BorrowDetailVM" Property="BarCodeNumber" Title="@translationState.Translate("Barcode_No")" />
+                                <RadzenDataGridColumn TItem="BorrowDetailVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar") Title="@translationState.Translate("Borrower_Full_Name")" />
+                                <RadzenDataGridColumn TItem="BorrowDetailVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "BorrowApprovalStatus" : "BorrowApprovalStatusAr") Title="@translationState.Translate("Status")" />
+                                <RadzenDataGridColumn TItem="BorrowDetailVM" Property="IssueDate" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Borrow_Issue_Date")" />
+                                <RadzenDataGridColumn TItem="BorrowDetailVM" Property="ApprovalDate" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Borrow_Approval_Date")" />
+                                <RadzenDataGridColumn TItem="BorrowDetailVM" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Due_Date_Borrow")">
+                                    <Template Context="rowItem">
+                                        @if (rowItem.DecisionId != (int)BorrowApprovalStatus.PendingForApproval && rowItem.DecisionId != (int)BorrowApprovalStatus.Rejected && rowItem.DecisionId != (int)BorrowApprovalStatus.BorrowingPeriodExpired)
+                                        {
+                                            @rowItem.DueDate
+                                        }
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>                  
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} 

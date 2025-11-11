@@ -1,0 +1,182 @@
+﻿@page "/add-caseParty"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@layout MainLayout
+
+<!-- <History Author = 'Hassan Abbas' Date='2022-10-13' Version="1.0" Branch="master">Add Case Party</History> -->
+
+<RadzenTemplateForm Data="@casePartyLink" Visible="@(casePartyLink != null)" TItem="CasePartyLinkVM" Submit="@Form0Submit">
+    <ChildContent>
+        <div class="row pt-3">
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                <RadzenLabel Text="@(translationState.Translate("Case_Party_Category") + " *")" Component="Case_Party_Category" />
+                <RadzenDropDown TValue="CasePartyCategoryEnum" Data="@CasePartyCategoryOptions" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                TextProperty="CasePartyCategoryEnumName" ValueProperty="CasePartyCategoryEnumValue" Placeholder="@translationState.Translate("Select")"
+                                Style="display:block;" @bind-Value="casePartyLink.CasePartyCategory" Name="Case_Party_Category" Disabled="PartyCategoryId > 0 ? true : false">
+                </RadzenDropDown>
+                <RadzenRequiredValidator Component="Case_Party_Category" Text="@translationState.Translate("Required_Field")" />
+            </div>
+            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                <RadzenLabel Text="@(translationState.Translate("Case_Party_Type") + " *")" Component="Case_Party_Type" />
+                <RadzenDropDown TValue="CasePartyTypeEnum" Data="@CasePartyTypeOptions" AllowFiltering="false" AllowClear="true"
+                                TextProperty="CasePartyTypeEnumName" ValueProperty="CasePartyTypeEnumValue" Placeholder="@translationState.Translate("Select")"
+                                Style="display:block;" @bind-Value="casePartyLink.CasePartyType" Name="Case_Party_Type" Change=@(args => OnTypeChange(args))>
+                </RadzenDropDown>
+                <div class="rz-message rz-messages-error ">@typeValidationMsg</div>
+            </div>
+        </div>
+        @if (ShowIndividualSection)
+        {
+            <div class="row pt-2">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <RadzenLabel Text="@(translationState.Translate("Name") + " *")" Component="Name" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Name")" @bind-Value="@(casePartyLink.Name)" Name="Name" />
+                    <RadzenRequiredValidator Component="Name" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenRegexValidator Component="Name" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                    <RadzenLengthValidator Component="Name" Text="@translationState.Translate("Max_Ninety_Characters")" Max="90" />
+                    <RadzenRegexValidator Component="Name" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <RadzenLabel Text="@(translationState.Translate("CivilId") + " *")" Component="CivilId" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("CivilId")" Change="@(() => OnChangeCivilId(casePartyLink.CivilId))" MaxLength="12" @bind-Value="@(casePartyLink.CivilId)" Name="CivilId" />
+                    <RadzenLengthValidator Component="CivilId" Min="12" Text="@translationState.Translate("Must_Twelve_Characters")" />
+                    <RadzenRegexValidator Component="CivilId" Text="@translationState.Translate("Only_Digits_Allowed")" Pattern="@RegexPatterns.OnlyDigitAllowPattern" />
+                    <RadzenRequiredValidator Component="CivilId" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenRegexValidator Component="CivilId" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                    <div class="rz-message rz-messages-error ">@civilIdValidationMsg</div>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <RadzenLabel Text="@(translationState.Translate("PACI_Number"))" Component="PACI_Number" />
+                    <RadzenTextBox MaxLength="12" Placeholder="@translationState.Translate("PACI_Number")" @bind-Value="@(casePartyLink.PACINumber)" Name="PACI_Number" />
+                    <RadzenLengthValidator Component="CivilId" Min="12" Text="@translationState.Translate("Must_Twelve_Characters")" />
+                    <RadzenRegexValidator Component="PACI_Number" Text="@translationState.Translate("Only_Digits_Allowed")" Pattern="@RegexPatterns.OnlyDigitAllowPattern" />
+                    <RadzenRegexValidator Component="PACI_Number" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <RadzenLabel Text="@(translationState.Translate("Address"))" />
+                    <RadzenTextArea Placeholder="@translationState.Translate("Address")" @bind-Value="@(casePartyLink.Address)" Class="w-100" Name="Address" />
+                    <RadzenLengthValidator Component="Address" Text="@translationState.Translate("Max_One_Fifty_Characters")" Max="150" />
+                    <RadzenRegexValidator Component="Address" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+                </div>
+            </div>
+
+            <div class="row pt-2">
+                <div class="col-6">
+                    <RadzenLabel Text="@translationState.Translate("Upload_Civil_Id")" />
+                    <div class="file-badge-container">
+                        <a href="javascript:void(0)" @onclick:stopPropagation="true" @onclick="() => OnAttachmentClick(AttachmentTypeEnum.CivilId)">
+                            <RadzenBadge class="file-badge m-0" Style="font-size:12px" IsPill="true" BadgeStyle="BadgeStyle.Light"
+                                         Text="@(uploadedAttachment?.FileName ?? translationState.Translate("No_File_Selected"))" />
+
+                            @if (uploadedAttachment != null)
+                            {
+                                <i class="rz-button-icon-left rzi material-icons action-icon" title="@translationState.Translate("Clear")">clear</i>
+                            }
+                            else
+                            {
+                                <i class="rz-button-icon-left rzi material-icons action-icon" title="@translationState.Translate("Upload")">upload</i>
+                            }
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (ShowCompanySection)
+        {
+            <div class="row pt-2">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <RadzenLabel Text="@(translationState.Translate("Name") + " *")" Component="Name" />
+                    <RadzenTextBox MaxLength="100" Placeholder="@translationState.Translate("Name")" @bind-Value="@(casePartyLink.Name)" Name="Name" />
+                    <RadzenRequiredValidator Component="Name" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenLengthValidator Component="Name" Text="@translationState.Translate("Max_Ninety_Characters")" Max="90" />
+                    <RadzenRegexValidator Component="Name" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <RadzenLabel class="w-100" Text="@(translationState.Translate("CRN"))" Component="CRN" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("CRN")" MaxLength="30" @bind-Value="@(casePartyLink.CRN)" Name="CRN" />
+                    <RadzenRegexValidator Component="CRN" Text="@translationState.Translate("Only_Digits_Allowed")" Pattern="^[0-9]+$" />
+                    <RadzenRegexValidator Component="CRN" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <RadzenLabel Text="@(translationState.Translate("Company_Civil_Id"))" Component="CompanyCivilId" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Company_Civil_Id")" MaxLength="12" @bind-Value="@(casePartyLink.CompanyCivilId)" Name="CompanyCivilId" />
+                    @*<RadzenLengthValidator Component="CompanyCivilId" Min="6" Text="@translationState.Translate("Must_Six_Characters")" />*@
+                    <RadzenRegexValidator Component="CompanyCivilId" Text="@translationState.Translate("Only_Digits_Allowed")" Pattern="@RegexPatterns.OnlyDigitAllowPattern" />
+                    <RadzenRegexValidator Component="CompanyCivilId" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <RadzenLabel Text="@(translationState.Translate("MOCI_File_Number"))" Component="MOCIFileNumber" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("MOCI_File_Number")" MaxLength="12" @bind-Value="@(casePartyLink.MOCIFileNumber)" Name="MOCIFileNumber" />
+                    <RadzenRegexValidator Component="MOCIFileNumber" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <RadzenLabel Text="@(translationState.Translate("License_Number"))" Component="License_Number" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("License_Number")" MaxLength="12" @bind-Value="@(casePartyLink.LicenseNumber)" Name="License_Number" />
+                    <RadzenRegexValidator Component="License_Number" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <RadzenLabel Text="@(translationState.Translate("Membership_Number"))" Component="Membership_Number" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Membership_Number")" MaxLength="12" @bind-Value="@(casePartyLink.MembershipNumber)" Name="Membership_Number" />
+                    <RadzenRegexValidator Component="Membership_Number" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                </div>
+            </div>
+
+            <div class="row pt-2">
+                <div class="col-6">
+                    <RadzenLabel Text="@translationState.Translate("MOCI_Certificate")" />
+                    <div class="file-badge-container">
+                        <a href="javascript:void(0)" @onclick:stopPropagation="true" @onclick="() => OnAttachmentClick(AttachmentTypeEnum.MOCICertificate)">
+                            <RadzenBadge class="file-badge m-0" Style="font-size:12px" IsPill="true" BadgeStyle="BadgeStyle.Light"
+                                         Text="@(uploadedAttachment?.FileName ?? translationState.Translate("No_File_Selected"))" />
+
+                            @if (uploadedAttachment != null)
+                            {
+                                <i class="rz-button-icon-left rzi material-icons action-icon" title="@translationState.Translate("Clear")">clear</i>
+                            }
+                            else
+                            {
+                                <i class="rz-button-icon-left rzi material-icons action-icon" title="@translationState.Translate("Upload")">upload</i>
+                            }
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (ShowGovtEntitySection)
+        {
+            <div class="row pt-2">
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "" : "order-1")">
+                    <RadzenLabel Text="@(translationState.Translate("Government_Entity") + " *")" Component="Ministry" />
+                    <RadzenDropDown Data="@GovtEntities" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="EntityId" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="casePartyLink.EntityId" Name="Ministry" Change=@(args => OnGovtEntityChange(args)) />
+                    <RadzenRequiredValidator DefaultValue="0" Component="Ministry" Text="@translationState.Translate("Required_Field")" />
+                </div>
+                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                    <label for="Representative" class="rz-label">
+                        @(translationState.Translate("Representative") + " *")
+                        <RadzenButton Icon="add" class="add-representative" ButtonStyle="ButtonStyle.Primary" Click="AddRepresentative" />
+                    </label>
+                    <RadzenDropDown Data="@GeRepresentatives" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="casePartyLink.RepresentativeId" Name="Representative" />
+                    <RadzenRequiredValidator DefaultValue="0" Component="Representative" Text="@translationState.Translate("Required_Field")" />
+                </div>
+            </div>
+        }
+        <div class="row popup-buttons-alignment pt-3">
+            <div class="col-12">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Add")" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@CloseDialog" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

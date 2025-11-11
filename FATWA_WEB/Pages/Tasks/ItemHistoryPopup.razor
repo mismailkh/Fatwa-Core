@@ -1,0 +1,68 @@
+﻿@page "/itemhistory-view"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.TaskVMs
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using Append.Blazor.Printing;
+@inject IPrintingService PrintingService
+@layout MainLayout
+
+<!-- <History Author = 'Muhammad Zaeem' Date='2024-09-03' Version="1.0" Branch="master">Item History View</History> -->
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <div class="row pb-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="tableContent table-responsive">
+                            <RadzenDataGrid TItem="TaskEntityHistoryVM"
+                                            FilterMode="Radzen.FilterMode.Advanced"
+                                            Count="@(taskEntityHistory != null ? taskEntityHistory.Count() : 0)"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            AllowFiltering="false"
+                                            Data="@taskEntityHistory"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                            ShowPagingSummary="true">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="TaskEntityHistoryVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ActionEn" : "ActionAr")" Title="@translationState.Translate("Entity_Action")" />
+                                    <RadzenDataGridColumn TItem="TaskEntityHistoryVM" Width="140px" Property="AssignedBy" Title="@translationState.Translate("Created_By")">
+                                        <Template Context="rowItem">
+                                            @if (String.IsNullOrWhiteSpace(rowItem.UserNameAr) && rowItem.EntityId != null)
+                                            {
+                                                <span>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.GovtEntityNameEn) : translationState.Translate(rowItem.GovtEntityNameAr))</span>
+                                            }
+                                            else if (!String.IsNullOrWhiteSpace(rowItem.UserNameAr))
+                                            {
+                                                <span>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? translationState.Translate(rowItem.UserNameEn) : translationState.Translate(rowItem.UserNameAr))</span>
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="TaskEntityHistoryVM" Width="90px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy hh:mm tt}" Title="@translationState.Translate("Date")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+                <div class="row mx-0 mt-2 popup-buttons-alignment">
+                    <div class="col-12 p-0">
+                        <RadzenButton Text="@translationState.Translate("Print")"
+                                      ButtonStyle="ButtonStyle.Secondary"
+                                      Icon="print"
+                                      style="margin-right: 1rem"
+                                      Click="@PrintTaskHistoryDetails" />
+                        <RadzenButton Text="@translationState.Translate("Cancel")"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Click="@CloseDialog" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

@@ -1,0 +1,364 @@
+﻿@page "/paci-address-list"
+@using FATWA_DOMAIN.Models.ViewModel.PACIVM
+@using Radzen.Blazor
+@using Telerik.Blazor;
+@using Telerik.Blazor.Components;
+@using static FATWA_GENERAL.Helper.Enum;
+@using Syncfusion.Blazor
+@using System.Text.Json
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@layout MainLayout
+
+<!-- <History Author = 'Nabeel ' Date='2023-07-12' Version="1.0" Branch="master">PACI Request List</History> -->
+<!-- <History Author = 'ijaz Ahmad ' Date='2024-02-12' Version="1.0" Branch="master">Migrated From PACI Query Project</History> -->
+<PageTitle>@translationState.Translate("PACI_Address_Query")</PageTitle>
+    @if (loginState.ClaimList.Any(x => x.Value == "Permissions.ODRP.PACI.List"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6 col-sm-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("PACI_Address_Query")" />
+                    </RadzenBreadCrumb>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("New_Requests")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <RadzenTabs @bind-SelectedIndex="selectedIndex" Change=@OnTabChange TabPosition="Radzen.TabPosition.Top" style="margin: 20px auto;" RenderMode="TabRenderMode.Server">
+                        <Tabs>
+                            <RadzenTabsItem Text="@translationState.Translate("New_Requests")">
+
+                                <RadzenTemplateForm Data="@pACIRequests" Visible="@(pACIRequests != null)" TItem="PACIRequestVM" Submit="@SubmitRequest">
+
+                                    <div class="row no-gutters">
+                                        <div class="col-md-6  col-sm-6  detailSection">
+                                            <div class="detailHeading">
+                                                <h3><RadzenLabel Text="@(translationState.Translate("Select_One_Of_these")+ "*")" Component="Year" /></h3>
+                                            </div>
+                                            <div class="detailContent">
+
+                                                <RadzenRadioButtonList Name="year" @bind-Value="Cases" TValue="int" Change=@(args => OnChangeRadioButton1(args))>
+                                                    <Items>
+                                                        <RadzenRadioButtonListItem Text="@translationState.Translate("Cases")" class="SelectRadio1" Value="(int)DataEnum.Cases" />
+                                                        <RadzenRadioButtonListItem Text="@translationState.Translate("Under_Filing")" class="SelectRadio mt-1" Value="(int)DataEnum.UnderFilling" />
+
+                                                    </Items>
+                                                </RadzenRadioButtonList>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6  col-sm-6  detailSection">
+                                            <div class="detailHeading">
+                                            </div>
+                                            <div class="detailContent">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6  col-sm-6  detailSection">
+                                            <div class="detailHeading">
+
+                                                <h3><RadzenLabel Text="@(translationState.Translate("Case_Number") + "*")" Component="Case_Number" /></h3>
+
+                                            </div>
+                                            <div class="detailContent">
+                                                <RadzenTextBox MaxLength="8" Disabled="@TextboxEnable" Name="Case_Number" Placeholder="@translationState.Translate("Case_Number")" @bind-Value="pACIRequest.CaseNumber" @oninput="getfirsttwovalues" Class="@validations.CaseNumber"></RadzenTextBox>
+                                                <RadzenLengthValidator Visible="@Txtvalidationvisiable" Component="Case_Number" Min="8" Text="@translationState.Translate("Must_nine_Characters")" />
+                                                <RadzenRegexValidator Visible="@Txtvalidationvisiable" Component="Case_Number" Text="@translationState.Translate("Only_Digits_Allowed")" Pattern="^[0-9/\\]+$" />
+                                                <RadzenRequiredValidator Visible="@Txtvalidationvisiable" Component="Case_Number" Text="@translationState.Translate("Required_Field")" />
+
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6  col-sm-6  detailSection">
+                                            <div class="detailHeading">
+                                            </div>
+                                            <div class="detailContent">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6  col-sm-6  detailSection">
+                                            <div class="detailHeading">
+                                                <h3><RadzenLabel Text="@(translationState.Translate("Year")+ "*")" Component="Year" /></h3>
+                                            </div>
+                                            <div class="detailContent year1">
+                                                <RadzenDropDown @bind-Value="selectedValue" Placeholder="@translationState.Translate("Year")" Name="Year" Disabled="@isYearEnable" TValue="int" Style="width:100%" Data="@optionsList" Change="(args => OnDropDownValueChanged(Convert.ToInt32(args)))" />
+                                                <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="Year" DefaultValue="0" Visible="@TxtYearvalidationvisiable" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6  col-sm-6  detailSection">
+                                            <div class="detailHeading">
+                                            </div>
+                                            <div class="detailContent">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6  col-sm-6  detailSection">
+                                            <div class="detailHeading">
+                                                <h3><RadzenLabel Text="@(translationState.Translate("Address_Type")+ "*")" /></h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <RadzenRadioButtonList Name="year" TValue="int" Change=@(args => OnChangeRadioButton(args))>
+                                                    <Items>
+                                                        <RadzenRadioButtonListItem Text="@translationState.Translate("Residential_Address")" class="Radio" Value="(int)RequirdDataEnum.Residential" />
+                                                        <RadzenRadioButtonListItem Text="@translationState.Translate("Work_address")" class="Radio1 mt-1" Value="(int)RequirdDataEnum.WorkAddress" />
+                                                        <RadzenRadioButtonListItem Text="@translationState.Translate("other")" class="Radio mt-1 mb-1" Value="(int)RequirdDataEnum.Others" />
+                                                    </Items>
+                                                </RadzenRadioButtonList>
+                                                <RadzenLabel Style="@labelRef" Text="@translationState.Translate("Select_Address_Type")" Visible="ValidationLableAddressType" />
+                                                <RadzenTextBox MaxLength="250" Disabled=@txtAddress @bind-Value="pACIRequest.AddressType"></RadzenTextBox>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <RadzenFieldset>
+                                        <HeaderTemplate>
+                                            <span class="d-inline-flex align-items-center align-middle">
+                                                <RadzenIcon Icon="account_box" Class="me-1" /><b>@translationState.Translate("Identity_Information")</b>
+                                            </span>
+                                        </HeaderTemplate>
+                                        <ChildContent>
+                                            <div class="col-md-6  col-sm-6  detailSection">
+                                                <div class="detailHeading">
+                                                    <h3><RadzenLabel Text="@translationState.Translate("Civil_ID")" Component="CivilId" /></h3>
+                                                </div>
+                                                <div class="detailContent Name">
+                                                    <h3><RadzenLabel Text="@translationState.Translate("Name")" Component="Name" /></h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6  col-sm-6  detailSection">
+                                                <div class="detailHeading">
+                                                    <RadzenTextBox Name="CivilId" MinLength="12" MaxLength="12" Placeholder="@translationState.Translate("Civil_ID")" @oninput="ValidateValue" @bind-Value="pACIRequestData.CivilId" Class="@validations.CivilId"></RadzenTextBox>
+                                                    <RadzenLabel class="validation" Style="@labelRef" Text="@translationState.Translate("Civil_Must_have_12")" Visible="CivilIdlimitValidationLable" Component="CivilId" />
+                                                </div>
+                                                <div class="detailContent">
+                                                    <RadzenTextBox Name="Name" Placeholder="@translationState.Translate("Name")" @bind-Value="pACIRequestData.Name" Class="@validations.Name" />
+                                                    <RadzenLabel class="validation" Style="@labelRef" Text="@translationState.Translate("Only_Character_Allowed")" Visible="NameNumberValidationLable" Component="Case_Number" />
+                                                </div>
+                                                <div class="detailHeading">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Click="AddCivilDetailToGrid" Text="@translationState.Translate("Add")" />
+                                                </div>
+                                            </div>
+                                            <div class="row tableContent table-responsive no-gutters pb-3">
+                                                <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                            @ref="PACIRequestDataeGridRef"
+                                                            AllowFiltering="false"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            AllowPaging="true"
+                                                            AllowSorting="true"
+                                                            Data="@PACIRequestDataForGrid"
+                                                            TItem="PACIRequestDataVM"
+                                                            ColumnWidth="200px">
+                                                    <Columns>
+                                                        <RadzenDataGridColumn TItem="PACIRequestDataVM" Property="CivilId" Title="@translationState.Translate("Civil_ID")" />
+                                                        <RadzenDataGridColumn TItem="PACIRequestDataVM" Property="Name" Title="@translationState.Translate("Name")" />
+                                                        <RadzenDataGridColumn TItem="PACIRequestDataVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                            <Template Context="rowItem">
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" class="deleteIcon" Icon="delete_outline" title="@translationState.Translate("delete")" Size="ButtonSize.Small" Click="@(() =>DeleteRequestDataHandler(rowItem))" @onclick:stopPropagation="true" />
+                                                            </Template>
+                                                        </RadzenDataGridColumn>
+                                                    </Columns>
+                                                </RadzenDataGrid>
+                                            </div>
+                                        </ChildContent>
+                                    </RadzenFieldset>
+                                    <div class="row mt-4 popup-buttons-alignment">
+                                        <div class="col-12">
+                                            <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                                      Style=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "float:right; margin-right:10px !important" : "margin-left: 1rem !important")
+                                                      Text="@translationState.Translate("Submit")" />
+                                        </div>
+                                    </div>
+                                </RadzenTemplateForm>
+                            </RadzenTabsItem>
+                            <RadzenTabsItem Text=@translationState.Translate("Submitted_Requests")>
+                                <div class="col-md-4">
+                                    <RadzenTextBox class="searchBox" Placeholder="@translationState.Translate("Grid_Search")" Name="Textbox0"
+                                               @oninput="@(async(args) => {search = $"{args.Value}";await grid.GoToPage(0);await OnSearchInput();})" />
+                                </div>
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+
+                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                @ref="grid"
+                                                AllowFiltering="false"
+                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                AllowPaging="true"
+                                                AllowSorting="true"
+                                                Data="@FilteredGetPaciRequestList"
+                                                TItem="PACIRequestListVM"
+                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                ShowPagingSummary="true">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Width="150px" Property="RefrenceNumber" Title="@translationState.Translate("Reference_Number")" />
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Width="150px" Property="CreatedBy" Title="@translationState.Translate("Createdby")" />
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Width="150px" Property="RequestDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Request_Date")" />
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Width="120px" Property="Names" Title="@translationState.Translate("Name")" />
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Width="150px" Property="CaseNumber" Title="@translationState.Translate("Case_Number")" />
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Width="120px" Property="Year" Title="@translationState.Translate("Year")" />
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Width="185px" Property="RequestedDetails" Title="@translationState.Translate("Address_Type")" />
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Width="250px" Title="@translationState.Translate("Request_Status")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                <Template Context="rowItem">
+                                                    @if (rowItem.RequestStatusId == (int)RequestStatusEnum.RequestSubmitted)
+                                                    {
+                                                        <span style="color: #007bff; font-weight: bold;">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.RequestStatus : @rowItem.RequestStatusAr)</span>
+                                                    }
+                                                    else if (rowItem.RequestStatusId == (int)RequestStatusEnum.RequestPickedbyRPA)
+                                                    {
+                                                        <span style="color: #6c757d; font-weight: bold;">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.RequestStatus : rowItem.RequestStatusAr)</span>
+
+                                                    }
+                                                    else if (rowItem.RequestStatusId == (int)RequestStatusEnum.RequestFormgenerated)
+                                                    {
+                                                        <span style="color: #ffc000; font-weight: bold;">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.RequestStatus : rowItem.RequestStatusAr)</span>
+                                                    }
+                                                    else if (rowItem.RequestStatusId == (int)RequestStatusEnum.RequestFormEmailed)
+                                                    {
+                                                        <span style="color: #ff9000; font-weight: bold;">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.RequestStatus : rowItem.RequestStatusAr)</span>
+                                                    }
+                                                    else if (rowItem.RequestStatusId == (int)RequestStatusEnum.PACIResponseReceived)
+                                                    {
+                                                        <span style="color: #ff6000; font-weight: bold;">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.RequestStatus : rowItem.RequestStatusAr)</span>
+                                                    }
+                                                    else if (rowItem.RequestStatusId == (int)RequestStatusEnum.PDFDataExtraction)
+                                                    {
+                                                        <span style="color: #28a745; font-weight: bold;">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.RequestStatus : rowItem.RequestStatusAr)</span>
+                                                    }
+                                                    else if (rowItem.RequestStatusId == (int)RequestStatusEnum.Exception)
+                                                    {
+                                                        <span style="color: Red; font-weight: bold;">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.RequestStatus : rowItem.RequestStatusAr)</span>
+                                                    }
+                                                    else if (rowItem.RequestStatusId == (int)RequestStatusEnum.RetryException)
+                                                    {
+                                                        <span style="color: #007bff; font-weight: bold;">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.RequestStatus : rowItem.RequestStatusAr)</span>
+                                                    }
+                                                </Template>
+                                            </RadzenDataGridColumn>
+
+
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Width="102px" Title="@translationState.Translate("Email_Sent")" TextAlign="TextAlign.Center">
+                                                <Template Context="rowItem">
+                                                    @if (rowItem.EmailSentStatusId == (int)EmailStatusEnum.Sent)
+                                                    {
+                                                        <RadzenButton Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.EmailSentStatus : rowItem.EmailSentStatusAr)"
+                                                              ButtonStyle="ButtonStyle.Danger" Disabled="rowItem.RequestStatusId!=(int)RequestStatusEnum.Exception"
+                                                              style="font-weight: bold;color:green; background-color:white;"
+                                                              ButtonType="Radzen.ButtonType.Submit" />
+                                                    }
+                                                    else
+                                                    {
+                                                        <RadzenButton Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?  rowItem.EmailSentStatus : rowItem.EmailSentStatusAr)"
+                                                              ButtonStyle="ButtonStyle.Danger" Disabled="rowItem.RequestStatusId!=(int)RequestStatusEnum.Exception"
+                                                              style="font-weight: bold; color:red; background-color:white;"
+                                                              ButtonType="Radzen.ButtonType.Submit" />
+                                                    }
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Filterable="false" Title="@translationState.Translate("Extracted_Data")" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                <Template Context="rowItem">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                              Icon="info"
+                                                              Size="ButtonSize.Small"
+                                                              Title="@translationState.Translate("Details")"
+                                                              Click="@((args) => GridViewDetailClick(args ,rowItem))"
+                                                              @onclick:stopPropagation="true" Disabled="rowItem.RequestStatusId!=(int)RequestStatusEnum.PDFDataExtraction" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Width="170px" Property="RequestDocPath" Title="@translationState.Translate("Request_Form")" TextAlign="TextAlign.Center">
+                                                <Template Context="rowItem">
+                                                    <RadzenButton Text="@translationState.Translate("Request_Form")"
+                                                                  ButtonStyle="ButtonStyle.Danger"
+                                                                  style=" border: 1px black solid; border-color:black; color:black; background-color:white; width:152px !important"
+                                                                  ButtonType="Radzen.ButtonType.Submit" Click="@((args) => ViewAttachement(rowItem))"
+                                                                  Disabled="rowItem.RequestStatusId!=(int)RequestStatusEnum.RequestFormEmailed && rowItem.RequestStatusId!=(int)RequestStatusEnum.RequestFormgenerated && rowItem.RequestStatusId!=(int)RequestStatusEnum.PACIResponseReceived && rowItem.RequestStatusId!=(int)RequestStatusEnum.PDFDataExtraction" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Width="190px" Property="ResponseDocPath" Title="@translationState.Translate("Response_Document")" TextAlign="TextAlign.Center">
+
+                                                <Template Context="rowItem">
+                                                    <RadzenButton Text="@translationState.Translate("Response_Document")"
+                                                                  ButtonStyle="ButtonStyle.Danger"
+                                                                  style="border: 1px black solid; border-color:black; color:black; background-color:white; width:172px !important"
+                                                                  Disabled="rowItem.RequestStatusId!=(int)RequestStatusEnum.PACIResponseReceived && rowItem.RequestStatusId!=(int)RequestStatusEnum.PDFDataExtraction"
+                                                                  ButtonType="Radzen.ButtonType.Submit"
+                                                                  Click="@((args) => ViewAttachement(rowItem))" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+
+                                            <RadzenDataGridColumn TItem="PACIRequestListVM" Filterable="false" Title="@translationState.Translate("Action")" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                                <Template Context="rowItem">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                              class="deleteIcon"
+                                                              Icon="delete"
+                                                              title="@translationState.Translate("delete")"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@((args) => GridDeleteButtonClick(args, rowItem))"
+                                                              @onclick:stopPropagation="true"
+                                                              Disabled="rowItem.RequestStatusId!=(int)RequestStatusEnum.Exception && rowItem.RequestStatusId!=(int)RequestStatusEnum.RequestSubmitted" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                </div>
+            </div>
+            <TelerikWindow Class="mojrollsPreviewWindow" Size="@(ThemeConstants.Window.Size.Large)" Visible="@(DisplayDocumentViewer && !busyPreviewBtn)" Draggable="true" Top="0%" Left="0%">
+                <WindowTitle>
+                    <RadzenHeading Size="H2" Text="@translationState.Translate("Document_Preview")" />
+                </WindowTitle>
+                <WindowActions>
+                    <WindowAction Name="Minimize"></WindowAction>
+                    <WindowAction Name="Close" OnClick="@( () => DisplayDocumentViewer = false )"></WindowAction>
+                </WindowActions>
+                <WindowContent>
+                    @if (DisplayDocumentViewer && !busyPreviewBtn)
+                    {
+                        <div class="row pb-2 h-100">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <SfPdfViewerServer EnableNavigationToolbar="false"
+                                                   ZoomMode="ZoomMode.FitToWidth"
+                                                   EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                                   ID="pdfviewer"
+                                                   Width="100%"
+                                                   Height="100%"
+                                                   DocumentPath="@DocumentPath">
+                                    <PdfViewerToolbarSettings ToolbarItems="ToolbarItems"></PdfViewerToolbarSettings>
+                                </SfPdfViewerServer>
+                            </div>
+                        </div>
+                    }
+                </WindowContent>
+            </TelerikWindow>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+

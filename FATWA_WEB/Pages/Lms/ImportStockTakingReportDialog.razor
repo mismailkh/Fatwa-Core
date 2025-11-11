@@ -1,0 +1,106 @@
+﻿@page "/import-stocktaking"
+@using FATWA_DOMAIN.Models.Lms
+@using Syncfusion.Blazor.Inputs
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Import_And_Compare")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenCard class="pb-4">
+                    <div class="pb-4">
+                        <RadzenHeading Style="font-size: 18px !important;" class="pageTitle pb-2" Text="@translationState.Translate("Import_Template")" />
+                        <RadzenLabel Text="@(translationState.Translate("Select_File") + " *")" />
+                        @if (isShowFileSelect)
+                        {
+                            <TelerikFileSelect @ref="@FileSelectRef" AllowedExtensions="@FileTypes"  OnSelect="@HandleFileSelect" OnRemove="@HandleFileRemove" Multiple="false" />
+                        }
+                        else
+                        {
+                            <TelerikFileSelect @ref="@FileSelectRef1" AllowedExtensions="@FileTypes" OnSelect="@HandleFileSelect" OnRemove="@HandleFileRemove" Multiple="false" />
+                        }
+                        
+                        <div class="k-form-hint">
+                            @translationState.Translate("Accepted_Files")
+                            <strong>
+                                @if (FileTypes != null)
+                                {
+                                    @foreach (var type in FileTypes)
+                                    {
+                                        @type
+                                    }
+                                }
+                            </strong>
+                        </div>
+                    </div>
+                    @if (errorlist.Count > 0)
+                    {
+                        <div class="error-container">
+                            <h4 style="white-space: pre-line">@errorMessages</h4>
+                        </div>
+                    }
+                    <div class="row pb-4">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("Employee_Who_Performed_StockTaking")</label>
+                                    <div class="k-form-field-wrap">
+                                        <RadzenDropDown Placeholder="@translationState.Translate("Select_User")"
+                                                        Data=@EmployeesList
+                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FirstNameEnglish" : "FirstNameArabic")"
+                                                        ValueProperty="Id"
+                                                        Name="UserId"
+                                                        LoadData=@OnLoadUserData
+                                                        @bind-Value="@saveStockTaking.StockTakingPerformerIds"
+                                                        AllowClear="true"
+                                                        SelectAllText="@translationState.Translate("Selected_All")"
+                                                        SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                                        Multiple="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        AllowFiltering="true"
+                                                        Style="width: 100%;" />
+                                    </div>
+                                    <div class="rz-message rz-messages-error ">@PerformerValidationMessage</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid0"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(stockList != null ? stockList.Count() : 0)"
+                                        AllowPaging="true"
+                                        Data="@stockList"
+                                        TItem="StockTakingImportTemplate"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        CellRender="CellRender"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="StockTakingImportTemplate" Property="BookName" Title="@translationState.Translate("Book_Name")" />
+                                <RadzenDataGridColumn TItem="StockTakingImportTemplate" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AuthorNameEn" : "AuthorNameAr") Title="@translationState.Translate("Author")" />
+                                <RadzenDataGridColumn TItem="StockTakingImportTemplate" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "IndexNameEn" : "IndexNameAr") Title="@translationState.Translate("Book_Index")" />
+                                <RadzenDataGridColumn TItem="StockTakingImportTemplate" Property="BarcodeNumber" Title="@translationState.Translate("BarCode")" />
+                                <RadzenDataGridColumn TItem="StockTakingImportTemplate" Property="RFIdValue" Title="@translationState.Translate("RFID_Value")" />
+                                <RadzenDataGridColumn TItem="StockTakingImportTemplate" Property="TotalCopiesCounted" Title="@translationState.Translate("Totals_Book_Counted")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </RadzenCard>
+                <div class="row popup-buttons-alignment pt-3 ">
+                    <div class="col-12  d-flex justify-content-end">
+                        <RadzenButton ButtonType="Radzen.ButtonType.Button" Disabled="@(stockList.Count > 0 ? false : true)" ButtonStyle="ButtonStyle.Primary" Click="@Compare" Text="@translationState.Translate("Compare_Stocktaking")">
+                        </RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@Button2Click">
+                        </RadzenButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

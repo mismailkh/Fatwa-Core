@@ -1,0 +1,96 @@
+﻿@page "/add-company"
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Add_Company")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@Companys" Visible="@(Companys != null)" TItem="Company" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Name_En")" Component="NameEn" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Name_En")"
+                                                   MaxLength="100"
+                                                   @bind-Value="@(Companys.NameEn)"
+                                                   Name="NameEn" />
+                                    <RadzenRequiredValidator Component="NameEn" Text="@translationState.Translate("Required_Field")" />
+                                    <RadzenRegexValidator Component="NameEn" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="^[A-Za-z ]+$" />
+
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Name_Ar")" Component="NameAr" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Name_Ar")"
+                                                   MaxLength="100"
+                                                   @bind-Value="@(Companys.NameAr)"
+                                                   Name="NameAr" />
+                                    <RadzenRegexValidator Component="NameAr" Text="@translationState.Translate("Arabic_Name_Is_Allowed")" Pattern="^[\u0621-\u064A ]+$" />
+
+                                    <RadzenRequiredValidator Component="NameAr" Text="@translationState.Translate("Required_Field")" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("City")" Component="City" />
+
+                                    <RadzenDropDown Data="@CityList" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "NameEn":"NameAr" )" ValueProperty="CityId" Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;" @bind-Value="@(Companys.CityId)" Name="City" />
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("phone_Number")" Component="PhoneNumber" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("phone_Number")" MaxLength="8" @bind-Value="@(Companys.CompanyPhoneNumber)" Name="PhoneNumber" />
+                                    <RadzenRegexValidator Component="PhoneNumber" Text="@translationState.Translate("Only_Digits_Allowed")" Pattern="^[0-9]+$" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Alternate_Mobile_Number")" Component="AlternativePhoneNumber" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Alternate_Mobile_Number")" MaxLength="8" @bind-Value="@(Companys.CompanyAlternatePhoneNumber)" Name="AlternativePhoneNumber" />
+                                    <RadzenRegexValidator Component="AlternativePhoneNumber" Text="@translationState.Translate("Only_Digits_Allowed")" Pattern="^[0-9]+$" />
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Email_address")" Component="Email" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Email_address")"
+                                                   MaxLength="100"
+                                                   @bind-Value="@(Companys.CompanyEmail)"
+                                                   Name="Email" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Address")" Component="CompanyAddress" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Address")" Name="CompanyAddress"
+                                                   @bind-Value="@(Companys.CompanyAddress)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 p-0 d-flex justify-content-end">
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.5rem !important" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                            </RadzenButton>
+                            <RadzenButton ButtonType="Radzen.ButtonType.Submit" style="margin-left: 0.5rem !important" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")">
+                            </RadzenButton>
+                        </div>
+
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

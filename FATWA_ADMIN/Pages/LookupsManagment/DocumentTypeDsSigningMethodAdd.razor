@@ -1,0 +1,73 @@
+﻿@using FATWA_DOMAIN.Models.ViewModel.AdminVM.Lookups;
+<div class="row">
+    <div class="col-12">
+        <div class="form-group">
+            <RadzenDataGrid @ref="AttachmentTypeGrid"
+                            FilterMode="Radzen.FilterMode.Advanced"
+                            AllowPaging="true"
+                            AllowSorting="true"
+                            AllowFiltering="false"
+                            Data="@AttachmentTypeList"
+                            TItem="AttachmentTypeVM"
+                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                            ExpandMode="DataGridExpandMode.Single"
+                            EmptyText="@translationState.Translate("No_record_found")"
+                            Count="@(AttachmentTypeList != null ? AttachmentTypeList.Count() : 0)"
+                            PageSize="3">
+                <Columns>
+                    <RadzenDataGridColumn TItem="AttachmentTypeVM" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar") Title="@(translationState.Translate("Selected_Document_Type")+" ("+(AttachmentTypeList.Count())+")")" />
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="form-group">
+            <RadzenLabel Text="@(translationState.Translate("Designation")+" *")" Component="Designation" />
+            <RadzenDropDown Data="@Designations"
+                            AllowFiltering="true"
+                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                            AllowClear="true" SelectAllText="@translationState.Translate("Selected_All")"
+                            SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                            Multiple="true"
+                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                            ValueProperty="Id"
+                            Placeholder="@translationState.Translate("Select")"
+                            Style="display:block;"
+            @bind-Value="@documenttypelist.DesignationIds"
+                            Name="Designation" />
+            @if ((documenttypelist.DesignationIds?.Any() ?? false) == false && HasDesValue)
+            {
+                <div class="rz-message rz-messages-error">@translationState.Translate("Required_Field")</div>
+            }
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="form-group">
+            <RadzenLabel Style="width:100% !important;" Text="@(translationState.Translate("Digital_Signature_Methods")+" *")" />
+            <div class="row">
+                @foreach (var method in SigningMethods)
+                {
+                    <div class="col-auto pt-3">
+                        <RadzenCheckBox TriState="false"
+                                        TValue="bool"
+                                        Value="@documenttypelist.SigningMethodIds.Contains(method.MethodId)"
+                                        Change="@(args => ChangeSigningMethod(args, method.MethodId))" />
+                        <RadzenLabel Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? method.NameEn : method.NameAr)" />
+                    </div>
+                }
+            </div>
+            @if (!documenttypelist.SigningMethodIds.Any() && HasSignMethodsValue)
+            {
+                <div class="rz-message rz-messages-error">@translationState.Translate("Required_Field")</div>
+            }
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12 p-3" style="text-align:end;">
+        <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary"
+                      Click="Submit"
+                      Text="@(translationState.Translate("Submit"))" style="margin-left: 0.2rem !important" />
+        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Cancel")" Click="@CancelClick" />
+    </div>
+</div>

@@ -1,0 +1,65 @@
+﻿@using Humanizer
+
+<div class="notificationBar">
+	<div class="notification">
+		<a href="javascript:void(0);">
+			<div class="notBtn" href="#">
+				<!--Number supports double digets and automaticly hides itself when there is nothing between divs -->
+				<div class="number">@notificationCount</div>
+				<RadzenIcon class="material-icons-outlined" Icon="notifications_active" />
+				<div class="box">
+					<h4 class="notificationTitle">@translationState.Translate("Notification_Title")</h4>
+					<div class="display">
+						@if (getBellNotifNotifications != null && getBellNotifNotifications.Any())
+						{
+							<div class="cont">
+								<!-- Fold this div and try deleting evrything inbetween -->
+								@foreach (var notification in getBellNotifNotifications)
+								{
+									<div class="sec new">
+										<RadzenButton Click="@((args) => DetailNotification(notification.NotificationId))"
+													  Class="col-12"
+											  title=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? notification.BellNotificationMessageEn : @notification.BellNotificationMessageAr)
+													  Style="background-color: #f4f4f4;">
+											<div style="font-weight: bold;" class="row">
+												<div class="txt col-8" >
+													@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? notification.BellNotificationMessageEn : @notification.BellNotificationMessageAr)
+												</div>
+												<div class="txt sub col-4" style="font-size: 0.9rem;">
+													@DateHumanizeExtensions.Humanize(notification.CreationDate, DateTime.Now)
+												</div>
+											</div> 
+										</RadzenButton>
+									</div>
+								}
+							</div>
+						}
+						else
+						{
+							<div class="nothing">
+								<i class="fas fa-child stick"></i>
+								<div class="cent">@translationState.Translate("No_Notification_Found")</div>
+							</div>
+						}
+					</div>
+					<div class="notificationBtn">
+
+						<RadzenButton class="rz-button-primary edit_btn"
+									  Text="@translationState.Translate("View_All")"
+									  ButtonStyle="ButtonStyle.Primary"
+									  Click="@ButtonViewAll" />
+
+						<RadzenButton class="cancleBtn delete_btn"
+									  Text="@translationState.Translate("Read_All")"
+									  ButtonStyle="ButtonStyle.Light"
+									  Click="@ButtonReadAllAsync"
+									  Style="float: right;" />
+
+					</div>
+				</div>
+
+			</div>
+		</a>
+	</div>
+</div>
+

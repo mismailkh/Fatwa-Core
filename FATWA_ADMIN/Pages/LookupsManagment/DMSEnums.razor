@@ -1,0 +1,193 @@
+﻿@page "/DMS-Enums"
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.CaseManagment;
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.Lookups;
+@using FATWA_DOMAIN.Models.ViewModel.DmsVMs;
+
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("DMS_Enums")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.DMS.Configuration"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Enums")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("DMS_Enums")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <RadzenCard Style="padding: 30px; border-radius: 8px;">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <RadzenAccordion Multiple="true">
+                            <Items>
+                                <RadzenAccordionItem Selected Text="@translationState.Translate("Document_Type")">
+                                     <div class="row">
+                                         <div class="col-md-4">
+                                             <RadzenTextBox class="searchBox"
+                                                            Placeholder="@translationState.Translate("Grid_Search")"
+                                                            Name="Textbox0"
+                                             @bind-Value="search"
+                                             @oninput="@(async(args) => {await DocumentTypeGrid.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                                          </div>
+
+                                         <div class="col-md-8 text-right-custom-gridcolumn">
+                                             <RadzenButton Icon="add_circle" style="margin: 0px 10px 10px 10px;" Text="@translationState.Translate("Add_Digital_Signature_Methods")" Disabled="@(SelectedAttachment.Count<=1)" Click="@AddDigitalSignatureMethods" />
+                                             <RadzenButton Icon="add_circle" style="margin-bottom: 10px" Text="@translationState.Translate("Add")" Click="@AddDocumentType" />
+                                         </div>
+                                     </div>
+                                    <div class="row tableContent pb-3">
+                                         <div class="col-md-12">
+                                             <RadzenDataGrid @ref="DocumentTypeGrid"
+                                                             FilterMode="Radzen.FilterMode.Advanced"
+                                                             AllowPaging="true"
+                                                             AllowSorting="true"
+                                                             AllowFiltering="false"
+                                                             Data="@FilteredDocumentTypelist"
+                                                             TItem="AttachmentTypeVM"
+                                                             SelectionMode="DataGridSelectionMode.Multiple"
+                                                             AllowRowSelectOnRowClick="false"
+                                                             PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                             PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                             ExpandMode="DataGridExpandMode.Single"
+                                                             EmptyText="@translationState.Translate("No_record_found")"
+                                                             ShowPagingSummary="true"
+                                                            @bind-Value="SelectedAttachment"
+                                                             Count="@(FilteredDocumentTypelist != null ? FilteredDocumentTypelist.Count() : 0)"
+                                                             PageSize="@loginState.PageSize"
+                                                             PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                             PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                                                 <Template Context="data">
+                                                     <RadzenCard class="bg-light row">
+                                                         <div class="col-6">
+                                                             @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                            {
+                                                                <RadzenDataGrid AllowPaging="true"
+                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                                PageSize="@loginState.PageSize"
+                                                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                                Data="@(data.DesignationNameEn != null ? data.DesignationNameEn.Split(',').Select(s => new { SigningMethod = s.Trim() }) : Enumerable.Empty<object>())"
+                                                                                TItem="object">
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn TItem="object" Property="SigningMethod" Title="@translationState.Translate("Designations")" />
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            }
+                                                            else
+                                                            {
+                                                                <RadzenDataGrid AllowPaging="true"
+                                                                                AllowSorting="true"
+                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                                PageSize="@loginState.PageSize"
+                                                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                                Data="@(data.DesignationNameAr != null ? data.DesignationNameAr.Split(',').Select(s => new { SigningMethod = s.Trim() }) : Enumerable.Empty<object>())" TItem="object">
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn TItem="object" Property="SigningMethod" Title="@translationState.Translate("Designations")" />
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            }
+                                                        </div>
+                                                        <div class="col-6">
+                                                            @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                            {
+                                                                <RadzenDataGrid AllowSorting="true" EmptyText="@translationState.Translate("No_record_found")" Data="@(data.SigningMethodNameEN != null ? data.SigningMethodNameEN.Split(',').Select(s => new { SigningMethod = s.Trim() }) : Enumerable.Empty<object>())" TItem="object">
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn TItem="object" Property="SigningMethod" Title="@translationState.Translate("Digital_Signature_Methods")" />
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            }
+                                                            else
+                                                            {
+                                                                <RadzenDataGrid AllowSorting="true" EmptyText="@translationState.Translate("No_record_found")" Data="@(data.SigningMethodNameAr != null ? data.SigningMethodNameAr.Split(',').Select(s => new { SigningMethod = s.Trim() }) : Enumerable.Empty<object>())" TItem="object">
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn TItem="object" Property="SigningMethod" Title="@translationState.Translate("Digital_Signature_Methods")" />
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            }
+                                                        </div>
+                                                    </RadzenCard>
+                                                </Template>
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="AttachmentTypeVM" Title="@translationState.Translate("Select_All")" Sortable="false" Filterable="false" Width="100px" TextAlign="TextAlign.Center">
+                                                        <HeaderTemplate>
+                                                            <RadzenCheckBox Visible="true" TriState="false" TValue="bool"
+                                                                            Value="@DocumentTypeGrid.PagedView.All(i => SelectedAttachment != null && SelectedAttachment.Contains(i))"
+                                                                            Change="@(args => TogglePageClaims(args))" />
+                                                        </HeaderTemplate>
+                                                        <Template Context="data">
+                                                            <RadzenCheckBox TriState="false" TValue="bool"
+                                                                            Value="@(SelectedAttachment != null && SelectedAttachment.Contains(data))"
+                                                                            Change="@(args => ToggleRowSelection(args, data))" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="AttachmentTypeVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center">
+                                                        <Template Context="UserRowClick">
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                          Class="editIcon"
+                                                                          Title="@translationState.Translate("Edit")"
+                                                                          Icon="mode"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => EditDocument(UserRowClick))"
+                                                            @onclick:stopPropagation="true" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="AttachmentTypeVM" Width="80px" Property="AttachmentTypeId" Title="@translationState.Translate("Id")" />
+                                                    <RadzenDataGridColumn TItem="AttachmentTypeVM" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar") Title="@translationState.Translate("Type")" />
+                                                    <RadzenDataGridColumn TItem="AttachmentTypeVM" Width="140px" Property="Description" Title="@translationState.Translate("Description")" />
+                                                    <RadzenDataGridColumn TItem="AttachmentTypeVM" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?"UserFullNameEn" : "UserFullNameAr") Title="@translationState.Translate("Created_By")" />
+                                                    <RadzenDataGridColumn TItem="AttachmentTypeVM" Width="140px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Created_Date")" />
+                                                    <RadzenDataGridColumn TItem="AttachmentTypeVM" Width="110px" Property="IsActive" Title="@translationState.Translate("Active")" TextAlign="TextAlign.Center" Sortable="false" Filterable="false">
+                                                        <Template Context="data">
+                                                            <RadzenCheckBox TriState="false"
+                                                                            TValue="bool?"
+                                                                            Value="@data.IsActive"
+                                                                            title="@((bool)data.IsSystemDefine ? translationState.Translate("Can_not_change_the_status_of_System_Define_Attachment") : "")"
+                                                                            Disabled="@((bool)data.IsSystemDefine)"
+                                                                            Change="@((args) => GridActiveButtonClick(data))" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    </div>
+                </div>
+            </RadzenCard>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

@@ -1,0 +1,74 @@
+﻿@page "/employee-bulkImport"
+@layout MainLayout
+<PageTitle>@translationState.Translate("Bulk_Import")</PageTitle>
+@*@if (loginState.ClaimList.Where(x => x.Value == "Permissions.EM.Employee.List").Count() > 0)
+{*@
+
+
+<RadzenContent>
+    <ChildContent>
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+
+            <RadzenCard class="rz-border-radius-3 p-4">
+                <RadzenHeading Style="font-size: 18px !important;" class="pageTitle pb-2" Text="@translationState.Translate("Export_Template")" />
+
+                <RadzenButton class="addBtn"
+                              Icon="file_download"
+                              Text="@translationState.Translate("Download_Template")"
+                              Click="DownloadTemplate" />
+            </RadzenCard> 
+            <div class="pt-4">
+                <RadzenCard class="rz-border-radius-3 p-4">
+                    <div>
+                        <RadzenHeading Style="font-size: 18px !important;" class="pageTitle pb-2" Text="@translationState.Translate("Import_Template")" />
+                        <RadzenLabel Text="@(translationState.Translate("Select_File") + " *")" />
+                        <TelerikFileSelect AllowedExtensions="@FileTypes" OnSelect="@HandleFileSelect" OnRemove="@HandleFileRemove" Multiple="false" />
+                        <div class="k-form-hint">
+                            @translationState.Translate("Accepted_Files")
+                            <strong>
+                                @if (FileTypes != null)
+                                {
+                                    @foreach (var type in FileTypes)
+                                    {
+                                        @type
+                                    }
+                                }
+                            </strong>
+                        </div>
+                    </div>
+
+                    @if (errorlist.Count > 0)
+                    {
+                        <div class="error-container">
+                            <h4 style="white-space: pre-line">@errorMessages</h4>
+                        </div>
+                    }
+                    
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mt-4 popup-buttons-alignment">
+                        <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                      Text="@translationState.Translate("Run")"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      Click="@BulkImport" />
+
+                        <RadzenButton Text="@translationState.Translate("Cancel")"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Click="@ButtonCancelClick" />
+                    </div>
+                </RadzenCard>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+@* else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} *@
+
+<style>
+    .error-container {
+        height: 90px;
+        overflow: auto;
+        margin-top: 10px;
+    }
+</style>

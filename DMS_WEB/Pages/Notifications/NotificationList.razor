@@ -1,0 +1,135 @@
+﻿@page "/notifications"
+
+@layout MainLayout
+@inherits NotificationListComponent
+
+@using FATWA_DOMAIN.Models.Notifications
+
+<PageTitle>@translationState.Translate("Notifications")</PageTitle>
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.Notfication.NotificationList").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Notifications")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  Title="@translationState.Translate("Go_Back_Dashboard")"
+                                  Class="returnBtn"
+                                  Icon="dashboard"
+                                  Click="@GoBackDashboard" />
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  Title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  Class="returnBtn"
+                                  Icon="home"
+                                  Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Notifications")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-6 tableAdditionButton addPrincipleBtn px-0 pb-3">
+                        </div>
+                        <div class="col-md-6 tableAdditionButton addPrincipleBtn px-0 pb-3">
+                        </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenTextBox Class="searchBox"
+                                   Placeholder="@translationState.Translate("Grid_Search")"
+                                   Name="Textbox0"
+                                   @oninput="@(async(args) => {search = $"{args.Value}";
+								await grid.GoToPage(0);
+								await OnSearchInput();})" />
+					<RadzenTabs @bind-SelectedIndex="selectedTabIndex"
+								Change=@OnTabChange
+								TabPosition="Radzen.TabPosition.Top"
+								Style="margin: 20px auto;"
+								RenderMode="TabRenderMode.Server">
+						<Tabs>
+							@foreach (var item in notifStatus)
+							{
+								<RadzenTabsItem Text="@translationState.Translate(item)">
+									<RadzenDataGrid
+												@ref="grid"
+												CellRender="@RowCellRender"
+												ColumnWidth="200px"
+												FilterMode="Radzen.FilterMode.Advanced"
+												Count="@(getNotificationList != null ? getNotificationList.Count() : 0)"
+												AllowPaging="true"
+												AllowSorting="true" 
+												Data="@FilteredGetNotificationList"
+												TItem="NotificationVM"
+												PageSize="@systemSettingState.Grid_Pagination"
+												PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+												PageSizeText="@translationState.Translate("Items_Per_Page")"
+												PageSizeOptions="@systemSettingState.Page_Size_Options"
+												EmptyText="@translationState.Translate("No_record_found")"
+												PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+												ShowPagingSummary="true">
+										<Columns>
+												<RadzenDataGridColumn TItem="NotificationVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="100px" TextAlign="TextAlign.Center">
+												<Template Context="rowItem">
+													<RadzenButton ButtonStyle="ButtonStyle.Info"
+														  Class="viewIcon"
+														  Title="@translationState.Translate("Details")"
+														  Icon="visibility"
+														  Size="ButtonSize.Small"
+														  Click="@((args) => DetailNotification(rowItem))"
+														  @onclick:stopPropagation="true" />
+
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                              Class="deleteIcon"
+                                                              Title="@translationState.Translate("delete")"
+                                                              Icon="delete_outline"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@((args) => DeleteNotification(rowItem))"
+                                                              @onclick:stopPropagation="true" />
+
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="NotificationVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ModuleNameEn" : "ModuleNameAr") Title="@translationState.Translate("Module")" />
+                                                <RadzenDataGridColumn TItem="NotificationVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NotificationMessageEn" : "NotificationMessageAr" ) Title="@translationState.Translate("Message")" />
+                                                <RadzenDataGridColumn TItem="NotificationVM" Width="130px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CatNameEn" : "CatNameAr") Title="@translationState.Translate("Category")" />
+                                                <RadzenDataGridColumn TItem="NotificationVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EventNameEn" : "EventNameAr") Title="@translationState.Translate("Event")" />
+                                                <RadzenDataGridColumn TItem="NotificationVM" Width="150px" Property="CreatedDate" Title="@translationState.Translate("Created_Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+                                               </Columns>
+                                        </RadzenDataGrid>
+
+                                    </RadzenTabsItem>
+                                }
+                            </Tabs>
+                        </RadzenTabs>
+
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

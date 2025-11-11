@@ -1,0 +1,143 @@
+﻿@page "/roles"
+@layout MainLayout
+@inherits FATWA_ADMIN.Pages.UserManagement.Roles.RolesComponent
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+<PageTitle>@translationState.Translate("Roles")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.UMS"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Roles")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Roles")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row tableContent pb-3">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <div class="row">
+                            <div class="col-4">
+                                <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")" style="display: block; margin-bottom: 10px; width: 100%" Name="Textbox0"
+                                @oninput="@(async(args) => {await grid0.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                             </div>
+                        </div>
+                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                        @ref="grid0"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        Data="@FilteredGetRolesResult"
+                                        TItem="Role" ColumnWidth="230px"
+                                        PageSize="@loginState.PageSize"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        ShowPagingSummary="true"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        Count="@(FilteredGetRolesResult != null ? FilteredGetRolesResult.Count() : 0)">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Role" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
+                                    <Template Context="RoleRowClick">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="edit" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) =>GridEditButtonClick(args, RoleRowClick))" @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+
+                                <RadzenDataGridColumn TItem="Role" Property="@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "Name" : "NameAr")" Title="@translationState.Translate("Name")" />
+                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                {
+                                    <RadzenDataGridColumn TItem="Role" Property="Description_En" Title="@translationState.Translate("Role_Description_En")">
+                                        <Template Context="description">
+                                            @if (description.Description_En != null)
+                                            {
+                                                @if (description.Description_En.Length > 20)
+                                                {
+                                                    @description.Description_En.Substring(0,20) <a href="#" @onclick="@(() => OnDescriptionFullDetailDotClickEnglish(description))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                }
+                                                else
+                                                {
+                                                    @description.Description_En
+                                                }
+
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                }
+                                else
+                                {
+                                    <RadzenDataGridColumn TItem="Role" Property="Description_Ar" Title="@translationState.Translate("Role_Description_Ar")">
+                                        <Template Context="description">
+                                            @if (description.Description_Ar != null)
+                                            {
+                                                @if (description.Description_Ar.Length > 20)
+                                                {
+                                                    @description.Description_Ar.Substring(0,20) <a href="#" @onclick="@(() => OnDescriptionFullDetailDotClickArabic(description))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                }
+                                                else
+                                                {
+                                                    @description.Description_Ar
+                                                }
+
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                }
+                                <RadzenDataGridColumn TItem="Role" Property="CreatedBy" Title="@translationState.Translate("Created_By")" />
+                                <RadzenDataGridColumn TItem="Role" Property="CreatedDate" Title="@translationState.Translate("Created_At")" FormatString="{0:dd/MM/yyyy}" Width="170px" />
+                                <RadzenDataGridColumn TItem="Role" Property="ModifiedBy" Title="@translationState.Translate("Modified_By")" />
+                                <RadzenDataGridColumn TItem="Role" Property="ModifiedDate" Title="@translationState.Translate("Modified_At")" FormatString="{0:dd/MM/yyyy}" Width="170px" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenCard>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+@code
+{
+    async Task OnDescriptionFullDetailDotClickEnglish(Role args)
+    {
+        await dialogService.OpenAsync(args.Name, ds =>
+    @<div>
+        <p class="mb-4">@args.Description_En</p>
+    </div>);
+    }
+    async Task OnDescriptionFullDetailDotClickArabic(Role args)
+    {
+        await dialogService.OpenAsync(args.Name, ds =>
+    @<div>
+        <p class="mb-4">@args.Description_Ar</p>
+    </div>);
+    }
+}
+

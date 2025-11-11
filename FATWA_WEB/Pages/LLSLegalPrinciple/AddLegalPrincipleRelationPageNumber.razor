@@ -1,0 +1,41 @@
+﻿@page "/add-legalprinciplepagenumber"
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Add_Relation_Page_Number")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@pageNumberTemp" Visible="@(pageNumberTemp != null)" TItem="PageNumberTemp" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("The_Principle")" Component="PrincipleName" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("The_Principle")" @bind-Value="@pageNumberTemp.PrincipleContentDetail" Name="PrincipleName" Disabled="true" />
+
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="form-group">
+                            <RadzenLabel Text="@translationState.Translate("Page_Number")" Component="PageNumber" />
+                            <RadzenNumeric Min="0" Placeholder="@translationState.Translate("Page_Number")" @bind-Value="@pageNumberTemp.PageNumber" Name="PageNumber" />
+                            <RadzenRequiredValidator Component="PageNumber" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                            </div>
+                        </div>
+                        <div class="row popup-buttons-alignment">
+                            <div class="col-12">
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+

@@ -1,0 +1,577 @@
+﻿@page "/employees-list"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using static FATWA_DOMAIN.Enums.UserEnum
+@layout MainLayout
+<PageTitle>@translationState.Translate("User_Role_And_Digital_Signature")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.UMS"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Employees")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("User_Role_And_Digital_Signature")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+
+    <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Server" @bind-SelectedIndex="SelectedParentTabIndex" Change=@OnParentTabChange>
+        <Tabs>
+            <RadzenTabsItem Text="@translationState.Translate("Assign_User_Role")" Icon="manage_accounts">
+                <div class="row justify-content-center mainContentBlock py-4">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="row tableContent table-responsive py-2 no-gutters pb-2">
+                            <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Server" @bind-SelectedIndex="SelectedChildTabIndex" Change=@OnChildTabChange>
+                                <Tabs>
+                                    <RadzenTabsItem Text="@translationState.Translate("Internal_Employees")">
+                                        <div class="row">
+                                            <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                                                <RadzenFieldset AllowCollapse="false" Style=" margin: 20px auto;">
+                                                    <HeaderTemplate>
+                                                        <span class="d-inline-flex align-items-center align-middle">
+                                                            <b>@translationState.Translate("Filter_Users")</b>
+                                                        </span>
+                                                    </HeaderTemplate>
+                                                    <ChildContent>
+                                                        <div class="row">
+                                                            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                                <div class="form-group">
+                                                                    <RadzenLabel Text="@(translationState.Translate("Sector_Type"))" />
+                                                                    <RadzenDropDown Data="OperatingSectorTypesList"
+                                                                    @ref="SectorDropdown"
+                                                                                    AllowFiltering="true"
+                                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                    AllowClear="true"
+                                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    @bind-Value="SectorTypeId"
+                                                                                    ValueProperty="Id"
+                                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                    Name="SectorType"
+                                                                                    Change="@(GetEmployeesList)"
+                                                                                    Style="display: block;" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                                <div class="form-group">
+                                                                    <RadzenLabel Text="@(translationState.Translate("Designation"))" />
+                                                                    <RadzenDropDown Data="DesignationsList"
+                                                                    @ref="DesignationDropdown"
+                                                                                    AllowFiltering="true"
+                                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                    AllowClear="true"
+                                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    @bind-Value="DesignationId"
+                                                                                    ValueProperty="Id"
+                                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                    Name="Designation"
+                                                                                    Change="@(GetEmployeesList)"
+                                                                                    Style="display: block;" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </ChildContent>
+                                                </RadzenFieldset>
+                                            </div>
+                                            <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 pb-1">
+                                                <RadzenFieldset AllowCollapse="false" Style=" margin: 20px auto;">
+                                                    <HeaderTemplate>
+                                                        <span class="d-inline-flex align-items-center align-middle">
+                                                            <b>@translationState.Translate("Assign_Role")</b>
+                                                        </span>
+                                                    </HeaderTemplate>
+                                                    <ChildContent>
+                                                        <div class="row">
+                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                <div class="form-group">
+                                                                    <RadzenLabel Text="@(translationState.Translate("Roles")+" ")" />
+                                                                    <RadzenDropDown Data="SystemRoles"
+                                                                    @ref="RolesDropdown"
+                                                                                    AllowFiltering="true"
+                                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                    AllowClear="true"
+                                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    @bind-Value="UserRoleAssignmentVM.SelectedRoleId"
+                                                                                    ValueProperty="Id"
+                                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name" : "NameAr")"
+                                                                                    Name="UserRole"
+                                                                                    Style="display: block;" />
+                                                                    <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="UserRole" />
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </ChildContent>
+                                                </RadzenFieldset>
+
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4 pb-3">
+                                                <RadzenTextBox class="searchBox"
+                                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                                               Name="Textbox0"
+                                                @oninput="@(async(args) => { await employeeGrid.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                                            </div>
+                                        </div>
+                                        @if (EmployeesList.Any(tsk => tsk.IsUserHasAnyTask == true))
+                                        {
+                                            <div class="row">
+                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <div class="rz-alert rz-alert-sm rz-variant-flat rz-warning rz-shade-lighter" aria-live="polite">
+                                                        <div class="rz-alert-item">
+                                                            <i style="" class="rzi rz-alert-icon" id="4zgarvf6ik" _bl_480="">info_outline</i>
+                                                            <div class="rz-alert-message">
+                                                                <div class="rz-alert-content">
+                                                                    <p class="m-0" style="font-size: 15px;">@(translationState.Translate("Cannot_Update_Disabled_Users_Role"))</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        @ref="employeeGrid"
+                                                        Count="@(FilteredEmployeesList != null ? FilteredEmployeesList.Count() : 0)"
+                                                        AllowPaging="true" ColumnWidth="230px"
+                                                        AllowSorting="true"
+                                                        Data="@FilteredEmployeesList"
+                                                        TItem="EmployeesListVM"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true"
+                                        @bind-Value="SelectedUsers"
+                                                        AllowRowSelectOnRowClick="false"
+                                                        SelectionMode="DataGridSelectionMode.Multiple">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" TextAlign="TextAlign.Center" Width="40px" Sortable="false" Filterable="false">
+                                                    <HeaderTemplate>
+                                                        <RadzenCheckBox Visible="false" TriState="false" TValue="bool" Value="@(EmployeesList.Any(i => SelectedUsers != null && SelectedUsers.Contains(i)))"
+                                                                        Change="@(args => SelectedUsers = args ? EmployeesList.ToList() : null)" />
+                                                    </HeaderTemplate>
+                                                    <Template Context="data">
+                                                        <RadzenCheckBox Disabled="data.IsUserHasAnyTask" TriState="false" Value="@(SelectedUsers != null && SelectedUsers.Contains(data))"
+                                                                        TValue="bool" Change=@(args => employeeGrid.SelectRow(data)) />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Title="@translationState.Translate("Action")" Width="50px" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                    <Template Context="UserRowClick">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="manage_accounts" title="@translationState.Translate("Assign_Role")" Size="ButtonSize.Small"
+                                                                      Click="@((args) =>AssignRoleToUser(args, UserRowClick.UserId, UserRowClick.RoleId))" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EmployeeNameEn" : "EmployeeNameAr")"
+                                                                      Title="@translationState.Translate("Employee_Name")" />
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RoleNameEn" : "RoleNameAr")"
+                                                                      Title="@translationState.Translate("Role")" />
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorTypeNameEn" : "SectorTypeNameAr")"
+                                                                      Title="@translationState.Translate("Sector_Type")" Width="250px" />
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DesignationEn" : "DesignationAr")"
+                                                                      Title="@translationState.Translate("Designation")" />
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Property="IsDefaultCorrespondanceReceiver" TextAlign="TextAlign.Center" Sortable="false" Title="@translationState.Translate("Default_Correspondance_Receiver")">
+                                                    <Template Context="data">
+                                                        <RadzenCheckBox @bind-Value="data.IsDefaultCorrespondenceReceiver" TriState="false" TValue="bool" Change="@(args => UpdateDefaultCorrespondenceReceiverStatus(data))" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </RadzenTabsItem>
+                                    <RadzenTabsItem Text="@translationState.Translate("External_Employees")">
+                                        <div class="row">
+                                            <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                                                <RadzenFieldset AllowCollapse="false" Style=" margin: 20px auto;">
+                                                    <HeaderTemplate>
+                                                        <span class="d-inline-flex align-items-center align-middle">
+                                                            <b>@translationState.Translate("Filter_Users")</b>
+                                                        </span>
+                                                    </HeaderTemplate>
+                                                    <ChildContent>
+                                                        <div class="row">
+                                                            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                                <div class="form-group">
+                                                                    <RadzenLabel Text="@(translationState.Translate("Sector_Type"))" />
+                                                                    <RadzenDropDown Data="OperatingSectorTypesList"
+                                                                    @ref="SectorDropdown"
+                                                                                    AllowFiltering="true"
+                                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                    AllowClear="true"
+                                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    @bind-Value="SectorTypeId"
+                                                                                    ValueProperty="Id"
+                                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                    Name="SectorType"
+                                                                                    Change="@(GetEmployeesList)"
+                                                                                    Style="display: block;" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                                <div class="form-group">
+                                                                    <RadzenLabel Text="@(translationState.Translate("Designation"))" />
+                                                                    <RadzenDropDown Data="DesignationsList"
+                                                                    @ref="DesignationDropdown"
+                                                                                    AllowFiltering="true"
+                                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                    AllowClear="true"
+                                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    @bind-Value="DesignationId"
+                                                                                    ValueProperty="Id"
+                                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                    Name="Designation"
+                                                                                    Change="@(GetEmployeesList)"
+                                                                                    Style="display: block;" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </ChildContent>
+                                                </RadzenFieldset>
+                                            </div>
+                                            <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 pb-1">
+                                                <RadzenFieldset AllowCollapse="false" Style=" margin: 20px auto;">
+                                                    <HeaderTemplate>
+                                                        <span class="d-inline-flex align-items-center align-middle">
+                                                            <b>@translationState.Translate("Assign_Role")</b>
+                                                        </span>
+                                                    </HeaderTemplate>
+                                                    <ChildContent>
+                                                        <div class="row">
+                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                <div class="form-group">
+                                                                    <RadzenLabel Text="@(translationState.Translate("Roles")+" ")" />
+                                                                    <RadzenDropDown Data="SystemRoles"
+                                                                                    AllowFiltering="true"
+                                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                    AllowClear="true"
+                                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    @bind-Value="UserRoleAssignmentVM.SelectedRoleId"
+                                                                                    ValueProperty="Id"
+                                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name" : "NameAr")"
+                                                                                    Name="UserRole"
+                                                                                    Style="display: block;" />
+                                                                    <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="UserRole" />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </ChildContent>
+                                                </RadzenFieldset>
+
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4 pb-3">
+                                                <RadzenTextBox class="searchBox"
+                                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                                               Name="Textbox0"
+                                                @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+                                            </div>
+                                        </div>
+                                        @if (EmployeesList.Any(tsk => tsk.IsUserHasAnyTask == true))
+                                        {
+                                            <div class="row">
+                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <div class="rz-alert rz-alert-sm rz-variant-flat rz-warning rz-shade-lighter" aria-live="polite">
+                                                        <div class="rz-alert-item">
+                                                            <i style="" class="rzi rz-alert-icon" id="4zgarvf6ik" _bl_480="">info_outline</i>
+                                                            <div class="rz-alert-message">
+                                                                <div class="rz-alert-content">
+                                                                    <p class="m-0" style="font-size: 15px;">@(translationState.Translate("Cannot_Update_Disabled_Users_Role"))</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        @ref="employeeGrid"
+                                                        Count="@(FilteredEmployeesList != null ? FilteredEmployeesList.Count() : 0)"
+                                                        AllowPaging="true" ColumnWidth="230px"
+                                                        AllowSorting="true"
+                                                        Data="@FilteredEmployeesList"
+                                                        TItem="EmployeesListVM"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true"
+                                        @bind-Value="SelectedUsers"
+                                                        AllowRowSelectOnRowClick=@allowRowSelectOnRowClick
+                                                        SelectionMode="DataGridSelectionMode.Multiple">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Width="40px" Sortable="false" Filterable="false">
+                                                    <HeaderTemplate>
+                                                        <RadzenCheckBox Visible="false" TriState="false" TValue="bool" Value="@(EmployeesList.Any(i => SelectedUsers != null && SelectedUsers.Contains(i)))"
+                                                                        Change="@(args => SelectedUsers = args ? EmployeesList.ToList() : null)" />
+                                                    </HeaderTemplate>
+                                                    <Template Context="data">
+                                                        <RadzenCheckBox Disabled="@(data.IsUserHasAnyTask)" TriState="false" Value="@(SelectedUsers != null && SelectedUsers.Contains(data))"
+                                                                        TValue="bool" Change=@(args => employeeGrid.SelectRow(data)) />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center">
+                                                    <Template Context="UserRowClick">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="manage_accounts" title="@translationState.Translate("Assign_Role")" Size="ButtonSize.Small"
+                                                                      Click="@((args) =>AssignRoleToUser(args, UserRowClick.UserId, UserRowClick.RoleId))" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EmployeeNameEn" : "EmployeeNameAr")"
+                                                                      Title="@translationState.Translate("Employee_Name")" />
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RoleNameEn" : "RoleNameAr")"
+                                                                      Title="@translationState.Translate("Role")" />
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorTypeNameEn" : "SectorTypeNameAr")"
+                                                                      Title="@translationState.Translate("Sector_Type")" Width="250px" />
+                                                <RadzenDataGridColumn TItem="EmployeesListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DesignationEn" : "DesignationAr")"
+                                                                      Title="@translationState.Translate("Designation")" />
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </RadzenTabsItem>
+                                </Tabs>
+                            </RadzenTabs>
+                        </div>
+                    </div>
+                </div>
+                <div class="popup-buttons-alignment pt-1">
+                    <RadzenButton Click="@AssignRoleToBulkUsers"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  Text="@(translationState.Translate("Submit"))"
+                                  title="@(((UserRoleAssignmentVM.SelectedRoleId == null) || (SelectedUsers.Count <= 1)) ? @translationState.Translate("Select_User_Role") : null)" />
+                </div>
+            </RadzenTabsItem>
+            <RadzenTabsItem Visible="true" Text="@translationState.Translate("Assign_Digital_Signature")" Icon="admin_panel_settings">
+                <div class="row justify-content-center mainContentBlock py-4">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="row tableContent table-responsive py-4 no-gutters pb-3">
+                            <RadzenCard>
+                                <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Server" @bind-SelectedIndex="SelectedChildTabIndex" Change=@OnChildTabChange>
+                                    <Tabs>
+                                        <RadzenTabsItem Text="@translationState.Translate("Internal_Employees")">
+                                            <div class="row">
+                                                <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                                                    <RadzenFieldset AllowCollapse="false" Style=" margin: 20px auto;">
+                                                        <HeaderTemplate>
+                                                            <span class="d-inline-flex align-items-center align-middle">
+                                                                <b>@translationState.Translate("Filter_Users")</b>
+                                                            </span>
+                                                        </HeaderTemplate>
+                                                        <ChildContent>
+                                                            <div class="row">
+                                                                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                                    <div class="form-group">
+                                                                        <RadzenLabel Text="@(translationState.Translate("Sector_Type"))" />
+                                                                        <RadzenDropDown Data="OperatingSectorTypesList"
+                                                                        @ref="SectorDropdown"
+                                                                                        AllowFiltering="true"
+                                                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                        AllowClear="true"
+                                                                                        Placeholder="@translationState.Translate("Select")"
+                                                                        @bind-Value="SectorTypeId"
+                                                                                        ValueProperty="Id"
+                                                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                        Name="SectorType"
+                                                                                        Change="@(GetEmployeesList)"
+                                                                                        Style="display: block;" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                                    <div class="form-group">
+                                                                        <RadzenLabel Text="@(translationState.Translate("Designation"))" />
+                                                                        <RadzenDropDown Data="DesignationsList"
+                                                                        @ref="DesignationDropdown"
+                                                                                        AllowFiltering="true"
+                                                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                        AllowClear="true"
+                                                                                        Placeholder="@translationState.Translate("Select")"
+                                                                        @bind-Value="DesignationId"
+                                                                                        ValueProperty="Id"
+                                                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                        Name="Designation"
+                                                                                        Change="@(GetEmployeesList)"
+                                                                                        Style="display: block;" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </ChildContent>
+                                                    </RadzenFieldset>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4 pb-3">
+                                                    <RadzenTextBox class="searchBox"
+                                                                   Placeholder="@translationState.Translate("Grid_Search")"
+                                                                   Name="Textbox0"
+                                                    @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+                                                </div>
+                                            </div>
+                                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                            @ref="employeeGrid"
+                                                            Count="@(FilteredEmployeesList != null ? FilteredEmployeesList.Count() : 0)"
+                                                            AllowPaging="true"
+                                                            AllowSorting="true"
+                                                            Data="@FilteredEmployeesList"
+                                                            TItem="EmployeesListVM"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                            ShowPagingSummary="true"
+                                            @bind-Value="SelectedUsers"
+                                                            AllowRowSelectOnRowClick="false"
+                                                            SelectionMode="DataGridSelectionMode.Multiple">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="EmployeesListVM" Width="200px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EmployeeNameEn" : "EmployeeNameAr")"
+                                                                          Title="@translationState.Translate("Employee_Name")" />
+                                                    <RadzenDataGridColumn TItem="EmployeesListVM" Width="200px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorTypeNameEn" : "SectorTypeNameAr")"
+                                                                          Title="@translationState.Translate("Sector_Type")" />
+                                                    <RadzenDataGridColumn TItem="EmployeesListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DesignationEn" : "DesignationAr")"
+                                                                          Title="@translationState.Translate("Designation")" Width="200px" />
+                                                    <RadzenDataGridColumn TItem="EmployeesListVM" Width="150px" Sortable="false" Filterable="false" TextAlign="TextAlign.Center">
+                                                        <HeaderTemplate>
+                                                            <RadzenLabel Text="@(translationState.Translate("Allow_DS"))" /> <br />
+                                                            <RadzenCheckBox Visible="true" TriState="false" TValue="bool"
+                                                                            Value="@employeeGrid.PagedView.All(i => SelectedUsers != null && SelectedUsers.Contains(i))"
+                                                                            Change="@(args => TogglePageClaims(args))" />
+                                                        </HeaderTemplate>
+                                                        <Template Context="data">
+                                                            <RadzenCheckBox TriState="false" @bind-Value="@(data.AllowDigitalSign)"
+                                                                            TValue="bool" Change="@(args => ToggleRowSelection(args, data))" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </RadzenTabsItem>
+                                        <RadzenTabsItem Text="@translationState.Translate("External_Employees")">
+                                            <div class="row">
+                                                <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                                                    <RadzenFieldset AllowCollapse="false" Style=" margin: 20px auto;">
+                                                        <HeaderTemplate>
+                                                            <span class="d-inline-flex align-items-center align-middle">
+                                                                <b>@translationState.Translate("Filter_Users")</b>
+                                                            </span>
+                                                        </HeaderTemplate>
+                                                        <ChildContent>
+                                                            <div class="row">
+                                                                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                                    <div class="form-group">
+                                                                        <RadzenLabel Text="@(translationState.Translate("Sector_Type"))" />
+                                                                        <RadzenDropDown Data="OperatingSectorTypesList"
+                                                                                        AllowFiltering="true"
+                                                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                        AllowClear="true"
+                                                                                        Placeholder="@translationState.Translate("Select")"
+                                                                        @bind-Value="SectorTypeId"
+                                                                                        ValueProperty="Id"
+                                                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                        Name="SectorType"
+                                                                                        Change="@(GetEmployeesList)"
+                                                                                        Style="display: block;" />
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                                    <div class="form-group">
+                                                                        <RadzenLabel Text="@(translationState.Translate("Designation"))" />
+                                                                        <RadzenDropDown Data="DesignationsList"
+                                                                                        AllowFiltering="true"
+                                                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                        AllowClear="true"
+                                                                                        Placeholder="@translationState.Translate("Select")"
+                                                                        @bind-Value="DesignationId"
+                                                                                        ValueProperty="Id"
+                                                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                        Name="Designation"
+                                                                                        Change="@(GetEmployeesList)"
+                                                                                        Style="display: block;" />
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </ChildContent>
+                                                    </RadzenFieldset>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-4 pb-3">
+                                                    <RadzenTextBox class="searchBox"
+                                                                   Placeholder="@translationState.Translate("Grid_Search")"
+                                                                   Name="Textbox0"
+                                                                   @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+                                                 </div>
+                                            </div>
+                                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                            @ref="employeeGrid"
+                                                            Count="@(FilteredEmployeesList != null ? FilteredEmployeesList.Count() : 0)"
+                                                            AllowPaging="true"
+                                                            AllowSorting="true"
+                                                            Data="@FilteredEmployeesList"
+                                                            TItem="EmployeesListVM"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                            ShowPagingSummary="true"
+                                            @bind-Value="SelectedUsers"
+                                                            AllowRowSelectOnRowClick="false"
+                                                            SelectionMode="DataGridSelectionMode.Multiple">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="EmployeesListVM" Width="200px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EmployeeNameEn" : "EmployeeNameAr")"
+                                                                          Title="@translationState.Translate("Employee_Name")" />
+                                                    <RadzenDataGridColumn TItem="EmployeesListVM" Width="200px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorTypeNameEn" : "SectorTypeNameAr")"
+                                                                          Title="@translationState.Translate("Sector_Type")" />
+                                                    <RadzenDataGridColumn TItem="EmployeesListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DesignationEn" : "DesignationAr")"
+                                                                          Title="@translationState.Translate("Designation")" Width="200px" />
+                                                    <RadzenDataGridColumn TItem="EmployeesListVM" Width="150px" Sortable="false" Filterable="false" TextAlign="TextAlign.Center">
+                                                        <HeaderTemplate>
+                                                            <RadzenLabel Text="@(translationState.Translate("Allow_DS"))" /><br />
+                                                            <RadzenCheckBox Visible="true" TriState="false" TValue="bool"
+                                                                            Value="@employeeGrid.PagedView.All(i => SelectedUsers != null && SelectedUsers.Contains(i))"
+                                                                            Change="@(args => TogglePageClaims(args))" />
+                                                        </HeaderTemplate>
+                                                        <Template Context="data">
+                                                            <RadzenCheckBox TriState="false" @bind-Value="@(data.AllowDigitalSign)"
+                                                                            TValue="bool" Change="@(args => ToggleRowSelection(args, data))" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </RadzenTabsItem>
+                                    </Tabs>
+                                </RadzenTabs>
+                            </RadzenCard>
+                        </div>
+                    </div>
+                </div>
+                <div class="popup-buttons-alignment">
+                    <RadzenButton Click="@SaveUserClaims"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  Text="@(translationState.Translate("Submit"))" />
+                </div>
+            </RadzenTabsItem>
+        </Tabs>
+    </RadzenTabs>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

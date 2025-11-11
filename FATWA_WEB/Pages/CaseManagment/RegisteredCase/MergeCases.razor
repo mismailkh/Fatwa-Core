@@ -1,0 +1,121 @@
+﻿@page "/merge-cases"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@layout MainLayout
+
+<!--<History Author = "Hassan Abbas" Date="2022-11-30" Version="1.0" Branch="master"> Merge Cases</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.CMS.RegisteredCase.MergeCases").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/case-files" Text="@translationState.Translate("Case_Files")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Merge_Cases")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Merge_Cases")" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row d-block justify-content-center mainContentBlock no-gutters bg-light p-0">
+                <RadzenTemplateForm Data="@mergeRequest" Visible="mergeRequest != null" TItem="MergeRequest" Submit="@Form0Submit">
+                    <ChildContent>
+                        <RadzenCard>
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                    <div class="row">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Primary_Case")" />
+                                                <RadzenDropDown TValue="Guid"
+                                                            Data="@dataCommunicationService.registeredCases"
+                                                            AllowFiltering="false"
+                                                            AllowClear="true"
+                                                            TextProperty="CaseNumber"
+                                                            Name="Primary_Case"
+                                                            ValueProperty="CaseId"
+                                                            @bind-Value="mergeRequest.PrimaryId"
+                                                            Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;">
+                                                </RadzenDropDown>
+                                                <div class="rz-message rz-messages-error ">@primaryValidationMsg</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Merged_Cases")" />
+                                                <RadzenTextArea Placeholder="@translationState.Translate("Merged_Cases")" Cols="20" Rows="1" class="w-100" Disabled="true" @bind-Value="@MergedCaseNos" Name="MergedCaseNos" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("Reason")" />
+                                        <RadzenTextArea Placeholder="@translationState.Translate("Reason")" Cols="20" Rows="6" class="w-100" @bind-Value="@mergeRequest.Reason" Name="Reason" />
+                                        <div class="rz-message rz-messages-error ">@reasonValidationMsg</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <FileUpload ReferenceGuid="@mergeRequest.Id"
+                                            Multiple="true"
+                                                MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                                FileTypes="@systemSettingState.FileTypes"
+                                            UploadFrom="CaseManagement"
+                                            ModuleId="(int)WorkflowModuleEnum.CaseManagement" />
+                                </div>
+                            </div>
+                            <div class="row d-flex justify-content-center align-items-center py-4 pb-3 mt-2">
+                                <div class="col-md-6 d-flex justify-content-start">
+                                    <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@RedirectBack">@translationState.Translate("Cancel")</TelerikButton>
+                                </div>
+                                <div class="col-md-6 d-flex justify-content-end">
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                    </RadzenButton>
+                                </div>
+                            </div>
+                        </RadzenCard>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

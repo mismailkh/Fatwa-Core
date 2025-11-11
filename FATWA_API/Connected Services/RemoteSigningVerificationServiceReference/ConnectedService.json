@@ -1,0 +1,18 @@
+{
+  "ExtendedData": {
+    "inputs": [
+      "../../RemoteSigningServices/DUC.DSP.Verification.DSPVerificationExtendedService.svc.xml"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "messageContract": true,
+    "namespaceMappings": [
+      "*, RemoteSigningVerificationServiceReference"
+    ],
+    "sync": true,
+    "targetFramework": "net6.0",
+    "typeReuseMode": "None"
+  }
+}

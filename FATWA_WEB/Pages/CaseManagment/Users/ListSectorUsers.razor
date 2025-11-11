@@ -1,0 +1,101 @@
+﻿@page "/sector-users"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Sector_Users")</PageTitle>
+
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.CMS.SectorUsersList" || x.Value == "Permissions.COMS.SectorUsersList"))
+{
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Case_Management")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Sector_Users")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Sector_Users")" />
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end ">
+            </div>
+        </div>
+        <div class="row justify-content-center mainContentBlock py-4">
+
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="row tableContent table-responsive py-4 no-gutters pb-3">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 pb-3">
+                        <div class="row no-gutters">
+                            <div class="col-md-4 ">
+                                <RadzenTextBox class="searchBox"
+                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                               Name="Textbox0"
+                                               @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+                             </div>
+                        </div>
+                    </div>
+                    <RadzenCard>                        
+                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        @ref="UsersGrid"
+                                        AllowPaging="true" ColumnWidth="230px"
+                                        AllowSorting="true"
+                                        LoadData="OnLoadData"
+                                        Data="@FilteredUsersList"
+                                        Sort="OnSortData"
+                                        TItem="SectorUsersVM"
+                                        Count="@(UsersList?.Any() == true ? UsersList.FirstOrDefault().TotalCount : 0)"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="SectorUsersVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                    <Template Context="UserRowClick">
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Click="@((args)=> DelegateUserDialog(args, UserRowClick.SectorTypeId,UserRowClick.RoleId,UserRowClick.UserId,UserRowClick.EmployeeStatusId, UserRowClick.EmployeeTypeId, UserRowClick.DesignationId))" Disabled="@(UserRowClick.DelegatedUserId != null)" Icon="person" title="@(UserRowClick.DelegatedUserId == null ? translationState.Translate("Delegate_An_Employee") : translationState.Translate("Employee_Permanently_Delegated"))" @onclick:stopPropagation="true" />
+                                        <RadzenButton ButtonStyle="ButtonStyle.Info" Click="@((args)=> ViewEmployeeDelegationHistory(args, UserRowClick.UserId ))" Icon="history" title="@translationState.Translate("View_Leave_Delegation_History")" @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="SectorUsersVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar")"
+                                                      Title="@translationState.Translate("Name")" />                                
+                                <RadzenDataGridColumn TItem="SectorUsersVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RoleName_En" : "RoleName_Ar")"
+                                                      Title="@translationState.Translate("Role")" />
+                                <RadzenDataGridColumn TItem="SectorUsersVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DepartmentName_En" : "DepartmentName_Ar")"
+                                                      Title="@translationState.Translate("Department")" />
+                                    <RadzenDataGridColumn TItem="SectorUsersVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EmployeeStatusEn" : "EmployeeStatusAr")"
+                                                          Title="@translationState.Translate("Employee_Status")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenCard>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

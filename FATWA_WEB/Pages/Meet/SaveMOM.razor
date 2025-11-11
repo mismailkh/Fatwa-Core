@@ -1,0 +1,365 @@
+﻿@page "/meetingmom-save/{MeetingId}/{ReferenceGuid}/{isEdit}"
+@page "/meetingmom-save/{MeetingId}/{ReferenceGuid}/{isEdit}/{isReview}"
+@using FATWA_DOMAIN.Models.MeetModels;
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.DmsEnums;
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using FATWA_DOMAIN.Models.ViewModel.Meet;
+@using Radzen.Blazor.Rendering
+@using static FATWA_DOMAIN.Enums.MeetingEnums
+@layout MainLayout
+
+
+<PageTitle>@translationState.Translate("Meeting_MOM")</PageTitle>
+
+<RadzenContent Container="main">
+	<ChildContent>
+		<div class="row justify-content-center align-items-center breadcrumbBar pb-3">
+			<div class="col-md-6">
+				<RadzenBreadCrumb>
+					<RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+					<RadzenBreadCrumbItem Path="/meeting-list" Text="@translationState.Translate("Meetings_List")" />
+					<RadzenBreadCrumbItem Text="@translationState.Translate("Meeting_MOM")" />
+				</RadzenBreadCrumb>
+			</div>
+			<div class="col-md-6 d-flex justify-content-end">
+				<div class="backtoDashboard"> 
+					<RadzenButton ButtonStyle="ButtonStyle.Secondary"
+								  Size="ButtonSize.Small"
+								  title="@translationState.Translate("Go_Back_Dashboard")"
+								  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+
+					<RadzenButton ButtonStyle="ButtonStyle.Secondary"
+								  Size="ButtonSize.Small"
+								  title="@translationState.Translate("Go_Back_HomeScreen")"
+								  class="returnBtn"
+								  Icon="home" Click="@GoBackHomeScreen" />
+
+				</div>
+			</div>
+		</div>
+		<div class="row TitleBar justify-content-center align-items-center py-4">
+			<div class="col-12">
+				<div class="row no-gutters">
+					<RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Meeting_MOM")" />
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12">
+			<div class="row">
+				<div class="col-12">
+					<div class="row pb-2">
+						<div class="col-md-4">
+							<h2 class="formHeading">@translationState.Translate("Meeting_Detail")</h2>
+							<div class="divider"></div>
+						</div>
+					</div>
+					<div class="row pb-2">
+						<div class="col-6 detailSection">
+							<div class="detailHeading">
+								<h3>@translationState.Translate("Subject"):</h3>
+							</div>
+							<div class="detailContent">
+								<h3 class="myoverflow" Title="@meetingMomVM.Meeting.Subject">@meetingMomVM.Meeting.Subject</h3>
+							</div>
+						</div>
+						<div class="col-6 detailSection">
+							<div class="detailHeading">
+								<h3>@translationState.Translate("Agenda"):</h3>
+							</div>
+							<div class="detailContent">
+								<h3 class="myoverflow" Title="@meetingMomVM.Meeting.Agenda">@meetingMomVM.Meeting.Agenda</h3>
+							</div>
+						</div>
+						<div class="col-6 detailSection">
+							<div class="detailHeading">
+								<h3>@translationState.Translate("Date"):</h3>
+							</div>
+							<div class="detailContent">
+								<h3 class="myoverflow" Title="@meetingMomVM.Meeting.Date.ToString("dd/MM/yyyy")">@meetingMomVM.Meeting.Date.ToString("dd/MM/yyyy")</h3>
+							</div>
+						</div>
+							<div class="col-6 detailSection">
+								<div class="detailHeading">
+									<h3>@translationState.Translate("Status"):</h3>
+								</div>
+								<div class="detailContent">
+									<h3 class="myoverflow" Title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? meetingMomVM.Meeting.MeetingStatusEn : meetingMomVM.Meeting.MeetingStatusAr)">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? meetingMomVM.Meeting.MeetingStatusEn : meetingMomVM.Meeting.MeetingStatusAr)</h3>
+								</div>
+							</div>
+					</div>
+				</div>
+			</div>
+			<RadzenTemplateForm Data="meetingMomVM"
+								TItem="SaveMomVM"
+								Submit="@FormSubmit">
+				<div class="row">
+					<div class="col-12">
+						<div class="row pb-2">
+							<div class="col-md-4">
+								<h2 class="formHeading">@translationState.Translate("Fatwa_Attendees")</h2>
+								<div class="divider"></div>
+							</div>
+						</div>
+						<div class="row pb-2">
+							<div class="col-md-12">
+								<div class="row tableContent table-responsive no-gutters pb-3">
+									<RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+													@ref="LegislationAttendeeGrid"
+													Data="@GetLegislationAttendees"
+													AllowFiltering="false"
+													FilterMode="Radzen.FilterMode.Advanced"
+													AllowPaging="true"
+													AllowSorting="true"
+													TItem="FatwaAttendeeVM"
+													PageSize="@systemSettingState.Grid_Pagination"
+													PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+													SelectionMode="DataGridSelectionMode.Multiple"
+													@bind-Value=@selectedLegislationAttandee>
+										<Columns>
+											<RadzenDataGridColumn TItem="FatwaAttendeeVM" Width="150px" Property="SerialNo" Title="@translationState.Translate("Serial_Number")" />
+											<RadzenDataGridColumn TItem="FatwaAttendeeVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FirstNameEnglish" : "FirstNameArabic") Title="@translationState.Translate("Name")" />
+											<RadzenDataGridColumn TItem="FatwaAttendeeVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AttendeeStatusEn" : "AttendeeStatusAr") Title="@translationState.Translate("Status")" />
+											<RadzenDataGridColumn TItem="FatwaAttendeeVM" Width="70px" Sortable="false" Filterable="false" Title="@translationState.Translate("Attended")">
+												<Template Context="data">
+													<RadzenCheckBox TriState="false" TValue="bool" Value="@(selectedLegislationAttandee != null && selectedLegislationAttandee.Contains(data))" Change=@(args => { if(!allowRowSelectOnRowClick) { LegislationAttendeeGrid.SelectRow(data); }}) />
+												</Template>
+											</RadzenDataGridColumn>
+										</Columns>
+									</RadzenDataGrid>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				@if (meetingMomVM.Meeting.MeetingTypeId == (int)MeetingTypeEnum.External)
+				{
+				<div class="row">
+					<div class="col-12">
+						<div class="row pb-2">
+							<div class="col-md-4">
+								<h2 class="formHeading">@translationState.Translate("GE_Attendees")</h2>
+								<div class="divider"></div>
+							</div>
+						</div>
+						<div class="row pb-2">
+							<div class="col-md-12">
+								<div class="row tableContent table-responsive no-gutters pb-3">
+									<RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+													@ref="GeAttendeeGrid"
+													AllowFiltering="false"
+													FilterMode="Radzen.FilterMode.Advanced"
+													AllowPaging="true"
+													AllowSorting="true"
+													Data="@GetGeAttendees"
+													TItem="MeetingAttendeeVM"
+													PageSize="@systemSettingState.Grid_Pagination"
+													PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+													SelectionMode="DataGridSelectionMode.Multiple"
+													@bind-Value=@selectedGEAttandee>
+										<Columns>
+											<RadzenDataGridColumn TItem="MeetingAttendeeVM" Width="150px" Property="SerialNo" Title="@translationState.Translate("Serial_Number")" />
+												<RadzenDataGridColumn TItem="MeetingAttendeeVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RepresentativeNameEn" : "RepresentativeNameAr") Title="@translationState.Translate("Representative")" />
+												<RadzenDataGridColumn TItem="MeetingAttendeeVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "GovernmentEntityNameEn" : "GovernmentEntityNameAr") Title="@translationState.Translate("Government_Entity")" />
+												<RadzenDataGridColumn TItem="MeetingAttendeeVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DepartmentNameEn" : "DepartmentNameAr") Title="@translationState.Translate("Department")" />
+											<RadzenDataGridColumn TItem="MeetingAttendeeVM" Width="70px" Sortable="false" Filterable="false" Title="@translationState.Translate("Attended")">
+												<Template Context="data">
+													<RadzenCheckBox TriState="false" Value="@(selectedGEAttandee != null && selectedGEAttandee.Contains(data))" TValue="bool" Change=@(args => { if(!allowRowSelectOnRowClick) { GeAttendeeGrid.SelectRow(data); }}) />
+												</Template>
+											</RadzenDataGridColumn>
+										</Columns>
+									</RadzenDataGrid>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				}
+				<div class="row">
+					<div class="col-12">
+						<div class="row pb-2">
+							<div class="col-md-5">
+								<h2 class="formHeading">@translationState.Translate("MOM_Attachment")</h2>
+								<div class="divider"></div>
+							</div>
+						</div>
+						@if (meetingMomVM.MeetingMom.MeetingMomId != Guid.Empty)
+						{
+							<FileUpload ReferenceGuid="meetingMomVM.MeetingMom.MeetingMomId"
+									@bind-DeletedAttachementIds="@meetingMomVM.MeetingMom.DeletedAttachementIds"
+									Multiple="false"
+										MaxFileSize="@systemSettingState.File_Maximum_Size"
+									FileTypes="@validFiles"
+									UploadFrom="CaseManagement"
+									HideView="true"
+									MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.MOMAttachment"
+									ModuleId="(int)WorkflowModuleEnum.Meeting" />
+						}
+
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-12">
+						<RadzenFieldset AllowCollapse="false" Style=" margin: 40px auto;">
+							<ChildContent>
+								<div class="row pb-2">
+									<div class="col-md-4">
+										<h2 class="formHeading">@translationState.Translate("MOM_Draft")</h2>
+										<div class="divider"></div>
+									</div>
+								</div>
+								<RadzenHtmlEditor class="draftEditor" @onclick="@(() => TogglePreviewWindow(false))" @ref="editor" @bind-Value="@(meetingMomVM.MeetingMom.Content)" style="width: 100%; height: 400px; margin-bottom: 1rem;">
+									<RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+									<RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+									<RadzenHtmlEditorSeparator />
+									<RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+									<RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+									<RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+									<RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+									<RadzenHtmlEditorSeparator />
+									<RadzenHtmlEditorAlignLeft Title=@translationState.Translate("Align_Left") />
+									<RadzenHtmlEditorAlignCenter Title=@translationState.Translate("Align_Centre") />
+									<RadzenHtmlEditorAlignRight Title=@translationState.Translate("Align_Right") />
+									<RadzenHtmlEditorJustify Title=@translationState.Translate("Justify") />
+									<RadzenHtmlEditorSeparator />
+									<RadzenHtmlEditorIndent Title=@translationState.Translate("Indent") />
+									<RadzenHtmlEditorOutdent Title=@translationState.Translate("Outdent") />
+									<RadzenHtmlEditorUnorderedList Title=@translationState.Translate("Bullet_List") />
+									<RadzenHtmlEditorOrderedList Title=@translationState.Translate("Ordered_List") />
+									<RadzenHtmlEditorSeparator />
+									<RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+									<RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+									<RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+									<RadzenHtmlEditorSeparator />
+									<RadzenHtmlEditorSubscript Title=@translationState.Translate("Subscript") />
+									<RadzenHtmlEditorSuperscript Title=@translationState.Translate("Superscript") />
+									<RadzenHtmlEditorSeparator />
+									<RadzenHtmlEditorLink Title=@translationState.Translate("Link")
+														  UrlText=@translationState.Translate("Web_Address")
+														  LinkText=@translationState.Translate("Text")
+														  OpenInNewWindowText=@translationState.Translate("Open_in_new_window")
+														  OkText=@translationState.Translate("OK")
+														  CancelText=@translationState.Translate("Cancel") />
+									<RadzenHtmlEditorUnlink Title=@translationState.Translate("Unlink") />
+									<RadzenHtmlEditorFontName Placeholder="@translationState.Translate("Sultan")" Title="@translationState.Translate("Sultan")">
+										<ChildContent> 
+											<RadzenHtmlEditorFontNameItem Text="Sultan" Value="Sultan" />
+											<RadzenHtmlEditorFontNameItem Text="Sultan Medium" Value='"Sultan Medium"' />
+										</ChildContent>
+									</RadzenHtmlEditorFontName>
+									<RadzenHtmlEditorFontSize Placeholder="@translationState.Translate("Font_Size")" Title="@translationState.Translate("Font_Size")" />
+									<RadzenHtmlEditorFormatBlock Placeholder="@translationState.Translate("Format_Block")" Title="@translationState.Translate("Format_Block")" />
+								</RadzenHtmlEditor>
+								<div class="row pb-2">
+									<div class="col-md-12 d-flex justify-content-end">
+										<RadzenButton IsBusy=@(busyPreviewBtn) ButtonType="Radzen.ButtonType.Button" Disabled="@busyPreviewBtn" ButtonStyle="ButtonStyle.Primary" Click="@PreviewDraft" Text="@translationState.Translate("Preview")">
+										</RadzenButton>
+									</div>
+								</div>
+							</ChildContent>
+						</RadzenFieldset>
+					</div>
+				</div>
+				@if (IsReview)
+				{
+					<div class="row">
+						<div class="col-12">
+							<div class="row pb-2">
+								<div class="col-md-4">
+									<h2 class="formHeading">@translationState.Translate("Attendee_Decision")</h2>
+									<div class="divider"></div>
+								</div>
+							</div>
+							<div class="row pb-2">
+								<div class="col-md-12">
+									<div class="row tableContent table-responsive no-gutters pb-3">
+										<RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+													@ref="radzenDataGrid"
+													Data="@momAttendeesDecisionDetails"
+													AllowFiltering="false"
+													FilterMode="Radzen.FilterMode.Advanced"
+													AllowPaging="true"
+													AllowSorting="true"
+													TItem="MomAttendeeDecisionVM"
+													PageSize="@systemSettingState.Grid_Pagination"
+													PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+											<Columns>
+												<RadzenDataGridColumn TItem="MomAttendeeDecisionVM" Width="150px" Property="SerialNo" Title="@translationState.Translate("Serial_Number")" />
+													<RadzenDataGridColumn TItem="MomAttendeeDecisionVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RepresentativeNameEn" : "RepresentativeNameAr") Title="@translationState.Translate("Name")" />
+													<RadzenDataGridColumn TItem="MomAttendeeDecisionVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AttendeeStatusEn" : "AttendeeStatusAr") Title="@translationState.Translate("Status")" />
+												<RadzenDataGridColumn TItem="MomAttendeeDecisionVM" Width="150px" Property="Comment" Title="@translationState.Translate("Comment")" />
+											</Columns>
+										</RadzenDataGrid>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+				<div class="row form-group popup-buttons-alignment">
+					<div class="col-12">
+						<RadzenButton Text="@translationState.Translate("Save_and_Send_To_Attendees")"
+									  ButtonStyle="ButtonStyle.Primary"
+									  ButtonType="Radzen.ButtonType.Submit" />
+
+						<RadzenButton ButtonType="Radzen.ButtonType.Submit"
+									  ButtonStyle="ButtonStyle.Secondary"
+									  Click="SaveAsDraft"
+									  Text="@translationState.Translate("Save_As_Draft")" />
+
+						<RadzenButton ButtonType="Radzen.ButtonType.Button"
+									  ButtonStyle="ButtonStyle.Secondary"
+									  Click="SubmitMOM"
+									  Text="@(meetingMomVM.Meeting.MeetingTypeId == (int)MeetingTypeEnum.External  ? translationState.Translate("Submit_MOM_to_Ge") : translationState.Translate("Submit_MOM"))" 
+									  Disabled="@(AllApproved != true)" />
+						<RadzenButton Text="@translationState.Translate("Cancel")"
+									  ButtonStyle="ButtonStyle.Light"
+									  Click="@ButtonCloseDialog" />
+					</div>
+				</div>
+			</RadzenTemplateForm>
+		</div>
+	</ChildContent>
+</RadzenContent>
+
+@if (isVisible && !busyPreviewBtn)
+{
+	@*Template Previewer*@
+	<TelerikWindow Class="draftPreviewWindow" Size="@(ThemeConstants.Window.Size.Medium)" Visible="true" Draggable="true" Top="5%" Left="20%">
+		<WindowTitle>
+			<RadzenHeading Size="H2" Text="@translationState.Translate("Preview_Draft")" />
+		</WindowTitle>
+		<WindowActions>
+			<WindowAction Name="Maximize"></WindowAction>
+			<WindowAction Name="Minimize"></WindowAction>
+			<WindowAction Name="Close" OnClick="@(() => TogglePreviewWindow(null))"></WindowAction>
+		</WindowActions>
+		<WindowContent>
+			<div class="row pb-2">
+				<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+					<TelerikPdfViewer @ref="PdfViewerRef"
+								  Width="100%"
+								  Height="calc(100vh - 250px)!Important"
+								  Data="@meetingMomVM.MeetingMom.FileData">
+						<PdfViewerToolBar>
+							<PdfViewerToolBarSeparator />
+							<PdfViewerToolBarDownloadTool />
+							<PdfViewerToolBarPrintTool />
+							<PdfViewerToolBarPagerTool />
+							<PdfViewerToolBarSpacer />
+							<PdfViewerToolBarZoomTool />
+							<PdfViewerToolBarSelectionTool />
+							<PdfViewerToolBarSearchTool />
+						</PdfViewerToolBar>
+					</TelerikPdfViewer>
+				</div>
+			</div>
+			<div class="row d-flex justify-content-center align-items-center pb-3 mt-2">
+				<div class="col-md-12 d-flex justify-content-end">
+					<TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@(() => TogglePreviewWindow(null))">@translationState.Translate("Close")</TelerikButton>
+				</div>
+			</div>
+		</WindowContent>
+	</TelerikWindow>
+} 

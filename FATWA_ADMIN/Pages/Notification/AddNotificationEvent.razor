@@ -1,0 +1,194 @@
+﻿@page "/add-Event"
+@page "/add-Event/{Id}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.Notifications;
+@using static FATWA_GENERAL.Helper.Enum;
+
+<PageTitle>@translationState.Translate("Event")</PageTitle>
+<div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                <RadzenBreadCrumbItem Path="/notification-eventlist" Text="@translationState.Translate("Event_List")" />
+                <RadzenBreadCrumbItem Text="@(Id != null ?translationState.Translate("Update_Notification_Event"):translationState.Translate("Create_Notification_Event"))" />
+            </RadzenBreadCrumb>
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+        <div class="backtoDashboard">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                          class="returnBtn"
+                          Icon="home" Click="@GoBackHomeScreen" />
+        </div>
+    </div>
+</div>
+<div class="row TitleBar justify-content-left align-items-center pt-5">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenHeading Size="H1" class="pageTitle"
+                           Text="@(Id != null ?translationState.Translate("Update_Notification_Event"):translationState.Translate("Create_Notification_Event"))" />
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end ">
+    </div>
+</div>
+<RadzenContent Container="main">
+    <ChildContent>
+        <RadzenCard>
+            <RadzenTemplateForm Data="@Template" Visible="@(Template != null)" TItem="NotificationTemplate" Submit="@SaveChanges">
+                <ChildContent>
+                    <div class="row m-1">
+                        <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 form-group">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <RadzenLabel Text="@translationState.Translate("Event")" />
+                                    <div class="k-form-field-wrap">
+                                        <RadzenDropDown Data="@Events"
+                                                        TextProperty=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "NameEn" : "NameAr")
+                                                        Disabled="@FieldDisable"
+                                                        ValueProperty="EventId"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Change="@OnEventsChange"
+                                                        Style="display:block;"
+                                                        @bind-Value="Template.EventId" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 form-group">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <RadzenLabel Text="@translationState.Translate("Channel")" />
+                                    <div class="k-form-field-wrap">
+                                        <RadzenDropDown Data="@Channels"
+                                                        Disabled="@FieldDisable"
+                                                        TextProperty=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "NameEn" : "NameAr")
+                                                        ValueProperty="ChannelId"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        @bind-Value="Template.ChannelId" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 form-group">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <RadzenLabel Text="@translationState.Translate("Name_En")" />
+                                    <div class="k-form-field-wrap">
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Name_En")" Name="EventEn" @bind-Value="@Template.NameEn"></RadzenTextBox>
+                                        <RadzenRequiredValidator Component="EventEn" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenRegexValidator Component="EventEn" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                                        <RadzenLengthValidator Component="EventEn" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 form-group">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <RadzenLabel Text="@translationState.Translate("Name_Ar")" />
+                                    <div class="k-form-field-wrap">
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Name_Ar")" Name="EventAr" @bind-Value="@Template.NameAr"></RadzenTextBox>
+                                        <RadzenRequiredValidator Component="EventAr" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenRegexValidator Component="EventAr" Text="@translationState.Translate("Only_Arabic_Characters_Are_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                                        <RadzenLengthValidator Component="EventAr" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @if (Template.ChannelId == (int)NotificationChannelEnum.Email)
+                        {
+                            <div class="row" style="margin-top:10px;">
+                                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 form-group">
+                                    <div class="k-form-field">
+                                        <div class="k-form-field-wrap">
+                                            <RadzenLabel Text="@translationState.Translate("Subject_En")" />
+                                            <div class="k-form-field-wrap">
+                                                <RadzenTextBox Placeholder="@translationState.Translate("Subject_En")" Name="SubEn" @bind-Value="@Template.SubjectEn"></RadzenTextBox>
+                                                <RadzenRequiredValidator Component="SubEn" Text="@translationState.Translate("Required_Field")" />
+                                                <RadzenRegexValidator Component="SubEn" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                                                <RadzenLengthValidator Component="SubEn" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6 form-group">
+                                    <div class="k-form-field">
+                                        <div class="k-form-field-wrap">
+                                            <RadzenLabel Text="@translationState.Translate("Subject_Ar")" />
+                                            <div class="k-form-field-wrap">
+                                                <RadzenTextBox Placeholder="@translationState.Translate("Subject_Ar")" Name="SubAr" @bind-Value="@Template.SubjectAr"></RadzenTextBox>
+                                                <RadzenRequiredValidator Component="SubAr" Text="@translationState.Translate("Required_Field")" />
+                                                <RadzenRegexValidator Component="SubAr" Text="@translationState.Translate("Only_Arabic_Characters_Are_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                                                <RadzenLengthValidator Component="SubAr" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 form-group">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("Body_En")</label>
+                                    <div class="k-form-field-wrap">
+                                        <RadzenTextArea Class="telerik-textarea-height-600" Name="BodyEn" Placeholder="@translationState.Translate("Body_En")" @bind-Value="@Template.BodyEn"></RadzenTextArea>
+                                        <RadzenLengthValidator Component="BodyEn" Max="500" Text="@translationState.Translate("Max_Five_Hundred_Characters")" />
+                                        <RadzenRegexValidator Component="BodyEn" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesTextAreaPattern" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("Body_Ar")</label>
+                                    <div class="k-form-field-wrap">
+                                        <RadzenTextArea Class="telerik-textarea-height-600" Placeholder="@translationState.Translate("Body_Ar")" Name="BodyAr" @bind-Value="@Template.BodyAr"></RadzenTextArea>
+                                        <RadzenLengthValidator Component="BodyAr" Max="500" Text="@translationState.Translate("Max_Five_Hundred_Characters")" />
+                                        <RadzenRegexValidator Component="BodyAr" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesTextAreaPattern" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (Template.EventId != 0)
+                        {
+                            <div class="col-4 form-group">
+                                <RadzenLabel Text="@translationState.Translate("Placeholders")" />
+                                <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                @ref="PlaceHolderGrid"
+                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                AllowPaging="true"
+                                                AllowSorting="true"
+                                                Data="@PlaceHolder"
+                                                TItem="NotificationEventPlaceholders"
+                                                PageSize="@loginState.PageSize"
+                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                    <Columns> <RadzenDataGridColumn TItem="NotificationEventPlaceholders" Property=PlaceHolderName Title="@translationState.Translate("Name")" /> </Columns>
+                                </RadzenDataGrid>
+                            </div>
+                        }
+                        
+                        <div class=" col-12 popup-buttons-alignment mb-3">
+                            <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                          Style="margin-left: 10px; margin-right: 10px;"
+                                          ButtonStyle="ButtonStyle.Primary" Text="@(Id == null ? translationState.Translate("Create") : translationState.Translate("Update"))" />
+                            <RadzenButton Text="@translationState.Translate("Cancel")"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Click="@CancelChanges" />
+                        </div>
+                    </div>
+                </ChildContent>
+            </RadzenTemplateForm>
+        </RadzenCard>
+    </ChildContent>
+</RadzenContent>

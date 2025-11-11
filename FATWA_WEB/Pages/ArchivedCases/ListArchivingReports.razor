@@ -1,0 +1,79 @@
+﻿@page "/archiving-report-list"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.ArchivedCases;
+@using Radzen;
+@using Radzen.Blazor;
+@using Telerik.Blazor.Components;
+@using Telerik.Blazor;
+
+<PageTitle>@translationState.Translate("Archiving_Reports")</PageTitle>
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.ARC.ArchivedCases.List").Any())
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Archiving_Reports")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@(async () => await JsInterop.InvokeVoidAsync("RedirectToPreviousPage"))" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@(() => navigationManager.NavigateTo("/dashboard"))" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@(() => navigationManager.NavigateTo("/index"))" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Archiving_Reports")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            <div class="row moduleBlock d-flex justify-content-center mx-5 my-5">
+                <div class="col-sm-6 col-md-3 col-lg-3 text-center m-2">
+                    <a href="/ArchivingReports/CANs_and_Cases.xlsx" download style="color:#000; text-decoration: none;">
+                        <RadzenCard>
+                            <i class="rzi rz-navigation-item-icon mb-4 report-download-icon">download</i>
+                            <p>@translationState.Translate("CANs_And_Cases.xlsx")</p>
+                        </RadzenCard>
+                    </a>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-3 text-center m-2">
+                    <a href="/ArchivingReports/Business_Exceptions.xlsx" download style="color:#000; text-decoration: none;">
+                        <RadzenCard>
+                            <i class="rzi rz-navigation-item-icon mb-4 report-download-icon">download</i>
+                            <p>@translationState.Translate("Business_Exceptions.xlsx")</p>
+                        </RadzenCard>
+                    </a>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-3 text-center m-2">
+                    <a href="/ArchivingReports/Overall_CANs_Pushed_to_FATWAUAT.xlsx" download style="color:#000; text-decoration: none;">
+                        <RadzenCard>
+                            <i class="rzi rz-navigation-item-icon mb-4 report-download-icon">download</i>
+                            <p>@translationState.Translate("Overall_CANs_Pushed_to_FATWAUAT.xlsx")</p>
+                        </RadzenCard>
+                    </a>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}

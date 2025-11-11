@@ -1,0 +1,109 @@
+﻿@page "/configure-fileattributes"
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.Dms
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Configure_File_Attributes")</PageTitle>
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.DMS.ConfigureFileAttributes").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <RadzenTemplateForm Data="@systemSetting" Visible="@(systemSetting != null)" TItem="SystemSetting" Submit="@FormSubmit">
+            <ChildContent>
+                <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                    <div class="col-md-6">
+                        <div class="row no-gutters">
+                            <RadzenBreadCrumb>
+                                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                                <RadzenBreadCrumbItem Text="@translationState.Translate("Configure_File_Attributes")" />
+                            </RadzenBreadCrumb>
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <div class="backtoDashboard">
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row TitleBar justify-content-left align-items-center py-4">
+                    <div class="col-md-6">
+                        <div class="row pt-3 no-gutters">
+                            <RadzenHeading Size="H1" Text="@translationState.Translate("Configure_File_Attributes")" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center mainContentBlock py-4">
+                    <div class="col-md-12">
+                        <div class="row pb-3">
+                            <div class="col-md-4 rz-calendar-webkit-fill">
+                                <RadzenLabel Text="@translationState.Translate("File_Types")" Component="FileTypes" />
+                                <RadzenDataGrid Data="@fileTypes"
+                                            @bind-Value="systemSetting.DmsFileTypesSelectedList"
+                                            AllowPaging="true"
+                                            @ref="grid"
+                                            AllowSorting="true"
+                                            AllowFiltering="false"
+                                            TItem="DmsFileTypes"
+                                            SelectionMode="DataGridSelectionMode.Multiple"
+                                            FilterMode="Radzen.FilterMode.Advanced"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="DmsFileTypes" Width="40px" Sortable="false">
+                                            <HeaderTemplate>
+                                                <RadzenCheckBox TriState="false" TValue="bool"
+                                                            Value="@((fileTypes!=null && systemSetting.DmsFileTypesSelectedList != null) ? (fileTypes.Except(systemSetting.DmsFileTypesSelectedList).Any()? false : true) :false)"
+                                                            Change="@(args => systemSetting.DmsFileTypesSelectedList = args ? fileTypes.ToList() : null)" />
+                                            </HeaderTemplate>
+                                            <Template Context="data">
+                                                <RadzenCheckBox TriState="false"
+                                                            TValue="bool"
+                                                            Value="@(systemSetting.DmsFileTypesSelectedList != null && systemSetting.DmsFileTypesSelectedList.Contains(data))"
+                                                            Change=@(args => { if(!allowRowSelectOnRowClick) { grid?.SelectRow(data); }}) />
+                                                
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="DmsFileTypes" Property="Type" Title="@translationState.Translate("Name")" Width="100px" />
+
+                                    </Columns>
+                                </RadzenDataGrid>
+                            </div>
+                            <div class="col-md-4">
+                                <RadzenLabel Text="@translationState.Translate("File_Maximum_Size")" Component="File_Maximum_Size" />
+                                <RadzenNumeric Placeholder="@translationState.Translate("File_Maximum_Size")" @bind-Value="@systemSetting.File_Maximum_Size" Name="File_Maximum_Size" Min="1" Max="2147483647" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class=" row justify-content-end pt-3">
+                    <div class="col-md-2">
+                        <RadzenButton Text="@translationState.Translate("Submit")"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  style="margin-right: 0.2rem !important"
+                                  ButtonType="Radzen.ButtonType.Submit" />
+                        <RadzenButton Text="@translationState.Translate("Back")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Style="margin-left: 1rem"
+                                  Click="@RedirectBack" />
+                    </div>
+                </div>
+            </ChildContent>
+        </RadzenTemplateForm>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

@@ -1,0 +1,32 @@
+﻿@page "/parameter-selection"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@layout MainLayout
+
+<!-- <History Author = 'Hassan Abbas' Date='2023-08-16' Version="1.0" Branch="master">Select Parameter for Template Key</History> -->
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Label") + " *")" Component="Parameter" />
+                    <RadzenDropDown Data="@Parameters" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    TextProperty="Name" ValueProperty="ParameterId" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="selectedParamter.ParameterId" Name="Parameter">
+                            <Template Context="data">
+                                @translationState.Translate(data.PKey)
+                            </Template>
+                        </RadzenDropDown>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4 popup-buttons-alignment">
+            <div class="col-12 p-0">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" Disabled="@(selectedParamter.ParameterId <= 0)" Click="SubmitSelection">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                </RadzenButton>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

@@ -1,0 +1,495 @@
+﻿@*@page "/litrature-detail/{LiteratureId}"*@
+@page "/lmsliterature-detail/{LiteratureId}"
+@using Append.Blazor.Printing;
+@using FATWA_WEB.Pages.Shared
+@using FATWA_DOMAIN.Models.Lms
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.Lms
+@using FATWA_DOMAIN.Enums;
+@using static FATWA_GENERAL.Helper.Enum;
+
+
+@inject IPrintingService PrintingService
+
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Literature_Details")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/lmsliterature-list" Text="@translationState.Translate("Literature_List")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Literature_Details")" />
+                    </RadzenBreadCrumb>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Literature_Details")" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row d-block justify-content-left mainContentBlock p-0">
+                <RadzenAccordion Multiple="true">
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Literature_Information")" Selected="true">
+                            <div class="row no-gutters">
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Index_Details")</h3> @* Combined Index Details *@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>
+                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? $"{getLiteratureAllDetailsVMResult?.IndexNumber} - {getLiteratureAllDetailsVMResult?.LitratureIndexNameEn}" : $"{getLiteratureAllDetailsVMResult?.IndexNumber} - {getLiteratureAllDetailsVMResult?.LitratureIndexNameAr}")
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("ISBN")</h3> @*3*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@getLiteratureAllDetailsVMResult?.ISBN</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Literature_name")</h3> @*5*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@getLiteratureAllDetailsVMResult?.LitratureName</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Edition_Year")</h3> @*6*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@getLiteratureAllDetailsVMResult?.EditionYear?.ToString("yyyy")</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Number_of_Pages")</h3> @*7*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@getLiteratureAllDetailsVMResult?.NumberOfPages</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Edition_Number")</h3> @*8*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(getLiteratureAllDetailsVMResult?.EditionNumber)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Series_Number")</h3> @*10*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(getLiteratureAllDetailsVMResult?.SeriesNumber)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Number_Of_Copies")</h3> @*11*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(getLiteratureAllDetailsVMResult?.CopyCount)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Publisher_Details")</h3> @*12*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(getLiteratureAllDetailsVMResult?.Publisher)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Is_Viewable")</h3> @*13*@
+                                </div>
+                                <div class="detailContent">
+                                    @{
+                                        bool isViewable = getLiteratureAllDetailsVMResult?.IsViewable ?? false;
+                                    }
+                                    @if (isViewable)
+                                    {
+                                        <h3>@translationState.Translate("Yes")</h3>
+
+                                    }
+                                    else
+                                    {
+                                        <h3>@translationState.Translate("No")</h3>
+
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Is_Borrowable")</h3> @*14*@
+                                </div>
+                                <div class="detailContent">
+
+                                    @{
+                                        bool isBorrowable = getLiteratureAllDetailsVMResult?.IsBorrowable ?? false;
+                                    }
+                                    @if (isBorrowable)
+                                    {
+                                        <h3>@translationState.Translate("Yes")</h3>
+
+                                    }
+                                    else
+                                    {
+                                        <h3>@translationState.Translate("No")</h3>
+
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Allow_to_Publish")</h3> @*15*@
+                                </div>
+                                <div class="detailContent">
+                                    @{
+                                        bool allowToPublish = getLiteratureAllDetailsVMResult?.AllowToPublish ?? false;
+                                    }
+                                    @if (allowToPublish)
+                                    {
+                                        <h3>@translationState.Translate("Yes")</h3>
+
+                                    }
+                                    else
+                                    {
+                                        <h3>@translationState.Translate("No")</h3>
+
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Dewey_Book_Number")</h3> @*16*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(getLiteratureAllDetailsVMResult?.DeweyBookNumber)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("CreatedBy")</h3> @*16*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(getLiteratureAllDetailsVMResult?.CreatedBy)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Created_Date")</h3> @*17*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@getLiteratureAllDetailsVMResult?.CreatedDate.ToString("dd/MM/yyyy")</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Modified_By")</h3> @*18*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(getLiteratureAllDetailsVMResult?.ModifiedBy)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Modified_Date")</h3> @*19*@
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@getLiteratureAllDetailsVMResult?.ModifiedDate?.ToString("dd/MM/yyyy")</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenAccordionItem>
+                    <RadzenAccordionItem Text="@translationState.Translate("Author_Information")">
+
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                    @ref="AuthorGridRef"
+                                                    AllowFiltering="false"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    Data="@getLiteratureAuthorVM"
+                                                    TItem="LiteratureAllAuthorsVM"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    ColumnWidth="200px">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="LiteratureAllAuthorsVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "LitratureAuthorFullNameEn" : "LitratureAuthorFullNameEn") Title="@translationState.Translate("Author_Name_100")" />
+                                            <RadzenDataGridColumn TItem="LiteratureAllAuthorsVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "LiteratureAuthorAdderssEn" : "LiteratureAuthorAdderssEn") Title="@translationState.Translate("Author_Address_E")" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenAccordionItem>
+                    <RadzenAccordionItem Text="@translationState.Translate("Sticker_And_Barcode")">
+                        <div class="row no-gutters pb-2">
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading" style="width:60% !important;">
+                                    <h3>@translationState.Translate("Character90")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@getLiteratureAllDetailsVMResult?.Characters</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <TelerikButton Class="mx-3" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="secondary" OnClick="@(() => Print(PrintCommandEnum.Character, Convert.ToString(getLiteratureAllDetailsVMResult?.Characters)))" Icon="print"></TelerikButton>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading" style="width:60% !important;">
+                                    <h3>@translationState.Translate("Character82")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@getLiteratureAllDetailsVMResult?.Characters82</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <TelerikButton Class="mx-3" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="secondary" OnClick="@(() => Print(PrintCommandEnum.Character82, Convert.ToString(getLiteratureAllDetailsVMResult?.Characters82)))" Icon="print"></TelerikButton>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pb-2">
+                            <div class="col-md-12 d-flex justify-content-end tableAdditionButton  pb-3">
+                                <TelerikButton ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="secondary" OnClick="@(() => Print(PrintCommandEnum.BarcodeAll, null))">@translationState.Translate("Print_All")</TelerikButton>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                        <RadzenDataGrid @ref="BarCodeGrid"
+                                                        AllowFiltering="false"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        EditMode="DataGridEditMode.Single"
+                                                        Data="@ListBarCodes?.OrderBy(x => x.BarcodeId)"
+                                                        TItem="LmsLiteratureBarcode"
+                                                        Count="@(Literature.LiteratureBarcodes != null ? Literature.LiteratureBarcodes.Count() : 0)"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="LmsLiteratureBarcode" Context="barcode" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="150px" Title="@translationState.Translate("Action")">
+                                                    <Template Context="barcode">
+                                                        <TelerikButton ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="secondary" OnClick="@(() => Print(PrintCommandEnum.Barcode, Convert.ToString(barcode.BarCodeNumber)))" Icon="print"></TelerikButton>
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="LmsLiteratureBarcode" Property="BarCodeNumber" Title="@translationState.Translate("Barcode")">
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="LmsLiteratureBarcode" property="RFIDValue" Title="@translationState.Translate("RFIDValue")">
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="LmsLiteratureBarcode" Property="IsBorrowed" Context="barcode" Title="@translationState.Translate("Status")">
+                                                    <Template Context="barcode">
+                                                        @if (barcode.IsBorrowed)
+                                                    {
+                                                        @translationState.Translate("Borrowed")
+                                                    }
+                                                    else
+                                                    {
+                                                        @translationState.Translate("Available")
+                                                    }
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenAccordionItem>
+                    <RadzenAccordionItem Text="@translationState.Translate("Tag_Section")" Selected="false">
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                    Width="100%"
+                                                    @ref="TagsGrid"
+                                                    AllowFiltering="false"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    Data="@Literature?.LiteratureTags"
+                                                    TItem="LiteratureDetailLiteratureTagVM"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="LiteratureDetailLiteratureTagVM" Property="TagNo" Title="@translationState.Translate("TagNo")" />
+                                            <RadzenDataGridColumn TItem="LiteratureDetailLiteratureTagVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Description" : "Description_Ar") Title="@translationState.Translate("Description")" />
+                                            <RadzenDataGridColumn TItem="LiteratureDetailLiteratureTagVM" Property="Value" Title="@translationState.Translate("Value")" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenAccordionItem>
+                    <RadzenAccordionItem Text="@translationState.Translate("Attachments_Section")" Selected="false">
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <FileUpload IsLiterature="true" LiteratureId="@(Convert.ToInt32(LiteratureId))" IsViewOnly="true" @bind-DeletedAttachementIds="@Literature.DeletedAttachementIds" Multiple="true" MaxFileSize="26214400" FileTypes="@(systemSettingState.FileTypes.ToList())"></FileUpload>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenAccordionItem>
+                    <RadzenAccordionItem Text="@translationState.Translate("BorrowerDetails")" Selected="false">
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                    @ref="BorrowGrid"
+                                                    AllowFiltering="false"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    Data="@((userDetails.RoleName == UserEnum.Roles.FatwaAdmin.GetDisplayName() || userDetails.RoleName == UserEnum.Roles.LMSAdmin.GetDisplayName()) ? GetLmsLiteratureBorrowDetailsResult : GetLmsLiteratureBorrowDetailsResult.Where(x => x.UserId == userDetails.UserId).ToList())"
+                                                    TItem="BorrowDetailVM"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    ColumnWidth="200px">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="BorrowDetailVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar") Title="@translationState.Translate("Borrower_Full_Name")" />
+                                            <RadzenDataGridColumn TItem="BorrowDetailVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "BorrowApprovalStatus" : "BorrowApprovalStatusAr") Title="@translationState.Translate("Status")" />
+                                            <RadzenDataGridColumn TItem="BorrowDetailVM" Property="IssueDate" Title="@translationState.Translate("Borrow_Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+                                            <RadzenDataGridColumn TItem="BorrowDetailVM" Property="DueDate" Title="@translationState.Translate("Due_Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+        </div>
+        <TelerikDialog Class="print-dialog" @bind-Visible="@IsPrintDialogVisible" Width="30%" Title="@translationState.Translate("Print")">
+            <DialogContent>
+                @{
+                    if (PrintCommand == PrintCommandEnum.BarcodeAll)
+                    {
+                        <div class="conatiner" id="printable" style=" height: calc(100vh - 250px); width: 384px; text-align:justify;">
+                            @if (ListBarCodes.Any())
+                            {
+                                @foreach (var barcode in ListBarCodes)
+                                {
+                                    <div class="row" style="padding-bottom: 1.4rem !important;">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                            <div class="ticket-barcode">
+                                                <label>
+                                                    @translationState.Translate("CLC_Library")
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                            <div class="ticket-barcode">
+                                                <TelerikBarcode Width="225px"
+                                                                Height="100px"
+                                                                Checksum="false"
+                                                                Type="BarcodeType.Code128"
+                                                                Value="@barcode.BarCodeNumber.ToString()">
+                                                </TelerikBarcode>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        </div>
+                    }
+                    else if (PrintCommand == PrintCommandEnum.Barcode)
+                    {
+                        <div class="conatiner" id="printable" style=" height: calc(100vh - 250px); width: 384px; text-align:justify;">
+                            <div class="row pb-4">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                    <div class="ticket-barcode">
+                                        <label>
+                                            @translationState.Translate("CLC_Library")
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                    <div class="ticket-barcode">
+                                        <TelerikBarcode Width="225px"
+                                                        Height="100px"
+                                                        Checksum="false"
+                                                        Type="BarcodeType.Code128"
+                                                        Value="@PrintValue">
+                                        </TelerikBarcode>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else if (PrintCommand == PrintCommandEnum.Character || PrintCommand == PrintCommandEnum.Character82)
+                    {
+                        <div class="conatiner" id="printable" style=" height: 96px; width: 184px; text-align:justify;">
+                            <div class="row pb-4">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                    <div class="ticket-barcode">
+                                        <label>
+                                            @PrintValue
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </DialogContent>
+            <DialogButtons>
+                <div class="text-center">
+                    <TelerikButton Class="prevBtn" OnClick="@(() => { IsPrintDialogVisible = false; })">
+                        @translationState.Translate("Cancel")
+                    </TelerikButton>
+                    <TelerikButton Class="nextBtn text-light" OnClick="@(_ => PrintingService.Print("printable", PrintType.Html))">
+                        @translationState.Translate("Print")
+                    </TelerikButton>
+                </div>
+            </DialogButtons>
+        </TelerikDialog>
+    </ChildContent>
+</RadzenContent>
+
+<style>
+    .mainContentBlock {
+        margin-bottom: 3rem !important;
+        margin-top: 3rem !important;
+    }
+</style>

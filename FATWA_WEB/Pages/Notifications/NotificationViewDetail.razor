@@ -1,0 +1,141 @@
+﻿@page "/notification-detail-view/{NotficationDetailId}"
+
+@using FATWA_DOMAIN.Models.Notifications
+@inherits FATWA_WEB.Pages.Notifications.NotificationViewDetailComponent
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permission.Notification.Notification.Detail").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row">
+                <RadzenTemplateForm Data="@notificationDetailVM" Visible="@(notificationDetailVM != null)" TItem="NotificationDetailVM" Style="@direction">
+                    <ChildContent>
+                        <div class="row mb-3">
+                            <div class="col-12 notification_content">
+                                 <div class="row">
+
+                            <div class="col-7">
+                                      <p class="firstName">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? notificationDetailVM.CreatedByEn : notificationDetailVM.CreatedByAr)</p>
+                                <p class="firstName" style="margin-top: -22px !important;">@notificationDetailVM.CreatedDate.Value.ToString("dd/MM/yyyy h:mm tt")</p>
+                            </div>
+                            
+                         
+                        </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        
+                                    </div>
+                                </div>
+
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        @((MarkupString)NotifMessage)
+                                    </div>
+                                </div>
+                                 <div class="row">
+
+                            @*<div class="col-3">
+                                <label>@translationState.Translate("Event")</label>
+                                <p>
+                                    @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                    {
+                                        @notificationDetailVM.EventNameEn
+                                    }
+                                    else
+                                    {
+                                        @notificationDetailVM.EventNameAr
+                                    }
+                                </p>
+                            </div>
+
+                            <div class="col-3">
+                                <label>@translationState.Translate("Category")</label>
+                                <p>
+                                    @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                    {
+                                        @notificationDetailVM.ModuleName_En
+                                    }
+                                    else
+                                    {
+                                        @notificationDetailVM.ModuleName_Ar
+                                    }
+                                </p>
+                            </div>
+                       *@
+                            @*<div class="col-3">
+                                <label>@translationState.Translate("Created By")</label>
+                                <p>
+                                    @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                    {
+                                        @notificationDetailVM.CreatedByEn
+                                    }
+                                    else
+                                    {
+                                        @notificationDetailVM.CreatedByAr
+                                    }
+                                </p>
+                            </div>
+                            
+                            <div class="col-3">
+                        <label>@translationState.Translate("Created At")</label>
+                        <p>@notificationDetailVM.CreatedDate.Value.ToString("dd/MM/yyyy h:mm tt")</p>
+                        </div>*@
+                        </div>
+                                <div class="row notification_btn">
+                                    <div class="col-12">
+                                        <RadzenButton Icon="remove_red_eye" Text="@translationState.Translate("Mark_Unread")" Click="@((args) => UnreadNotification(NotficationDetailId))" />
+                                        <RadzenButton Icon="delete_outline" Text="@translationState.Translate("delete")" Click="@((args) => DeleteNotification(NotficationDetailId))" />
+
+                                        </div>
+                                </div>
+                            </div>                            
+                        </div>
+
+                    </ChildContent>
+                </RadzenTemplateForm>
+
+            </div>
+        </ChildContent>
+    </RadzenContent>
+    <style>
+      @*  .rz-dialog{
+            padding: 25px;
+        }*@
+
+        label {
+            background: #8C7B6C;
+            width: fit-content !important;
+            padding: 5px 10px;
+            color: #fff;
+        }
+        .notifier_detail   {
+            padding: 30px 15px;
+            padding-bottom:0px !important;
+            box-shadow:0px 0px 2px #d9d9d9;
+        }
+        .content {
+                padding-bottom: 0px !important;
+        }
+        .notification_content {
+            position: relative;
+        }
+        @*.notification_content .notification_btn {
+            position: absolute;
+            bottom: 0px !important;
+            width: 100% !important;
+        }*@
+               .notifier_detail .form-group {
+            margin-bottom: 1rem;
+        }
+       @* .rz-button.btn-primary, .btn-primary.rz-paginator-element{
+            border-radius: 5px !important;
+        }*@
+    </style>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+

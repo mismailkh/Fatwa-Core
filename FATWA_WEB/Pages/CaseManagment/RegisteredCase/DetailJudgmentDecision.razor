@@ -1,0 +1,262 @@
+﻿@page "/judgmentdecision-detail/{DecisionId}"
+@using FATWA_DOMAIN.Common;
+@using FATWA_DOMAIN.Models.ViewModel;
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using static FATWA_DOMAIN.Enums.TaskEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@layout MainLayout
+
+<PageTitle>"@translationState.Translate("Judgment_Decision_Detail")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+            <div class="col-9">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem onclick=@RedirectBack Text="@translationState.Translate("List")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Judgment_Decision_Detail")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-3 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-12">
+                <div class="row no-gutters">
+
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Judgment_Decision_Detail")" />
+
+
+                </div>
+            </div>
+        </div>
+        <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Text="@translationState.Translate("Metadata_Section")" Selected="true">
+                        <div class="row no-gutters">
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Title") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@cmsJugdmentDecisionVM?.Title</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Decision_Type") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @cmsJugdmentDecisionVM?.DecisionTypeEn : @cmsJugdmentDecisionVM?.DecisionTypeAr)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Reference_No") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@cmsJugdmentDecisionVM?.ReferenceNo</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Reference_Date") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@cmsJugdmentDecisionVM?.ReferenceDate?.ToString("dd/MM/yyyy")</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Description") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@cmsJugdmentDecisionVM?.Description</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Text="@translationState.Translate("Document_Viewer")" Selected="false">
+                        @if (cmsJugdmentDecisionVM.isExecutionLost == true)
+                        {
+                            <div class="col-12">
+                                <h2 class="formHeading">@translationState.Translate("Attachments")</h2>
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="tableContent table-responsive datagrid-rz-label">
+                                            <RadzenDataGrid AllowPaging="true"
+                                                            PageSize="3"
+                                                            Data="@OfficialAttachments"
+                                                            TItem="TempAttachementVM">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="TempAttachementVM" Width="150px" Property="AttachmentTypeId" Title="@translationState.Translate("Document_Type")">
+                                                        <Template Context="attachment">
+                                                            @if (attachment.AttachmentTypeId == (int)AttachmentTypeEnum.Other)
+                                                            {
+                                                                <RadzenLabel Text="@attachment.OtherAttachmentType" />
+                                                            }
+                                                            else
+                                                            {
+                                                                <RadzenLabel Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? $"{AttachmentTypes?.Where(t => t.AttachmentTypeId == attachment.AttachmentTypeId).FirstOrDefault()?.Type_En}" : $"{AttachmentTypes?.Where(t => t.AttachmentTypeId == attachment.AttachmentTypeId).FirstOrDefault()?.Type_Ar}") />
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="TempAttachementVM" Width="50px" Frozen="true" Context="attachment" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
+                                                        <Template Context="attachment">
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                          Icon="visibility"
+                                                                          Class="viewIcon"
+                                                                          Click="@(args => ViewAttachement(attachment))"
+                                                                          @onclick:stopPropagation="true"
+                                                                          Disabled="attachment.StoragePath == null" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="col-md-12">
+                            <div class="row justify-content-right ">
+                                @if (ShowDocumentViewer)
+                                {
+                                    @* <TelerikPdfViewer @ref="PdfViewerRef"
+                                Width="100%"
+                                Height="1000px"
+                                Data="@FileData"
+                                Class="m-3" /> *@
+                                    <SfPdfViewerServer EnableNavigationToolbar="false"
+                                                       Width="100%"
+                                                       Height="1000px"
+                                                       @ref="@pdfViewer"
+                                                       EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                                       Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                                       ID="pdfviewerDetailCommunication"
+                                                       DocumentPath="@DocumentPath"
+                                                       InteractionMode="InteractionMode.Pan">
+                                    </SfPdfViewerServer>
+                                }
+                            </div>
+                        </div>
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+        </div>
+
+        <div class="row py-4">
+            <div class="col-md-1 d-flex justify-content-start tableAdditionButton pb-3">
+                <TelerikButton Class="cancleBtn mx-2"
+                               ButtonType="Telerik.Blazor.ButtonType.Button"
+                               ThemeColor="light"
+                               OnClick="@BtnBack"> @translationState.Translate("Back") </TelerikButton>
+            </div>
+
+            <div class="col-md-11 d-flex justify-content-end tableAdditionButton pb-3">
+                @if (cmsJugdmentDecisionVM.DecisionTypeId == (int)CaseDecisionTypeEnum.InterpretationofJudgement)
+                {
+                    <TelerikButton Class="cancleBtn mx-2"
+                                   ButtonType="Telerik.Blazor.ButtonType.Button"
+                                   ThemeColor="light"
+                                   OnClick="@DraftAFile">@translationState.Translate("Draft_A_File")</TelerikButton>
+
+                    <TelerikButton Class="cancleBtn mx-2"
+                                   ButtonType="Telerik.Blazor.ButtonType.Button"
+                                   ThemeColor="light"
+                                   OnClick="@MeetingRequest">@translationState.Translate("Meeting_Request")</TelerikButton>
+                }
+                @if (cmsJugdmentDecisionVM.DecisionTypeId == (int)CaseDecisionTypeEnum.InvalidityofJudgementExecution)
+                {
+                    <TelerikButton Class="cancleBtn mx-2"
+                                   ButtonType="Telerik.Blazor.ButtonType.Button"
+                                   ThemeColor="light"
+                                   OnClick="@AddOpinionDocument">@translationState.Translate("Create_Opinion_Document")</TelerikButton>
+                }
+                @if (cmsJugdmentDecisionVM.DecisionTypeId == (int)CaseDecisionTypeEnum.StopJudgementExecution)
+                {
+                    <TelerikButton Class="cancleBtn mx-2"
+                                   ButtonType="Telerik.Blazor.ButtonType.Button"
+                                   ThemeColor="light"
+                                   OnClick="@Assign">@translationState.Translate("Assign")</TelerikButton>
+                }
+                @if (cmsJugdmentDecisionVM.DecisionTypeId == (int)CaseDecisionTypeEnum.RegenerationOfJudgmentExecution)
+                {
+                    @if (cmsJugdmentDecisionVM.StatusId == 0)
+                    {
+                        <TelerikButton Class="cancleBtn mx-2"
+                                       ButtonType="Telerik.Blazor.ButtonType.Button"
+                                       ThemeColor="light"
+                                       OnClick="@ApproveDecision">@translationState.Translate("Approve")</TelerikButton>
+                        <TelerikButton Class="cancleBtn mx-2"
+                                       ButtonType="Telerik.Blazor.ButtonType.Button"
+                                       ThemeColor="light"
+                                       OnClick="@RejectDecision">@translationState.Translate("Reject")</TelerikButton>
+                    }
+                    else
+                    {
+                        @if (loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.Execution && loginState.UserRoles.Any(u => u.RoleId == SystemRoles.HOS))
+                        {
+                            @if (cmsJugdmentDecisionVM.StatusId >= (int)CaseDecisionStatusEnum.AssignedToLawyer)
+                            {
+
+                            }
+                            else
+                            {
+                                <TelerikButton Class="cancleBtn"
+                                               ButtonType="Telerik.Blazor.ButtonType.Button"
+                                               ThemeColor="light"
+                                               OnClick="@AssignToLawyer">@translationState.Translate("Assign_To_Lawyer")</TelerikButton>
+                            }
+                        }
+                        @if (loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.Execution)
+                        {
+                            @if (cmsJugdmentDecisionVM.StatusId == (int)CaseDecisionStatusEnum.MojReplied)
+                            {
+
+                            }
+                            else if (cmsJugdmentDecisionVM.StatusId == (int)CaseDecisionStatusEnum.SendToMoj)
+                            {
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Prepare_Execution")" Click="@( () => AddPrepareExecution())">
+                                </RadzenButton>
+                            }
+                            else
+                            {
+                                <TelerikButton Class="cancleBtn mx-2"
+                                               ButtonType="Telerik.Blazor.ButtonType.Button"
+                                               ThemeColor="light"
+                                               OnClick="@SendToMoj">@translationState.Translate("Send_To_Moj")</TelerikButton>
+                            }
+                        }
+                    }
+                }
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

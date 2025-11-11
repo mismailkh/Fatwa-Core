@@ -1,0 +1,149 @@
+﻿@page "/service-request-flow-list"
+@using FATWA_DOMAIN.Models.Notifications.ViewModel;
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel.ServiceRequestVMs
+@using static FATWA_GENERAL.Helper.Enum;
+<PageTitle>@translationState.Translate("Service_Request_Approval_Flow_List")</PageTitle>
+
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.CaseData.Extraction"))
+{
+<div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                <RadzenBreadCrumbItem Text="@translationState.Translate("Service_Request_Approval_Flow_List")" />
+            </RadzenBreadCrumb>
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+        <div class="backtoDashboard">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                          class="returnBtn"
+                          Icon="home" Click="@GoBackHomeScreen" />
+        </div>
+    </div>
+</div>
+<div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenHeading Size="H1" Text="@translationState.Translate("Service_Request_Approval_Flow_List")" />
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end ">
+    </div>
+</div>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenCard>
+                    <div class="col-12">
+                        <div class="row">
+                            <div class="col-md-4">
+                                                  <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")" style="display: block; margin-bottom: 10px; width: 100%"
+                                    @oninput="@(async(args) => {await ServiceReqGrid.GoToPage(0);await OnSearchInput($"{args.Value}");})"
+                                                   Name="Textbox0"/>
+                            </div>
+                            <div class="col-md-8 tableAdditionButton addPrincipleBtn d-flex justify-content-end pb-2">
+                                <RadzenButton Icon="add_circle" style="margin-bottom: 10px" Text="@translationState.Translate("Add")" Click="@Button1Click" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="tableContent pb-3">
+                            <RadzenDataGrid @ref="ServiceReqGrid"
+                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                Count="@(FilterServiceRequestWorkFlowList != null ? FilterServiceRequestWorkFlowList.Count() : 0)"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            SelectionMode="DataGridSelectionMode.Single"
+                                            AllowFiltering="false"
+                                                Data="@FilterServiceRequestWorkFlowList"
+                                            TItem="ServiceRequestApprovalDetailVm"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            EmptyText="@translationState.Translate("No_record_found")">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="ServiceRequestApprovalDetailVm" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false"
+                                        Width="40px" TextAlign="TextAlign.Center">
+                                        <Template Context="rowItem">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                  Class="viewIcon"
+                                                                  Title="@translationState.Translate("View_Detail")"
+                                                                  Icon="visibility"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => DetailServiceReqApproval(rowItem))"
+                                                    @onclick:stopPropagation="true" />
+
+                                                    
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                  Class="editIcon"
+                                                                  Icon="mode"
+                                                                  Title="@translationState.Translate("Edit")"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => EditServiceReqApproval(rowItem))"
+                                                    @onclick:stopPropagation="true" />
+
+
+                                                </Template>
+                                        </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ServiceRequestApprovalDetailVm" Width="110px" Title="@translationState.Translate("Service_Request")"
+                                        Property=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "ServiceRequestNameEn" : "ServiceRequestNameAr") />
+                                    <RadzenDataGridColumn TItem="ServiceRequestApprovalDetailVm" Width="40px" Title="@translationState.Translate("No_Of_Approval")"
+                                        Property="NoOfApprovals"/>
+                                    <RadzenDataGridColumn TItem="ServiceRequestApprovalDetailVm" Width="80px" Title="@translationState.Translate("Roles")"
+                                        Property=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "RoleNameEn" : "RoleNameEn") />
+                                    <RadzenDataGridColumn TItem="ServiceRequestApprovalDetailVm" Width="80px" Title="@translationState.Translate("Sectors")"
+                                       Property=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "SectorNameEn" : "SectorNameEn") />
+                                       <RadzenDataGridColumn TItem="ServiceRequestApprovalDetailVm" Width="40px" Title="@translationState.Translate("Department")"
+                                       Property=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "DepartmentNameEn" : "DepartmentNameAr") />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </RadzenCard>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+<style>
+    .rz-switch .rz-switch-circle:before {
+        width: 0.85rem;
+        height: 0.85rem;
+        left: 0.2rem;
+        margin-top: -0.4rem;
+    }
+
+    .rz-switch {
+        width: 2.5rem;
+        min-width: 2.5rem;
+        height: 1.5rem;
+    }
+
+    .rz-switch-circle {
+        top: 1px;
+        left: 1px;
+        right: 0px;
+        bottom: 1px;
+    }
+
+    .txtmsg:hover {
+        font-size: 15px !important;
+    }
+
+    .multilinetext {
+        white-space: pre-wrap;
+    }
+</style>

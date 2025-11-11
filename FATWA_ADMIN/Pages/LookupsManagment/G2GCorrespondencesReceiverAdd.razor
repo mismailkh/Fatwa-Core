@@ -1,0 +1,58 @@
+﻿@using FATWA_DOMAIN.Models.CaseManagment;
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.CommonModels;
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.Lookups;
+@using FATWA_DOMAIN.Enums.Common;
+@layout MainLayout
+
+<RadzenTemplateForm Data="@cmsSectorTypeGEDepartments" Visible="@(cmsSectorTypeGEDepartments != null)" TItem="CmsSectorTypeGEDepartment" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Sector_Type") + " *")" />
+                        <RadzenDropDown TValue="int" Data="@CmsFatwaSectorTypeOptions" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                        TextProperty="FatwaSectorTypeEnumName" ValueProperty="FatwaSectorTypeEnumValue" Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;" @bind-Value="cmsSectorTypeGEDepartments.SectorTypeId" Name="Sector_Type" />
+                        <RadzenRequiredValidator Component="Sector_Type" DefaultValue="0" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+                </div>
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Government_Entity") + " *")" />
+                        <RadzenDropDown Data="@GovernmentEntitiesName" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" SelectAllText="@translationState.Translate("Selected_All")"
+                                        SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                        Multiple="true"
+                                        TextProperty="@((Thread.CurrentThread.CurrentUICulture.Name == "en-US") ? "Name_En" : "Name_Ar")" ValueProperty="EntityId" Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;" @bind-Value="@SelectedGovernmentEntites" Name="GovernmentEntities" Change="OnChangeGovernmentEntities" />
+                        <RadzenRequiredValidator Component="GovernmentEntities" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                    </div>
+                </div>
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("GE_Department") + " *")" />
+                        <RadzenDropDown Data="@allDepartmentSelectedbyEntityId" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" SelectAllText="@translationState.Translate("Selected_All")"
+                                        SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                        Multiple="true"
+                                        TextProperty="@((Thread.CurrentThread.CurrentUICulture.Name == "en-US") ? "Name_En" : "Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;" @bind-Value="@cmsSectorTypeGEDepartments.SelectedDepartments" Name="GeDepartment" Change="CheckSelectedValues" />
+                        <RadzenRequiredValidator Component="GeDepartment" Text="@(!SelectedDepartmentsValues ? translationState.Translate("Required_Field") : "")" DefaultValue="0" />
+                        @if (SelectedDepartmentsValues)
+                        {
+                            <div class="rz-message rz-messages-error">@translationState.Translate("Required_Field")</div>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="popup-buttons-alignment">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                Style="margin-left: 10px; margin-right: 10px;"
+                                ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")" />
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                                ButtonStyle="ButtonStyle.Light"
+                                Click="@Button2Click" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

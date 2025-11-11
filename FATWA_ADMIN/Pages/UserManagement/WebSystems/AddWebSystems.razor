@@ -1,0 +1,32 @@
+﻿@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@layout MainLayout
+
+<RadzenTemplateForm Data="@WebSystem" TItem="WebSystem" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("English_Name") + " *")" />
+                <RadzenTextBox class="flex-grow-1" Placeholder="@translationState.Translate("English_Name")" @bind-Value="@WebSystem.NameEn" Name="Name_En" />
+                <RadzenRegexValidator Component="Name_En" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                <RadzenRequiredValidator Component="Name_En" Text="@translationState.Translate("Required_Field")" />
+                <RadzenLengthValidator Component="Name_En" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+            </div>
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Arabic_Name") +" *")" Component="Name_Ar" />
+                <RadzenTextBox class="pt-1 flex-grow-1" Placeholder="@translationState.Translate("Arabic_Name")" @bind-Value="@WebSystem.NameAr" Name="Name_Ar" />
+                <RadzenRegexValidator Component="Name_Ar" Text="@translationState.Translate("Arabic_Name_Is_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                <RadzenRequiredValidator Component="Name_Ar" Text="@translationState.Translate("Required_Field")" />
+                <RadzenLengthValidator Component="Name_Ar" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+            </div>
+            <div class="popup-buttons-alignment">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                              Style="margin-left: 10px; margin-right: 10px;"
+                              ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")" />
+
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@CancelChanges" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

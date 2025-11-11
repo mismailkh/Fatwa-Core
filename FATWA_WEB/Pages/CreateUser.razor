@@ -1,0 +1,60 @@
+﻿@using FATWA_WEB.Data
+@using System.Net
+@*@inject IConfiguration _config*@
+
+@inject userService userServices
+@*<RadzenTemplateForm Data="@user" Submit="@((User args) => {Submit(args);})">
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenFieldset Text="Register New User">
+                    <div class="row">
+                        <div class="col-md-2 align-items-center d-flex">
+                            <RadzenLabel Text="Email Address" />
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenTextBox style="width: 100%;" Name="Email" @bind-Value=@user.Email/>
+                        </div>
+                        <div class="col-md-2 align-items-center d-flex">
+                            <RadzenLabel Text="Password" />
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenTextBox style="width: 100%;" Name="Password" @bind-Value=@user.Password/>
+                        </div>
+                    </div>
+                </RadzenFieldset>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-12 d-flex align-items-end justify-content-center" style="margin-top: 16px;">
+                <RadzenButton ButtonType="ButtonType.Submit" Icon="save" Text="Save"/> 
+            </div>
+        </div>
+</RadzenTemplateForm>*@
+
+
+
+@code
+{
+    //private var temp;
+    public class User
+    {
+        public string Email { get; set; }
+        public string Password { get; set; }
+    }
+    User user = new User();
+    //User user = new User();
+    //void Submit(User obj)
+    //{ }
+    //protected async System.Threading.Tasks.Task Submit()
+    //{
+    //    await new HttpClient().PostAsJsonAsync(_config["api_url"] + "/Account/Register", user);
+    //}
+
+    protected void Submit(User user)
+    {
+        // await new HttpClient().PostAsJsonAsync(_config["api_url"] + "/Account/Register", user);
+           var response = userServices.Register(user);      
+    }
+
+
+}

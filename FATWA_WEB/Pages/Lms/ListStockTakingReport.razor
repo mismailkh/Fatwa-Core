@@ -1,0 +1,177 @@
+﻿@page "/stocktaking-list"
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_DOMAIN.Models.ViewModel.Lms
+@using static FATWA_DOMAIN.Enums.LiteratureEnum
+
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.LMS.Literatures.ListStockTaking"))
+{
+	<RadzenContent Container="main">
+		<ChildContent>
+			<div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+				<div class="col-md-6">
+					<RadzenBreadCrumb>
+						<RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+						<RadzenBreadCrumbItem Text="@translationState.Translate("StockTaking_List")" />
+					</RadzenBreadCrumb>
+				</div>
+				<div class="col-md-6 d-flex justify-content-end">
+					<div class="backtoDashboard">
+						<RadzenButton ButtonStyle="ButtonStyle.Secondary"
+									  Size="ButtonSize.Small"
+									  title="@translationState.Translate("Go_Back_Dashboard")"
+									  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+						<RadzenButton ButtonStyle="ButtonStyle.Secondary"
+									  Size="ButtonSize.Small"
+									  title="@translationState.Translate("Go_Back_HomeScreen")"
+									  class="returnBtn"
+									  Icon="home" Click="@GoBackHomeScreen" />
+					</div>
+				</div>
+			</div>
+			<div class="row TitleBar justify-content-center align-items-center py-4">
+				<div class="col-md-6">
+					<div class="row no-gutters">
+						<RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Stock_Taking_Report")" />
+					</div>
+				</div>
+				<div class="col-md-6 d-flex justify-content-end">
+				</div>
+			</div>
+			<div class="row justify-content-center mainContentBlock py-4">
+				<div class="col-md-12">
+					<div class="row no-gutters">
+						<div class="col-md-4">
+							<RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")" class="searchBox" Name="Textbox0"
+							@oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+ 						</div>
+						<div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+							<RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add")" Click="@ButtonAddClick" />
+							<RadzenButton ButtonType="Radzen.ButtonType.Button" class="addBtn" Icon="search" Text="@translationState.Translate("Advanced_Search")" Click="ToggleAdvanceSearch" />
+						</div>
+					</div>
+					<div class="row tableContent table-responsive no-gutters pb-3">
+						<RadzenDataGrid @ref="grid"
+										FilterMode="Radzen.FilterMode.Advanced"
+										Count="@(getLmsStocktakingResult?.Any() == true ? getLmsStocktakingResult.FirstOrDefault().TotalCount : 0)"
+										AllowPaging="true"
+										AllowSorting="true"
+										AllowFiltering="false"
+										LoadData="OnLoadData"
+										Data="@FilteredGetLmsLiteraturesResult"
+										Sort="OnSortData"
+										TItem="LmsStockTakingListVM"
+										PageSize="@systemSettingState.Grid_Pagination"
+										PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+										PageSizeText="@translationState.Translate("Items_Per_Page")"
+										PageSizeOptions="@systemSettingState.Page_Size_Options"
+										EmptyText="@translationState.Translate("No_record_found")"
+										ColumnWidth="200px"
+										PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+										ShowPagingSummary="true">
+							<Columns>
+								<RadzenDataGridColumn TItem="LmsStockTakingListVM" TextAlign="TextAlign.Center" Title="@translationState.Translate("Action")" Width="90px" Filterable="false" Sortable="false">
+									<Template Context="rowItem">
+
+										<RadzenButton ButtonStyle="ButtonStyle.Info"
+													  class="viewIcon"
+													  Icon="visibility"
+													  Title="@translationState.Translate("Details")"
+													  Size="ButtonSize.Small"
+													  Click="@((args) => ViewStocktakingDetail(rowItem))"
+													  @onclick:stopPropagation="true" />
+										@if (rowItem.StatusId == (int)StockTakingStatusEnum.InProgress)
+										{
+											<RadzenButton ButtonStyle="ButtonStyle.Secondary"
+														  class="editIcon"
+														  Icon="mode"
+														  Title="@translationState.Translate("Edit")"
+														  Size="ButtonSize.Small"
+														  Click="@((args) => EditStockTaking(rowItem))"
+														  @onclick:stopPropagation="true" />
+											<RadzenButton ButtonStyle="ButtonStyle.Danger"
+														  class="deleteIcon"
+														  Icon="delete_outline"
+														  Title="@translationState.Translate("Delete")"
+														  Size="ButtonSize.Small"
+														  Click="@((args) => GridDeleteButtonClick(rowItem))"
+														  @onclick:stopPropagation="true" />
+										}
+										<RadzenButton ButtonStyle="ButtonStyle.Secondary"
+													  Class="viewIcon"
+													  Title="@translationState.Translate("View_Item_History")"
+													  Icon="history"
+													  Size="ButtonSize.Small"
+													  Click="@((args) => ViewItemHistory(rowItem))"
+													  @onclick:stopPropagation="true" />
+
+									</Template>
+								</RadzenDataGridColumn>
+								<RadzenDataGridColumn TItem="LmsStockTakingListVM" Property="ReportNumber" Width="100px" Title="@translationState.Translate("Report_Number")" />
+								<RadzenDataGridColumn TItem="LmsStockTakingListVM" Property="StockTakingDate" Width="100px" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("StockTaking_Date")" />
+								<RadzenDataGridColumn TItem="LmsStockTakingListVM" Property="TotalBooks" Width="120px" Title="@translationState.Translate("Total_Books")" />
+								<RadzenDataGridColumn TItem="LmsStockTakingListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") Width="120px" Title="@translationState.Translate("Status")" />
+								<RadzenDataGridColumn TItem="LmsStockTakingListVM" Property=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "MemeberNameEn" : "MemeberNameAr") Width="120px" Title="@translationState.Translate("Created_By")" />
+								<RadzenDataGridColumn TItem="LmsStockTakingListVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy hh:mm tt}" Width="120px" Title="@translationState.Translate("Created_Date")" />
+							</Columns>
+						</RadzenDataGrid>
+					</div>
+				</div>
+			</div>
+		</ChildContent>
+	</RadzenContent>
+
+	@*Advance search Window*@
+	<TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+		<WindowTitle>
+			<h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+		</WindowTitle>
+		<WindowActions>
+			<WindowAction Name="Minimize"></WindowAction>
+			<WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+		</WindowActions>
+		<WindowContent>
+			<div class="row">
+				<div class="col-md-4" style="padding-left: 10px;">
+					<RadzenLabel Text="@translationState.Translate("StockTaking_Date_From")" Component="Created_From" />
+					<RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Created_From" @bind-Value="@advancedSearchVM.StockTakingFromDate" />
+				</div>
+				<div class="col-md-4" style="padding-left: 10px;">
+					<RadzenLabel Text="@translationState.Translate("StockTaking_Date_To")" Component="Created_To" />
+					<RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Created_To" @bind-Value="@advancedSearchVM.StockTakingToDate" />
+				</div>
+				<div class="col-md-4">
+					<RadzenLabel Text="@translationState.Translate("Status")" Component="Status" />
+					<RadzenDropDown Data="@stockTakingStatuses" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+									TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+									Style="display:block;" @bind-Value="@advancedSearchVM.StatusId" Name="Status" />
+				</div>
+			</div>
+			<div class="row" Style="margin-top:10px;">
+
+				<div class="col-md-6" style="padding-left: 10px;">
+					<RadzenLabel Text="@translationState.Translate("Created_From")" Component="Created_From" />
+					<RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Created_From" @bind-Value="@advancedSearchVM.FromDate" />
+				</div>
+				<div class="col-md-6" style="padding-left: 10px;">
+					<RadzenLabel Text="@translationState.Translate("Created_To")" Component="Created_To" />
+					<RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Created_To" @bind-Value="@advancedSearchVM.ToDate" />
+				</div>
+
+
+			</div>
+			<div class="row justify-content-end pt-3">
+				<div class="col-md-12 popup-buttons-alignment">
+					<RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+					@if (Keywords == true)
+					{
+						<RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+					}
+				</div>
+			</div>
+		</WindowContent>
+	</TelerikWindow>
+}
+else
+{
+	<div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

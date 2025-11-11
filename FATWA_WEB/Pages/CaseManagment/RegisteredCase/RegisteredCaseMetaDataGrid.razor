@@ -1,0 +1,104 @@
+﻿<div class="row pb-2">
+    <div class="col-12 datagrid-rz-label">
+        <div class="row no-gutters">
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("File_Number"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3> @caseFile?.FileNumber </h3>
+                </div>
+            </div>
+
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("File_Date"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@caseFile?.CreatedDate.ToString("dd/MM/yyyy")</h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("CAN_Number"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@registeredCase?.CANNumber</h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Case_Number"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@registeredCase?.CaseNumber</h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Case_Open_Date"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@registeredCase?.CaseDate?.ToString("dd/MM/yyyy")</h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Court_Name"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @registeredCase?.CourtNameEn : @registeredCase?.CourtNameAr)</h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Chamber_Name"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @registeredCase?.ChamberNameEn : @registeredCase?.ChamberNameAr)</h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Chamber_Number"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@registeredCase?.ChamberNumber</h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Announcement_Number"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@registeredCase?.AnnouncementNumber</h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Floor_Number"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@registeredCase?.FloorNumber</h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Room_Number"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@registeredCase?.RoomNumber</h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Case_Type"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @registeredCase?.RequestTypeNameEn : @registeredCase?.RequestTypeNameAr)</h3>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

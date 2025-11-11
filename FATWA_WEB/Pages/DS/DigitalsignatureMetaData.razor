@@ -1,0 +1,29 @@
+﻿<div class="col-md-12">
+    <RadzenTemplateForm Data="metaData" Visible="true" TItem="MetaData" Submit="@FormSubmit">
+        <ChildContent>
+            <div class="row pt-2 pb-2">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Data_Description") + " *")" Component="DataDescription" />
+                        <RadzenTextBox Placeholder="@translationState.Translate("Data_Description")" Name="DataDescription" @bind-Value="@(metaData.Description)" />
+                    </div>
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Selected_Reason") + " *")" Component="SelectedReason" />
+                        <RadzenTextBox Placeholder="@translationState.Translate("Selected_Reason")" Name="SelectedReason" @bind-Value="@(metaData.Reason)" />
+                    </div>
+                    <div class="row mt-4 popup-buttons-alignment">
+                        <div class="col-12 p-0">
+                            <RadzenButton Text="@translationState.Translate("Submit")"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          style="margin-right: 0.2rem !important"
+                                          ButtonType="Radzen.ButtonType.Submit" />
+                            <RadzenButton Text="@translationState.Translate("Cancel")"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Click="@ButtonCancelClick" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenTemplateForm>
+</div>

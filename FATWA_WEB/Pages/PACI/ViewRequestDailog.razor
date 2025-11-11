@@ -1,0 +1,238 @@
+﻿@page "/View-Request"
+@using FATWA_DOMAIN.Models.ViewModel.PACIVM
+@using Radzen
+@using Radzen.Blazor
+<!-- <History Author = 'Nabeel ur Rehman' Date='2022-07-05' Version="1.0" Branch="master">View of legal document Version History</History> -->
+@*@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.Literatures.Create").Count() > 0)
+{*@
+
+<RadzenContent Container="main" Style="width:100% !important">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="row">
+                    <div class="col-lg-12 d-flex">
+                        <RadzenCard Style="width: 100%; overflow: hidden;">
+                            <div class="col-lg-12 d-flex flex-row">
+                                <RadzenCard>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")" style="display: block; margin-bottom: 10px; width: 100%" Name="Textbox0" @oninput="@(async(args) => {search = $"{args.Value}";await grid0.GoToPage(0);await Load();})">
+                                            </RadzenTextBox>
+                                        </div>
+                                    </div>
+                                    <div class="row tableContent">
+                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                        Width="100%"
+                                                        @ref="grid0"
+                                                        AllowFiltering="false"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        Data="@pACIRequestDataGridVM"
+                                                        TItem="PACIRequestDataGridVM"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                            <Columns>
+                                                <RadzenDataGridColumn Width="50px" TItem="PACIRequestDataGridVM" Property="CivilID" Title="@translationState.Translate("Civil_ID")" />
+                                                <RadzenDataGridColumn Width="50px" TItem="PACIRequestDataGridVM" Property="Names" Title="@translationState.Translate("Name")" />
+                                                <RadzenDataGridColumn Width="50px" TItem="PACIRequestDataGridVM" Title="@translationState.Translate("action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                    <Template Context="rowItem">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                                      Icon="visibility"
+                                                                      title="@translationState.Translate("delete")"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => GridViewDetailClick(args ,rowItem))"
+                                                                      @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </RadzenCard>
+                            </div>
+                        </RadzenCard>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <RadzenAccordion>
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Requested_Details")" Selected="true">
+
+                            <div class="row no-gutters">
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Civil_ID"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.CivilId</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Name"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.Name</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState?.Translate("Gender"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.Gender</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState?.Translate("Nationality"):</h3>
+                                    </div>
+
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.Nationality</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Residency_Number"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.NationalityResidencyNumber</h3>
+
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Birth_Date"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@formattedBirthDate?.ToString("dd/MM/yyyy")</h3>
+                                    </div>
+                                </div>
+
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Area"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.Area</h3>
+                                    </div>
+                                </div>
+
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Avenue"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.Avenue</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Block"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.Block </h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Street_Name"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.StreetName</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Floor"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.Floor </h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Housing_Type"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.HousingType </h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Housing_Number"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.HousingNumber</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Address_Automated_Number"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.AddressAutomatedNumber </h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Branched_from"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.Branchedfrom</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Building_Name"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.BuildingName </h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Other_Data"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.OtherData</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Passport_Number"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.PassportNumber </h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Phone_Number"):</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@pACIRequestDataVM?.PhoneNumber </h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenAccordionItem>
+                    </Items>
+                </RadzenAccordion>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+@*}
+else{
+     <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+*@
+<style>
+    .detailHeading {
+        width: 40% !important;
+        background: none;
+        padding: 10px !important;
+    }
+</style>

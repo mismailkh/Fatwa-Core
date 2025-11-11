@@ -1,0 +1,98 @@
+﻿@using FATWA_ADMIN.Shared
+@using FATWA_DOMAIN.Models.ViewModel.BugReportingVMs
+@using Syncfusion.Blazor.RichTextEditor
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.BugReporting.BugReportingEnum
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@layout MainLayout
+
+
+<div class="row pt-2">
+    <div class="col-md-12">
+        <RadzenTemplateForm Data="@decisionStatus" TItem="DecisionStatusVM" Submit="@SubmitStatus">
+            <ChildContent>
+                <div class="row pb-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="form-group">
+                            <RadzenLabel Text="@(translationState.Translate("Action") + " *")" Component="BugStatusId" />
+                            <RadzenDropDown Data="@bugStatuses"
+                                            AllowFiltering="true"
+                                            AllowClear="true"
+                                            Disabled="Status > 0 ? true :false"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            TextProperty="StatusEnumName"
+                                            ValueProperty="StatusEnumValue"
+                                            Placeholder="@translationState.Translate("Select")"
+                                            Style="display:block;"
+                                            @bind-Value="@decisionStatus.StatusId"
+                                            Name="BugStatusId" />
+                            <RadzenRequiredValidator Component="BugStatusId" DefaultValue="0" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                        </div>
+                    </div>
+                    @if (decisionStatus.StatusId == (int)BugStatusEnum.Reopened)
+                    {
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="form-group claim-amount-field">
+                                <RadzenLabel Text="@(translationState.Translate("Reason") + " *")" Component="Reason" />
+                                <RadzenTextArea Placeholder=@translationState.Translate("Reason") Class="w-100" @bind-Value="decisionStatus.Reason" Min="1" Name="Reason" />
+                                <RadzenRegexValidator Component="Reason" Pattern="@RegexPatterns.NoSpacesTextAreaPattern" Text="@translationState.Translate("Cannot_have_trailing_spaces")" />
+                                <RadzenRequiredValidator Component="Reason" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                                <RadzenLengthValidator Component="Reason" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")"></RadzenLengthValidator>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <FileUpload ReferenceGuid="decisionStatus.CommentId"
+                                        @bind-DeletedAttachementIds="@DeletedAttachementIds"
+                                        Multiple="true"
+                                        MaxFileSize="systemSettingState.File_Maximum_Size"
+                                        FileTypes="@(systemSettingState.FileTypes.ToList())"
+                                        UploadFrom="BugReporting"
+                                        HideView="true"
+                                        MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.Bug"
+                                        ModuleId="(int)WorkflowModuleEnum.BugReporting" />
+                        </div>
+                    }
+                    @if (decisionStatus.StatusId == (int)BugStatusEnum.Rejected)
+                    {
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="form-group claim-amount-field">
+                                <RadzenLabel Text="@(translationState.Translate("Reason") + " *")" Component="Reason" />
+                                <RadzenTextArea Placeholder=@translationState.Translate("Reason") Class="w-100" @bind-Value="decisionStatus.Reason" Min="1" Name="Reason" />
+                                <RadzenRegexValidator Component="Reason" Pattern="@RegexPatterns.NoSpacesTextAreaPattern" Text="@translationState.Translate("Cannot_have_trailing_spaces")" />
+                                <RadzenRequiredValidator Component="Reason" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                                <RadzenLengthValidator Component="Reason" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")"></RadzenLengthValidator>
+                            </div>
+                        </div>
+                    }
+                    @if (decisionStatus.StatusId == (int)BugStatusEnum.Resolved)
+                    {
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="form-group claim-amount-field">
+                                <RadzenLabel Text="@(translationState.Translate("Ticket_Resolution") + " *")" Component="Reason" />
+                                <SfRichTextEditor Height="200px" EnableAutoUrl="false" EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")" @bind-Value="@decisionStatus.Reason">
+                                    <RichTextEditorToolbarSettings Items="@Tools" />
+                                    <RichTextEditorQuickToolbarSettings Image="@ImageTools" />
+                                    <RichTextEditorImageSettings EnableResize="true" AllowedTypes=@allowedTypes SaveFormat="SaveFormat.Base64"></RichTextEditorImageSettings>
+                                </SfRichTextEditor>
+                                <div class="rz-message rz-messages-error ">@reasonValidationMessage</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="row">
+                    <div class="col-12 p-3" style="text-align:end;">
+                        <RadzenButton Text="@translationState.Translate("Submit")"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      style="margin-right: 0.2rem !important"
+                                      ButtonType="Radzen.ButtonType.Submit" />
+                        <RadzenButton Text="@translationState.Translate("Cancel")"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      ButtonType="Radzen.ButtonType.Button"
+                                      Click="@ButtonCancelClick" />
+                    </div>
+                </div>
+            </ChildContent>
+        </RadzenTemplateForm>
+    </div>
+</div>

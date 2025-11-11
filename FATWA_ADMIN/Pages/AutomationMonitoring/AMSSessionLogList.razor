@@ -1,0 +1,33 @@
+﻿@page "/sessionlogs-list/{SessionId}"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.AutomationMonitoring;
+@*< History Author = 'Ijaz Ahmad' Date = '2024-06-24' Version = "1.0" Branch = "master"> Session Logs </History>*@
+
+<RadzenContent Container="main" class="p-0 pt-3">
+    <ChildContent>
+        <div class="row tableContent table-responsive no-gutters pb-3">
+            <RadzenDataGrid @ref="SessionGrid"
+                            FilterMode="Radzen.FilterMode.Advanced"
+                            Count="@(FilteredSession != null ? FilteredSession.Count() : 0)"
+                            AllowPaging="true"
+                            AllowSorting="true"
+                            AllowFiltering="false"
+                            Data="@FilteredSession"
+                            TItem="AMSSessionLogsVM"
+                            PageSize="@systemSettingState.Grid_Pagination"
+                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                            EmptyText="@translationState.Translate("No_record_found")"
+                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                            ShowPagingSummary="true">
+
+                <Columns>
+                    <RadzenDataGridColumn TItem="AMSSessionLogsVM" Width="60px" Property="Id" Title="@translationState.Translate("Id")" />
+                    <RadzenDataGridColumn TItem="AMSSessionLogsVM" Width="60px" Property="LogType" Title="@translationState.Translate("Log_Type")" />
+                    <RadzenDataGridColumn TItem="AMSSessionLogsVM" Width="45px" Property="LogMessage" Title="@translationState.Translate("Log_Message")" />
+                    <RadzenDataGridColumn TItem="AMSSessionLogsVM" Width="45px" FormatString="{0:dd/MM/yyyy}" Property="DateUpdated" Title="@translationState.Translate("Udated_Date")" />
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    </ChildContent>
+</RadzenContent>

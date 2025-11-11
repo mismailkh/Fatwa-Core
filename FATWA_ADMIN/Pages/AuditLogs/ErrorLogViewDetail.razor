@@ -1,0 +1,219 @@
+﻿@page "/lds-ErrorLog-view/{ErrorLogId}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+@using static FATWA_GENERAL.Helper.Enum
+
+@inherits FATWA_ADMIN.Pages.AuditLogs.ErrorLogViewDetailComponent
+
+<PageTitle>@translationState.Translate("ErrorLog_View_Page_Title")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/errorlogs" Text="@translationState.Translate("Error_logs")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Error_Log_View_Page_Title")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Error_Log_View_Page_Title")" />
+                </div>
+            </div>
+        </div>
+
+        <RadzenCard>
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Selected="true" Text="@translationState.Translate("Error_Log_Information")">
+                        <RadzenTemplateForm TItem="ErrorLog" Data="@getErrorlogsResult" Visible="@(getErrorlogsResult != null )">
+                            <ChildContent>
+                                <div class="row no-gutters">
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Error_Log_Event_Id")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@((ErrorLogEnum)getErrorlogsResult?.ErrorLogEventId)</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Subject")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getErrorlogsResult?.Subject</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Body")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getErrorlogsResult?.Body</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Log_Date")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.LogDate.ToString("dd/MM/yyyy")</h3>
+
+
+                                        </div>
+                                    </div>
+
+                                    <d iv class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Category")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.Category</h3>
+
+
+                                        </div>
+                                    </d>
+
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Source")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.Source</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Type")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.Type</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("computer")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.Computer</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Message")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.Message</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("user_name")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.UserName</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Channel_Name")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.ChannelName</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Application_ID")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.ApplicationID</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Terminal_ID")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.TerminalID</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Module_ID")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.ModuleID</h3>
+
+
+                                        </div>
+
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("IP_Details")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getErrorlogsResult?.IPDetails</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ChildContent>
+                        </RadzenTemplateForm>
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+        </RadzenCard>
+    </ChildContent>
+</RadzenContent>

@@ -1,0 +1,37 @@
+﻿@using FATWA_ADMIN.Services.General
+@using Radzen
+@using Radzen.Blazor
+@using FATWA_ADMIN.Data
+@inject TranslationState translationState
+
+<!--<History Author = 'Hassan Abbas' Date='2022-03-14' Version="1.0" Branch="master"> Showing respective templates for each navgation item</History>-->
+@if (!SideMenu.New && !SideMenu.Updated)
+{
+    <RadzenPanelMenuItem @bind-Expanded=@Expanded Text="@translationState.Translate(SideMenu.Name)" Path="@SideMenu.Path" Icon="@SideMenu.Icon">
+        @ChildContent
+    </RadzenPanelMenuItem>
+}
+else
+{
+    <RadzenPanelMenuItem @bind-Expanded=@Expanded Text="@translationState.Translate(SideMenu.Name)" Path="@SideMenu.Path" Icon="@SideMenu.Icon">
+        <Template>
+            @translationState.Translate(SideMenu.Name)
+            <RadzenBadge Text="@translationState.Translate("Updated")" Visible=@SideMenu.Updated />
+            <RadzenBadge Text="@translationState.Translate("New")" Visible=@SideMenu.New BadgeStyle="BadgeStyle.Success" />
+        </Template>
+        <ChildContent>@ChildContent</ChildContent>
+    </RadzenPanelMenuItem>
+}
+@code {
+    [Parameter]
+    public SideMenu SideMenu { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public bool Expanded { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> ExpandedChanged { get; set; }
+}

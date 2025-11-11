@@ -1,0 +1,151 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>disable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="Models\**" />
+		<Compile Remove="Pages\Employees\**" />
+		<Compile Remove="Pages\LLS_LegalPrinciple\**" />
+		<Compile Remove="Pages\MyTasks\**" />
+		<Compile Remove="Pages\RadzenUI\**" />
+		<Content Remove="Models\**" />
+		<Content Remove="Pages\Employees\**" />
+		<Content Remove="Pages\LLS_LegalPrinciple\**" />
+		<Content Remove="Pages\MyTasks\**" />
+		<Content Remove="Pages\RadzenUI\**" />
+		<EmbeddedResource Remove="Models\**" />
+		<EmbeddedResource Remove="Pages\Employees\**" />
+		<EmbeddedResource Remove="Pages\LLS_LegalPrinciple\**" />
+		<EmbeddedResource Remove="Pages\MyTasks\**" />
+		<EmbeddedResource Remove="Pages\RadzenUI\**" />
+		<None Remove="Models\**" />
+		<None Remove="Pages\Employees\**" />
+		<None Remove="Pages\LLS_LegalPrinciple\**" />
+		<None Remove="Pages\MyTasks\**" />
+		<None Remove="Pages\RadzenUI\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Remove="Pages\AddLmsLiterature.razor.cs" />
+		<Compile Remove="Pages\AddLmsLiterature.razor.designer.cs" />
+		<Compile Remove="Pages\EditLmsLiterature.razor.cs" />
+		<Compile Remove="Pages\EditLmsLiterature.razor.designer.cs" />
+		<Compile Remove="Pages\Lds\DocumentApproveRejectold.razor.cs" />
+		<Compile Remove="Pages\Lds\DocumentApproveRejectold.razor.designer.cs" />
+		<Compile Remove="Services\EmployeeServices.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Remove="Pages\AddLmsLiterature.razor" />
+		<Content Remove="Pages\EditLmsLiterature.razor" />
+		<Content Remove="Pages\Lds\DocumentApproval.razor" />
+		<Content Remove="Pages\Lds\DocumentApproveRejectold.razor" />
+		<Content Remove="Pages\LogIn_backup%2808-09-22%29.razor" />
+		<Content Remove="Pages\LpsPrincipals.razor" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Remove="barcode_232_202205131228252899.pdf" />
+		<None Remove="ef187926-e033-4f31-a5a2-55fff86af30f_202204281516038621.png" />
+		<None Remove="test.pdf" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Pages\Lms\lmsLiteratureDetail-1.png" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\.editorconfig" Link=".editorconfig" />
+		<None Include="Pages\MojStatistics\ListCaseStudy.razor" />
+		<None Include="Pages\MojStatistics\DetailCaseStudy.razor" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Append.Blazor.Printing" Version="1.1.0" />
+		<PackageReference Include="Autofac" Version="6.4.0" />
+		<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="BlazorDownloadFile" Version="2.4.0.2" />
+		<PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
+		<PackageReference Include="Blazored.Toast" Version="3.2.2" />
+		<PackageReference Include="ClosedXML" Version="0.102.1" />
+		<PackageReference Include="DiffPlex" Version="1.7.1" />
+		<PackageReference Include="DocumentFormat.OpenXml" Version="2.17.1" />
+		<PackageReference Include="FileConverter.Core" Version="1.0.6" />
+		<PackageReference Include="FirebaseAdmin" Version="3.0.1" />
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.66" />
+		<PackageReference Include="HtmlRenderer.Core" Version="1.5.0.6" />
+		<PackageReference Include="HtmlRenderer.PdfSharp" Version="1.5.0.1" />
+		<PackageReference Include="Humanizer" Version="2.14.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.Negotiate" Version="6.0.26" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.OData" Version="8.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.7">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.7">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
+		<PackageReference Include="Microsoft.Identity.Client" Version="4.45.0" />
+		<PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.21.0" />
+		<PackageReference Include="Microsoft.JSInterop" Version="6.0.35" />
+		<PackageReference Include="MsgKit" Version="2.0.0" />
+		<PackageReference Include="MsgReader" Version="3.1.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="PdfSharp" Version="1.50.5147" />
+		<PackageReference Include="PDFsharp-MigraDoc" Version="1.50.5147" />
+		<PackageReference Include="Radzen.Blazor" Version="3.19.7" />
+		<PackageReference Include="Select.HtmlToPdf.NetCore" Version="22.1.0" />
+		<PackageReference Include="Serilog" Version="2.12.0" />
+		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
+		<PackageReference Include="Syncfusion.Blazor.Calendars" Version="27.2.4" />
+		<PackageReference Include="Syncfusion.Blazor.Core" Version="27.2.4" />
+		<PackageReference Include="Syncfusion.Blazor.Diagram" Version="27.2.4" />
+		<PackageReference Include="Syncfusion.Blazor.Grid" Version="27.2.4" />
+		<PackageReference Include="Syncfusion.Blazor.Navigations" Version="27.2.4" />
+		<PackageReference Include="Syncfusion.Blazor.PdfViewerServer.Windows" Version="24.1.47" />
+		<PackageReference Include="Syncfusion.Blazor.RichTextEditor" Version="27.2.4" />
+		<PackageReference Include="Syncfusion.Blazor.Themes" Version="27.2.4" />
+		<PackageReference Include="Syncfusion.Blazor.WordProcessor" Version="27.2.4" />
+		<PackageReference Include="Syncfusion.DocIORenderer.Net.Core" Version="27.2.4" />
+		<PackageReference Include="Syncfusion.EJ2.PdfViewer.AspNet.Core.Windows" Version="27.2.4" />
+		<PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="27.2.4" />
+		<PackageReference Include="System.Text.Encoding.CodePages" Version="6.0.0" />
+		<PackageReference Include="Telerik.UI.for.Blazor" Version="3.6.1" />
+	</ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource Update="Resources\TelerikMessages.resx">
+			<Generator>PublicResXFileCodeGenerator</Generator>
+			<LastGenOutput>TelerikMessages.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\FATWA_DOMAIN\FATWA_DOMAIN.csproj" />
+		<ProjectReference Include="..\FATWA_GENERAL\FATWA_GENERAL.csproj" />
+		<ProjectReference Include="..\FATWA_INFRASTRUCTURE\FATWA_INFRASTRUCTURE.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<Compile Update="Resources\TelerikMessages.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>TelerikMessages.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="Pages\ArchivedCases\Dialogs\" />
+		<Folder Include="Pages\ServiceRequests\HiringManagement\" />
+		<Folder Include="wwwroot\Attachments\Legislation\" />
+	</ItemGroup>
+	<PropertyGroup>
+		<ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+	</PropertyGroup>
+</Project>

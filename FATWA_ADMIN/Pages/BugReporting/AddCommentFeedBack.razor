@@ -1,0 +1,44 @@
+﻿@using FATWA_DOMAIN.Models.BugReporting
+@using Syncfusion.Blazor.Inputs
+@using static FATWA_DOMAIN.Enums.BugReporting.BugReportingEnum
+@layout MainLayout
+<div class="row pt-2">
+    <div class="col-md-12">
+        <RadzenCard>
+            <RadzenTemplateForm Data="@bugTicketComment" TItem="BugCommentFeedBack" Submit="SubmitComment">
+                <ChildContent>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group claim-amount-field">
+                                <RadzenTextArea Rows="3" Placeholder="@(translationState.Translate(RemarksType==(int)RemarksTypeEnum.Comment ?  "Add_Comment" : "Add_Feedback") + " *")" Class="w-100" @bind-Value="bugTicketComment.Comment" Min="1" Disabled=false Name="CommentFeedBack" />
+                                <RadzenRequiredValidator Component="CommentFeedBack" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                                <RadzenLengthValidator Component="CommentFeedBack" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")"></RadzenLengthValidator>
+                                <RadzenRegexValidator Component="CommentFeedBack" Pattern="@RegexPatterns.NoSpacesTextAreaPattern" Text="@translationState.Translate("Cannot_have_trailing_spaces")" />
+
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="k-form-field form-group claim-amount-field">
+                                <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">@(translationState.Translate("Rating"))</label>
+                                    <div class="k-form-field-wrap">
+                                        <SfRating Value="@bugTicketComment.Rating" ValueChanged="OnChangeRating"></SfRating>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="popup-buttons-alignment px-0">
+                                <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" ButtonType="Radzen.ButtonType.Submit" />
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.2rem !important" ButtonType="Radzen.ButtonType.Button" Text="@translationState.Translate("Cancel")" Click="CloseDialog" />
+                            </div>
+                        </div>
+                    </div>
+                </ChildContent>
+            </RadzenTemplateForm>
+        </RadzenCard>
+    </div>
+</div>
+

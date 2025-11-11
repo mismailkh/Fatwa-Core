@@ -1,0 +1,159 @@
+﻿@page "/case-detailmoj/{CaseId}"
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Case_Detail")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/moj-registration-requests" Text="@translationState.Translate("Moj_Registration_Requests")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Case_Detail")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Case_Detail")" />
+                </div>
+            </div>
+        </div>
+        <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Text="@translationState.Translate("Case_Detail")" Selected="true">
+                        <div class="row pb-2">
+                            <div class="col-12 datagrid-rz-label">
+                                <div class="row no-gutters">
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Case_Type"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? caseDetailMOJVM.RequestTypeEn : caseDetailMOJVM.RequestTypeAr)">
+                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? caseDetailMOJVM.RequestTypeEn : caseDetailMOJVM.RequestTypeAr)
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Case_Number"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@caseDetailMOJVM.CaseNumber">@caseDetailMOJVM.CaseNumber</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("CAN_Number"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@caseDetailMOJVM.CANNumber">@caseDetailMOJVM.CANNumber</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Case_Open_Date"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@caseDetailMOJVM.CaseDate">@caseDetailMOJVM.CaseDate?.ToString("dd/MM/yyyy")</h3>
+                                        </div>
+                                    </div> 
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Court_Name"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? caseDetailMOJVM.CourtNameEn : caseDetailMOJVM.CourtNameAr)">
+                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? caseDetailMOJVM.CourtNameEn : caseDetailMOJVM.CourtNameAr)
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Chamber_Name"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? caseDetailMOJVM.ChamberNameEn : caseDetailMOJVM.ChamberNameAr)">
+                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? caseDetailMOJVM.ChamberNameEn : caseDetailMOJVM.ChamberNameAr)
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Chamber_Number"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@caseDetailMOJVM.ChamberNumber">@caseDetailMOJVM.ChamberNumber</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Hearing_Date"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@caseDetailMOJVM.HearingDate">@caseDetailMOJVM.HearingDate?.ToString("dd/MM/yyyy")</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Hearing_Time"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@caseDetailMOJVM.HearingTime">@caseDetailMOJVM.HearingTime</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Floor_Number"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@caseDetailMOJVM.FloorNumber">@caseDetailMOJVM.FloorNumber</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Room_Number"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@caseDetailMOJVM.RoomNumber">@caseDetailMOJVM.RoomNumber</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Announcement_Number"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3 class="myoverflow" Title="@caseDetailMOJVM.AnnouncementNumber">@caseDetailMOJVM.AnnouncementNumber</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+        </div>
+    </ChildContent>
+</RadzenContent>

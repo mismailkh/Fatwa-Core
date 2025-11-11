@@ -1,0 +1,301 @@
+﻿@page "/consultationrequest-list"
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.ConsultationVMs
+@using FATWA_WEB.Pages.CaseManagment.Shared
+@using FATWA_WEB.Pages.Consultation.Shared
+@using static FATWA_DOMAIN.Enums.Consultation.ConsultationEnums
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Consultation_Request_List")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.Submenu.COMS.Request.List"))
+{
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.Contracts)
+                            {
+                                <RadzenBreadCrumbItem Text="@translationState.Translate("Contracts_Request_List")" />
+                            }
+                            @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.InternationalArbitration)
+                            {
+                                <RadzenBreadCrumbItem Text="@translationState.Translate("International_Arbitration_Request_List")" />
+                            }
+                            @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.LegalAdvice)
+                            {
+                                <RadzenBreadCrumbItem Text="@translationState.Translate("Legal_Advice_Request_List")" />
+                            }
+                            @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.Legislations)
+                            {
+                                <RadzenBreadCrumbItem Text="@translationState.Translate("Legislations_Request_List")" />
+                            }
+                            @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.AdministrativeComplaints)
+                            {
+                                <RadzenBreadCrumbItem Text="@translationState.Translate("Administrative_Complaints_Request_List")" />
+                            }
+                            @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.PrivateOperationalSector)
+                            {
+                                <RadzenBreadCrumbItem Text="@translationState.Translate("Requests_List")" />
+                            }
+                            @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.PublicOperationalSector)
+                            {
+                                <RadzenBreadCrumbItem Text="@translationState.Translate("Requests_List")" />
+                            }
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.Contracts)
+                        {
+                            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Contracts_Request_List")" />
+                        }
+                        @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.InternationalArbitration)
+                        {
+                            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("International_Arbitration_Request_List")" />
+                        }
+                        @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.LegalAdvice)
+                        {
+                            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Legal_Advice_Request_List")" />
+                        }
+                        @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.Legislations)
+                        {
+                            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Legislations_Request_List")" />
+                        }
+                        @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.AdministrativeComplaints)
+                        {
+                            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Administrative_Complaints_Request_List")" />
+                        }
+                        @if (advanceSearchCOMSVM.SectorTypeId == (int)OperatingSectorTypeEnum.PublicOperationalSector)
+                        {
+                            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Requests_List")" />
+                        }
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end ">
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4">
+                            <RadzenTextBox class="searchBox"
+                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                           Name="Textbox0"
+                            @bind-Value="search"
+                            @oninput="@(async(args) => {search = $"{args.Value}";await OnSearchInput();})" />
+                        </div>
+                        <div class="col-md-8 tableAdditionButton addPrincipleBtn  pb-3 ">
+                            <div class="d-flex flex-row-reverse">
+
+                                <RadzenButton class="addBtn"
+                                              Icon="search"
+                                              Text="@translationState.Translate("Advanced_Search")"
+                                              Click="ToggleAdvanceSearch" />
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid"
+                                        SelectionMode="DataGridSelectionMode.Multiple"
+                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                        ExpandMode="DataGridExpandMode.Single"
+                                        RowExpand="@ExpandWithDrawConsultationRequest"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(getConsultationRequestDetail?.Any() == true ? getConsultationRequestDetail.FirstOrDefault().TotalCount : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        AllowFiltering="false"
+                                        RowRender="@RowRender"
+                                        Data="@FilteredConsultationRequestDetail"
+                                        TItem="ConsultationRequestVM"
+                                        LoadData=@OnLoadData
+                                        Sort=@OnSort
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Template Context="file">
+                                <RadzenCard class="bg-light">
+                                    <RadzenTabs TabPosition="Radzen.TabPosition.Top" Style="margin: 15px auto;" RenderMode="TabRenderMode.Server">
+                                        <Tabs>
+                                            <RadzenTabsItem Text="@translationState.Translate("Withdraw_Consultation_Request")">
+                                                <div class="row pb-2">
+                                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                        <div class="tableContent table-responsive">
+                                                            <RadzenDataGrid AllowFiltering="false"
+                                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                                            AllowPaging="true"
+                                                                            AllowSorting="true"
+                                                                            Data="@getWithDrawConsultationRequest"
+                                                                            TItem="ComsWithDrawConsultationRequestVM">
+                                                                <Columns>
+                                                                    <RadzenDataGridColumn TItem="ComsWithDrawConsultationRequestVM" Width="100px" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                                        <Template Context="rowItem">
+                                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                                          Icon="visibility"
+                                                                                          Size="ButtonSize.Small"
+                                                                                          Click="@((args) => ViewDetail(rowItem))"
+                                                                            @onclick:stopPropagation="true" />
+                                                                        </Template>
+                                                                    </RadzenDataGridColumn>
+                                                                    <RadzenDataGridColumn TItem="ComsWithDrawConsultationRequestVM" Width="140px" Property="RequestNumber" Title="@translationState.Translate("Request_Number")" />
+                                                                    <RadzenDataGridColumn TItem="ComsWithDrawConsultationRequestVM" Width="130px" Property="RequestDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Submitted_Date")" />
+
+                                                                    <RadzenDataGridColumn TItem="ComsWithDrawConsultationRequestVM" Width="150px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                                                    <RadzenDataGridColumn TItem="ComsWithDrawConsultationRequestVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Status_Name_En" : "Status_Name_Ar") Title="@translationState.Translate("Status")" />
+                                                                </Columns>
+                                                            </RadzenDataGrid>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </RadzenTabsItem>
+
+                                        </Tabs>
+                                    </RadzenTabs>
+                                </RadzenCard>
+                            </Template>
+                            <Columns>
+                                <RadzenDataGridColumn TItem="ConsultationRequestVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="60px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      Icon="visibility"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => Grid0RowSelect(rowItem))"
+                                        @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ConsultationRequestVM" Width="150px" Property="RequestNumber" Title="@translationState.Translate("Request_Number")" />
+                                <RadzenDataGridColumn TItem="ConsultationRequestVM" Width="130px" Property="RequestDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Request_Date")" />
+
+                                <RadzenDataGridColumn TItem="ConsultationRequestVM" Width="150px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                <RadzenDataGridColumn TItem="ConsultationRequestVM" Width="130px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Status_Name_En" : "Status_Name_Ar") Title="@translationState.Translate("Status")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </div>
+
+        </ChildContent>
+    </RadzenContent>
+
+    @*Advance search Window*@
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Request_Number")" Component="Number" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Request_Number")" @bind-Value="@advanceSearchCOMSVM.RequestNumber" Name="Number" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Status")" Component="Status" />
+                    <RadzenDropDown Data="@Statuses" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchCOMSVM.StatusId" Name="Status" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Subject")" Component="Subject" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Subject")" @bind-Value="@advanceSearchCOMSVM.Subject" Name="Subject" />
+                </div>
+            </div>
+            <div class="row" Style="margin-top:10px;">
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Request_From")" Component="Request_From" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Request_From" @bind-Value="@advanceSearchCOMSVM.RequestFrom" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Request_To")" Component="Request_To" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Request_To" @bind-Value="@advanceSearchCOMSVM.RequestTo" />
+                </div>
+            </div>
+            <div class="row justify-content-end pt-3">
+                <div class="col-md-12 popup-buttons-alignment">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+@code
+{
+    async Task ShowReasonDialog(WithdrawRequestDetailVM request)
+    {
+        var result = await dialogService.OpenAsync
+        (
+    @translationState.Translate("Rejection_Reason"),
+    ds =>
+    @<div>
+        <RadzenContent Container="main">
+            <ChildContent>
+                <RadzenTemplateForm TItem="WithdrawRequestDetailVM" Data="@request" Visible="@(request != null)" Submit="@FormReasonSubmit">
+                    <div style="margin: 1rem;" class="row">
+                        <div class="col-md-3">
+                            <RadzenLabel Text="@translationState.Translate("Reason")" Component="Reason" style="width: 100%"> </RadzenLabel>
+                        </div>
+                        <div class="col-md-9">
+                            <RadzenTextArea Placeholder="@translationState.Translate("Reason")" Name="Reason" @bind-Value="@request.Reason" Cols="52" Rows="3" />
+                            <RadzenLengthValidator Component="Reason" Min="2" Text="@translationState.Translate("Required_Reason_Min_Length")" />
+                            <RadzenLengthValidator Component="Reason" Max="1000" Text="@translationState.Translate("Required_Reason_Max_Length")" />
+                        </div>
+                    </div>
+                    <div class="row popup-buttons-alignment">
+                        <div class="col offset-sm-3">
+                            <RadzenButton Text="@translationState.Translate("Save")" ButtonStyle="ButtonStyle.Light" ButtonType="Radzen.ButtonType.Submit"></RadzenButton>
+                        </div>
+                    </div>
+                </RadzenTemplateForm>
+            </ChildContent>
+        </RadzenContent>
+    </div>
+        );
+    }
+}
+<style>
+    .rz-datatable .rz-col-icon {
+        text-align: center;
+        vertical-align: middle;
+        width: 1.4rem !important;
+        padding: 0;
+    }
+</style>

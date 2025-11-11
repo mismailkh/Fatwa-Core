@@ -1,0 +1,168 @@
+﻿@page "/stocktaking-detail/{StockTakingId}"
+@using FATWA_DOMAIN.Models.Lms
+@using FATWA_DOMAIN.Models.ViewModel.Lms
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+
+@layout MainLayout
+<PageTitle>@translationState.Translate("Stock_Taking_Details")</PageTitle>
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.Literatures.ViewStockTaking").Any())
+{
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Path="/stocktaking-list" Text="@translationState.Translate("StockTaking_List")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Stock_Taking_Details")" />
+                </RadzenBreadCrumb>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Stock_Taking_Details")" />
+                </div>
+            </div>
+        </div>
+        <div class="row pb-4">
+            <div class="col-md-12">
+                <RadzenCard>
+                    <RadzenAccordion Multiple=true>
+                        <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Books_StockTaking_Details")" Selected="true">
+                                <div class="row pb-2">
+                                    <div class="col-12 datagrid-rz-label">
+                                        <div class="row no-gutters">
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Report_Number"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@lmsStockTakingDetails?.ReportNumber</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("StockTaking_Date"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                        <h3>@lmsStockTakingDetails?.StockTakingDate.ToString("dd/MM/yyyy")</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Total_Books"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@lmsStockTakingDetails.TotalBooks</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Status"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? lmsStockTakingDetails.StatusEn : lmsStockTakingDetails.StatusAr)</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Created_By"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? lmsStockTakingDetails.MemeberNameEn : lmsStockTakingDetails.MemeberNameAr)</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Created_Date"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@lmsStockTakingDetails?.CreatedDate.ToString("dd/MM/yyyy")</h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 detailSection">
+                                                <div class="detailHeading detailAlignment">
+                                                    <h3>@translationState.Translate("Notes"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@lmsStockTakingDetails?.Note</h3>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                            <RadzenAccordionItem Text="@translationState.Translate("Books_StockTaking_Reports")" Selected="false">
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="row tableContent table-responsive no-gutters pb-3">
+                                            <FileUpload ModuleId="(int)WorkflowModuleEnum.LMSLiterature"
+                                                        ReferenceGuid="@Guid.Parse(StockTakingId)"
+                                                        IsViewOnly="true"></FileUpload>
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                            @if (stockTakingPerformers.Count > 0)
+                            {
+                                <RadzenAccordionItem Text="@translationState.Translate("StockTaking_Performers")" Selected="false">
+                                    <div class="row pb-2">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                            <RadzenDataGrid FilterMode="Radzen.FilterMode.Advanced"
+                                                            Count="@(stockTakingPerformers != null ? stockTakingPerformers.Count() : 0)"
+                                                            AllowPaging="true"
+                                                            Data="@stockTakingPerformers"
+                                                            TItem="StockTakingPerformerVm"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                            ShowPagingSummary="true">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="StockTakingPerformerVm" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullNameEn" : "FullNameAr") Title="@translationState.Translate("Name")" />
+                                                    <RadzenDataGridColumn TItem="StockTakingPerformerVm" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AddedByEn" : "AddedByAr") Title="@translationState.Translate("Added_By")" />
+                                                        <RadzenDataGridColumn TItem="StockTakingPerformerVm" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")" />
+
+
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            }
+                        </Items>
+                    </RadzenAccordion>
+                </RadzenCard>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+

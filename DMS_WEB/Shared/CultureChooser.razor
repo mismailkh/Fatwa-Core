@@ -1,0 +1,39 @@
+﻿@using System.Threading
+
+@inject NavigationManager NavigationManager
+
+@*<History Author = 'Hassan Abbas' Date='2022-08-03' Version="1.0" Branch="master"> UI component updated from dropdown to checkbox with events for new design requirements</History>*@
+<div>
+    <div class="button b2" id="button-17">
+        @if(Thread.CurrentThread.CurrentUICulture.Name=="ar-KW")
+        {
+            <input type="checkbox" class="checkbox" @oninput="CultureChanged" checked/>
+        }
+        else
+        {
+            <input type="checkbox" class="checkbox" @oninput="CultureChanged"/>
+        }
+        <div class="knobs">
+            <span></span>
+        </div>
+        @*<div class="layer"></div>*@
+    </div>
+</div>
+
+@code{
+    //<History Author = 'Hassan Abbas' Date='2022-08-03' Version="1.0" Branch="master"> Event updated with checkbox change event previously it was with dropdown and old design</History>
+    private void CultureChanged(ChangeEventArgs e)
+    {
+        var culture = (bool)e.Value ? "ar-KW" : "en-US";
+        SetCulture(culture);
+    }
+
+    public void SetCulture(string culture)
+    {
+        var uri = new Uri(NavigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+        var query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(uri)}";
+
+        // use a path that matches your culture redirect controller from the previous steps
+        NavigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
+    }
+}

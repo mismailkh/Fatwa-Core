@@ -1,0 +1,404 @@
+﻿@page "/meeting-attendeedecision/{meetingId}"
+@page "/meeting-attendeedecision/{meetingId}/{TaskId}"
+
+@page "/mom-attendeedecision/{meetingId}"
+@page "/mom-attendeedecision/{meetingId}/{TaskId}"
+
+@page "/requestformeeting-attendeedecision/{meetingId}"
+@page "/requestformeeting-attendeedecision/{meetingId}/{TaskId}"
+
+@using FATWA_DOMAIN.Models.ViewModel.Meet;
+@using FATWA_WEB.Pages.Shared
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.MeetingEnums;
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+
+@layout MainLayout
+@if (isMomAttendeeDecision)
+{
+    <PageTitle>@translationState.Translate("Mom_Decision")</PageTitle>
+}
+else if (isRequestForMeetingAttendeeDecision)
+{
+    <PageTitle>@translationState.Translate("Request_For_Meeting_Decision")</PageTitle>
+}
+else
+{
+    <PageTitle>@translationState.Translate("Meeting_Decision")</PageTitle>
+}
+
+<!--<History Author = "Zain Ul Islam" Date="2022-11-28" Version="1.0" Branch="master">Meeting Decision Page for Review</History>-->
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row justify-content-center align-items-center breadcrumbBar pb-3">
+            <div class="col-md-6">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem onclick="@PreviousPageUrl" Text="@translationState.Translate("Previous_Page")" />
+                    @*<RadzenBreadCrumbItem Path="/meeting-list" Text="@translationState.Translate("Meetings_List")" />*@
+                    @if (isMomAttendeeDecision)
+                    {
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Mom_Decision")" />
+                    }
+                    else if (isRequestForMeetingAttendeeDecision)
+                    {
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Request_For_Meeting_Decision")" />
+                    }
+                    else
+                    {
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Meeting_Decision")" />
+                    }
+                </RadzenBreadCrumb>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-center align-items-center py-4">
+            <div class="col-12">
+                <div class="row no-gutters">
+                    @if (isMomAttendeeDecision)
+                    {
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Mom_Decision")" />
+                    }
+                    else if (isRequestForMeetingAttendeeDecision)
+                    {
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Request_For_Meeting_Decision")" />
+                    }
+                    else
+                    {
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Meeting_Decision")" />
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+        </div>
+        <div class="row justify-content-center mainContentBlock py-4">
+            <div class="col-md-12">
+                <div class="row d-block justify-content-left mainContentBlock p-0">
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Meeting_MetaData_Information")" Selected="true">
+                                <div class="row no-gutters">
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("FileNumber"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(meetingDecisionVM.ReferenceNumber)</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Date"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(meetingDecisionVM.Date?.ToString("dd/MM/yyyy"))</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Description"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(meetingDecisionVM.Description)</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Subject"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(meetingDecisionVM.Subject)</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Agenda"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(meetingDecisionVM.Agenda)</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Location"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(meetingDecisionVM.Location)</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("StartTime"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(meetingDecisionVM.StartTime)</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("EndTime"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(meetingDecisionVM.EndTime)</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Type"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>
+                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? meetingDecisionVM.MeetingTypeEn : meetingDecisionVM.MeetingTypeAr)
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Link"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@(meetingDecisionVM.MeetingLink)</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Status"):</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>
+                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? meetingDecisionVM.MeetingStatusEn : meetingDecisionVM.MeetingStatusAr)
+                                            </h3>
+                                        </div>
+                                    </div>
+                                    @if (meetingDecisionVM.Note != null)
+                                    {
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Note"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>
+                                                    @(meetingDecisionVM.Note)
+                                                </h3>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                @if (meetingDecisionVM.SubModulId == (int)SubModuleEnum.CaseRequest || meetingDecisionVM.SubModulId == (int)SubModuleEnum.ConsultationRequest)
+                                {
+                                    <div class="col-12 p-0 d-flex justify-content-end pb-2">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                      Style="margin-left: 1rem"
+                                                      Text="@translationState.Translate("View_Request_Details")"
+                                                      Click="@ButtonDetail" />
+
+                                    </div>
+                                }
+                                @if (meetingDecisionVM.SubModulId == (int)SubModuleEnum.CaseFile || meetingDecisionVM.SubModulId == (int)SubModuleEnum.ConsultationFile)
+                                {
+                                    <div class="col-12 p-0 d-flex justify-content-end pb-2">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                      Style="margin-left: 1rem"
+                                                      Text="@translationState.Translate("View_Case_File_Details")"
+                                                      Click="@ButtonDetail" />
+
+                                    </div>
+                                }
+                                @if (meetingDecisionVM.SubModulId == (int)SubModuleEnum.RegisteredCase)
+                                {
+                                    <div class="col-12 p-0 d-flex justify-content-end pb-2">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                      Style="margin-left: 1rem"
+                                                      Text="@translationState.Translate("View_Case_File_Details")"
+                                                      Click="@ButtonDetail" />
+
+                                    </div>
+                                }
+                            </RadzenAccordionItem>
+                            @if (isMomAttendeeDecision)
+                            {
+                                <RadzenAccordionItem Text="@translationState.Translate("List_MOM_Documents")" Selected="false">
+                                    <FileUpload ReferenceGuid="@meetingDecisionVM.MeetingMomId"
+                                                CommunicationId="@(CommunicationId != null ? Guid.Parse(CommunicationId) : Guid.Empty)"
+                                                Multiple="false"
+                                                UploadFrom="CaseManagement"
+                                                IsCaseRequest="true"
+                                                MeetingStatus="(int)meetingDecisionVM.MeetingStatusId"
+                                                HideView="true"
+                                                ViewOfficialLettersOnly="false"
+                                                IsViewOnly="true"
+                                                MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.MOMAttachment"
+                                                ModuleId="(int)WorkflowModuleEnum.Meeting" />
+                                </RadzenAccordionItem>
+                                <RadzenAccordionItem Text="@translationState.Translate("Mom_MetaData_Information")" Selected="false">
+                                    <div class="row justify-content-center mainContentBlock py-4">
+                                        <div class="col-md-12">
+
+                                            @* <TelerikPdfViewer @ref="PdfViewerRef"
+                                        Width="100%"
+                                        Height="calc(100vh - 250px)!Important"
+                                        Data="@FileData">
+                                        <PdfViewerToolBar>
+                                        <PdfViewerToolBarSeparator />
+                                        <PdfViewerToolBarDownloadTool />
+                                        <PdfViewerToolBarPrintTool />
+                                        <PdfViewerToolBarPagerTool />
+                                        <PdfViewerToolBarSpacer />
+                                        <PdfViewerToolBarZoomTool />
+                                        <PdfViewerToolBarSelectionTool />
+                                        <PdfViewerToolBarSearchTool />
+                                        </PdfViewerToolBar>
+                                        </TelerikPdfViewer> *@
+                                            <SfPdfViewerServer EnableNavigationToolbar="false"
+                                                               Width="100%"
+                                                               Height="1000px"
+                                                               @ref="@pdfViewer"
+                                                               EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                                               Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                                               ID="pdfviewerDetailCommunication"
+                                                               DocumentPath="@DocumentPath"
+                                                               InteractionMode="InteractionMode.Pan"
+                                                               >
+                                            </SfPdfViewerServer>
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            }
+                            else if (isRequestForMeetingAttendeeDecision)
+                            {
+                                <RadzenAccordionItem Text="@translationState.Translate("List_Documents")" Selected="false">
+                                    <FileUpload ReferenceGuid="@(meetingDecisionVM?.CommunicationId != Guid.Empty ? meetingDecisionVM.CommunicationId : Guid.Parse(meetingId))"
+                                                IsViewOnly="true"
+                                                IsCaseRequest="true"
+                                                ModuleId="(int)WorkflowModuleEnum.Meeting"
+                                                MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.RequestForMeeting" />
+                                    @*ReferenceGuid="@meetingDecisionVM?.ReferenceGuid"*@
+                                </RadzenAccordionItem>
+                            }
+                            else
+                            {
+                                <RadzenAccordionItem Text="@translationState.Translate("List_Documents")" Selected="false">
+                                    <FileUpload ReferenceGuid="@(meetingId != null ? Guid.Parse(meetingId) : Guid.Parse(CommunicationId))"
+                                                IsViewOnly="true"
+                                                IsCaseRequest="true"
+                                                ModuleId="(int)WorkflowModuleEnum.Meeting"
+                                                MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.RequestForMeeting" />
+                                </RadzenAccordionItem>
+                            }
+                        </Items>
+                    </RadzenAccordion>
+                </div>
+                @if (!managerTaskReminderData.Where(x => x.ManagerId == loginState.UserDetail.UserId).Any())
+                {
+                    <RadzenTemplateForm Data="@meetingDecisionVM" Visible="@(meetingDecisionVM != null)" TItem="AttendeeDecisionVM" Submit="@FormSubmit">
+                        <ChildContent>
+                            <div class="row justify-content-center mainContentBlock py-4">
+                                <div class="col-md-12">
+                                    <div class="row no-gutters formHeadingSection">
+                                        <div class="col-md-6">
+                                            <h3 class="formHeading">@translationState.Translate("Decision_Section")</h3>
+                                            <div class="divider"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="margin-top:10px;">
+                                        <div class="col-md-12">
+                                            <div class="flex-row">
+                                                <div class="row">
+                                                    <div class="col-md-3">
+                                                        <RadzenLabel Text="@translationState.Translate("Decision")" Component="Decision" />
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <RadzenDropDown Data="@attendeeDecisionStatus"
+                                                                        AllowFiltering="false"
+                                                                        AllowClear="true"
+                                                                        TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")
+                                                                        Name="Decision"
+                                                                        ValueProperty="Id"
+                                                                        @bind-Value="@(meetingDecisionVM.AttendeeStatusId)"
+                                                                        Placeholder="@translationState.Translate("Select_Resolution")"
+                                                                        Style="display:block;">
+                                                        </RadzenDropDown>
+                                                        <RadzenRequiredValidator Component="Decision" Text="@translationState.Translate("Required_Field")" DefaultValue="2" />
+                                                    </div>
+                                                </div>
+                                                @if (isMomAttendeeDecision && meetingDecisionVM.AttendeeStatusId == (int)MeetingAttendeeStatusEnum.Reject)
+                                                {
+                                                    <div class="row">
+                                                        <div class="col-md-3">
+                                                            <RadzenLabel Text="@translationState.Translate("Reason")" Component="Reason" />
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <RadzenTextArea Placeholder="@translationState.Translate("Reason")"
+                                                                            Name="Reason" @bind-Value="@(meetingDecisionVM.MOMAttendeeRejectReason)" Cols="54" Rows="3" />
+                                                            <RadzenRequiredValidator Component="Reason" Text="@translationState.Translate("Required")" />
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                    {
+                                        <div class="col-12 p-0 d-flex justify-content-end">
+                                            <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                          Style="margin-left: 1rem"
+                                                          Text="@translationState.Translate("Cancel")"
+                                                          Click="@ButtonCancelClick" />
+                                            <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                                          Text="@translationState.Translate("Submit")"
+                                                          ButtonStyle="ButtonStyle.Primary" />
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="col-12 p-0 d-flex justify-content-end">
+                                            <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                                          Text="@translationState.Translate("Submit")"
+                                                          ButtonStyle="ButtonStyle.Primary" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                          Style="margin-left: 1rem"
+                                                          Text="@translationState.Translate("Cancel")"
+                                                          Click="@ButtonCancelClick" />
+
+                                        </div>
+                                    }
+
+                                </div>
+
+                            </div>
+                        </ChildContent>
+                    </RadzenTemplateForm>
+                }
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+@*}
+else
+{
+			<div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}*@

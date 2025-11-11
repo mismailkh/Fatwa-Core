@@ -1,0 +1,246 @@
+﻿@page "/Login"
+@page "/"
+
+@using Blazored.LocalStorage
+@using FATWA_ADMIN.Services.UserManagement
+@using FATWA_DOMAIN.Models
+@using FATWA_ADMIN.Data
+@using FATWA_ADMIN.Services
+@using FATWA_ADMIN.Pages
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using System.Net.Http.Headers
+@using Newtonsoft.Json
+@using Newtonsoft.Json.Linq
+@using Telerik.Blazor.Components
+@using static FATWA_GENERAL.Helper.Response
+@using static FATWA_GENERAL.Helper.Request
+@using Radzen
+@using Radzen.Blazor
+@using System.Net
+@using System.Net.Mail
+
+@*<History Author = 'Zain Ul Islam' Date='2022-08-03' Version="1.0" Branch="master"> Delete or InActive User should not Login and Error Message made dynamic</History> *@
+
+<TelerikNotification @ref="@notificationComponent" />
+<PageTitle>@translationState.Translate("Login")</PageTitle>
+@if (!ValidSubmit)
+{
+    <div class="login-page">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-9">
+                    <div class="bg-white shadow rounded">
+                        <div class="row">
+                            <div class="col-md-5 logo_block">
+                                <div class="form-left">
+                                    <img src="../images/FatwaLogoColor.png" />
+                                </div>
+                            </div>
+                            <div class="col-md-7 login-form">
+                                <div class="form-right py-5 px-4 box-content" style="margin-auto">
+                                    @if (!UserLoginFormLock)
+                                    {
+                                        <TelerikForm Model="@identityUser" OnValidSubmit="@HandleValidSubmit" OnInvalidSubmit="@HandleInvalidSubmit" Class="log-in row">
+                                            <FormValidation>
+                                                <DataAnnotationsValidator></DataAnnotationsValidator>
+                                            </FormValidation>
+                                            <FormItems>
+                                                <div class="col-12">
+                                                    <div class="input-group" style=" text-align: center; display: block; ">
+                                                        <h3 class="mb-2" style="color: #c19429; font-size: 20px;"> FATWA ADMIN PORTAL | إدارة نظام الفتوى </h3>
+                                                        <h3 class="mb-2">Welcome! Log in to your account</h3>
+                                                        <h3 class="mb-2">مرحبا! تسجيل الدخول إلى حسابك</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12">
+                                                    <FormItem Field="@nameof(IdentityRequest.UserName)">
+                                                        <Template>
+                                                            <div class="input-group">
+                                                                <TelerikTextBox Id="mail" @bind-Value="@identityUser.UserName" InputMode="email" PlaceHolder=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Username" : "اسم المستخدم") OnChange="@TrimEmail" />
+                                                                <TelerikValidationMessage For="@(() => identityUser.UserName)" />
+                                                            </div>
+                                                        </Template>
+                                                    </FormItem>
+                                                </div>
+
+                                                <div class="col-12">
+                                                    <FormItem Field="@nameof(IdentityRequest.Password)">
+                                                        <Template>
+                                                            <div class="input-group">
+                                                                <div class="row">
+                                                                    <div class="col-10">
+                                                                        <TelerikTextBox Id="pass" @bind-Value="@identityUser.Password" Password="HidePassword" PlaceHolder=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Password" : "كلمة المرور") />
+                                                                    </div>
+                                                                    <div class="col-2" style="padding-left: 0px;">
+                                                                        <TelerikButton OnClick="@RevealPassword"
+                                                                               Icon="eye"
+                                                                               Class="hidePasswordBtn"
+                                                                               ButtonType="Telerik.Blazor.ButtonType.Button"></TelerikButton>
+                                                                    </div>
+                                                                </div>
+                                                                <TelerikValidationMessage For="@(() => identityUser.Password)" />
+                                                            </div>
+                                                        </Template>
+                                                    </FormItem>
+                                                    <div class="popup-buttons-alignment">
+                                                        <button type="button" class="btn btn-link" style="background-color: #fbfdff; border: none; font-size: 14px; text-decoration: underline; font-weight: 700; color: #c19429;" onclick="@forgetPassword"> @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Forgot Password? | نسيت كلمة المرور؟" : "?Forgot Password | نسيت كلمة المرور؟") </button>
+                                                    </div>
+                                                </div>
+                                                <div class="demo-alert demo-alert-error" role="alert" style="display:@isLoginFailed">@errorMessage</div>
+                                            </FormItems>
+
+                                            <FormButtons>
+                                                <div class="col-12">
+                                                    <TelerikButton ButtonType="Telerik.Blazor.ButtonType.Submit" ThemeColor="@(ThemeConstants.Button.ThemeColor.Secondary)">تسجيل الدخول</TelerikButton>
+                                                </div>
+                                            </FormButtons>
+                                        </TelerikForm>
+                                    }
+                                    else
+                                    {
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <p>Your account is locked due to wrong attempts. Please contact system administrator.</p>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<TelerikLoaderContainer Visible="@LoaderContainerVisible" ThemeColor="@ThemeColor" OverlayThemeColor="@OverlayThemeColor"
+                        LoaderPosition="@SelectedLoaderPosition"
+                        Text="@LoaderContainerText"
+                        LoaderType="@SelectedLoaderType"></TelerikLoaderContainer>
+
+
+<style>
+    .k-loader-container-inner {
+        color: azure;
+        filter: drop-shadow(2px 2px 2px black);
+    }
+
+    .login-page {
+        width: 100%;
+        height: 100vh;
+        display: inline-block;
+        display: flex;
+        align-items: center;
+    }
+
+    .rz-layout .rz-body {
+        grid-area: rz-body;
+        border-top-left-radius: 0px !important;
+        /* background: #f2f2f2 !important; */
+        /* background: url("../images/login_banner_g2g_admin.jpg")no-repeat !important; */
+        background: linear-gradient(0deg, rgba(48, 49, 51, 0.7), rgba(48, 49, 51, 0.7)), url("../images/login_banner_g2g_admin.jpg") no-repeat !important;
+        background-size: cover !important;
+        padding: 0px !important;
+    }
+
+    .rz-dialog-wrapper {
+        background: url("../images/login_banner.png")no-repeat !important;
+    }
+
+    .form-right {
+        background: #fbfdff;
+        box-shadow: 0px 0px 6px #d9cfc7;
+        /*margin-bottom: 20px;*/
+        display: flex;
+        align-items: center;
+    }
+
+    .login-form {
+        background: #f5f5f5;
+        padding: 2rem 2rem;
+    }
+
+    .logo_block {
+        background: #3f3d3d;
+        display: flex;
+        align-items: center;
+    }
+
+    input:focus, button:focus {
+        border: 1px solid #8c7b6c !important;
+        box-shadow: none !important;
+    }
+
+    .form-check-input:checked {
+        background-color: #8c7b6c !important;
+        border-color: #8c7b6c !important;
+    }
+
+    .logo_block img {
+        width: 75%;
+        height: 100%;
+    }
+
+    .k-input.k-invalid, .k-input.ng-invalid.ng-touched, .k-input.ng-invalid.ng-dirty {
+        border-color: #3f3d3d;
+        border: 0px !important;
+        border-bottom: 1px solid !important;
+        border-radius: 0px !important;
+        background: transparent !important;
+    }
+
+        .k-input.k-invalid input {
+            border: 0px !important;
+        }
+
+    span.k-textbox.k-input.telerik-blazor.k-input-solid.k-rounded-md.k-input-md {
+        border: 0px !important;
+        border-bottom: 1px solid #000 !important;
+        border-radius: 0px !important;
+    }
+
+    .k-form-buttons.k-actions-start {
+        width: 100% !important;
+    }
+
+    button.telerik-blazor.k-button.k-button-solid.k-rounded-md.k-button-rectangle.k-button-md.k-button-solid-secondary {
+        border-radius: 0px !important;
+        width: 100% !important;
+        background: #000 !important;
+        border: 0px !important;
+    }
+
+    .form-left {
+        text-align: center;
+    }
+
+    .k-form-field {
+        padding-bottom: 15px !important;
+    }
+
+    span.k-textbox.k-input.telerik-blazor.k-input-solid.k-rounded-md.k-input-md input {
+        padding-left: 0px !important;
+    }
+
+    .loginformFooter a {
+        text-decoration: underline;
+    }
+
+    .forgetPasswordBtn {
+        background-color: #c19429 !important;
+        color: #fff !important;
+    }
+
+    .rz-notification-message {
+        width: 32% !important;
+    }
+
+    .rz-dialog-titlebar {
+        text-align: center !important;
+    }
+
+    .rz-growl-message {
+        margin: -5px 10px 10px;
+    }
+</style>

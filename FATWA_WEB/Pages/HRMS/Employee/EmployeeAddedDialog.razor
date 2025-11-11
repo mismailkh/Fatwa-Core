@@ -1,0 +1,79 @@
+﻿@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement;
+@using static FATWA_DOMAIN.Enums.UserEnum;
+@layout MainLayout
+
+<div class="container pt-2">
+    @if (EmployeeTypeId == (int)EmployeeTypeEnum.Internal)
+    {
+        <div class="row pt-2">
+            <div class="col-12">
+                <p>@translationState.Translate("Employee_Added_Success_AD")</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row pt-2">
+            <div class="col-12">
+                <p>@translationState.Translate("Employee_Added_Success_External")</p>
+            </div>
+        </div>
+    }
+    <hr />
+    @if (EmployeeTypeId == (int)EmployeeTypeEnum.Internal)
+    {
+        <div class="row pt-3">
+            <div class="col-5">
+                <h4>@(translationState.Translate("Login_Id")+": ")</h4>
+            </div>
+            <div class="col-7">
+                <h4 style="color: #8C7B6C;">@translationState.Translate("Please_Assign_Group")</h4>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row pt-3">
+            <div class="col-5">
+                <h4>@(translationState.Translate("Login_Id")+": ")</h4>
+            </div>
+            <div class="col-7">
+                <h4 style="color: #8C7B6C;">@UserName</h4>
+            </div>
+        </div>
+    }
+    <div class="row">
+        <div class="col-5">
+            <h4>@(translationState.Translate("Employee_Id")+": ")</h4>
+        </div>
+        <div class="col-7">
+            <h4 style="color: #8C7B6C;">@EmployeeId</h4>
+        </div>
+
+    </div>
+    <div class="row pt-4">
+        <div class="col-12 popup-buttons-alignment">
+            <RadzenButton Text="@translationState.Translate("Add_Additional_Information")"
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="@((args) =>NavigateToEditPage(args))" />
+            <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                          Click="@NavigateToUsersList"
+                          Text="@translationState.Translate("Go_To_Users_List")" />
+        </div>
+    </div>
+</div>
+
+<style>
+    .rz-dialog-mask {
+        background-image: url("images/login_banner.png");
+        opacity: 1;
+    }
+
+    .rz-dialog-titlebar-close {
+        display: none !important;
+    }
+
+    .rz-dialog-title {
+        padding-left: 26px;
+    }
+</style>

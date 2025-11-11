@@ -1,0 +1,13 @@
+﻿@page "/legalprinciple-list"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.LLSLegalPrinciple
+@using System.Text.RegularExpressions;
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.LPS.Principles.List").Count() > 0)
+{
+    <LLSLegalPrincipleListComponent></LLSLegalPrincipleListComponent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} 

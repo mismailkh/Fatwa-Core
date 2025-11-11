@@ -1,0 +1,933 @@
+﻿@page "/lmsliterature-edit/{LiteratureId:int}"
+
+@using FATWA_WEB.Pages.Shared
+@using System.ComponentModel.DataAnnotations
+@using Append.Blazor.Printing
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel.Lms
+@using Syncfusion.Blazor.Navigations
+@using Telerik.Blazor.Components.Upload
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@inject IPrintingService PrintingService
+@using static FATWA_GENERAL.Helper.Enum
+
+<!--<History Author = 'Umer Zaman' Date='2024-04-14' Version="1.0" Branch="master">Modified whole edit litrature form according to new requirement</History>-->
+<!--<History Author = 'Hassan Abbas' Date='2022-03-31' Version="1.0" Branch="master"> Editing Book Details Wizard</History>-->
+<!--<History Author = 'Hassan Abbas' Date='2022-07-25' Version="1.0" Branch="master">Added page permission condition</History>-->
+<!--<History Author = 'Hassan Abbas' Date='2022-08-28' Version="1.0" Branch="master">New step for Literature Tags</History>-->
+<!--<History Author = 'Hassan Abbas' Date='2022-08-30' Version="1.0" Branch="master">Author second name made optional, book number, publisher detail fields added</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.Literatures.Edit").Count() > 0)
+{
+
+    <div class="container-fluid">
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Path="/lmsliterature-list" Text="@translationState.Translate("Literature_List")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Literature_Editing")" />
+                </RadzenBreadCrumb>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Literature_Editing")"></RadzenHeading>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center mainContentBlock no-gutters p-0">
+            <div class="col-md-12 wizardBlock">
+                <TelerikCard>
+                    <CardBody>
+                        @if (ShowWizard)
+                        {
+                            <TelerikWizard @bind-Value="@Value" OnFinish="@OnWizardFinish">
+                                <WizardSteps>
+                                    <WizardStep ImageUrl="images/basic.svg" Label="@translationState.Translate("Basic_details")" OnChange="@OnBasicDetailsStepChange">
+                                        <Content>
+                                            <div class="row pb-2">
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="sub" class="k-label k-form-label">@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? translationState.Translate("Index_Name_En") : translationState.Translate("Index_Name_Ar")) *</label>
+                                                            <div class="k-form-field-wrap">
+                                                                <RadzenDropDown Data="@AllLiteratureIndexeDetails"
+                                                                                AllowFiltering="true"
+                                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                                                ValueProperty="IndexId"
+                                                                                Style="display:block;"
+                                                                                @bind-Value="SelectedIndexId"
+                                                                                @ref="@IndexDDRef"
+                                                                                Class="@validations.IndexNumber"
+                                                                                Placeholder="@translationState.Translate("Select")"
+                                                                                Change="OnChangeIndexNumberDropDown">
+                                                                </RadzenDropDown>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Index_Number") *</label>
+                                                            <div class="k-form-field-wrap">
+                                                                <TelerikTextBox Placeholder="@translationState.Translate("Index_Number")" @bind-Value="@selectedLiteratureIndex.IndexNumber" Enabled="false" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="sub" class="k-label k-form-label">@translationState.Translate("ISBN")</label>
+                                                            <div class="k-form-field-wrap">
+                                                                <TelerikTextBox Placeholder="@translationState.Translate("ISBN")" Id="ISBN" MaxLength="15" @bind-Value="@Literature.ISBN"></TelerikTextBox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-2">
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Name_Tag_Number") *</label>
+                                                            <div class="k-form-field-wrap">
+                                                                <TelerikTextBox Placeholder="@translationState.Translate("Name_Tag_Number")" MaxLength="90" Class="@validations.Name_En" @bind-Value="@Literature.Name"> </TelerikTextBox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="sub" class="k-label k-form-label">@translationState.Translate("Number_of_Pages") *</label>
+                                                            <div class="k-form-field-wrap">
+                                                                <TelerikNumericTextBox Placeholder="@translationState.Translate("Number_of_Pages")" Min="1" Max="9999" Class="@validations.NoOfPages" Id="nameAr" @bind-Value="@Literature.NumberOfPages"></TelerikNumericTextBox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Number_of_Copies") *</label>
+                                                            <div class="k-form-field-wrap">
+                                                                <TelerikNumericTextBox Placeholder="@translationState.Translate("Number_of_Copies")" Min="1" Max="systemSettingState.Book_Copy_Count" Class="@validations.CopyCount" Id="ccs" @bind-Value="@Literature.CopyCount" Enabled="false"></TelerikNumericTextBox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-2">
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Edition_Number") *</label>
+                                                            <div class="k-form-field-wrap">
+                                                                <TelerikTextBox Placeholder="@translationState.Translate("Edition_Number")" MaxLength="999"  Class="@validations.EditionNumber" @bind-Value="@Literature.EditionNumber"></TelerikTextBox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Edition_Year") *</label>
+                                                        <TelerikDatePicker @bind-Value="editionYear"
+                                                                           BottomView="@CalendarView.Decade"
+                                                                           Format="yyyy"
+                                                                           Class="@validations.EditionYear">
+                                                        </TelerikDatePicker>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Series_Number") *</label>
+                                                            <div class="k-form-field-wrap">
+                                                                <TelerikNumericTextBox Placeholder="@translationState.Translate("Series_Number")" Min="1" Max="999" Class="@validations.SeriesNumber" @bind-Value="@Literature.SeriesNumber" Enabled="Literature.IsSeries"></TelerikNumericTextBox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Content>
+                                    </WizardStep>
+                                    <WizardStep ImageUrl="images/writer-icon.svg" Label="@translationState.Translate("Author_details")" OnChange="@OnPurchaseAuthorStepChange" Disabled="IsDisabled">
+                                        <Content>
+                                            <div class="row pb-2">
+                                                <div class="col-md-6">
+                                                    <h2 class="formHeading">@translationState.Translate("Author_details")</h2>
+                                                    <div class="divider"></div>
+                                                </div>
+                                                <div class="col-md-6 d-flex justify-content-end">
+                                                    <TelerikRadioGroup Data="@AuthorTypes"
+                                                                       @bind-Value="@newAuthor"
+                                                                       Layout="RadioGroupLayout.Horizontal"
+                                                                       LabelPosition="RadioGroupLabelPosition.After"
+                                                                       OnChange="@OnAuthorRadioChangeHandler" />
+                                                </div>
+                                            </div>
+
+                                            <div class="row pb-2">
+                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    @if (newAuthor == "Existing")
+                                                    {
+                                                        <div class="row pb-2">
+                                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 ExistingAuthor">
+                                                                <div class="k-form-field">
+                                                                    <div class="k-form-field-wrap">
+                                                                        <div class="k-form-field-wrap">
+                                                                            <label for="sub" class="k-label k-form-label">@translationState.Translate("Select_Author") *</label>
+                                                                            <RadzenDropDown Data="@GetAuthorsData"
+                                                                                            AllowFiltering="true"
+                                                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_En")
+                                                                                            ValueProperty="AuthorId"
+                                                                                            Style="display:block;"
+                                                                                            @bind-Value="Literature.Author_Id"
+                                                                                            Class="@purchaseAuthorValidations.AuthorId"
+                                                                                            Placeholder="@translationState.Translate("Select")">
+                                                                            </RadzenDropDown>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 addBtnBlock d-flex justify-content-end ">
+                                                                <div class="k-form-field">
+                                                                    <div class="k-form-field-wrap">
+                                                                        <div class="k-form-field-wrap">
+                                                                            <label for="sub" class="k-label k-form-label"></label>
+                                                                            <div class="k-form-field-wrap">
+                                                                                <TelerikButton class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="@(ThemeConstants.Button.ThemeColor.Success)" OnClick="@AddAuthorDropdownDetailToGrid">@translationState.Translate("Add")</TelerikButton>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row pb-2">
+                                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                                <div class="k-form-field">
+                                                                    <div class="k-form-field-wrap">
+                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Publisher_Details") *</label>
+                                                                        <div class="k-form-field-wrap">
+                                                                            <TelerikTextBox Placeholder="@translationState.Translate("Publisher_Details")" MaxLength="1000" OnChange="@ValidateAuthorDetailsOnChange" Class="@purchaseAuthorValidations.Publisher" @bind-Value="@Literature.Publisher" Id="nameAr"></TelerikTextBox>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row pb-2">
+                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+
+                                                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                                    @ref="AuthorGridRef"
+                                                                                    AllowFiltering="false"
+                                                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                                                    AllowPaging="true"
+                                                                                    AllowSorting="true"
+                                                                                    Data="@Literature.LmsLiteratureAuthors"
+                                                                                    TItem="LmsLiteratureAuthor"
+                                                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                    ColumnWidth="200px">
+                                                                        <Columns>
+                                                                            <RadzenDataGridColumn TItem="LmsLiteratureAuthor" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_En") Title="@translationState.Translate("Author_Name_100")" />
+                                                                            <RadzenDataGridColumn TItem="LmsLiteratureAuthor" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Address_En" : "Address_En") Title="@translationState.Translate("Author_Address_E")" />
+                                                                            <RadzenDataGridColumn TItem="LmsLiteratureAuthor" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                                                <Template Context="rowItem">
+                                                                                    @* <RadzenButton ButtonStyle="ButtonStyle.Secondary" class="editIcon" Icon="mode" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@(() =>UpdateAuthorHandler(rowItem))" @onclick:stopPropagation="true" />*@
+                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" class="deleteIcon" Icon="delete_outline" title="@translationState.Translate("delete")" Size="ButtonSize.Small" Click="@(() =>DeleteAuthorHandler(rowItem))" @onclick:stopPropagation="true" />
+                                                                                </Template>
+                                                                            </RadzenDataGridColumn>
+                                                                        </Columns>
+                                                                    </RadzenDataGrid>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="row pb-2">
+                                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 NewAuthor">
+                                                                <div class="k-form-field">
+                                                                    <div class="k-form-field-wrap">
+                                                                        <label for="ccs" class="k-label k-form-label">@translationState.Translate("Author_Name_100") *</label>
+                                                                        <div class="k-form-field-wrap">
+                                                                            <TelerikTextBox PlaceHolder="@translationState.Translate("Author_Name_100")" MaxLength="90" @bind-Value="@lmsLiteratureAuthor.FullName_En"></TelerikTextBox>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 NewAuthor">
+                                                                <div class="k-form-field">
+                                                                    <div class="k-form-field-wrap">
+                                                                        <label for="ccs" class="k-label k-form-label">@translationState.Translate("Author_Address_E") *</label>
+                                                                        <div class="k-form-field-wrap">
+                                                                            <TelerikTextBox Placeholder="@translationState.Translate("Author_Address_E")" MaxLength="150" OnChange="@ValidateAuthorDetailsOnChange" @bind-Value="@lmsLiteratureAuthor.Address_En"></TelerikTextBox>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4 addBtnBlock d-flex justify-content-end">
+                                                                <div class="k-form-field">
+                                                                    <div class="k-form-field-wrap">
+                                                                        <div class="k-form-field-wrap">
+                                                                            <label for="sub" class="k-label k-form-label"></label>
+                                                                            <div class="k-form-field-wrap">
+                                                                                <TelerikButton class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="@(ThemeConstants.Button.ThemeColor.Success)" OnClick="@AddAuthorDetailToGrid">@translationState.Translate("Add")</TelerikButton>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row pb-2">
+                                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                                <div class="k-form-field">
+                                                                    <div class="k-form-field-wrap">
+                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Publisher_Details") *</label>
+                                                                        <div class="k-form-field-wrap">
+                                                                            <TelerikTextBox Placeholder="@translationState.Translate("Publisher_Details")" MaxLength="1000" OnChange="@ValidateAuthorDetailsOnChange" Class="@purchaseAuthorValidations.Publisher" @bind-Value="@Literature.Publisher" Id="nameAr"></TelerikTextBox>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row pb-2">
+                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+
+                                                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                                    @ref="AuthorGridRef"
+                                                                                    AllowFiltering="false"
+                                                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                                                    AllowPaging="true"
+                                                                                    AllowSorting="true"
+                                                                                    Data="@Literature.LmsLiteratureAuthors"
+                                                                                    TItem="LmsLiteratureAuthor"
+                                                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                    ColumnWidth="200px">
+                                                                        <Columns>
+                                                                            <RadzenDataGridColumn TItem="LmsLiteratureAuthor" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_En") Title="@translationState.Translate("Author_Name_100")" />
+                                                                            <RadzenDataGridColumn TItem="LmsLiteratureAuthor" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Address_En" : "Address_En") Title="@translationState.Translate("Author_Address_E")" />
+                                                                            <RadzenDataGridColumn TItem="LmsLiteratureAuthor" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                                                <Template Context="rowItem">
+                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" class="deleteIcon" Icon="delete_outline" title="@translationState.Translate("delete")" Size="ButtonSize.Small" Click="@(() =>DeleteAuthorHandler(rowItem))" @onclick:stopPropagation="true" />
+                                                                                </Template>
+                                                                            </RadzenDataGridColumn>
+                                                                        </Columns>
+                                                                    </RadzenDataGrid>
+                                                                </div>
+
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                </div>
+                                            </div>
+
+
+                                        </Content>
+                                    </WizardStep>
+                                    <WizardStep ImageUrl="images/barcode.svg" Label="@translationState.Translate("Label_and_barcode")" OnChange="@OnStickerBarcodeStepChange">
+                                        <Content>
+
+                                            <div class="row pb-2">
+                                                <div class="col-md-4">
+                                                    <h2 class="formHeading">@translationState.Translate("Label_Details")</h2>
+                                                    <div class="divider"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row pb-2">
+                                                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Character90")</label>
+                                                            <div class="k-form-field-wrap d-flex">
+                                                                <TelerikTextBox Placeholder="@translationState.Translate("Character90")" Class="" Id="char" @bind-Value="@Literature.Characters" Enabled="false"></TelerikTextBox>
+                                                                <TelerikButton Class="mx-3" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="secondary" OnClick="@(() => Print(PrintCommandEnum.Character, Convert.ToString(Literature.Characters)))" Icon="print"></TelerikButton>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Character82")</label>
+                                                            <div class="k-form-field-wrap d-flex">
+                                                                <TelerikTextBox Placeholder="@translationState.Translate("Character82")" Class="" Id="char" @bind-Value="@Literature.Characters82" Enabled="false"></TelerikTextBox>
+                                                                <TelerikButton Class="mx-3" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="secondary" OnClick="@(() => Print(PrintCommandEnum.Character, Convert.ToString(Literature.Characters82)))" Icon="print"></TelerikButton>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="row pb-2 pt-3">
+                                                <div class="col-md-4">
+                                                    <h2 class="formHeading">@translationState.Translate("Barcode_Details")</h2>
+                                                    <div class="divider"></div>
+                                                </div>
+                                            </div>
+
+                                            <TelerikCard Class="mt-4">
+                                                <CardHeader>
+                                                    <CardTitle>
+                                                        @*<span class="mt-4">@translationState.Translate("Barcode_Details")</span>*@
+                                                        <div class="float-barcode-custom d-flex">
+                                                            <div class="k-form-field mx-2">
+                                                                <div class="k-form-field-wrap">
+                                                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("Number_of_Copies")</label>
+                                                                    <div class="k-form-field-wrap">
+                                                                        <TelerikNumericTextBox Placeholder="@translationState.Translate("Number_of_Copies")" Min="1" Max="10000" Id="ccs" @bind-Value="@Literature.CopyCount" Enabled="false"></TelerikNumericTextBox>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="k-form-field mx-2">
+                                                                <div class="k-form-field-wrap">
+                                                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("Increment_Copies")</label>
+                                                                    <div class="k-form-field-wrap">
+                                                                        <TelerikNumericTextBox Placeholder="@translationState.Translate("Number_of_Copies")" Min="1" Max="10000" Id="ccs" @bind-Value="IncrementedBarcodeCount"></TelerikNumericTextBox>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="k-form-field mx-2">
+                                                                <div class="k-form-field-wrap">
+                                                                    <label for="ccs" class="k-label k-form-label">&nbsp;</label>
+                                                                    <div class="k-form-field-wrap">
+                                                                        <TelerikButton Icon="plus-outline" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="primary" OnClick="@( () => InsertNewBarcodes() )" Enabled=@(IncrementedBarcodeCount > 0)></TelerikButton>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardBody>
+                                                    <div class="row pb-2">
+                                                        <div class="col-md-12 d-flex justify-content-end tableAdditionButton pt-1  pb-3">
+                                                            <TelerikButton ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="secondary" OnClick="@(() => Print(PrintCommandEnum.BarcodeAll, null))">@translationState.Translate("Print_All")</TelerikButton>
+                                                        </div>
+                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 tableContent">
+                                                            <div class="">
+                                                                <RadzenDataGrid @ref="BarcodesGrid"
+                                                                                AllowFiltering="false"
+                                                                                AllowPaging="true"
+                                                                                AllowSorting="true"
+                                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                                EditMode="DataGridEditMode.Single"
+                                                                                Data="@Literature.LiteratureBarcodes.OrderBy(x => x.BarcodeId)"
+                                                                                TItem="LmsLiteratureBarcode"
+                                                                                Count="@(Literature.LiteratureBarcodes != null ? Literature.LiteratureBarcodes.Count() : 0)"
+                                                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                RowUpdate="@OnUpdateRow"
+                                                                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                                                ShowPagingSummary="true">
+                                                                    <Columns>
+
+                                                                        <RadzenDataGridColumn TItem="LmsLiteratureBarcode" Context="barcode" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="150px" Title="@translationState.Translate("Action")">
+                                                                            <Template Context="barcode">
+                                                                                <TelerikButton ButtonType="Telerik.Blazor.ButtonType.Button" Class="editcolor" ThemeColor="secondary" OnClick="@(args => EditOptionRow(barcode))" Icon="edit"></TelerikButton>
+                                                                                <TelerikButton ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="secondary" OnClick="@(() => Print(PrintCommandEnum.Barcode, Convert.ToString(barcode.BarCodeNumber)))" Icon="print"></TelerikButton>
+                                                                                <TelerikButton ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="error" OnClick="@(() => DeleteBarcode(barcode))" Icon="trash" Enabled="barcode.IsBorrowed ? false : true"></TelerikButton>
+                                                                            </Template>
+                                                                            <EditTemplate Context="condition">
+                                                                                <TelerikButton ButtonType="Telerik.Blazor.ButtonType.Button" Class="checkcolor" ThemeColor="danger" OnClick="@((args) => SaveRow(condition))" Icon="check"></TelerikButton>
+                                                                            </EditTemplate>
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="LmsLiteratureBarcode" Property="BarCodeNumber" Title="@translationState.Translate("Barcode")">
+                                                                        </RadzenDataGridColumn>
+
+                                                                        <RadzenDataGridColumn TItem="LmsLiteratureBarcode" Property="RFIDValue" Filterable="false" Title="@translationState.Translate("RFID_Value")">
+                                                                            <EditTemplate Context="RFValue">
+                                                                                <RadzenNumeric ShowUpDown="false" Min="1" TValue="long?" @bind-Value="@RFValue.RFID" />
+                                                                            </EditTemplate>
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="LmsLiteratureBarcode" Property="IsBorrowed" Context="barcode" Title="@translationState.Translate("Status")">
+                                                                            <Template Context="barcode">
+                                                                                @if (barcode.IsBorrowed)
+                                                                                {
+                                                                                    @translationState.Translate("Borrowed")
+                                                                                }
+                                                                                else if (barcode.Active)
+                                                                                {
+                                                                                    @translationState.Translate("Available")
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    @translationState.Translate("UnAvailable")
+
+                                                                                }
+                                                                            </Template>
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="LmsLiteratureBarcode" Context="barcode" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="150px" Title="@translationState.Translate("Active")">
+                                                                            <Template Context="barcode">
+                                                                                <RadzenCheckBox TriState="false" TValue="bool" Value="@barcode.Active" Disabled="barcode.IsBorrowed ? true : false"
+                                                                                                Change="@(() => ToggleActiveBarcode(barcode))" />
+                                                                            </Template>
+                                                                        </RadzenDataGridColumn>
+
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </CardBody>
+                                            </TelerikCard>
+                                            @*<h4>@translationState.Translate("Barcode_Details")</h4>
+                                    <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                    <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("barcode")</label>
+                                    <div class="k-form-field-wrap">
+                                    <TelerikTextBox Placeholder="@translationState.Translate("barcode")" Class="" Id="barcode" @bind-Value="@Literature.BarCodeNumber" Enabled="false"></TelerikTextBox>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                    <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">&nbsp;</label>
+                                    <div class="k-form-field-wrap">
+                                    <TelerikButton ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="secondary" OnClick="@PrintBarcode" Icon="print"></TelerikButton>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    </div>
+                                    </div>*@
+                                        </Content>
+                                    </WizardStep>
+                                    <WizardStep ImageUrl="images/attachment.svg" Label="@translationState.Translate("Attachments_and_Settings")" Disabled="IsDisabled">
+                                        <Content>
+                                            <div class="row pb-2">
+                                                <div class="col-md-4">
+                                                    <h2 class="formHeading">@translationState.Translate("Attachments_Section")</h2>
+                                                    <div class="divider"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-2">
+                                                <div class="col-md-12">
+                                                    <FileUpload ModuleId="(int)WorkflowModuleEnum.LMSLiterature"
+                                                                ReferenceGuid="@Literature.Guid"
+                                                                IsLiterature="true"
+                                                                LiteratureId="@Literature.LiteratureId"
+                                                                @bind-DeletedAttachementIds="@Literature.DeletedAttachementIds"
+                                                                Multiple="true"
+                                                                MaxFileSize="systemSettingState.File_Maximum_Size"
+                                                                FileTypes="@(systemSettingState.FileTypes.ToList())"
+                                                                UploadFrom="Literature" />
+                                                </div>
+                                            </div>
+                                            <div class="row pb-2">
+                                                <div class="col-md-4">
+                                                    <h2 class="formHeading">@translationState.Translate("Literature_settings")</h2>
+                                                    <div class="divider"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-2">
+                                                <div class="col-md-12 literatureBlock">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <TelerikCheckBox Id="isBorr" @bind-Value="@Literature.IsBorrowable"></TelerikCheckBox>
+                                                            <label for="ccs" class="k-label k-form-label"> @translationState.Translate("Is_Borrowable")</label>
+                                                        </div>
+                                                        <div class="k-form-field-wrap">
+                                                            <TelerikCheckBox Id="isView" @bind-Value="@Literature.IsViewable"></TelerikCheckBox>
+                                                            <label for="ccs" class="k-label k-form-label"> @translationState.Translate("Is_Viewable")</label>
+                                                        </div>
+                                                        <div class="k-form-field-wrap">
+                                                            <TelerikCheckBox Id="isViews" @bind-Value="@Literature.AllowtoPublish"></TelerikCheckBox>
+                                                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Allow_to_Publish")</label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Content>
+                                    </WizardStep>
+                                    <WizardStep ImageUrl="images/tags.svg" Label="@translationState.Translate("Tags")">
+                                        <Content>
+                                            <div class="row pb-2">
+                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 text-center">
+                                                    <SfTab CssClass="default-tab">
+                                                        <TabItems>
+                                                            <div class="row no-gutters d-flex justify-content-end">
+                                                                <TelerikButton Class="addBtn"
+                                                                               Icon="add"
+                                                                               ButtonType="Telerik.Blazor.ButtonType.Button"
+                                                                               ThemeColor="success"
+                                                                               OnClick="@( () => InsertRow() )"
+                                                                               Enabled=@(tagToInsert == null)>@translationState.Translate("Add_Tag")</TelerikButton>
+                                                            </div>
+                                                            <div class="row tableContent table-responsive no-gutters pb-3">
+                                                                <RadzenDataGrid @ref="TagsGrid"
+                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                AllowPaging="true"
+                                                                                PageSize="5"
+                                                                                EditMode="DataGridEditMode.Single"
+                                                                                Data="@Literature.LiteratureTags"
+                                                                                TItem="LiteratureDetailLiteratureTagVM"
+                                                                                RowUpdate="@OnUpdateRow"
+                                                                                RowCreate="@OnCreateRow">
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn TItem="LiteratureDetailLiteratureTagVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Description" : "Description_Ar") Title="@translationState.Translate("Description")">
+                                                                            <EditTemplate Context="tag">
+                                                                                <RadzenDropDown @bind-Value="tag.TagId" Change="@(() => tag.TagNo = ActiveLiteratureTags.Where(x => x.Id == tag.TagId).FirstOrDefault().TagNo)" Data="@ActiveLiteratureTags" TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Description" : "Description_Ar") ValueProperty="Id" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" Style="width:100%; display: block;" />
+                                                                            </EditTemplate>
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="LiteratureDetailLiteratureTagVM" Property="TagNo" Title="@translationState.Translate("TagNo")">
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="LiteratureDetailLiteratureTagVM" Property="Value" Title="@translationState.Translate("Content")">
+                                                                            <EditTemplate Context="tag">
+                                                                                <RadzenTextBox Placeholder="@translationState.Translate("Content")" @bind-Value="tag.TempValue" Style="width:100%; display: block" Name="Value" />
+                                                                            </EditTemplate>
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="LiteratureDetailLiteratureTagVM" Context="sampleBlazorModelsSampleOrder" Filterable="false" Sortable="false" Title="@translationState.Translate("Actions")" TextAlign="Radzen.TextAlign.Center" Width="120px">
+                                                                            <Template Context="tag">
+                                                                                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Class="" Click="@(args => EditRow(tag))" @onclick:stopPropagation="true">
+                                                                                </RadzenButton>
+                                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="" Click="@(args => DeleteRow(tag))" @onclick:stopPropagation="true">
+                                                                                </RadzenButton>
+                                                                            </Template>
+                                                                            <EditTemplate Context="tag">
+                                                                                <RadzenButton Icon="check" ButtonStyle="ButtonStyle.Primary" Class="" Disabled=@(tag.TagId <= 0 || String.IsNullOrWhiteSpace(tag.TempValue)) Click="@((args) => SaveRow(tag))">
+                                                                                </RadzenButton>
+                                                                                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Light" Class="" Click="@((args) => CancelEdit(tag))">
+                                                                                </RadzenButton>
+                                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" Class="" Click="@(args => DeleteRow(tag))">
+                                                                                </RadzenButton>
+                                                                            </EditTemplate>
+                                                                        </RadzenDataGridColumn>
+
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            </div>
+                                                        </TabItems>
+                                                    </SfTab>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-2">
+                                                <div class="col-md-4">
+                                                    <h2 class="formHeading">@translationState.Translate("Purchase_details")</h2>
+                                                    <div class="divider"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-2">
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="sub" class="k-label k-form-label">@translationState.Translate("Location")</label>
+                                                            <div class="k-form-field-wrap">
+                                                                <TelerikTextBox Placeholder="@translationState.Translate("Location")" MaxLength="150" @bind-Value="@Literature.Purchase_Location" Id="nameAr"></TelerikTextBox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Price")</label>
+                                                            <div class="k-form-field-wrap">
+                                                                <TelerikNumericTextBox Placeholder="@translationState.Translate("Price")" @bind-Value="@Literature.Purchase_Price"></TelerikNumericTextBox>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                    <div class="k-form-field">
+                                                        <div class="k-form-field-wrap">
+                                                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Purchase_Date")</label>
+                                                            <div class="k-form-field-wrap">
+                                                                <TelerikDatePicker Format="dd/MM/yyyy" Placeholder="@translationState.Translate("Purchase_Date")" Min="@Min" Max="@Max" @bind-Value="@Literature.Purchase_Date"></TelerikDatePicker>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </Content>
+                                    </WizardStep>
+                                </WizardSteps>
+                                <WizardButtons>
+                                    @{
+                                        var index = context;
+                                        if (index == 0)
+                                        {
+                                            <TelerikButton Class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@( () => OnBasicDetailsStepChangeCustom(index) )">@translationState.Translate("Next")</TelerikButton>
+                                            <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@(() => OkaySaveAsDraftBookConfirm(index))">@translationState.Translate("Save")</TelerikButton>
+                                            <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@OkayCancelBookConfirm">@translationState.Translate("Cancel")</TelerikButton>
+
+                                        }
+                                        if (index > 0)
+                                        {
+                                            if (index == 1)
+                                            {
+                                                <TelerikButton Class=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "prevBtn" : "prevBtn prevBtnArabic") OnClick="@(() => Value -= 1)">@translationState.Translate("Previous")</TelerikButton>
+                                                <TelerikButton Class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@( () => OnPurchaseAuthorStepChangeCustom(index) )">@translationState.Translate("Next")</TelerikButton>
+                                                <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@(() => OkaySaveAsDraftBookConfirm(index))">@translationState.Translate("Save")</TelerikButton>
+                                                <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@OkayCancelBookConfirm">@translationState.Translate("Cancel")</TelerikButton>
+                                            }
+                                            if (index == 2)
+                                            {
+                                                <TelerikButton Class=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "prevBtn" : "prevBtn prevBtnArabic") Enabled="@(!IsDisabled)" OnClick="@(() => Value -= 1)">@translationState.Translate("Previous")</TelerikButton>
+                                                <TelerikButton Class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" Enabled="@(!IsDisabled)" OnClick="@( () => OnStickerBarcodeStepChange(null) )">@translationState.Translate("Next")</TelerikButton>
+                                                <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@(() => OkaySaveAsDraftBookConfirm(index))">@translationState.Translate("Save")</TelerikButton>
+                                                <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@OkayCancelBookConfirm">@translationState.Translate("Cancel")</TelerikButton>
+                                            }
+                                            if (index == 3)
+                                            {
+                                                <TelerikButton Class=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "prevBtn" : "prevBtn prevBtnArabic") OnClick="@(() => Value -= 1)">@translationState.Translate("Previous")</TelerikButton>
+                                                <TelerikButton Class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@(() => {Value += 1; tagToInsert = null;})">@translationState.Translate("Next")</TelerikButton>
+                                                <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@(() => OkaySaveAsDraftBookConfirm(index))">@translationState.Translate("Save")</TelerikButton>
+                                                <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@OkayCancelBookConfirm">@translationState.Translate("Cancel")</TelerikButton>
+                                            }
+                                            if (index == 4)
+                                            {
+                                                <TelerikButton Class=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "prevBtn" : "prevBtn prevBtnArabic") OnClick="@(() => Value -= 1)">@translationState.Translate("Previous")</TelerikButton>
+                                                <TelerikButton Enabled="@IsDraftVisiable" Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@(() => OkaySaveAsDraftBookConfirm(index))">@translationState.Translate("Save")</TelerikButton>
+                                                <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@OkayAddBookConfirm">@translationState.Translate("Submit")</TelerikButton>
+                                                <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@OkayCancelBookConfirm">@translationState.Translate("Cancel")</TelerikButton>
+                                            }
+                                        }
+                                        else
+                                        {
+                                        }
+                                    }
+                                </WizardButtons>
+                            </TelerikWizard>
+                        }
+                        else
+                        {
+                            <div class="demo-alert demo-alert-success" role="alert">
+                                @translationState.Translate("The_book_has_been_successfully_added_to_the_system.")
+                                <TelerikButton ThemeColor="@(ThemeConstants.Button.ThemeColor.Success)" Class="custom-go-back-button" OnClick="@BackToForm">@translationState.Translate("Back_to_form")</TelerikButton>
+                                <TelerikButton ThemeColor="@(ThemeConstants.Button.ThemeColor.Primary)" Class="custom-go-back-button" OnClick="@BackToList">@translationState.Translate("Back_to_list")</TelerikButton>
+                            </div>
+                        }
+                    </CardBody>
+                </TelerikCard>
+                <TelerikDialog Visible="@AddConfirmVisible" VisibleChanged="@VisibleChangedHandlerAdd"
+                               Title="@translationState.Translate("Submit")">
+                    <DialogContent>
+                        @translationState.Translate("Sure_Submit")
+                    </DialogContent>
+                    <DialogButtons>
+                        <TelerikButton ThemeColor="light" OnClick="@(() => CloseAddBookConfirm() )">@translationState.Translate("No")</TelerikButton>
+                        <TelerikButton ThemeColor="@(ThemeConstants.Button.ThemeColor.Primary)" OnClick="@(() => OkayAddBookConfirm() )">@translationState.Translate("Yes")</TelerikButton>
+                    </DialogButtons>
+                </TelerikDialog>
+
+                <TelerikDialog Visible="@CancelConfirmVisible" VisibleChanged="@VisibleChangedHandlerCancel"
+                               Title="@translationState.Translate("Cancel")">
+                    <DialogContent>
+                        @translationState.Translate("Sure_Cancel")
+                    </DialogContent>
+                    <DialogButtons>
+                        <TelerikButton ThemeColor="light" OnClick="@(() => CloseCancelBookConfirm() )">@translationState.Translate("No")</TelerikButton>
+                        <TelerikButton ThemeColor="@(ThemeConstants.Button.ThemeColor.Primary)" OnClick="@(() => OkayCancelBookConfirm() )">@translationState.Translate("Yes")</TelerikButton>
+                    </DialogButtons>
+                </TelerikDialog>
+            </div>
+        </div>
+    </div>
+    @*Print Dialog*@
+    <TelerikDialog Class="print-dialog" @bind-Visible="@IsPrintDialogVisible" Width="30%" Title="@translationState.Translate("Print")">
+        <DialogContent>
+            @{
+                if (PrintCommand == PrintCommandEnum.BarcodeAll)
+                {
+                    <div class="conatiner" id="printable" style=" height: calc(100vh - 250px); width: 384px; text-align:justify;">
+                        @if (Literature.LiteratureBarcodes.Any())
+                        {
+                            //var iterations = Math.Ceiling((decimal)Literature.LiteratureBarcodes.Count() / 4);
+                            //for(int k = 0; k < iterations; k++)
+                            //{
+                            //    <div class="row" style="padding-bottom: 1.4rem !important;">
+                            //    @foreach(var barcode in Literature.LiteratureBarcodes.Skip(k * 4).Take(4).ToList())
+                            //    {
+                            //            <div class="col-md-3">
+                            //                <div class="ticket-barcode">
+                            //                    <label>
+                            //                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            //                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            //                        CLC Library
+                            //                    </label>
+                            //                    <TelerikBarcode Width="225px"
+                            //                                    Height="100px"
+                            //                                    Checksum="false"
+                            //                                    Type="BarcodeType.Code128"
+                            //                                    Value="@barcode.BarCodeNumber.ToString()">
+                            //                    </TelerikBarcode>
+                            //                </div>
+                            //            </div>
+                            //    }
+                            //    </div>
+                        //}
+                            @foreach (var barcode in Literature.LiteratureBarcodes)
+                            {
+                                <div class="row" style="padding-bottom: 1.4rem !important;">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                        <div class="ticket-barcode">
+                                            <label>
+                                                @translationState.Translate("CLC_Library")
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                        <div class="ticket-barcode">
+                                            <TelerikBarcode Width="100%"
+                                                            Height="auto"
+                                                            Checksum="false"
+                                                            Type="BarcodeType.Code128"
+                                                            Value="@barcode.BarCodeNumber.ToString()">
+                                            </TelerikBarcode>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                }
+                else if (PrintCommand == PrintCommandEnum.Barcode)
+                {
+                    <div class="conatiner" id="printable" style=" height: calc(100vh - 250px); width: 384px; text-align:justify;">
+                        <div class="row pb-4">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="ticket-barcode">
+                                    <label>
+                                        @translationState.Translate("CLC_Library")
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="ticket-barcode">
+                                    <TelerikBarcode Width="225px"
+                                                    Height="100px"
+                                                    Checksum="false"
+                                                    Type="BarcodeType.Code128"
+                                                    Value="@PrintValue">
+                                    </TelerikBarcode>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (PrintCommand == PrintCommandEnum.Character || PrintCommand == PrintCommandEnum.Character82)
+                {
+                    <div class="conatiner" id="printable" style=" height: 96px; width: 184px; text-align:justify;">
+                        <div class="row pb-4">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12">
+                                <div class="ticket-barcode">
+                                    <label>
+                                        @PrintValue
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </DialogContent>
+        <DialogButtons>
+            <div class="text-center">
+                <TelerikButton Class="prevBtn" OnClick="@(() => { IsPrintDialogVisible = false; })">
+                    @translationState.Translate("Cancel")
+                </TelerikButton>
+                <TelerikButton Class="nextBtn text-light" OnClick="@(_ => PrintingService.Print("printable", PrintType.Html))">
+                    @translationState.Translate("Print")
+                </TelerikButton>
+            </div>
+        </DialogButtons>
+    </TelerikDialog>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+<style>
+    .rating-radio input {
+        display: block;
+    }
+
+    .rating-radio {
+        display: flex;
+        justify-content: space-between
+    }
+
+    .rating-wrapper {
+        padding: 20px;
+        border: 1px solid #DDD;
+    }
+
+    .demo-notification {
+        align-items: flex-end;
+        position: fixed;
+        z-index: 999;
+    }
+
+    #demo-runner {
+        height: 320px;
+    }
+
+    .k-notification-container {
+        margin: 6px 0;
+    }
+
+    .k-wizard-content {
+        overflow-y: unset !important;
+    }
+
+    .disabled-stepper .k-stepper {
+        pointer-events: none;
+    }
+
+    .k-file-success {
+        display: none !important;
+    }
+
+    .k-textarea {
+        overflow-y: auto;
+        height: 38px;
+    }
+
+    .checkcolor {
+        background-color: #736356 !important;
+        border: #736356;
+    }
+
+    .editcolor {
+        background-color: #404040 !important;
+    }
+
+    .checkcolor .k-button-icon {
+        color: white;
+    }
+</style>

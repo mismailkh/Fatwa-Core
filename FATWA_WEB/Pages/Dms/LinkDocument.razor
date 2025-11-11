@@ -1,0 +1,504 @@
+﻿@page "/document-link"
+@using FATWA_DOMAIN.Models.ViewModel;
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.ConsultationVMs;
+@using static FATWA_DOMAIN.Enums.DmsEnums;
+@using FATWA_DOMAIN.Models.ViewModel.DmsVMs;
+@using FATWA_DOMAIN.Models.ViewModel.LLSLegalPrinciple
+@using FATWA_DOMAIN.Models.ViewModel.LegalPrinciple;
+@layout MainLayout
+
+<!--<History Author = "Hassan Abbas" Date="2023-07-12" Version="1.0" Branch="master"> Link Document</History>-->
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row pb-3">
+            <div class="col-md-12">
+                <div class="row">
+                    @if (Modules.Count > 1)
+                    {
+                        <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
+                            <div class="form-group">
+                                <RadzenLabel Text="@(translationState.Translate("Module") + "*")" Component="Module" />
+                                <RadzenDropDown TValue="int" Data="@Modules" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                TextProperty="ModuleEnumName" ValueProperty="ModuleEnumValue" Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;" @bind-Value="ModuleId" Name="Module" Change="@OnModuleChange">
+                                </RadzenDropDown>
+                            </div>
+                        </div>
+                    }
+                    @if (SectorTypeId > 0)
+                    {
+                        <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
+                            <div class="form-group">
+                                <RadzenLabel Text="@(translationState.Translate("SubModule") + "*")" Component="SubModule" />
+                                <RadzenDropDown TValue="int" Data="@SubModules" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                TextProperty="ModuleEnumName" ValueProperty="ModuleEnumValue" Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;" @bind-Value="SubModuleId" Name="SubModule">
+                                </RadzenDropDown>
+                            </div>
+                        </div>
+                    }
+                    @if (Modules.Count > 1 || SubModules.Count > 1)
+                    {
+                        <div class="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7">
+                            <div class="row mt-4 popup-buttons-alignment">
+                                <div class="col-12 p-0" style="margin-top:11px !important">
+                                    @* <label for="FileTitle" class="rz-label" id="MoniPfNuc0">&nbsp;</label>
+                                <br> *@
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Click="@SubmitModuleSelection" Disabled="@((ModuleId == (int)DocumentLinkModuleEnum.CaseManagement || ModuleId == (int)DocumentLinkModuleEnum.ConsultationManagement) ? (SubModuleId > 0 ? false : true) : (ModuleId > 0 ? false : true))" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                    </RadzenButton>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <RadzenTextBox class="searchBox"
+                                       Placeholder="@translationState.Translate("Grid_Search")"
+                                       Name="Textbox0"
+                                       @bind-Value="search"
+                                       @oninput="@(async(args) => {search = $"{args.Value}";await OnSearchInput();})" />
+                    </div>
+                </div>
+                <div class="row tableContent table-responsive no-gutters pb-3">
+                    @if (SubModuleId == (int)DocumentLinkSubModuleEnum.CaseRequest)
+                    {
+                        <RadzenDataGrid Width="100%"
+                                        @ref="caseRequestGrid"
+                                        Count="@(FilteredCaseRequests != null ? FilteredCaseRequests.Count() : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        AllowFiltering="false"
+                                        Data="@FilteredCaseRequests"
+                                        TItem="CmsCaseRequestDmsVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        @bind-Value=@selectedCaseRequests
+                                        SelectionMode="DataGridSelectionMode.Multiple"
+                                        AllowRowSelectOnRowClick="true"
+                                        RowSelect="@(async(args) => await OnSelectionChange<CmsCaseRequestDmsVM>(selectedCaseRequests?.ToList()))"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="CmsCaseRequestDmsVM" Width="40px" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@((FilteredCaseRequests != null && linkDocumentDetails.DestinationIds != null) ? (FilteredCaseRequests.Select(f => f.RequestId).Except(linkDocumentDetails.DestinationIds).Any()? false : true) :false)"
+                                                        TValue="bool"
+                                                        Change="@(async args => {if(!args){selectedCaseRequests = new List<CmsCaseRequestDmsVM>();} await HandleSelectAllRows(args, FilteredCaseRequests, "RequestId", caseRequestGrid, "CaseManagement");})" />
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@(linkDocumentDetails.DestinationIds != null && linkDocumentDetails.DestinationIds.Contains(data.RequestId))"
+                                                        TValue="bool"
+                                                        Change="@(async args => {await HandleSelectRow(args, data, "RequestId", caseRequestGrid, "CaseManagement");})" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="CmsCaseRequestDmsVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      Icon="visibility"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => DetailCaseRequest(rowItem))"
+                                                      @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="CmsCaseRequestDmsVM" Width="125px" Property="RequestNumber" Title="@translationState.Translate("Request_Number")" />
+                                <RadzenDataGridColumn TItem="CmsCaseRequestDmsVM" Width="180px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "GovermentEntity_Name_En" : "GovermentEntity_Name_Ar" )" Title="@translationState.Translate("Government_Entity")" />
+                                <RadzenDataGridColumn TItem="CmsCaseRequestDmsVM" Width="150px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                <RadzenDataGridColumn TItem="CmsCaseRequestDmsVM" Width="135px" Property="RequestDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Submitted_Date")" />
+                                <RadzenDataGridColumn TItem="CmsCaseRequestDmsVM" Width="120px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "Status_Name_En" : "Status_Name_Ar")" Title="@translationState.Translate("Status")" />
+                                <RadzenDataGridColumn TItem="CmsCaseRequestDmsVM" Width="105px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "Priority_Name_En" : "Priority_Name_Ar")" Title="@translationState.Translate("Priority")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    }
+                    else if (SubModuleId == (int)DocumentLinkSubModuleEnum.CaseFile)
+                    {
+                        <RadzenDataGrid @ref="caseFileGrid"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(FilteredCaseFiles != null ? FilteredCaseFiles.Count() : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        AllowFiltering="false"
+                                        Data="@FilteredCaseFiles"
+                                        TItem="CmsCaseFileDmsVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        @bind-Value=@selectedCaseFiles
+                                        SelectionMode="DataGridSelectionMode.Multiple"
+                                        AllowRowSelectOnRowClick="true"
+                                        RowSelect="@(async(args) => {linkDocumentDetails.DestinationIds.Add(args.FileId);})"
+                                        RowDeselect="@(async(args) => {linkDocumentDetails.DestinationIds.Remove(linkDocumentDetails.DestinationIds.Where(e => e == args.FileId).FirstOrDefault());})"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="CmsCaseFileDmsVM" Width="40px" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@((FilteredCaseFiles != null && linkDocumentDetails.DestinationIds != null) ? (FilteredCaseFiles.Select(f => f.FileId).Except(linkDocumentDetails.DestinationIds).Any()? false : true) :false)"
+                                                        TValue="bool"
+                                                        Change="@(async args => {if(!args){selectedCaseFiles = new List<CmsCaseFileDmsVM>();} await HandleSelectAllRows(args, FilteredCaseFiles, "FileId", caseFileGrid, "CaseManagement");})" />
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@(linkDocumentDetails.DestinationIds != null && linkDocumentDetails.DestinationIds.Contains(data.FileId))"
+                                                        TValue="bool"
+                                                        Change="@(async args => {await HandleSelectRow(args, data, "FileId", caseFileGrid, "CaseManagement");})" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="CmsCaseFileDmsVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="75px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      Icon="file_copy"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => DetailCaseFile(rowItem))"
+                                                      @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="CmsCaseFileDmsVM" Width="150px" Property="FileNumber" Title="@translationState.Translate("File_Number")" />
+                                <RadzenDataGridColumn TItem="CmsCaseFileDmsVM" Width="120px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Filing_Date")" />
+                                <RadzenDataGridColumn TItem="CmsCaseFileDmsVM" Width="180px" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "GovernmentEntityNameEn" : "GovernmentEntityNameAr" )" Title="@translationState.Translate("Government_Entity")" />
+                                <RadzenDataGridColumn TItem="CmsCaseFileDmsVM" Width="260px" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "Subject" : "Subject" )" Title="@translationState.Translate("Subject")" />
+                                <RadzenDataGridColumn TItem="CmsCaseFileDmsVM" Width="150px" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "StatusNameEn" : "StatusNameAr" )" Title="@translationState.Translate("Status")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    }
+                    else if (SubModuleId == (int)DocumentLinkSubModuleEnum.Case)
+                    {
+                        <RadzenDataGrid @ref="registeredCasesGrid"
+                                        AllowFiltering="false"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        Data="FilteredRegisteredCases"
+                                        TItem="CmsRegisteredCaseDmsVM"
+                                        Count="@(FilteredRegisteredCases != null ? FilteredRegisteredCases.Count() : 0)"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        @bind-Value=@selectedRegisteredCases
+                                        SelectionMode="DataGridSelectionMode.Multiple"
+                                        AllowRowSelectOnRowClick="true"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="CmsRegisteredCaseDmsVM" Width="40px" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@((FilteredRegisteredCases != null && linkDocumentDetails.DestinationIds != null) ? (FilteredRegisteredCases.Select(f => f.CaseId).Except(linkDocumentDetails.DestinationIds).Any()? false : true) :false)"
+                                                        TValue="bool"
+                                                        Change="@(async args => {if(!args){selectedRegisteredCases = new List<CmsRegisteredCaseDmsVM>();} await HandleSelectAllRows(args, FilteredRegisteredCases, "CaseId", registeredCasesGrid, "CaseManagement");})" />
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@(linkDocumentDetails.DestinationIds != null && linkDocumentDetails.DestinationIds.Contains(data.CaseId))"
+                                                        TValue="bool"
+                                                        Change="@(async args => {await HandleSelectRow(args, data, "CaseId", registeredCasesGrid, "CaseManagement");})" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="CmsRegisteredCaseDmsVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="100px" TextAlign="TextAlign.Center">
+                                    <Template Context="row">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="visibility" Size="ButtonSize.Small" Click="@((args) => DetailRegisteredCase(row))" @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="CmsRegisteredCaseDmsVM" Width="150px" Property="CANNumber" Title="@translationState.Translate("CAN_Number")" />
+                                <RadzenDataGridColumn TItem="CmsRegisteredCaseDmsVM" Width="150px" Property="CaseNumber" Title="@translationState.Translate("Case_Number")" />
+                                <RadzenDataGridColumn TItem="CmsRegisteredCaseDmsVM" Width="150px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CourtNameEn" : "CourtNameAr")" Title="@translationState.Translate("Court_Name")" />
+                                <RadzenDataGridColumn TItem="CmsRegisteredCaseDmsVM" Width="150px" Property="CourtNumber" Title="@translationState.Translate("Court_Number")" />
+                                <RadzenDataGridColumn TItem="CmsRegisteredCaseDmsVM" Width="158px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ChamberNameEn" : "ChamberNameAr")" Title="@translationState.Translate("Chamber_Name")" />
+                                <RadzenDataGridColumn TItem="CmsRegisteredCaseDmsVM" Width="170px" Property="ChamberNumber" Title="@translationState.Translate("Chamber_Number")" />
+                                <RadzenDataGridColumn TItem="CmsRegisteredCaseDmsVM" Width="80px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StatusNameEn" : "StatusNameAr")" Title="@translationState.Translate("Status")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    }
+                    else if (SubModuleId == (int)DocumentLinkSubModuleEnum.ConsultationRequest)
+                    {
+                        <RadzenDataGrid @ref="consultationRequestsGrid"
+                                        SelectionMode="DataGridSelectionMode.Multiple"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(FilteredConsultationRequests != null ? FilteredConsultationRequests.Count() : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        AllowFiltering="false"
+                                        Data="FilteredConsultationRequests"
+                                        TItem="ConsultationRequestDmsVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true"
+                                        AllowRowSelectOnRowClick="true"
+                                        @bind-Value=@selectedConsultationRequests>
+
+                            <Columns>
+                                <RadzenDataGridColumn TItem="ConsultationRequestDmsVM" Width="40px" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@((FilteredConsultationRequests != null && linkDocumentDetails.DestinationIds != null) ? (FilteredConsultationRequests.Select(f => f.ConsultationRequestId).Except(linkDocumentDetails.DestinationIds).Any()? false : true) :false)"
+                                                        TValue="bool"
+                                                        Change="@(async args => {if(!args){selectedConsultationRequests = new List<ConsultationRequestDmsVM>();} await HandleSelectAllRows(args, FilteredConsultationRequests, "ConsultationRequestId", consultationRequestsGrid, "ConsultationManagement");})" />
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@(linkDocumentDetails.DestinationIds != null && linkDocumentDetails.DestinationIds.Contains(data.ConsultationRequestId))"
+                                                        TValue="bool"
+                                                        Change="@(async args => {await HandleSelectRow(args, data, "ConsultationRequestId", consultationRequestsGrid, "ConsultationManagement");})" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ConsultationRequestDmsVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="100px" TextAlign="TextAlign.Center">
+                                    <Template Context="row">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="visibility" Size="ButtonSize.Small" Click="@((args) => DetailConsultationRequest(row))" @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ConsultationRequestDmsVM" Width="150px" Property="RequestNumber" Title="@translationState.Translate("Request_Number")" />
+                                <RadzenDataGridColumn TItem="ConsultationRequestVM" Width="150px" Property="RequestDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Request_Date")" />
+                                <RadzenDataGridColumn TItem="ConsultationRequestDmsVM" Width="150px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                <RadzenDataGridColumn TItem="ConsultationRequestDmsVM" Width="150px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Status_Name_En" : "Status_Name_Ar")" Title="@translationState.Translate("Status")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    }
+                    else if (SubModuleId == (int)DocumentLinkSubModuleEnum.ConsultationFile)
+                    {
+                        <RadzenDataGrid @ref="consultationFilesGrid"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(FilteredConsultationFiles != null ? FilteredConsultationFiles.Count() : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        SelectionMode="DataGridSelectionMode.Multiple"
+                                        AllowFiltering="false"
+                                        Data="FilteredConsultationFiles"
+                                        TItem="ConsultationFileListDmsVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true"
+                                        @bind-Value=@selectedConsultationFiles>
+
+
+                            <Columns>
+                                <RadzenDataGridColumn TItem="ConsultationFileListDmsVM" Width="40px" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@((FilteredConsultationFiles != null && linkDocumentDetails.DestinationIds != null) ? (FilteredConsultationFiles.Select(f => f.FileId).Except(linkDocumentDetails.DestinationIds).Any()? false : true) :false)"
+                                                        TValue="bool"
+                                                        Change="@(async args => {if(!args){selectedConsultationFiles = new List<ConsultationFileListDmsVM>();} await HandleSelectAllRows(args, FilteredConsultationFiles, "FileId", consultationFilesGrid, "ConsultationManagement");})" />
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@(linkDocumentDetails.DestinationIds != null && linkDocumentDetails.DestinationIds.Contains(data.FileId))"
+                                                        TValue="bool"
+                                                        Change="@(async args => {await HandleSelectRow(args, data, "FileId", consultationFilesGrid, "ConsultationManagement");})" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ConsultationFileListDmsVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="100px" TextAlign="TextAlign.Center">
+                                    <Template Context="row">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="visibility" Size="ButtonSize.Small" Click="@((args) => DetailConsultationFile(row))" @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+
+                                <RadzenDataGridColumn TItem="ConsultationFileListDmsVM" Property="FileNumber" Title="@translationState.Translate("File_Number")" />
+                                <RadzenDataGridColumn TItem="ConsultationFileListDmsVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Filing_Date")" />
+                                <RadzenDataGridColumn TItem="ConsultationFileListDmsVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?  "GovernmentEntityNameEn" : "GovernmentEntityNameAr")" Title="@translationState.Translate("Gov_Entity")" />
+                                <RadzenDataGridColumn TItem="ConsultationFileListDmsVM" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                <RadzenDataGridColumn TItem="ConsultationFileListDmsVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?  "StatusEn" : "StatusAr")" Title="@translationState.Translate("Status")" />
+                                <RadzenDataGridColumn TItem="ConsultationFileListDmsVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?  "PriorityEn" : "PriorityAr")" Title="@translationState.Translate("Priority")" />
+                                <RadzenDataGridColumn TItem="ConsultationFileListDmsVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?  "LawyerNameEn" : "LawyerNameAr")" Title="@translationState.Translate("Lawyer")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    }
+                    else if (ModuleId == (int)DocumentLinkModuleEnum.LegalDocument)
+                    {
+                        <RadzenDataGrid @ref="LegallegislationGrid"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(FilteredLegallegislation != null ? FilteredLegallegislation.Count() : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        AllowFiltering="false"
+                                        Data="@FilteredLegallegislation"
+                                        TItem="LegalLegislationsDmsVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true"
+                                        @bind-Value=@selectedlegallegislation
+                                        SelectionMode="DataGridSelectionMode.Multiple"
+                                        AllowRowSelectOnRowClick="true"
+                                        RowSelect="@(async(args) => {linkDocumentDetails.DestinationIds.Add(args.LegislationId);})"
+                                        RowDeselect="@(async(args) => {linkDocumentDetails.DestinationIds.Remove(linkDocumentDetails.DestinationIds.Where(e => e == args.LegislationId).FirstOrDefault());})">
+
+                            <Columns>
+                                <RadzenDataGridColumn TItem="LegalLegislationsDmsVM" Width="40px" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@((FilteredLegallegislation != null && linkDocumentDetails.DestinationIds != null) ? (FilteredLegallegislation.Select(f => f.LegislationId).Except(linkDocumentDetails.DestinationIds).Any()? false : true) :false)"
+                                                        TValue="bool"
+                                                        Change="@(async args => {if(!args){selectedlegallegislation = new List<LegalLegislationsDmsVM>();} await HandleSelectAllRows(args, FilteredLegallegislation, "LegislationId", LegallegislationGrid, "Legislation");})" />
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <RadzenCheckBox TriState="false"
+                                                        Value="@(linkDocumentDetails.DestinationIds != null && linkDocumentDetails.DestinationIds.Contains(data.LegislationId))"
+                                                        TValue="bool"
+                                                        Change="@(async args => {await HandleSelectRow(args, data, "LegislationId", LegallegislationGrid, "Legislation");})" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LegalLegislationsDmsVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                            <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                          class="viewIcon"
+                                                          Icon="visibility"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => ViewLegislationDetail(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LegalLegislationsDmsVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?  "Legislation_Type_En" : "Legislation_Type_Ar")" Title="@translationState.Translate("Legislation_Type")" />
+                                <RadzenDataGridColumn TItem="LegalLegislationsDmsVM" Property="Legislation_Number" Title="@translationState.Translate("Legislation_Number")" />
+                                <RadzenDataGridColumn TItem="LegalLegislationsDmsVM" Property="LegislationTitle" Title="@translationState.Translate("Subject")" />
+                                <RadzenDataGridColumn TItem="LegalLegislationsDmsVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?  "Legislation_Status_En" : "Legislation_Status_Ar")" Title="@translationState.Translate("Legislation_Status")" />
+                                <RadzenDataGridColumn TItem="LegalLegislationsDmsVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?  "Legislation_Flow_Status_En" : "Legislation_Flow_Status_Ar")" Title="@translationState.Translate("Legislation_Flow_Status")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    }
+                    else if (ModuleId == (int)DocumentLinkModuleEnum.LegalPrinciple)
+                    {
+                        <RadzenDataGrid @ref="@PrincipleContentGrid"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(PrincipleContents != null ? PrincipleContents.Count() : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        Data="@PrincipleContents"
+                                        TItem="LLSLegalPrinciplesRelationVM"
+                                        SelectionMode="DataGridSelectionMode.Single"
+                                        ColumnWidth="130px"
+                                        @bind-Value=@selectedlegalprinciple
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Width="40px" Sortable="false" Filterable="false">
+                                    <HeaderTemplate>
+                                        <RadzenCheckBox TriState="false"
+                                                        TValue="bool"
+                                                        @bind-Value=@isAll
+                                                        Change="() => OnChangeHeader()" />
+                                    </HeaderTemplate>
+                                    <Template Context="data">
+                                        <RadzenCheckBox TriState="false"
+                                                        TValue="bool"
+                                                        @bind-Value=@data.IsChecked
+                                                        Change="@(() => OnChange(data))" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Title="@translationState.Translate("Actions")" Filterable="false" Sortable="false" Width="80px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      class="approvalIcon"
+                                                      Icon="visibility"
+                                                      Title="@translationState.Translate("View_Detail")"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => ViewLinkedDocments(rowItem.PrincipleContentId))"
+                                                      @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="PrincipleContent" Width="230px" Title="@translationState.Translate("Principle_Content")">
+                                    <Template Context="data">
+                                        @if (data.PrincipleContent != null)
+                                        {
+                                            @if (data.PrincipleContent.Length > 30)
+                                            {
+                                                <a href="#" style="color:black" @onclick="@(() => OnPrincipleContentDetail(PrincipleContents.Where(x=>x.PrincipleContentId == data.PrincipleContentId).Select(x=>x.PrincipleContent).FirstOrDefault()))" @onclick:preventDefault>
+                                                    @data.PrincipleContent
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                @data.PrincipleContent
+                                            }
+                                        }
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?  "FlowStatusName_En" : "FlowStatusName_Ar")" Title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Principle_Flow_Status_En" : "Principle_Flow_Status_Ar")" />
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="StartDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Start_Date")" />
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="Category" Title="@translationState.Translate("Categories")">
+                                    <Template Context="data">
+                                        <a href="#" @onclick="@(() => PrincipleCategoriesDialog(data.PrincipleContentId))" @onclick:preventDefault>
+                                            Categories
+                                        </a>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="PageNumber" Title="@translationState.Translate("Page_Number")">
+                                    <Template Context="data">
+                                        <RadzenNumeric ShowUpDown="false" TValue="int?" Disabled=@(!(data.IsChecked)) @bind-Value=@data.PageNumber Placeholder="@translationState.Translate("Page_Number")" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    }
+                </div>
+                <div class="row mt-4 popup-buttons-alignment">
+                    <div class="col-12 p-0 d-flex justify-content-end">
+                        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                        </RadzenButton>
+                        <RadzenButton ButtonType="Radzen.ButtonType.Submit" style="margin-left: 0.2rem !important" ButtonStyle="ButtonStyle.Primary" Disabled="@(ModuleId == (int)DocumentLinkModuleEnum.LegalPrinciple ? selectedPrincipleContents.Count() == 0 : !linkDocumentDetails.DestinationIds.Any())" Click="@(async(args) => LinkDocumentsToEntity())" Text="@translationState.Translate("Link")">
+                        </RadzenButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+@code
+{
+    async Task OnPrincipleContentDetail(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Principle_Content"), ds =>
+    @<div clas s="col-12 mt-0 mb-2">
+        @(new MarkupString(args))
+    </div>
+        , new DialogOptions
+        {
+            Width = "60%"
+        });
+    }
+
+    async Task PrincipleCategoriesDialog(Guid? principleContentId)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Principle_Content"), ds =>
+    @<div clas s="col-12 mt-1 mb-2">
+        @foreach(var items in PrincipleCategories.Where(x=>x.PrincipleContentId == principleContentId))
+    {
+        @( "-> "+ (Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? items.CategoryPathEn : items.CategoryPathAr))
+        <br />
+
+    }
+    </div>
+        , new DialogOptions
+        {
+            Width = "30%"
+        });
+    }
+}

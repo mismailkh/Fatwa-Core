@@ -1,0 +1,10 @@
+Flow for OSS inventory Module.
+
+1. Admin 
+      as admin creating store and view list.
+2. Procurement.
+      as a procurement user i can add building store. and all the rest of store that
+	are in the following hierarchy.
+
+2. StoreKeeper
+	As a StoreKeeper adding custodian store.

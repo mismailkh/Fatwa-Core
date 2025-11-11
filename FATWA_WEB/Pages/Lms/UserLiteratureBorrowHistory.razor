@@ -1,0 +1,49 @@
+﻿@page "/userHistory-list"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.Lms
+@using FATWA_DOMAIN.Models.ViewModel.TaskVMs
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using Append.Blazor.Printing;
+@inject IPrintingService PrintingService
+@layout MainLayout
+
+<!-- <History Author = 'Muhammad Zaeem' Date='2024-09-03' Version="1.0" Branch="master">Item History View</History> -->
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <div class="row pb-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="tableContent table-responsive">
+                            <RadzenDataGrid TItem="UserBorrowedHistoryVM"
+                                            FilterMode="Radzen.FilterMode.Advanced"
+                                            Count="@(UserHistory != null ? UserHistory.Count() : 0)"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            AllowFiltering="false"
+                                            Data="@UserHistory"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                            ShowPagingSummary="true">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="UserBorrowedHistoryVM" Property="BookName" Title="@translationState.Translate("Book_Name")" />
+                                    <RadzenDataGridColumn TItem="UserBorrowedHistoryVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AuthorNameEn" : "AuthorNameAr") Title="@translationState.Translate("Author")" />
+                                    <RadzenDataGridColumn TItem="UserBorrowedHistoryVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EventEn" : "EventAr") Title="@translationState.Translate("Event")" />
+                                    <RadzenDataGridColumn TItem="UserBorrowedHistoryVM" Property="Barcode" Title="@translationState.Translate("Barcode_No")" />
+                                    <RadzenDataGridColumn TItem="UserBorrowedHistoryVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Created_Date")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

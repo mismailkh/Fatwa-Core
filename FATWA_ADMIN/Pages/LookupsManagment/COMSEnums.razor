@@ -1,0 +1,197 @@
+﻿@page "/COMS-Enumslist"
+@using FATWA_DOMAIN.Models
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using FATWA_DOMAIN.Models.CaseManagment;
+@using FATWA_DOMAIN.Models.CommunicationModels;
+@using FATWA_DOMAIN.Models.Consultation;
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.Lookups;
+
+@layout MainLayout
+
+<!--<History Author = "Nabeel ur Rehman" Date="2022-07-21" Version="1.0" Branch="master"> Adding/Updating new Group and Assign/Unassign Role and users to it.</History>-->
+
+<PageTitle>@translationState.Translate("Consultation_Management_Enums")</PageTitle>
+<div class="row">
+    <div class="col-md-12">
+        < Size="H1" Text="@translationState.Translate("Consultation_Management_Enums")"/>
+    </div>
+    <div class="col-md-12 p-3">
+        <RadzenCard>
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                <RadzenBreadCrumbItem Text="@translationState.Translate("Enums")" />
+                @* <RadzenBreadCrumbItem Path="/" Text="@translationState.Translate("Case_Management_Lookups")" />*@
+            </RadzenBreadCrumb>
+        </RadzenCard>
+    </div>
+</div>
+<br />
+<RadzenContent Container="main">
+    <ChildContent>
+        <RadzenCard Style="padding: 30px; border-radius: 8px;">
+            <div class="row">
+                <div class="col-lg-12">
+                    <RadzenCard>
+                        <RadzenAccordion Multiple="true">
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Request_Type_(G2G_And_Fatwa)")">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <RadzenTextBox class="searchBox"
+                                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                                           Name="Textbox0"
+                                                           @bind-Value="search"
+                                            @oninput="@(async(args) => {await gridRequesttype.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                                         </div>
+                                    </div>
+                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                        <div class="col-md-12">
+                                            <RadzenDataGrid @ref="gridRequesttype"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            AllowPaging="true"
+                                                            AllowSorting="true"
+                                                            AllowFiltering="false"
+                                                            Data="@FilteredRequestTypeVM.Skip(2)"
+                                                            TItem="RequestTypeVM"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            ExpandMode="DataGridExpandMode.Single"
+                                                            RowExpand="@ExpandDraftVersions"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            ShowPagingSummary="true">
+                                                <Template Context="requestTypeVM">
+                                                    <RadzenCard class="bg-light">
+                                                        <div class="row pb-2">
+                                                            <div class="col-md-12 tableAdditionButton d-flex justify-content-end px-0 pb-3">
+                                                            </div>
+                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                <div class="tableContent table-responsive">
+                                                                    <RadzenTabs>
+                                                                        <Tabs>
+                                                                            <RadzenTabsItem Text="SubType">
+                                                                                <RadzenDataGrid @ref="gridSubtype"
+                                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                                Width="100%"
+                                                                                                AllowFiltering="false"
+                                                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                                                AllowPaging="true"
+                                                                                                AllowSorting="true"
+                                                                                                Data="@SubTypeVM"
+                                                                                                TItem="SubTypeVM"
+                                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                                ShowPagingSummary="true"
+                                                                                                RowExpand="@ExpandSubTypeRequestHistory"
+                                                                                                SelectionMode="DataGridSelectionMode.Multiple">
+                                                                                    <Template Context="SubTypeHistory">
+                                                                                        <RadzenCard class="bg-light">
+                                                                                            <div class="row pb-2">
+                                                                                                <div class="col-md-12 tableAdditionButton d-flex justify-content-end px-0 pb-3">
+                                                                                                </div>
+                                                                                                <RadzenDataGrid @ref="gridLookupHistoryVM"
+                                                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                                                Width="100%"
+                                                                                                                AllowFiltering="false"
+                                                                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                                                                AllowPaging="true"
+                                                                                                                AllowSorting="true"
+                                                                                                                Data="@LookupHistoryVM"
+                                                                                                                TItem="LookupsHistory"
+                                                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                                                ShowPagingSummary="true"
+                                                                                                                SelectionMode="DataGridSelectionMode.Multiple">
+                                                                                                    <Columns>
+                                                                                                        <RadzenDataGridColumn TItem="LookupsHistory" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr") Title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" />
+                                                                                                        <RadzenDataGridColumn TItem="LookupsHistory" Width="140px" Property="CreatedBy" Title="@translationState.Translate("Modified_By")" />
+                                                                                                        <RadzenDataGridColumn TItem="LookupsHistory" Width="140px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Modified_Date")" />
+                                                                                                    </Columns>
+                                                                                                </RadzenDataGrid>
+                                                                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                                                    <div class="tableContent table-responsive">
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </RadzenCard>
+                                                                                    </Template>
+                                                                                    <Columns>
+                                                                                        <RadzenDataGridColumn TItem="SubTypeVM" Property="Id" Width="140px" Title="@translationState.Translate("Id")" />
+                                                                                        <RadzenDataGridColumn TItem="SubTypeVM" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") Title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" />
+                                                                                        <RadzenDataGridColumn TItem="SubTypeVM" Width="140px" Property="ModifiedBy" Title="@translationState.Translate("Modified_By")" />
+                                                                                        <RadzenDataGridColumn TItem="SubTypeVM" Width="140px" Property="ModifiedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Modified_Date")" />
+                                                                                        <RadzenDataGridColumn TItem="LookupsHistory" Width="150px" Property="Status" Title="@translationState.Translate("Status")">
+                                                                                            <Template Context="lookupshistory">
+                                                                                                @if (lookupshistory.StatusId == 2)
+                                                                                                {
+                                                                                                    <RadzenLabel Text="@translationState.Translate("Updated")"></RadzenLabel>
+                                                                                                }
+                                                                                            </Template>
+                                                                                        </RadzenDataGridColumn>
+                                                                                        <RadzenDataGridColumn TItem="SubTypeVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center">
+                                                                                            <Template Context="UserRowClick">
+                                                                                                <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                                                              Class="editIcon"
+                                                                                                              Title="@translationState.Translate("Edit")"
+                                                                                                              Icon="mode"
+                                                                                                              Size="ButtonSize.Small"
+                                                                                                              Click="@((args) => EditRequestSubTypeItem(UserRowClick))"
+                                                                                                              @onclick:stopPropagation="true" />
+                                                                                            </Template>
+                                                                                        </RadzenDataGridColumn>
+                                                                                    </Columns>
+                                                                                </RadzenDataGrid>
+                                                                            </RadzenTabsItem>
+                                                                            <RadzenTabsItem Text="Request Type History">
+                                                                                <RadzenDataGrid @ref="gridLookupHistoryVM"
+                                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                                Width="100%"
+                                                                                                AllowFiltering="false"
+                                                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                                                AllowPaging="true"
+                                                                                                AllowSorting="true"
+                                                                                                Data="@LookupHistoryVM"
+                                                                                                TItem="LookupsHistory"
+                                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                                ShowPagingSummary="true"
+                                                                                                SelectionMode="DataGridSelectionMode.Multiple">
+                                                                                    <Columns>
+                                                                                        <RadzenDataGridColumn TItem="LookupsHistory" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr") Title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" />
+                                                                                        <RadzenDataGridColumn TItem="LookupsHistory" Width="140px" Property="CreatedBy" Title="@translationState.Translate("Modified_By")" />
+                                                                                        <RadzenDataGridColumn TItem="LookupsHistory" Width="140px" Property="CreatedDate" Title="@translationState.Translate("Modified_Date")" />
+                                                                                    </Columns>
+                                                                                </RadzenDataGrid>
+                                                                            </RadzenTabsItem>
+                                                                        </Tabs>
+                                                                    </RadzenTabs>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </RadzenCard>
+                                                </Template>
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="RequestTypeVM" Width="140px" Property="Id" Title="@translationState.Translate("Id")" />
+                                                    <RadzenDataGridColumn TItem="RequestTypeVM" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") Title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" />
+                                                    <RadzenDataGridColumn TItem="RequestTypeVM" Width="140px" Property="ModifiedBy" Title="@translationState.Translate("Modified_By")" />
+                                                    <RadzenDataGridColumn TItem="RequestTypeVM" Width="140px" Property="ModifiedDate" Title="@translationState.Translate("Modified_Date")" />
+                                                    <RadzenDataGridColumn TItem="RequestTypeVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="110px" TextAlign="TextAlign.Center">
+                                                        <Template Context="UserRowClick">
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                                          Class="editIcon"
+                                                                          Title="@translationState.Translate("Edit")"
+                                                                          Icon="mode"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => EditRequestTypeItem(UserRowClick))"
+                                                                          @onclick:stopPropagation="true" />
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    </RadzenCard>
+                </div>
+            </div>
+        </RadzenCard>
+    </ChildContent>
+</RadzenContent>  

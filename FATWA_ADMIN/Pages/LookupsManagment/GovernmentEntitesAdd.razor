@@ -1,0 +1,98 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.Lookups
+@layout MainLayout
+
+<RadzenTemplateForm Data="@GovernmentEntity" Visible="@(GovernmentEntity != null)" TItem="GovernmentEntity" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="row">
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("GE_Code") + "*")" Component="GovernmentEntity" />
+                    <RadzenTextBox Name="GovernmentEntity" Placeholder="@translationState.Translate("GE_Code")" @bind-Value="@GovernmentEntity.GECode" class="flex-grow-1" />
+                    <RadzenRegexValidator Component="GovernmentEntity" Text="@translationState.Translate("Only_English_Arabic_Character_Allowed")" Pattern="@RegexPatterns.EnglishArabicPattern" />
+                    <RadzenRequiredValidator Component="GovernmentEntity" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenLengthValidator Component="GovernmentEntity" Max="6" Text="@translationState.Translate("Max_Six_Characters")" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@translationState.Translate("G2G_Site_ID")" Component="G2G_Site_ID" />
+                    <RadzenNumeric Disabled="true" Min="1" Max="999" ShowUpDown="false" Name="G2G_Site_ID" Style="width:100%" Placeholder="@translationState.Translate("G2G_Site_ID")" @bind-Value="@GovernmentEntity.G2GSiteID" TValue="int?" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("English_Name") + "*")" Component="Name_En" />
+                    <RadzenTextBox Disabled="true" Placeholder="@translationState.Translate("English_Name")" MaxLength="100" @bind-Value="@(GovernmentEntity.Name_En)" Name="Name_En" />
+                    <RadzenRegexValidator Component="Name_En" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.NoSpecialCharactersPattern" />
+                    <RadzenRequiredValidator Component="Name_En" Text="@translationState.Translate("Required_Field")" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Arabic_Name") +"*")" Component="Name_Ar" />
+                    <RadzenTextBox Disabled="true" Placeholder="@translationState.Translate("Arabic_Name")" MaxLength="100" @bind-Value="@(GovernmentEntity.Name_Ar)" Name="Name_Ar" />
+                    <RadzenRegexValidator Component="Name_Ar" Text="@translationState.Translate("Arabic_Name_Is_Allowed")" Pattern="^[\u0621-\u064A ]+$" />
+                    <RadzenRequiredValidator Component="Name_Ar" Text="@translationState.Translate("Required_Field")" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenAccordion Multiple="true">
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Bank_Details")">
+                            <div class="row">
+                                <div class="col-md-12 text-right-custom-gridcolumn">
+                                    <RadzenButton Icon="add_circle" style="margin-bottom: 10px" Text="@translationState.Translate("Add")" Click="@AddBankDetail" />
+                                </div>
+                                <div class="col-md-12">
+                                    <RadzenDataGrid @ref="grid1"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    AllowFiltering="false"
+                                                    Data="@GovernmentEntity.CmsBankGovernmentEntities"
+                                                    TItem="CmsBankGovernmentEntity"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                    ShowPagingSummary="true">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="CmsBankGovernmentEntity" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
+                                                <Template Context="UserRowClick">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                                  Class="Delete"
+                                                                  Title="@translationState.Translate("Delete")"
+                                                                  Icon="delete_outline"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => DeleteItem(UserRowClick, false))"
+                                                                  @onclick:stopPropagation="true" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="CmsBankGovernmentEntity" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "BankNameEn" : "BankNameAr") Title="@translationState.Translate("Bank_Name")" />
+                                            <RadzenDataGridColumn TItem="CmsBankGovernmentEntity" Width="140px" Property="IBAN" Title="@translationState.Translate("IBAN_Number")" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </div>
+                        </RadzenAccordionItem>
+                    </Items>
+                </RadzenAccordion>
+
+            </div>
+        </div>
+        <div class="popup-buttons-alignment">
+            <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                          Style="margin-left: 10px; margin-right: 10px;"
+                          ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")" />
+            <RadzenButton Text="@translationState.Translate("Cancel")"
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="@Button2Click" />
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

@@ -1,0 +1,241 @@
+﻿@using FATWA_DOMAIN.Enums.Common;
+@using FATWA_DOMAIN.Models.CaseManagment;
+@using FATWA_DOMAIN.Models;
+@using FATWA_DOMAIN.Models.CommonModels;
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Internal;
+@layout MainLayout
+
+@*< History Author = 'Ammaar Naveed' Date = '2024-06-04' Version = "1.0" Branch = "master"UI fixations in pages and dialogs</History>*@
+<!-- <History Author = 'Nabeel Ur Rehman' Date='2022-09-09' Version="1.0" Branch="master">Add New Legal Principle Tags</History> -->
+
+<RadzenTemplateForm class="form" Data="@cmsComsNumPattern" Visible="@(cmsComsNumPattern != null)" TItem="CmsComsNumPattern" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="col-12">
+            <div class="row">
+                <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2"></div>
+                <div class="col-5">
+                    <div class="form-group">
+                        <RadzenLabel Text="@translationState.Translate("Number_Type")" Component="PattrenName" />
+                        <RadzenDropDown @bind-Value="@cmsComsNumPattern.PatternTypId" Placeholder="@translationState.Translate("Number_Type")" Name="PattrenName" ValueProperty="Id"
+                                        TextProperty="PattrenName" TValue="int?" Style="width:100%" Data="@getCmsComsNumPatternTypedetails"
+                                        Change="(args => OnNumberTypeDropDownValueChanged(Convert.ToInt32(args)))" Disabled="true" />
+                        <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="PattrenName" DefaultValue="0" />
+                    </div>
+                </div>
+                <div class="col-5">
+                    <div class="form-group">
+                        @if (SelectedPatternTypeId == (int)CmsComsNumPatternTypeEnum.CaseRequestNumber || SelectedPatternTypeId == (int)CmsComsNumPatternTypeEnum.ConsultationRequestNumber)
+                        {
+                            <RadzenLabel Style="font-weight:" Text="@(translationState.Translate("Government_Entity") + "*")" />
+                            <RadzenDropDown @bind-Value="@cmsComsNumPattern.GovernamentEntityIds"
+                                            Name="Ministry"
+                                            Placeholder="@translationState.Translate("Select")"
+                                            ValueProperty="EntityId"
+                                            TextProperty="Name_En"
+                                            Style="width: 100%;"
+                                            Data="@GovernmentEntity"
+                                            SelectAllText="@translationState.Translate("Selected_All")"
+                                            SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                            Multiple="true"
+                                            Change="(args => PatternValidator(args))"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowClear="true">
+                                <Template Context="val">
+                                    @{
+                                        var item = val as GovernmentEntity;
+                                    }
+                                    <div class="@(IsDefault ? "disabled-item" : "")">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? item.Name_En : item.Name_Ar)</div>
+                                </Template>
+                            </RadzenDropDown>
+
+                            @if ((cmsComsNumPattern.GovernamentEntityIds == null || !cmsComsNumPattern.GovernamentEntityIds.Any()) && GovernmentEntityValidation)
+                            {
+                                <div class="rz-message rz-messages-error">@translationState.Translate("Required_Field")</div>
+                            }
+
+                        }
+                    </div>
+
+                </div>
+                <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2">
+                    <div class="form-check">
+                        <RadzenCheckBox TriState="false" Value="DisableDay" TValue="bool" Change="OnIsDisableDayValueChanged" />
+                        <RadzenLabel Text="@translationState.Translate("Disable")" Component="SequanceResult" />
+                    </div>
+                </div>
+                <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                    <div class="form-group">
+
+                        <RadzenLabel Text="@(translationState.Translate("Day_Pattern") + "*")" Component="Day" />
+                        <RadzenDropDown @bind-Value="selectedDay" Placeholder="@translationState.Translate("Day")" Name="Day" Disabled="@DisableDay" TValue="string" Style="width:100%" Data="@optionsDayList" Change="(args => OnDayDropDownValueChanged(args.ToString()))" />
+                        <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="Day" DefaultValue="0" Visible="@DisableDayvalidation" />
+                    </div>
+                </div>
+                <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                    <div class="form-group">
+
+                        <RadzenLabel Text="@(translationState.Translate("Set_Order_Sequence")+ "*")" Component="OrderSequenceDay" />   @*Year English*@
+                        <RadzenDropDown ref='@DropDownDayValueResetToZero' @bind-Value="selectedDaySequence" Placeholder="@translationState.Translate("Day")" Name="OrderSequenceDay" Disabled="@DisableDay" TValue="int?" Style="width:100%" Data="@optionsSequenceList" Change="(args => OnDaySequenceDropDownValueChanged(Convert.ToInt32(args)))" />
+                        <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="OrderSequenceDay" DefaultValue="0" Visible="@DisableDayvalidation" />
+                    </div>
+                </div>
+                <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2">
+                    <div class="form-check">
+                        <RadzenCheckBox TriState="false" Value="DisableMonth" TValue="bool" Change="OnIsDisableMonthValueChanged" />
+                        <RadzenLabel Text="@translationState.Translate("Disable")" Component="Month" />
+                    </div>
+                </div>
+                <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Month_Pattern") + "*")" Component="Month" />   @*Year English*@
+                        <RadzenDropDown @bind-Value="selectedMonth" Placeholder="@translationState.Translate("Month")" Name="Month" Disabled="@DisableMonth" TValue="string" Style="width:100%" Data="@optionsMonList" Change="(args => OnMonthDownValueChanged(args.ToString()))" />
+                        <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="Month" DefaultValue="0" Visible="@DisableMonthvalidation" />
+                    </div>
+                </div>
+                <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Set_Order_Sequence")+ "*")" Component="OrderSequenceMonth" />   @*Year English*@
+                        <RadzenDropDown ref='@DropDownMonthValueResetToZero' @bind-Value="selectedMonthSequence" Placeholder="@translationState.Translate("Month")" Name="OrderSequenceMonth" Disabled="@DisableMonth" TValue="int?" Style="width:100%" Data="@optionsSequenceList" Change="(args => OnMonthSequenceDropDownValueChanged(Convert.ToInt32(args)))" />
+                        <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="OrderSequenceMonth" DefaultValue="0" Visible="@DisableMonthvalidation" />
+                    </div>
+                </div>
+                <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2">
+                    <div class="form-check">
+                        <RadzenCheckBox TriState="false" Value="DisableYear" TValue="bool" Change="OnIsDisableYearValueChanged" />
+                        <RadzenLabel Text="@translationState.Translate("Disable")" Component="Year" />
+                    </div>
+                </div>
+                <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Year_Pattern") + "*")" Component="Year" />
+                        <RadzenDropDown @bind-Value="selectedYear" Placeholder="@translationState.Translate("Year")" Name="Year" Disabled="@DisableYear" TValue="string" Style="width:100%" Data="@optionsList" Change="(args => OnYearDropDownValueChanged(args.ToString()))" />
+                        <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="Year" DefaultValue="0" Visible="@DisableYearValidation" />
+                    </div>
+                </div>
+                <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Set_Order_Sequence")+ "*")" Component="OrderSequenceYear" />
+                        <RadzenDropDown ref='@DropDownYearValueResetToZero' @bind-Value="selectedYearSequence" Placeholder="@translationState.Translate("Year")" Name="OrderSequenceYear" Disabled="@DisableYear" TValue="int?" Style="width:100%" Data="@optionsSequenceList" Change="(args => OnYearSequenceDropDownValueChanged(Convert.ToInt32(args)))" />
+                        <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="OrderSequenceYear" DefaultValue="0" Visible="@DisableYearValidation" />
+                    </div>
+                </div>
+                <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2">
+                    <div class="form-check">
+                        <RadzenCheckBox TriState="false" Value="DisableStaticTextPattern" TValue="bool" Change="OnIsCharaterStringDisableValueChanged" />
+                        <RadzenLabel Text="@translationState.Translate("Disable")" />
+                    </div>
+                </div>
+                <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Static_Text_Pattern") + "*")" Component="Charater_String" />
+                        <RadzenTextBox Trim Name="Charater_String" Placeholder="@translationState.Translate("Static_Text_Pattern")" MaxLength="4" Disabled="@DisableStaticTextPattern" @oninput="OnInputStaticText" @bind-Value="@cmsComsNumPattern.StaticTextPattern" />
+                         <RadzenRequiredValidator Component="Charater_String" Text="@translationState.Translate("Required_Field")" Visible="@DisableStaticTextPatternValidation" />
+                        <RadzenRegexValidator Component="Charater_String" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                     </div>
+                 </div>
+                <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                     <div class="form-group">
+                         <RadzenLabel Text="@(translationState.Translate("Set_Order_Sequence")+ "*")" Component="OrderSequenceCharacterString" />
+                         <RadzenDropDown ref='@DropDownCharaterStringValueResetToZero' @bind-Value="selectedStaticTextPatternSequence" Placeholder="@translationState.Translate("Year")" Name="OrderSequenceCharacterString" Disabled="@DisableStaticTextPattern" TValue="int?" Style="width:100%" Data="@optionsSequenceList" Change="(args => OnCharaterStringSequanceDropDownValueChanged(Convert.ToInt32(args)))" />
+                         <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="OrderSequenceCharacterString" DefaultValue="0" Visible="@DisableStaticTextPatternValidation" />
+                     </div>
+                 </div>
+                <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2">
+                     <div class="form-check">
+                         <RadzenCheckBox TriState="false" TValue="bool" @bind-Value="@cmsComsNumPattern.ResetYearly" />
+                         <RadzenLabel Text="@translationState.Translate("Reset_Yearly")" Component="SequanceResult" />
+                     </div>
+                 </div>
+                <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                     <div class="form-group">
+                         <RadzenLabel Text="@(translationState.Translate("Sequence_Number") + "*")" Component="Sequance_Number">
+                         </RadzenLabel>
+                         <RadzenTextBox Name="Sequance_Number" Placeholder="@translationState.Translate("Sequence_Number")" MaxLength="9" @oninput="OnInput" @bind-Value="@cmsComsNumPattern.SequanceNumber"></RadzenTextBox>
+                         <RadzenRequiredValidator Component="Sequance_Number" Text="@translationState.Translate("Required_Field")" />
+                     </div>
+                 </div>
+                <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                     <div class="form-group">
+                         <RadzenLabel Text="@(translationState.Translate("Set_Order_Sequence")+ "*")" Component="OrderSequenceSN" />
+                         <RadzenDropDown ref='@DropDownSequenceNumberValueResetToZero' @bind-Value="selectedSequanceNumber" Placeholder="@translationState.Translate("Sequence_Number")" Name="OrderSequenceSN" Disabled="@TextboxEnable" TValue="int?" Style="width:100%" Data="@optionsSequenceList" Change="(args => OnSequanceNumberDropDownValueChanged(Convert.ToInt32(args)))" />
+                         <RadzenRequiredValidator Text="@translationState.Translate("Required_Field")" Component="OrderSequenceSN" DefaultValue="0" />
+                     </div>
+                 </div>
+                 <div class="col-2"></div>
+                 <div class="col-5 col-sm-5 col-md-5 col-lg-5 col-xl-5">
+                     <div class="pb-2">
+                         <RadzenLabel Text="@translationState.Translate("Sequence_Result")" Visible="@SequenceResultEnable" Component="SequanceResult" />
+                         <RadzenTextBox Name="SequanceResult" Visible="@SequenceResultEnable" Placeholder="@translationState.Translate("Sequence_Result")" @bind-Value="@cmsComsNumPattern.SequanceResult" Disabled="true" />
+                     </div>
+                 </div>
+             </div>
+            <div class="row">
+                <div class="col-6 preview-pattern-button">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Click="@PreviewClick" Text="@translationState.Translate("Preview_Pattern")" />
+                </div>
+                <div class="col-6" style="text-align:end;">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Disabled="@(!SequenceResultEnable)" Text="@translationState.Translate("Save")" style="margin-left: 0.2rem !important" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Cancel")" Click="@Button2Click" />
+                </div>
+            </div>
+             @if (Id != null)
+            {
+                <div class="row pt-3">
+                    <div class="col-md-12">
+                        <RadzenAccordion Multiple="true">
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Number_Patterns_History")">
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <RadzenTextBox class="searchBox"
+                                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                                           Name="Textbox0"
+                                            @bind-Value="search"
+                                            @oninput="@(async(args) => {await grid1.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                                        </div>
+
+                                    </div>
+                                    <div class="row pt-3">
+                                        <div class="col-md-12">
+                                            <RadzenDataGrid @ref="grid1"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            AllowPaging="true"
+                                                            AllowSorting="true"
+                                                            AllowFiltering="false"
+                                                            Data="@FilteredCmsComsNumPatternHistoryDetail"
+                                                            TItem="CmsComsNumPatternHistoryVM"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            ShowPagingSummary="true">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="CmsComsNumPatternHistoryVM" Width="240px" Property="SequanceResult" Title="@translationState.Translate("Sequence_Result")" />
+                                                    <RadzenDataGridColumn TItem="CmsComsNumPatternHistoryVM" Width="160px" Property="StaticTextPattern" Title="@translationState.Translate("Static_Text_Pattern")" />
+                                                    <RadzenDataGridColumn TItem="CmsComsNumPatternHistoryVM" Width="60px" Property="Year" Title="@translationState.Translate("Year")" />
+                                                    <RadzenDataGridColumn TItem="CmsComsNumPatternHistoryVM" Width="60px" Property="Day" Title="@translationState.Translate("Day")" />
+                                                    <RadzenDataGridColumn TItem="CmsComsNumPatternHistoryVM" Width="80px" Property="Month" Title="@translationState.Translate("Month")" />
+                                                    <RadzenDataGridColumn TItem="CmsComsNumPatternHistoryVM" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserFullNameEn" : "UserFullNameAr") Title="@translationState.Translate("CreatedBy")" />
+                                                    <RadzenDataGridColumn TItem="CmsComsNumPatternHistoryVM" Width="140px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Modified_Date")" />
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    </div>
+                </div>
+            }
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>
+
+<style>
+    .form-check {
+        margin-top: 25px;
+    }
+</style>
+
+

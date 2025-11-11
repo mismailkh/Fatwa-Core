@@ -1,0 +1,59 @@
+﻿@page "/select-conditionoption"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@layout MainLayout
+
+<!-- <History Author = 'Muhammad Zaeem' Date='2023-09-30' Version="1.0" Branch="master">Select Condition Option</History> -->
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <div class="row pt-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="form-group mb-2">
+                            @if (!isActivity)
+                            {
+                                <RadzenLabel Text="@(translationState.Translate("Options") + " *")" Component="ConditionOption" />
+                                <RadzenDropDown Data="@conditionoptions" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                TextProperty="ConditionOption" ValueProperty="ModuleOptionId" Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;" @bind-Value="SelectedOptionId" Name="ConditionOption" >
+                                    <Template Context="conditionoptions">
+                                        @translationState.Translate(conditionoptions.ConditionOption)
+                                    </Template>
+                                </RadzenDropDown>
+                            }
+                            else
+                            {
+
+                                <RadzenLabel Text="@(translationState.Translate("Options") + " *")" Component="ActivityOptions" />
+                                <RadzenDropDown Data="@activityOptions" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                TextProperty="ActivityOptions" ValueProperty="ModuleOptionId" Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;" @bind-Value="SelectedOptionId" Name="ActivityOptions" >
+                                    <Template Context="activityOptions">
+                                        @translationState.Translate(activityOptions.ActivityOptions)
+                                </Template>
+                                </RadzenDropDown>
+
+
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="row mt-4 popup-buttons-alignment">
+                    <div class="col-12 p-0">
+
+                        <RadzenButton ButtonType="Radzen.ButtonType.Submit" style="margin-right: 0.2rem !important" Disabled="SelectedOptionId < 1" ButtonStyle="ButtonStyle.Primary" Click="Form0Submit" Text="@translationState.Translate("Submit")">
+                        </RadzenButton>
+                        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                        </RadzenButton>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

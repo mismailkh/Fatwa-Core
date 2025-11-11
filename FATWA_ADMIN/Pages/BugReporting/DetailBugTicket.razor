@@ -1,0 +1,730 @@
+﻿@page "/bugticket-view/{TicketId}/{FromTicket}"
+@using FATWA_DOMAIN.Common
+@using FATWA_DOMAIN.Enums.BugReporting
+@using FATWA_DOMAIN.Models.BugReporting
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel.BugReportingVMs
+@using Radzen.Blazor.Rendering
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.Inputs
+@using Syncfusion.Blazor.RichTextEditor
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.BugReporting.BugReportingEnum
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+
+<PageTitle>@translationState.Translate("Bug_Ticket_Details")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.Bug.Ticket.Detail"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Path="/list-bugticket" Text="@translationState.Translate("List_Bug_Ticket")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Bug_Ticket_Details")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Bug_Ticket_Details")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+        </div>
+    </div>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <RadzenCard Style="padding: 30px; border-radius: 8px;">
+                <RadzenAccordion Multiple=true>
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Details")" Selected="true">
+                            <div class="row pb-2">
+                                <div class="col-12 datagrid-rz-label">
+                                    <div class="row no-gutters">
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Ticket_Id"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@Ticket?.TicketId</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Created_Date"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@Ticket?.CreatedDate.ToString("dd/MM/yyyy")</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Issue_Type"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Ticket?.IssueTypeEn : Ticket?.IssueTypeAr)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Bug_Id"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@Ticket?.BugNumber</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Subject"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@Ticket?.Subject</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Status"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Ticket?.StatusEn : Ticket?.StatusAr)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Application"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Ticket?.ApplicationEn : Ticket?.ApplicationAr)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Module"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Ticket?.ModuleEn : Ticket?.ModuleAr)</h3>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Priority"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Ticket?.PriorityEn : Ticket?.PriorityAr)</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Severity"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Ticket?.SeverityEn : Ticket?.SeverityAr)</h3>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Reported_By"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Ticket?.ReporterNameEn : Ticket?.ReporterNameAr)</h3>
+                                            </div>
+
+                                        </div>
+                                        @if (!string.IsNullOrEmpty(Ticket.AssignTo))
+                                        {
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Assigned_User"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Ticket?.AssignedUserEn : Ticket?.AssignedUserAr)</h3>
+                                                </div>
+                                            </div>
+                                        }
+                                        @if (Ticket.GroupId != null || Ticket.GroupId != Guid.Empty)
+                                        {
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Assigned_Group"):</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Ticket?.GroupNameEn : Ticket?.GroupNameAr)</h3>
+                                                </div>
+                                            </div>
+                                        }
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Resolved_By"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@Ticket?.ResolvedBy</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Resolution_Date"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@Ticket?.ResolutionDate?.ToString("dd/MM/yyyy")</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Modified_By"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@Ticket?.ModifiedBy</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Modification_Date"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@Ticket?.ModifiedDate?.ToString("dd/MM/yyyy")</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Portal"):</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Ticket?.PortalEn : Ticket?.PortalAr)</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenAccordionItem>
+                        <RadzenAccordionItem Text="@translationState.Translate("Description")" Selected="true">
+                            <div class="col-12">
+                                <div class="detailContent">
+                                    @(new MarkupString(Ticket.Description))
+                                </div>
+                            </div>
+                        </RadzenAccordionItem>
+                        <RadzenAccordionItem Text="@translationState.Translate("Documents")" Selected="true">
+                            @if (Ticket.Id != Guid.Empty)
+                            {
+                                <FileUpload ModuleId="(int)WorkflowModuleEnum.BugReporting"
+                                            IsViewOnly="true"
+                                            ReferenceGuid="@Ticket.Id"
+                                            Multiple="true"
+                                            MaxFileSize="systemSettingState.File_Maximum_Size"
+                                            FileTypes="@(systemSettingState.FileTypes.ToList())"
+                                            UploadFrom="BugReporting">
+                                </FileUpload>
+                            }
+                        </RadzenAccordionItem>
+                        <RadzenAccordionItem Text="@translationState.Translate("Comments")" Selected="true">
+
+                            <div class="col-md-12 p-0  popup-buttons-alignment">
+                                <RadzenButton Icon="add_circle" style="margin-bottom: 10px" Disabled="@isShowEditor" Text="@translationState.Translate("Add_Comment")" Click="@((args) => OnClickAddComment())" />
+                            </div>
+                            @if (isShowEditor)
+                            {
+                                <div class="row">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 comment-editor">
+
+                                        <SfRichTextEditor @ref="editor" Id="mentionIntegration" EnableAutoUrl="false" EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")" @bind-Value="@commentValue">
+                                            <RichTextEditorToolbarSettings Items="@Tools" />
+                                            <RichTextEditorQuickToolbarSettings Image="@ImageTools" />
+                                            <RichTextEditorImageSettings EnableResize="true" AllowedTypes=@allowedTypes SaveFormat="SaveFormat.Base64"></RichTextEditorImageSettings>
+                                        </SfRichTextEditor>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-12 popup-buttons-alignment p-0 pt-2 pb-2">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" Click="@(() => AddComment())" />
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.2rem !important" Text="@translationState.Translate("Cancel")" Click="OnCancel" />
+
+                                </div>
+                                <div id="mention_integration">
+                                    <SfMention SuffixText="&nbsp;" CssClass="mention-popup" ValueSelected="@OnValueSelectingHandler" Target="#mentionIntegration .e-rte-content .e-content" AllowSpaces="true" TItem="UserListMentionVM" DataSource="@users" PopupHeight="200px" PopupWidth="16%">
+                                        <ItemTemplate>
+                                            <div class="d-flex flex-start align-items-center mb-2">
+                                                <div id="mention-TemplateList" class="rounded-circle shadow-1-strong me-3 d-flex align-items-center justify-content-center m-1 mention-icon">
+                                                    @((context as UserListMentionVM).FullNameAbbrevation)
+                                                </div>
+                                                <div>
+                                                    <p class="text-muted small mb-0">
+                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (context as UserListMentionVM).UserFullNameEn.Length <= 20 ? (context as UserListMentionVM).UserFullNameEn : (context as UserListMentionVM).UserFullNameEn.Substring(0, 20) + " " + @translationState.Translate("Role_Description_3_dot") : (context as UserListMentionVM).UserFullNameAr.Length <= 20 ? (context as UserListMentionVM).UserFullNameAr : (context as UserListMentionVM).UserFullNameAr.Substring(0, 20) + " " + @translationState.Translate("Role_Description_3_dot"))
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </ItemTemplate>
+                                        <DisplayTemplate>
+                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (context as UserListMentionVM).UserFullNameEn : (context as UserListMentionVM).UserFullNameAr)
+                                        </DisplayTemplate>
+                                        <NoRecordsTemplate>
+                                            @translationState.Translate("No_record_found")
+                                        </NoRecordsTemplate>
+                                        <ChildContent>
+                                            <MentionFieldSettings Value="UserId" Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserFullNameEn" :"UserFullNameAr")></MentionFieldSettings>
+                                        </ChildContent>
+                                    </SfMention>
+                                </div>
+                            }
+                            @foreach (var comment in bugTicketComments.Where(c => c.ParentCommentId == null))
+                            {
+                                var firstLetter = GetUserFirstLetter(comment);
+
+                                <div class="comment-row">
+                                    @* Parent Comment Display *@
+                                    <div class="d-flex flex-start align-items-center">
+                                        <div class="rounded-circle shadow-1-strong me-3 d-flex align-items-center justify-content-center mx-2 username-icon">
+                                            @firstLetter.Result
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-1">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? comment.CommenterNameEn : comment.CommenterNameAr)</h6>
+                                            <p class="text-muted small mb-0">
+                                                @comment.CreatedDate.ToString("dd/MM/yyyy h:mm tt")
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <p class="mt-3 pb-2 px-3">
+                                        @if (editingCommentId == comment.Id)
+                                        {
+                                            <div class="row">
+                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 comment-editor">
+                                                    <SfRichTextEditor @ref="editor" Id="mentionIntegration" EnableAutoUrl="false" EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")" @bind-Value="@commentValue">
+                                                        <RichTextEditorToolbarSettings Items="@Tools" />
+                                                        <RichTextEditorQuickToolbarSettings Image="@ImageTools" />
+                                                        <RichTextEditorImageSettings EnableResize="true" AllowedTypes=@allowedTypes SaveFormat="SaveFormat.Base64"></RichTextEditorImageSettings>
+                                                    </SfRichTextEditor>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-12 popup-buttons-alignment p-0 pt-2 pb-2">
+                                                <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" Click="@(() => AddComment())" />
+                                                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.2rem !important" Text="@translationState.Translate("Cancel")" Click="OnCancel" />
+
+                                            </div>
+                                            <div id="mention_integration">
+                                                <SfMention CssClass="mention-popup" ValueSelected="@OnValueSelectingHandler" Target="#mentionIntegration .e-rte-content .e-content" AllowSpaces="true" TItem="UserListMentionVM" DataSource="@users" PopupHeight="200px" PopupWidth="16%">
+                                                    <ItemTemplate>
+                                                        <div class="d-flex flex-start align-items-center">
+                                                            <div id="mention-TemplateList" class="rounded-circle shadow-1-strong me-3 d-flex align-items-center justify-content-center m-1 mention-icon">
+                                                                @((context as UserListMentionVM).FullNameAbbrevation)
+                                                            </div>
+                                                            <div>
+                                                                <p class="text-muted small mb-0">
+                                                                    @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (context as UserListMentionVM).UserFullNameEn.Length <= 20 ? (context as UserListMentionVM).UserFullNameEn : (context as UserListMentionVM).UserFullNameEn.Substring(0, 20) + " " + @translationState.Translate("Role_Description_3_dot") : (context as UserListMentionVM).UserFullNameAr.Length <= 20 ? (context as UserListMentionVM).UserFullNameAr : (context as UserListMentionVM).UserFullNameAr.Substring(0, 20) + " " + @translationState.Translate("Role_Description_3_dot"))
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                    </ItemTemplate>
+                                                    <DisplayTemplate>
+                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (context as UserListMentionVM).UserFullNameEn : (context as UserListMentionVM).UserFullNameAr)
+                                                    </DisplayTemplate>
+                                                    <NoRecordsTemplate>
+                                                        @translationState.Translate("No_record_found")
+                                                    </NoRecordsTemplate>
+                                                    <ChildContent>
+                                                        <MentionFieldSettings Value="UserId" Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserFullNameEn" :"UserFullNameAr")></MentionFieldSettings>
+                                                    </ChildContent>
+                                                </SfMention>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <SfRichTextEditor @ref="editor" CssClass="comment-editor-disable" Enabled="false" EnableAutoUrl="false" EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")" @bind-Value="@comment.Comment">
+                                                <RichTextEditorToolbarSettings Enable="false" />
+                                            </SfRichTextEditor>
+                                        }
+                                    </p>
+                                    @if (!IsShowCommentActions)
+                                    {
+                                        <div class="small d-flex justify-content-start pb-2">
+                                            <TelerikButton Class="d-flex align-items-center me-3 mx-3" ThemeColor="@ThemeConstants.Button.ThemeColor.Primary" FillMode="@ThemeConstants.Button.FillMode.Link" OnClick="@(() => ShowReplyBox(comment.Id))">@translationState.Translate("Reply")</TelerikButton>
+                                            @if (comment.CreatedBy == loginState.Username)
+                                            {
+                                                <TelerikButton Class="d-flex align-items-center me-3 mx-3" ThemeColor="@ThemeConstants.Button.ThemeColor.Primary" FillMode="@ThemeConstants.Button.FillMode.Link" OnClick="@(() => EditComment(comment))">@translationState.Translate("Edit")</TelerikButton>
+                                                <TelerikButton Class="d-flex align-items-center me-3 mx-3" ThemeColor="@ThemeConstants.Button.ThemeColor.Primary" FillMode="@ThemeConstants.Button.FillMode.Link" OnClick="@(() => DeleteComment(comment))">@translationState.Translate("Delete")</TelerikButton>
+                                            }
+                                        </div>
+                                    }
+                                    <hr />
+                                    @* Reply Editor *@
+
+                                    @if (replyToCommentId == comment.Id)
+                                    {
+                                        <div class="row">
+                                            <div class="col-12 comment-editor">
+                                                <SfRichTextEditor @ref="editor" Id="mentionIntegration" @bind-Value="@commentValue">
+                                                    <RichTextEditorToolbarSettings Items="@Tools" />
+                                                    <RichTextEditorQuickToolbarSettings Image="@ImageTools" />
+                                                    <RichTextEditorImageSettings EnableResize="true" AllowedTypes=@allowedTypes SaveFormat="SaveFormat.Base64"></RichTextEditorImageSettings>
+                                                </SfRichTextEditor>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-12 popup-buttons-alignment p-0 pt-2 pb-2">
+                                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" Click="@(() => AddReply(comment.Id))" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.2rem !important" Text="@translationState.Translate("Cancel")" Click="@CancelReply" />
+                                        </div>
+                                        <div id="mention_integration">
+                                            <SfMention CssClass="mention-popup" ValueSelected="@OnValueSelectingHandler" Target="#mentionIntegration .e-rte-content .e-content" AllowSpaces="true" TItem="UserListMentionVM" DataSource="@users" PopupHeight="200px" PopupWidth="16%">
+                                                <ItemTemplate>
+                                                    <div class="d-flex flex-start align-items-center">
+                                                        <div id="mention-TemplateList" class="rounded-circle shadow-1-strong me-3 d-flex align-items-center justify-content-center m-1 mention-icon">
+                                                            @((context as UserListMentionVM).FullNameAbbrevation)
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-muted small mb-0">
+                                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (context as UserListMentionVM).UserFullNameEn.Length <= 20 ? (context as UserListMentionVM).UserFullNameEn : (context as UserListMentionVM).UserFullNameEn.Substring(0, 20) + " " + @translationState.Translate("Role_Description_3_dot") : (context as UserListMentionVM).UserFullNameAr.Length <= 20 ? (context as UserListMentionVM).UserFullNameAr : (context as UserListMentionVM).UserFullNameAr.Substring(0, 20) + " " + @translationState.Translate("Role_Description_3_dot"))
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </ItemTemplate>
+                                                <DisplayTemplate>
+                                                    @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (context as UserListMentionVM).UserFullNameEn : (context as UserListMentionVM).UserFullNameAr)
+                                                </DisplayTemplate>
+                                                <NoRecordsTemplate>
+                                                    @translationState.Translate("No_record_found")
+                                                </NoRecordsTemplate>
+                                                <ChildContent>
+                                                    <MentionFieldSettings Value="UserId" Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserFullNameEn" :"UserFullNameAr")></MentionFieldSettings>
+                                                </ChildContent>
+                                            </SfMention>
+                                        </div>
+                                    }
+
+                                    @* Display replies *@
+                                    <div class="replies mx-5">
+                                        @foreach (var reply in bugTicketComments.Where(c => c.ParentCommentId == comment.Id))
+                                        {
+                                            var UserName = @GetUserFirstLetter(reply);
+
+                                            <div class="ml-4 pb-5">
+                                                <div class="d-flex flex-start align-items-center">
+                                                    <div class="rounded-circle shadow-1-strong me-3 d-flex align-items-center justify-content-center mx-2 username-icon">
+                                                        @UserName.Result
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="fw-bold mb-1">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? reply.CommenterNameEn : reply.CommenterNameAr)</h6>
+                                                        <p class="text-muted small mb-0">
+                                                            @reply.CreatedDate.ToString("dd/MM/yyyy h:mm tt")
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <p class="mt-3 pb-21 px-3">
+                                                    @if (editingCommentId == reply.Id)
+                                                    {
+                                                        <div class="row">
+                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 comment-editor">
+                                                                <SfRichTextEditor @ref="editor" Id="mentionIntegration" EnableAutoUrl="false" EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")" @bind-Value="@commentValue">
+                                                                    <RichTextEditorToolbarSettings Items="@Tools" />
+                                                                    <RichTextEditorQuickToolbarSettings Image="@ImageTools" />
+                                                                    <RichTextEditorImageSettings EnableResize="true" AllowedTypes=@allowedTypes SaveFormat="SaveFormat.Base64"></RichTextEditorImageSettings>
+                                                                </SfRichTextEditor>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-12 popup-buttons-alignment p-0 pt-2 pb-2">
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" Click="@(() => AddComment())" />
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.2rem !important" Text="@translationState.Translate("Cancel")" Click="OnCancel" />
+
+                                                        </div>
+                                                        <div id="mention_integration">
+                                                            <SfMention CssClass="mention-popup" ValueSelected="@OnValueSelectingHandler" Target="#mentionIntegration .e-rte-content .e-content" AllowSpaces="true" TItem="UserListMentionVM" DataSource="@users" PopupHeight="200px" PopupWidth="16%">
+                                                                <ItemTemplate>
+                                                                    <div class="d-flex flex-start align-items-center mb-2">
+                                                                        <div id="mention-TemplateList" class="rounded-circle shadow-1-strong me-3 d-flex align-items-center justify-content-center m-1 mention-icon">
+                                                                            @((context as UserListMentionVM).FullNameAbbrevation)
+                                                                        </div>
+                                                                        <div>
+                                                                            <p class="text-muted small mb-0">
+                                                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (context as UserListMentionVM).UserFullNameEn.Length <= 20 ? (context as UserListMentionVM).UserFullNameEn : (context as UserListMentionVM).UserFullNameEn.Substring(0, 20) + " " + @translationState.Translate("Role_Description_3_dot") : (context as UserListMentionVM).UserFullNameAr.Length <= 20 ? (context as UserListMentionVM).UserFullNameAr : (context as UserListMentionVM).UserFullNameAr.Substring(0, 20) + " " + @translationState.Translate("Role_Description_3_dot"))
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                </ItemTemplate>
+                                                                <DisplayTemplate>
+                                                                    @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (context as UserListMentionVM).UserFullNameEn : (context as UserListMentionVM).UserFullNameAr)
+                                                                </DisplayTemplate>
+                                                                <NoRecordsTemplate>
+                                                                    @translationState.Translate("No_record_found")
+                                                                </NoRecordsTemplate>
+                                                                <ChildContent>
+                                                                    <MentionFieldSettings Value="UserId" Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserFullNameEn" :"UserFullNameAr")></MentionFieldSettings>
+                                                                </ChildContent>
+                                                            </SfMention>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <SfRichTextEditor @ref="editor" CssClass="comment-editor-disable" Enabled="false" EnableAutoUrl="false" EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")" @bind-Value="@comment.Comment">
+                                                            <RichTextEditorToolbarSettings Enable="false" />
+                                                        </SfRichTextEditor>
+                                                    }
+                                                </p>
+                                                @if (reply.CreatedBy == loginState.Username && !IsShowCommentActions)
+                                                {
+                                                    <div class="small d-flex justify-content-start pb-2">
+                                                        <TelerikButton Class="d-flex align-items-center me-3 mx-3" ThemeColor="@ThemeConstants.Button.ThemeColor.Primary" FillMode="@ThemeConstants.Button.FillMode.Link" OnClick="@(() => EditComment(reply))">@translationState.Translate("Edit")</TelerikButton>
+                                                        <TelerikButton Class="d-flex align-items-center me-3 mx-3" ThemeColor="@ThemeConstants.Button.ThemeColor.Primary" FillMode="@ThemeConstants.Button.FillMode.Link" OnClick="@(() => DeleteComment(reply))">@translationState.Translate("Delete")</TelerikButton>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </RadzenAccordionItem>
+                        @if ((loginState.UserDetail.RoleId == SystemRoles.ITSupport && bugTicketFeedBack.Count() > 0) || (Ticket.SeverityId == (int)SeverityEnum.Critical || Ticket.SeverityId == (int)SeverityEnum.ShowStopper && Ticket.PriorityId == (int)PriorityEnum.High))
+                        {
+                            <RadzenAccordionItem Text="@translationState.Translate("FeedBack")">
+                                @if (loginState.Username == Ticket.CreatedBy && (Ticket.StatusId == (int)BugStatusEnum.Resolved || Ticket.StatusId == (int)BugStatusEnum.Closed || Ticket.StatusId == (int)BugStatusEnum.Reopened))
+                                {
+                                    <div class="col-md-12 popup-buttons-alignment p-0">
+                                        <RadzenButton Icon="add_circle" style="margin-bottom: 10px" Text="@translationState.Translate("Add_FeedBack")" Click="@((args) => AddFeedBack())" />
+                                    </div>
+                                }
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid @ref="feedbackGrid"
+                                                    AllowFiltering="false" AllowPaging="true" PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                    Count=@(bugTicketFeedBack != null ? bugTicketFeedBack.Count() : 0)
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true" AllowSorting="true" Data="@bugTicketFeedBack" TItem="BugTicketCommentVM">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="BugTicketCommentVM" Property="Comment" Title="@translationState.Translate("FeedBack_Text")"></RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="BugTicketCommentVM" Property="Rating" Title="@translationState.Translate("Rating")">
+                                                <Template Context="data">
+                                                    <SfRating Value="data.Rating" ReadOnly="true"></SfRating>
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="BugTicketCommentVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "CommenterNameEn":"CommenterNameAr")" Title="@translationState.Translate("Name")"></RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="BugTicketCommentVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")"></RadzenDataGridColumn>
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </RadzenAccordionItem>
+                        }
+                        <RadzenAccordionItem Text="@translationState.Translate("History")">
+                            <div class="row tableContent table-responsive no-gutters pb-3">
+                                <RadzenDataGrid @ref="historyGrid" AllowFiltering="false" AllowPaging="true" PageSize="@systemSettingState.Grid_Pagination"
+                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                Count=@(ticketStatusHistories != null ? ticketStatusHistories.Count() : 0)
+                                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                ShowPagingSummary="true" AllowSorting="true" Data="@ticketStatusHistories" TItem="TicketStatusHistoryVM">
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="TicketStatusHistoryVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "EventEn":"EventAr" )" Title="@translationState.Translate("Activity")"></RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="TicketStatusHistoryVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "UserNameEn":"UserNameAr")" Title="@translationState.Translate("UserName")"></RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="TicketStatusHistoryVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Date")"></RadzenDataGridColumn>
+                                    </Columns>
+                                </RadzenDataGrid>
+                            </div>
+                        </RadzenAccordionItem>
+                        @if (bugTicketReopenReason.Count() > 0)
+                        {
+                            <RadzenAccordionItem Text="@translationState.Translate("ReOpen_Reason")">
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid @ref="reasonGrid" AllowFiltering="false" AllowPaging="true" PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                    Count=@(bugTicketReopenReason != null ? bugTicketReopenReason.Count() : 0)
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true" AllowSorting="true" Data="@bugTicketReopenReason" TItem="BugTicketCommentVM">
+                                        <Template Context="reasonToReopen">
+                                            <FileUpload ReferenceGuid="reasonToReopen.Id"
+                                                        IsViewOnly="true"
+                                                        ModuleId="(int)WorkflowModuleEnum.BugReporting" />
+                                        </Template>
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="BugTicketCommentVM" Property="Comment" Title="@translationState.Translate("Reason")"></RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="BugTicketCommentVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "CommenterNameEn":"CommenterNameAr")" Title="@translationState.Translate("Name")"></RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="BugTicketCommentVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")"></RadzenDataGridColumn>
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </RadzenAccordionItem>
+                        }
+
+                        @if (bugTicketResolution.Count() > 0)
+                        {
+                            <RadzenAccordionItem Text="@translationState.Translate("Ticket_Resolution")">
+                                @foreach (var resolution in bugTicketResolution)
+                                {
+                                    var firstLetter = GetUserFirstLetter(resolution);
+                                    <div class="comment-row">
+                                        @* Parent Comment Display *@
+                                        <div class="d-flex flex-start align-items-center">
+                                            <div class="rounded-circle shadow-1-strong me-3 d-flex align-items-center justify-content-center mx-2 username-icon">
+                                                @firstLetter.Result
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-1">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? resolution.CommenterNameEn : resolution.CommenterNameAr)</h6>
+                                                <p class="text-muted small mb-0">
+                                                    @resolution.CreatedDate.ToString("dd/MM/yyyy")
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <p class="mt-3 pb-2 px-3">
+                                            <RadzenHtmlEditor class="@(ContainsArabic(resolution.Comment) ? "draftEditor bugEditor bugArabicUI" : "draftEditor bugEditor bugEnglishUI")" @bind-Value="@(resolution.Comment)" Disabled="true">
+                                            </RadzenHtmlEditor>
+                                        </p>
+                                        <hr />
+
+                                    </div>
+                                }
+                            </RadzenAccordionItem>
+                        }
+
+                        @if (bugTicketRejectReason.Count() > 0)
+                        {
+                            <RadzenAccordionItem Text="@translationState.Translate("Rejection_Reason")">
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid @ref="rejectionGrid" AllowFiltering="false" AllowPaging="true" PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                    Count=@(bugTicketRejectReason != null ? bugTicketRejectReason.Count() : 0)
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true" AllowSorting="true" Data="@bugTicketRejectReason" TItem="BugTicketCommentVM">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="BugTicketCommentVM" Property="Comment" Title="@translationState.Translate("Reason")"></RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="BugTicketCommentVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "CommenterNameEn":"CommenterNameAr")" Title="@translationState.Translate("Name")"></RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="BugTicketCommentVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")"></RadzenDataGridColumn>
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </RadzenAccordionItem>
+                        }
+
+                        @if (TaggedBug.Count() > 0)
+                        {
+                            <RadzenAccordionItem Text="@translationState.Translate("Tagged_Bug")">
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid @ref="bugGrid" AllowFiltering="false" AllowPaging="true" PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                    Count=@(TaggedBug != null ? TaggedBug.Count() : 0)
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true" AllowSorting="true" Data="@TaggedBug" TItem="ReportedBugDetailVM">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="ReportedBugDetailVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                <Template Context="rowItem">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Title="@translationState.Translate("Detail")" Icon="visibility" Size="ButtonSize.Small" Click="@((args) => ViewBug(rowItem))" @onclick:stopPropagation="true" />
+                                                    @if (rowItem.StatusId != (int)BugStatusEnum.Resolved && (Ticket.StatusId >= (int)BugStatusEnum.Closed && Ticket.StatusId <= (int)BugStatusEnum.Verified))
+                                                    {
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                      Title="@translationState.Translate("Add_Resolution")"
+                                                                      Icon="add_comment" Size="ButtonSize.Small"
+                                                                      Click="@((args) => AddBugResolution(rowItem))" @onclick:stopPropagation="true" />
+                                                    }
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="ReportedBugDetailVM" Width="150px" Property="PrimaryBugId" Title="@translationState.Translate("Bug_Id")" />
+                                            <RadzenDataGridColumn TItem="ReportedBugDetailVM" Width="150px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                            <RadzenDataGridColumn TItem="ReportedBugDetailVM" Width="150px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "IssueTypeEn":"IssueTypeAr" )" Title="@translationState.Translate("Issue_Type")" />
+                                            <RadzenDataGridColumn TItem="ReportedBugDetailVM" Width="150px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ApplicationEn":"ApplicationAr" )" Title="@translationState.Translate("Application")" />
+                                            <RadzenDataGridColumn TItem="ReportedBugDetailVM" Width="150px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ModuleEn":"ModuleAr" )" Title="@translationState.Translate("Module")" />
+                                            <RadzenDataGridColumn TItem="ReportedBugDetailVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"?"StatusEn" :"StatusAr") Title="@translationState.Translate("Status")" />
+                                            <RadzenDataGridColumn TItem="ReportedBugDetailVM" Width="150px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Created_Date")" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </RadzenAccordionItem>
+                        }
+                    </Items>
+                </RadzenAccordion>
+                <div class="col-md-12 popup-buttons-alignment pt-2 p-0">
+
+                    @if ((Ticket.StatusId < (int)BugStatusEnum.Draft || Ticket.StatusId > (int)BugStatusEnum.InProgress) && loginState.UserDetail.RoleId != SystemRoles.ITSupport)
+                    {
+                        <RadzenButton Text="@translationState.Translate("Ticket_Assignment")"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      ButtonType="Radzen.ButtonType.Button"
+                                      Click="TicketAssigmentAndTagging" @onclick:stopPropagation="true" />
+                    }
+                    @if (Ticket.StatusId == (int)BugStatusEnum.Resolved && Ticket.CreatedBy == loginState.Username)
+                    {
+                        <RadzenButton Text="@translationState.Translate("ReOpen_Close_Ticket")"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      ButtonType="Radzen.ButtonType.Button"
+                                      Click="ReOpenCloseTicket" @onclick:stopPropagation="true" />
+                    }
+                    @if (loginState.UserDetail.RoleId == SystemRoles.ITSupport)
+                    {
+                        @if (Ticket.StatusId == (int)BugStatusEnum.Assigned)
+                        {
+                            <RadzenButton Text="@translationState.Translate("Accept")"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          ButtonType="Radzen.ButtonType.Button"
+                                          Click="AcceptTicket" @onclick:stopPropagation="true" />
+                            <RadzenButton Text="@translationState.Translate("Reject")"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          ButtonType="Radzen.ButtonType.Button"
+                                          Click="RejectTicket" @onclick:stopPropagation="true" />
+                        }
+                        @if (Ticket.StatusId == (int)BugStatusEnum.InProgress || Ticket.StatusId == (int)BugStatusEnum.Reopened)
+                        {
+                            @if (Ticket.AssignTo == loginState.UserDetail.UserId)
+                            {
+                                <RadzenButton Text="@translationState.Translate("Add_Resolution")"
+                                              ButtonStyle="ButtonStyle.Primary"
+                                              ButtonType="Radzen.ButtonType.Button"
+                                              Click="AddResolution" @onclick:stopPropagation="true" />
+
+                            }
+                        }
+                    }
+                </div>
+            </RadzenCard>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+
+@{
+    async Task<string> GetUserFirstLetter(BugTicketCommentVM comment)
+    {
+
+        string commenterName = comment.CommenterNameEn;
+        char firstLetter = commenterName.Length > 0 ? commenterName[0] : '?';
+        return firstLetter.ToString();
+    }
+    bool ContainsArabic(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return false;
+
+        foreach (char c in input)
+        {
+            if (c >= '\u0600' && c <= '\u06FF') // Arabic Unicode range
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+}

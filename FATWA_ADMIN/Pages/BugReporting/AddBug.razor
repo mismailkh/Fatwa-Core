@@ -1,0 +1,213 @@
+﻿@page "/add-reportedbug"
+@page "/add-reportedbug/{BugId}"
+@using FATWA_DOMAIN.Models.BugReporting
+@using Syncfusion.Blazor.RichTextEditor
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@layout MainLayout
+@*< History Author = 'Muhammad Zaeem' Date = '2024-05-01' Version = "1.0" Branch = "master" Report A Bug</History>*@
+
+<PageTitle>@translationState.Translate("Report_A_Bug")</PageTitle>
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Bug.ReportedBug.Add").Count() > 0)
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Path="/list-reportedbug" Text="@translationState.Translate("List_Reported_Bug")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate(BugId == null ? "Report_A_Bug" : "Update_Bug")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate(BugId == null ? "Report_A_Bug" : "Update_Bug")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+    <div class="row pt-2">
+        <div class="col-md-12">
+            <RadzenCard>
+                <RadzenTemplateForm Data="@addBug" TItem="ReportedBug" Submit="SubmitForm">
+                    <ChildContent>
+                        <div class="row pt-2 pb-2">
+                            <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@(translationState.Translate("Bug_Number") + " *")" Component="PrimaryBugId" />
+                                    <RadzenTextBox Style="width: 100%;" Placeholder="@translationState.Translate("Bug_Number")" @bind-Value="@addBug.PrimaryBugId" Disabled=true Name="PrimaryBugId" />
+                                    <RadzenRequiredValidator Component="PrimaryBugId" Text="@translationState.Translate("Required_Field")" />
+                                </div>
+                            </div>
+                            <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@(translationState.Translate("Created_Date") + " *")" Component="CreatedDate" />
+                                    <RadzenDatePicker Placeholder="@translationState.Translate("dd/MM/yyyy")"
+                                                      Name="CreatedDate"
+                                                      Disabled="true"
+                                                      Style="width: 100%;"
+                                                      DateFormat="dd/MM/yyyy"
+                                                      @bind-Value="@addBug.CreatedDate" />
+                                    <RadzenRequiredValidator Component="CreatedDate" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                                    </RadzenRequiredValidator>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@(translationState.Translate("Issue_Type") + " *")" Component="IssueTypes" />
+                                    <RadzenDropDown Data="@filteredIssueTypes"
+                                                    AllowFiltering="true"
+                                                    AllowClear="true"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar")"
+                                                    ValueProperty="Id"
+                                                    Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;"
+                                                    @bind-Value="@addBug.TypeId"
+                                                    Change="(() => PopulateAssignedModuleByTypeId(true))"
+                                                    Name="IssueTypes" />
+                                    <RadzenRequiredValidator Component="IssueTypes" Text="@translationState.Translate("Required_Field")" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="ccs" class="k-label k-form-label">@(translationState.Translate("Screen_Name_OR_Url") + " *")</label>
+                                        <div class="k-form-field-wrap">
+                                            <RadzenTextBox Style="width: 100%;" Placeholder="@translationState.Translate("Screen_Name_OR_Url")" @bind-Value="@addBug.ScreenReference" Name="ScreenReference" />
+                                            <RadzenRequiredValidator Component="ScreenReference" Text="@translationState.Translate("Required_Field")" />
+                                            <RadzenLengthValidator Component="ScreenReference" Max="30" Text="@translationState.Translate("Max_Thirty_Characters")" />
+                                            <RadzenRegexValidator Component="ScreenReference" Pattern="@RegexPatterns.NoSpacesPattern" Text="@translationState.Translate("Cannot_have_trailing_spaces")" />
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="IssueTypes" class="k-label k-form-label">
+                                            @(translationState.Translate("Application") + " *")
+                                        </label>
+                                    <div class="k-form-field-wrap">
+                                    <RadzenDropDown Data="@applications"
+                                                    AllowFiltering="true"
+                                                    AllowClear="true"
+                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                    ValueProperty="Id"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;"
+                                                    Change="OnChangeApplication"
+                                                    @bind-Value="@addBug.ApplicationId"
+                                                    Name="ApplicationId" />
+                                    <RadzenRequiredValidator DefaultValue="0" Component="ApplicationId" Text="@translationState.Translate("Required_Field")" />
+                                </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="IssueTypes" class="k-label k-form-label">
+                                            @(translationState.Translate("Module") + " *")
+                                        </label>
+                                        <div class="k-form-field-wrap">
+                                    <RadzenDropDown Data="@modules"
+                                                    AllowFiltering="true"
+                                                    AllowClear="true"
+                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                    ValueProperty="Id"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;"
+                                                    @bind-Value="@addBug.ModuleId"
+                                                    Name="Module" />
+                                    <RadzenRequiredValidator DefaultValue="0" Component="Module" Text="@translationState.Translate("Required_Field")" />
+                                    </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="ccs" class="k-label k-form-label">@(translationState.Translate("Subject") + " *")</label>
+                                        <div class="k-form-field-wrap">
+                                            <RadzenTextBox Style="width: 100%;" Placeholder="@translationState.Translate("Subject")" @bind-Value="@addBug.Subject" Name="Subject" />
+                                            <RadzenRequiredValidator Component="Subject" Text="@translationState.Translate("Required_Field")" />
+                                            <RadzenLengthValidator Component="Subject" Max="150" Text="@translationState.Translate("Max_One_Fifty_Characters")" />
+                                            <RadzenRegexValidator Component="Subject" Pattern="@RegexPatterns.NoSpacesPattern" Text="@translationState.Translate("Cannot_have_trailing_spaces")" />
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                       @*  <div class="row pb-3">
+                        </div> *@
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@(translationState.Translate("Description") + " *")" Component="Description" />
+                                    <SfRichTextEditor Height="200px" EnableAutoUrl="false" EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")" @bind-Value="@addBug.Description">
+                                        <RichTextEditorToolbarSettings Items="@Tools" />
+                                        <RichTextEditorQuickToolbarSettings Image="@ImageTools" />
+                                        <RichTextEditorImageSettings EnableResize="true" AllowedTypes=@allowedTypes SaveFormat="SaveFormat.Base64"></RichTextEditorImageSettings>
+                                    </SfRichTextEditor>
+                                    <div class="rz-message rz-messages-error ">@descriptionValidationMessage</div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <FileUpload ReferenceGuid="addBug.Id"
+                                            @bind-DeletedAttachementIds="@addBug.DeletedAttachementIds"
+                                            Multiple="false"
+                                            MaxFileSize="systemSettingState.File_Maximum_Size"
+                                            FileTypes="@(systemSettingState.FileTypes.ToList())"
+                                            UploadFrom="BugReporting"
+                                            MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.Bug"
+                                            ModuleId="(int)WorkflowModuleEnum.BugReporting" />
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12 p-3" style="text-align:end;">
+                                <RadzenButton Text="@translationState.Translate("Submit")"
+                                              ButtonStyle="ButtonStyle.Primary"
+                                              style="margin-right: 0.2rem !important"
+                                              ButtonType="Radzen.ButtonType.Submit" />
+                                <RadzenButton Text="@translationState.Translate("Cancel")"
+                                              ButtonStyle="ButtonStyle.Light"
+                                              ButtonType="Radzen.ButtonType.Button"
+                                              Click="@ButtonCancelClick" />
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </RadzenCard>
+        </div>
+    </div>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+

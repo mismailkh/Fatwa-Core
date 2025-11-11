@@ -1,0 +1,80 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+	  <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ErrorOnDuplicatePublishOutputFiles>false</ErrorOnDuplicatePublishOutputFiles>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Extensions\**" />
+    <Compile Remove="JwtHelpers\**" />
+    <Compile Remove="RemoteSigningService\**" />
+    <Compile Remove="Request\**" />
+    <Compile Remove="Response\**" />
+    <Content Remove="Extensions\**" />
+    <Content Remove="JwtHelpers\**" />
+    <Content Remove="RemoteSigningService\**" />
+    <Content Remove="Request\**" />
+    <Content Remove="Response\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <EmbeddedResource Remove="JwtHelpers\**" />
+    <EmbeddedResource Remove="RemoteSigningService\**" />
+    <EmbeddedResource Remove="Request\**" />
+    <EmbeddedResource Remove="Response\**" />
+    <None Remove="Extensions\**" />
+    <None Remove="JwtHelpers\**" />
+    <None Remove="RemoteSigningService\**" />
+    <None Remove="Request\**" />
+    <None Remove="Response\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\V1\EmployeeController.cs" />
+    <Compile Remove="Controllers\V1\ErrorLogController.cs" />
+    <Compile Remove="Controllers\V1\FileUploadController.cs" />
+    <Compile Remove="Controllers\V1\LookupsController.cs" />
+    <Compile Remove="Controllers\V1\ProcessLogController.cs" />
+    <Compile Remove="Controllers\V1\TasksController.cs" />
+    <Compile Remove="Controllers\WeatherForecastController.cs" />
+    <Compile Remove="Controllers\WizardController.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+    <PackageReference Include="FirebaseAdmin" Version="3.0.1" />
+    <PackageReference Include="IronPdf" Version="2022.7.6986" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.HttpOverrides" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="6.34.0" />
+    <PackageReference Include="PDFsharp" Version="1.50.5147" />
+    <PackageReference Include="RabbitMQ.Client" Version="5.0.1" />
+    <PackageReference Include="Serilog.AspNetCore" Version="6.1.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.3.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.3.2" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DMS_API\DMS_API.csproj" />
+    <ProjectReference Include="..\FATWACONSUMER\FATWACONSUMER.csproj" />
+    <ProjectReference Include="..\FATWA_DOMAIN\FATWA_DOMAIN.csproj" />
+    <ProjectReference Include="..\FATWA_GENERAL\FATWA_GENERAL.csproj" />
+    <ProjectReference Include="..\FATWA_INFRASTRUCTURE\FATWA_INFRASTRUCTURE.csproj" />
+  </ItemGroup>
+
+</Project>

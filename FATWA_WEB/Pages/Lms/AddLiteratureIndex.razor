@@ -1,0 +1,139 @@
+﻿@*@page "/add_lms_literature_index/{ParentIndexId}/{ParentIndexNumber}"*@
+@page "/lmsliteratureindex-add/{ParentIndexId}/{ParentIndexNumber}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+
+<!-- <History Author = 'Umer Zaman' Date='2022-03-21' Version="1.0" Branch="master">Add New Literature Index</History> -->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.LiteratureIndex.Create").Count() > 0)
+{
+
+    <PageTitle>@translationState.Translate("Add_Lms_Literature_Index")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+
+          <div class="row px-3" style="min-height: 200px;">
+            <div class="col-xl-12 p-3">
+                <RadzenCard>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h2 class="formHeading">@translationState.Translate("Parent_Index_Detail")</h2>
+                            <div class="divider"></div>
+                        </div>
+                    </div>
+
+                    @if (RegisteredIndexDetails != null)
+                    {
+                    <div class="row">
+
+                        <div class="col-md-6">
+                            <div class="k-form-field-wrap">
+                                <RadzenLabel Text="@translationState.Translate("Parent_Index_Number")" style="width: 100%;">
+                                </RadzenLabel>
+                            </div>
+
+                            <div class="k-form-field-wrap">
+                                <RadzenTextBox ReadOnly=true Placeholder="@translationState.Translate("Parent_Index_Number")" @bind-Value="@(RegisteredIndexDetails.IndexParentNumber)" MaxLength="100" style="display: block; width: 100%" Name="IndexParentNumber" />
+                            </div>
+
+                        </div>
+                        <div class="col-md-6">
+
+                            @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                            {
+
+                                <div class="k-form-field-wrap">
+                                    <RadzenLabel Text="@translationState.Translate("Name_En")" style="width: 100%;">
+                                    </RadzenLabel>
+                                </div>
+
+                                <div class="k-form-field-wrap">
+                                            <RadzenTextBox ReadOnly=true Placeholder="@translationState.Translate("Name_En")" @bind-Value="@(RegisteredIndexDetails.Parent_Name_En)" MaxLength="100" style="display: block; width: 100%" Name="Parent_Name_En" />
+                                </div>
+
+                            }
+                            else
+                            {
+
+                                <div class="k-form-field-wrap">
+                                    <RadzenLabel Text="@translationState.Translate("Name_Ar")" style="width: 100%;">
+                                    </RadzenLabel>
+                                </div>
+
+                                <div class="k-form-field-wrap">
+                                    <RadzenTextBox ReadOnly=true Placeholder="@translationState.Translate("Name_Ar")" @bind-Value="@(RegisteredIndexDetails.Parent_Name_Ar)" MaxLength="100" style="display: block; width: 100%" Name="Parent_Name_Ar" />
+                                </div>
+
+                            }
+                        </div>
+
+                    </div>
+                }
+                </RadzenCard>
+                </div>
+                </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <RadzenTemplateForm Data="@lmsliteratureIndex" Visible="@(lmsliteratureIndex != null)" TItem="LmsLiteratureIndex" Submit="@Form0Submit">
+                        <ChildContent>
+
+                            <div style="margin-bottom: 3rem" class="row">
+                                <div class="col-md-3">
+                                    <RadzenLabel Text="@translationState.Translate("Name")" Component="Name_En" style="width: 100%">
+                                    </RadzenLabel>
+                                </div>
+                                <div class="col-md-9">
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Name")" MaxLength="100" style="display: block; width: 100%" @bind-Value="@(lmsliteratureIndex.Name_En)" Name="Name_En" />
+                                    <RadzenRequiredValidator Component="Name_En" Text="@translationState.Translate("Required_Field")" Style="position: relative; display: block;" />
+                                    <RadzenLengthValidator Component="Name_En" Min="2" Max="100" Text="@translationState.Translate("Index_Name_Range")" Style="position: relative; display: block;" />
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 3rem" class="row">
+                                <div class="col-md-3">
+                                    <RadzenLabel Text="@translationState.Translate("Name_Ar")" Component="Name_Ar" style="width: 100%">
+                                    </RadzenLabel>
+                                </div>
+                                <div class="col-md-9">
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Name_Ar")" MaxLength="100" style="display: block; width: 100%" @bind-Value="@(lmsliteratureIndex.Name_Ar)" Name="Name_Ar" />
+                                    <RadzenRequiredValidator Component="Name_Ar" Text="@translationState.Translate("Required_Field")" Style="position: relative; display: block;" />
+                                    <RadzenLengthValidator Component="Name_Ar" Min="2" Max="100" Text="@translationState.Translate("Index_Name_Range")" Style="position: relative; display: block;" />
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 3rem" class="row">
+                                <div class="col-md-3">
+                                    <RadzenLabel Text="@translationState.Translate("Index_Number")" Component="IndexNumber" style="width: 100%">
+                                    </RadzenLabel>
+                                    <small style="display: block">@translationState.Translate("3_Digit_Number")</small>
+                                </div>
+                                <div class="col-md-9">
+                                    <RadzenTextBox Placeholder="@translationState.Translate("number_placeholder")" onkeypress="return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46"
+                                               style="display: block; width: 100%" @bind-Value="@(lmsliteratureIndex.IndexNumber)" Name="IndexNumber" />
+                                    <RadzenRequiredValidator Component="IndexNumber" Text="@translationState.Translate("Required_Field")" Style="position: relative; display: block;" />
+                                    <RadzenLengthValidator Component="IndexNumber" Min="3" Text="@translationState.Translate("Index_Number_Range")" Style="position: relative; display: block;"/>
+                                </div>
+                            </div>
+
+
+
+                            <div class="row popup-buttons-alignment">
+                                <div class="col offset-sm-3">
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")">
+                                    </RadzenButton>
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@Button2Click">
+                                    </RadzenButton>
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenTemplateForm>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+

@@ -1,0 +1,183 @@
+﻿@page "/list-reportedbug"
+@using FATWA_DOMAIN.Models.ViewModel.BugReportingVMs
+@layout MainLayout
+<PageTitle>@translationState.Translate("List_Reported_Bug")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.BugReporting"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("List_Reported_Bug")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("List_Reported_Bug")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            <div class="row justify-content-center pt-4">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <div class="row no-gutters">
+                            <div class="col-md-4 " style="padding-left:0px;">
+                                <RadzenTextBox class="searchBox"
+                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                               Style="display: block; margin-bottom: 10px; width: 100%"
+                                               Name="Textbox0"
+                                @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" /> 
+                            </div>
+                            <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                <RadzenButton class="addBtn btn-margin" Icon="add" Text="@translationState.Translate("Report_A_Bug")" Click="@ButtonAddClick" />
+
+                                <RadzenButton class="addBtn"
+                                              Icon="search"
+                                              Text="@translationState.Translate("Advanced_Search")"
+                                              Click="@ToggleAdvanceSearch" />
+                            </div>
+
+                        </div>
+                        <div class="row tableContent table-responsive no-gutters pb-3">
+                            <RadzenDataGrid @ref="bugGrid"
+                                            FilterMode="Radzen.FilterMode.Advanced"
+                                            Count="@(GetBugs?.Any() == true ? GetBugs.FirstOrDefault().TotalCount : 0)"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            AllowFiltering="false"
+                                            Data="@FilteredBugListVM"
+                                            TItem="ReportedBugListVM"
+                                            LoadData=@OnLoadData
+                                            Sort="@OnSortData"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                            ShowPagingSummary="true">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="ReportedBugListVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="140px" TextAlign="TextAlign.Center">
+                                        <Template Context="rowItem">
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Title="@translationState.Translate("View_Detail")" Icon="visibility" Size="ButtonSize.Small" Click="@((args) => ViewBug(rowItem))" @onclick:stopPropagation="true" />
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" Title="@translationState.Translate("Raise_A_Ticket")" Icon="add_task" Size="ButtonSize.Small" Click="@((args) => AddBugTicket(rowItem))" @onclick:stopPropagation="true" />
+                                            @if (!rowItem.IsTicket)
+                                            {
+                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Title="@translationState.Translate("Edit")" Icon="edit" Size="ButtonSize.Small" Click="@((args) => EditBug(rowItem))" @onclick:stopPropagation="true" />
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ReportedBugListVM" Width="150px" Property="PrimaryBugId" Title="@translationState.Translate("Bug_Id")" />
+                                    <RadzenDataGridColumn TItem="ReportedBugListVM" Width="150px" Property="Subject" Title="@translationState.Translate("Subject")" />
+                                    <RadzenDataGridColumn TItem="ReportedBugListVM" Width="150px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "IssueTypeEn":"IssueTypeAr" )" Title="@translationState.Translate("Issue_Type")" />
+                                    <RadzenDataGridColumn TItem="ReportedBugListVM" Width="150px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ApplicationEn":"ApplicationAr" )" Title="@translationState.Translate("Application")" />
+                                    <RadzenDataGridColumn TItem="ReportedBugListVM" Width="150px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ModuleEn":"ModuleAr" )" Title="@translationState.Translate("Module")" />
+                                    <RadzenDataGridColumn TItem="ReportedBugListVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"?"StatusEn" :"StatusAr") Title="@translationState.Translate("Status")" />
+                                    <RadzenDataGridColumn TItem="ReportedBugListVM" Width="150px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Created_Date")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </RadzenCard>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+    @*Advance search Window*@
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Bug_Id")" Component="Number" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Bug_Id")" Min="1" Style="display:block;" @bind-Value="@advanceSearchBugList.PrimaryBugId" Name="Number" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Application")" Component="Application" />
+                    <RadzenDropDown Data="@Applications" AllowFiltering="true" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchBugList.ApplicationId" Name="Application" />
+
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Module")" Component="Module" />
+                    <RadzenDropDown Data="@Modules" AllowFiltering="true" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchBugList.ModuleId" Name="Module" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Subject")" Component="Number" />
+                    <RadzenTextBox Style="display:block;" Placeholder="@translationState.Translate("Subject")" class="claim-amount-field" Min="1" @bind-Value="@advanceSearchBugList.Subject" Name="Number" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Issue_Type")" Component="IssueType" />
+                    <RadzenDropDown Data="@IssueTypes" AllowFiltering="true" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchBugList.IssueTypeId" Name="IssueType" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Status")" Component="BugStatus" />
+                    <RadzenDropDown Data="@BugStatuses" AllowFiltering="true" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Value_En" : "Value_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchBugList.StatusId" Name="BugStatus" />
+                </div>
+            </div>
+            <div class="row" Style="margin-top:10px;">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Date_From")" Component="CreatedDate_From" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="CreatedDate_From" @bind-Value="@advanceSearchBugList.CreatedDateFrom" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Date_To")" Component="CreatedDate_To" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="CreatedDate_To" @bind-Value="@advanceSearchBugList.CreatedDateTo" />
+                </div>
+            </div>
+            <div class="row justify-content-end pt-3">
+                <div class="col-md-12 popup-buttons-alignment">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+<style>
+    .advance-search-window {
+        max-width: 880px !important;
+    }
+</style>
+
+
+

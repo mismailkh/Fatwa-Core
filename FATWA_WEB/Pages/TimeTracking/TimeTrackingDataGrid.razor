@@ -1,0 +1,88 @@
+﻿@using FATWA_DOMAIN.Models.ViewModel.TimeTrackingVM;
+
+<RadzenCard class="bg-light">
+    <div class="row pb-2">
+        <div class="col-md-4">
+            <h2 class="formHeading">@translationState.Translate("Time_Log")</h2>
+            <div class="divider"></div>
+        </div>
+    </div>
+    <div class="row no-gutters">
+        <div class="col-md-4">
+            <RadzenTextBox class="searchBox"
+                           Placeholder="@translationState.Translate("Grid_Search")"
+                           Name="Textbox0"
+            @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+         </div>
+        <div class="col-md-8 tableAdditionButton addPrincipleBtn px-0 d-flex justify-content-end pb-3">
+            @* <RadzenButton class="addBtn"
+            Icon="search"
+            Text="@translationState.Translate("Advanced_Search")"
+            Click="ToggleAdvanceSearchTimeTracking" /> *@
+        </div>
+    </div> 
+    <!-- Time Tracking Grid Here-->
+    <RadzenDataGrid @ref="grid"
+                    ColumnWidth="200px"
+                    FilterMode="Radzen.FilterMode.Advanced"
+                    Count="@(filterRefGetTimeTracking?.FirstOrDefault()?.TotalCount ?? 0)"
+                    AllowPaging="true"
+                    AllowSorting="true"
+                    AllowFiltering="false"
+                    LoadData="OnLoadData"
+                    Data="@filterRefGetTimeTracking"
+                    TItem="TimeTrackingVM"
+                    Sort="OnSortData"
+                    PageSize="@systemSettingState.Grid_Pagination"
+                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                    EmptyText="@translationState.Translate("No_record_found")"
+                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                    ShowPagingSummary="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="TimeTrackingVM" Property="ActivityName" Title="@translationState.Translate("ActivityName")" />
+            <RadzenDataGridColumn TItem="TimeTrackingVM" Property="AssignedOn" Title="@translationState.Translate("AssignedOn")">
+                <Template Context="data">
+                    @(data.AssignedOn != null ? String.Format("{0:dd/MM/yyyy HH:mm:ss}", data.AssignedOn) : null)
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="TimeTrackingVM" Property="CompleteOn" Title="@translationState.Translate("CompleteOn")">
+                <Template Context="data">
+                    @(data.CompleteOn != null ? String.Format("{0:dd/MM/yyyy HH:mm:ss}", data.CompleteOn) : null)
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="TimeTrackingVM" Property="Duration" Title="@translationState.Translate("Duration")" />
+            <RadzenDataGridColumn TItem="TimeTrackingVM"
+                                  Property="@((Thread.CurrentThread.CurrentUICulture.Name == "en-US") ? "StatusEn" : "StatusAr")"
+                                  Title="@translationState.Translate("Status")" />
+            <RadzenDataGridColumn TItem="TimeTrackingVM" Property="AssignedBy" Title="@translationState.Translate("AssignedBy")">
+                <Template Context="rowItem">
+                    @if (rowItem.EntityId != null)
+                    {
+                        <RadzenLabel title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.GovtEntityNameEn : rowItem.GovtEntityNameAr)" Text="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.GovtEntityNameEn : rowItem.GovtEntityNameAr)" />
+                    }
+                    @if (rowItem.EntityId == null)
+                    {
+                        <RadzenLabel title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.AssignedByEn : rowItem.AssignedByAr)" Text="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.AssignedByEn : rowItem.AssignedByAr)" />
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="TimeTrackingVM" Property="AssignedByDepartmentName" Title="@translationState.Translate("AssignedByDepartmentName")">
+                <Template Context="rowItem">
+                    @if (rowItem.EntityId != null)
+                    {
+                        <RadzenLabel title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.DepartmentName_En : rowItem.DepartmentName_Ar)" Text="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.DepartmentName_En : rowItem.DepartmentName_Ar)" />
+                    }
+                    @if (rowItem.EntityId == null)
+                    {
+                        <RadzenLabel title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.AssignedByDepartmentNameEn : rowItem.AssignedByDepartmentNameAr)" Text="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? rowItem.AssignedByDepartmentNameEn : rowItem.AssignedByDepartmentNameAr)" />
+                    }
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn TItem="TimeTrackingVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AssignedToEn" : "AssignedToAr") Title="@translationState.Translate("AssignedTo")" />
+            <RadzenDataGridColumn TItem="TimeTrackingVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AssignedToDepartmentNameEn" : "AssignedToDepartmentNameAr") Title="@translationState.Translate("AssignedToDepartmentName")" />
+        </Columns>
+    </RadzenDataGrid>
+    <!-- End of Time Tracking-->
+</RadzenCard>

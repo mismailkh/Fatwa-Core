@@ -1,0 +1,253 @@
+﻿@page "/Add-Sub-Case/{CaseId}/{FileId}"
+@layout MainLayout
+
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+<!--<History Author = "Nabeel ur Rehman" Date="2022-10-11" Version="1.0" Branch="master"> Add or Edit Sub Detail of Case File </History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.CMS.RegisteredCase.AddSubCase").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <RadzenTemplateForm Data="@cmsRegisteredCase" Visible="@(cmsRegisteredCase != null)" TItem="CmsRegisteredCase" Submit="@Form0Submit">
+            <ChildContent>
+                <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+                    <div class="col-md-6">
+                        <div class="row no-gutters">
+                            <RadzenBreadCrumb>
+                                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                                <RadzenBreadCrumbItem Path="@caseIdUrl" Text="@translationState.Translate("Case_Files")" />
+                                <RadzenBreadCrumbItem Text="@translationState.Translate("Create_Sub_Case")" />
+                            </RadzenBreadCrumb>
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <div class="backtoDashboard"> 
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.Small"
+                                          title="@translationState.Translate("Go_Back_Dashboard")"
+                                          class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.Small"
+                                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                                          class="returnBtn"
+                                          Icon="home" Click="@GoBackHomeScreen" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row TitleBar justify-content-left align-items-center py-4">
+                    <div class="col-md-6">
+                        <div class="row no-gutters">
+                            <RadzenHeading Size="H1" Text="@translationState.Translate("Create_Sub_Case")" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row justify-content-center mainContentBlock no-gutters p-3">
+                    <div class="col-md-12">
+                        <RadzenAccordion Collapse="Change" Multiple="true">
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Create_Sub_Case")" Selected="@SubCaseAccordian">
+                                    <div class="row pb-2">
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="k-form-field">
+                                                <div class="k-form-field-wrap">
+                                                    <label for="sub" class="k-label k-form-label">@translationState.Translate("CAN_Number") *</label>
+                                                    <div class="k-form-field-wrap">
+                                                        <RadzenTextBox Disabled="true" Placeholder="@translationState.Translate("Required_Field")" @bind-Value="@cmsRegisteredCase.CANNumber"></RadzenTextBox>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="k-form-field">
+                                                <div class="k-form-field-wrap">
+                                                    <label for="sub" class="k-label k-form-label">@translationState.Translate("Case_Date") *</label>
+                                                    <div class="k-form-field-wrap">
+                                                        <RadzenDatePicker Placeholder="@translationState.Translate("dd/MM/yyyy")" Name="CaseDate" Style="width: 100%" DateFormat="dd/MM/yyyy"
+                                                                          Min="@Min"
+                                                                          Max="@Max"
+                                                                          @bind-Value="@cmsRegisteredCase.CaseDate" />
+                                                        <RadzenRequiredValidator Component="CaseDate" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                                                        </RadzenRequiredValidator>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="k-form-field">
+                                                <div class="k-form-field-wrap">
+                                                    <label for="sub" class="k-label k-form-label">@translationState.Translate("Case_Number")</label>
+                                                    <div class="k-form-field-wrap">
+                                                        <RadzenTextBox Name="CaseNumber1" Placeholder="@translationState.Translate("Case_Number")" MaxLength="8" @bind-Value="@cmsRegisteredCase.CaseNumber"></RadzenTextBox>
+                                                        <RadzenRequiredValidator Component="CaseNumber1" Text="@translationState.Translate("Required_Field")" />
+                                                        <RadzenLengthValidator Min="8" Component="CaseNumber1" Text="@translationState.Translate("Must_Eight_Digits")" />
+                                                        <RadzenRegexValidator Component="CaseNumber1" Text="@translationState.Translate("Only_digits_and_slashes_are_allowed")" Pattern="^[0-9/\\]{8,}$" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-2">
+                                        @if (loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.PublicOperationalSector
+                                       || loginState.UserDetail.SectorTypeId == (int)OperatingSectorTypeEnum.CivilCommercialPartialUrgentCases)
+                                        {
+                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                <div class="form-group rz-calendar-webkit-fill">
+                                                    <RadzenLabel Text="@translationState.Translate("Court_Type")" />
+                                                    <RadzenDropDown TValue="int"
+                                                                    Data="@courtTypes"
+                                                                    AllowFiltering="true"
+                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                    AllowClear="true"
+                                                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                                                    Name="Court"
+                                                                    ValueProperty="Id"
+                                                                    @bind-Value="CourtTypeId"
+                                                                    Placeholder="@translationState.Translate("Select_Court_Type")"
+                                                                    Style="display: block; width: 100%">
+                                                    </RadzenDropDown>
+                                                    <RadzenRequiredValidator Component="Court" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                                                    </RadzenRequiredValidator>
+                                                </div>
+                                            </div>
+                                        }
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group rz-calendar-webkit-fill">
+                                                <RadzenLabel Text="@translationState.Translate("Court_Name")" />
+                                                <RadzenDropDown TValue="int"
+                                                                Data="@(courts.Where(x => x.TypeId == CourtTypeId))"
+                                                                AllowFiltering="true"
+                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                AllowClear="true"
+                                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                                                Name="Court"
+                                                                ValueProperty="Id"
+                                                                Change="@OnChangeCourt"
+                                                                @bind-Value="cmsRegisteredCase.CourtId"
+                                                                Placeholder="@translationState.Translate("Select_Court")"
+                                                                Style="display: block; width: 100%">
+                                                </RadzenDropDown>
+                                                <RadzenRequiredValidator Component="Court" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                                                </RadzenRequiredValidator>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group rz-calendar-webkit-fill">
+                                                <RadzenLabel Text="@translationState.Translate("Chamber_Name")" />
+                                                <RadzenDropDown TValue="int"
+                                                                Data="@chambers"
+                                                                AllowFiltering="true"
+                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                AllowClear="true"
+                                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                                                Name="Chamber"
+                                                                ValueProperty="Id"
+                                                                @bind-Value="cmsRegisteredCase.ChamberId"
+                                                                Placeholder="@translationState.Translate("Select_Chamber")"
+                                                                Style="display: block; width: 100%"
+                                                                Change="@(()=>OnChangeChamber(cmsRegisteredCase.ChamberId))">
+
+                                                </RadzenDropDown>
+                                                <RadzenRequiredValidator Component="Chamber" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                                                </RadzenRequiredValidator>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Chamber_Number")" />
+                                                <RadzenDropDown TValue="int"
+                                                                Data="@ChamberNumbers"
+                                                                AllowFiltering="true"
+                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                AllowClear="true"
+                                                                TextProperty="Number"
+                                                                Name="ChamberNumber"
+                                                                ValueProperty="Id"
+                                                                @bind-Value="cmsRegisteredCase.ChamberNumberId"
+                                                                Placeholder="@translationState.Translate("Select")"
+                                                                Style="display: block; width: 100%">
+                                                </RadzenDropDown>
+                                                <RadzenRequiredValidator Component="ChamberNumber" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                                                </RadzenRequiredValidator>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="k-form-field">
+                                                <div class="k-form-field-wrap">
+                                                    <label for="sub" class="k-label k-form-label">@(translationState.Translate("Floor_Number") + " *")</label>
+                                                    <div class="k-form-field-wrap">
+                                                        <RadzenTextBox Placeholder="@translationState.Translate("Floor_Number")" @bind-Value="@(registeredCase.FloorNumber)" Name="FloorNumber" />
+                                                        <RadzenRequiredValidator Component="FloorNumber" Text="@translationState.Translate("Required_Field")" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="k-form-field">
+                                                <div class="k-form-field-wrap">
+                                                    <label for="sub" class="k-label k-form-label">@(translationState.Translate("Room_Number") + " *")</label>
+                                                    <div class="k-form-field-wrap">
+                                                        <RadzenTextBox Placeholder="@translationState.Translate("Room_Number")" @bind-Value="@(registeredCase.RoomNumber)" Name="RoomNumber" />
+                                                        <RadzenRequiredValidator Component="RoomNumber" Text="@translationState.Translate("Required_Field")" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="k-form-field">
+                                                <div class="k-form-field-wrap">
+                                                    <label for="sub" class="k-label k-form-label">@(translationState.Translate("Announcement_Number") + " *")</label>
+                                                    <div class="k-form-field-wrap">
+                                                        <RadzenTextBox Placeholder="@translationState.Translate("Announcement_Number")" @bind-Value="@(registeredCase.AnnouncementNumber)" Name="AnnouncementNumber" />
+                                                        <RadzenRequiredValidator Component="AnnouncementNumber" Text="@translationState.Translate("Required_Field")" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                                <RadzenAccordionItem Style="margin-top:8px;" Text="@translationState.Translate("Document_Details")" Selected="@DocumentAccordian">
+                                    <div class="row">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                            <FileUpload ReferenceGuid="@cmsRegisteredCase.CaseId"
+                                                        @bind-DeletedAttachementIds="@cmsRegisteredCase.DeletedAttachementIds"
+                                                        Multiple="true"
+                                                        MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                                        FileTypes="@systemSettingState.FileTypes"
+                                                        UploadFrom="CaseManagement"
+                                                        ShowFileNameField="true"
+                                                        CANNumber="@registeredCase.CANNumber"
+                                                        HideView="true"
+                                                        MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.ClaimStatement"
+                                                        ModuleId="(int)WorkflowModuleEnum.CaseManagement" />
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                        <div class="row mt-3 px-4">
+                            <div class="col-12 d-flex justify-content-end">
+                                <RadzenButton style="margin-left: 1rem;" Text="@translationState.Translate("Cancel")"
+                                              ButtonStyle="ButtonStyle.Light" Click="@ButtonCancelClick">
+                                </RadzenButton>
+
+                                <RadzenButton Text="@translationState.Translate("Submit")"
+                                              ButtonStyle="ButtonStyle.Primary"
+                                              ButtonType="Radzen.ButtonType.Submit">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </ChildContent>
+        </RadzenTemplateForm>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

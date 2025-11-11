@@ -1,0 +1,89 @@
+﻿@page "/add-drafttemplate"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@layout MainLayout
+
+<!-- <History Author = 'Hassan Abbas' Date='2022-09-30' Version="1.0" Branch="master">Select Draft Template Type</History> -->
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@CaseTemplate" Visible="@(CaseTemplate != null)" TItem="CaseTemplate" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row pt-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group mb-2">
+                                    <RadzenLabel Text="@(translationState.Translate("Document_Type") + " *")" Component="Attachment_Type" />
+                                    @if (Document_Type > 0)
+                                    {
+                                        <RadzenDropDown Data="@AttachmentTypes" AllowFiltering="true" AllowClear="true" Disabled="true"
+                                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar") ValueProperty="AttachmentTypeId" Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;" @bind-Value="AttachmentTypeId" Name="Attachment_Type" />
+                                        <RadzenRequiredValidator DefaultValue="0" Component="Attachment_Type" Text="@translationState.Translate("Required_Field")" />
+                                    }
+                                    else
+                                    {
+                                        <RadzenDropDown Data="@AttachmentTypes" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar") ValueProperty="AttachmentTypeId" Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;" @bind-Value="AttachmentTypeId" Name="Attachment_Type" Change=@(args => OnTypeChange(args)) />
+                                        <RadzenRequiredValidator DefaultValue="0" Component="Attachment_Type" Text="@translationState.Translate("Required_Field")" />
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        @if (AttachmentTypeId > 0)
+                        {
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <RadzenFieldset AllowCollapse="false" Style="width: 100%; margin: 40px auto;">
+                                        <HeaderTemplate>
+                                            <span class="d-inline-flex align-items-center align-middle">
+                                                <RadzenIcon Icon="account_box" Class="me-1" /><b>@translationState.Translate("Select_Draft_Type")</b>
+                                            </span>
+                                        </HeaderTemplate>
+                                        <ChildContent>
+                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                <RadzenRadioButtonList @bind-Value=@radioValue TValue="int" Change=@((args) => OnChange(args))>
+                                                    <Items>
+                                                        <RadzenRadioButtonListItem Text="@translationState.Translate("Draft_Without_Template")" Value="1" />
+                                                        <RadzenRadioButtonListItem Text="@translationState.Translate("Draft_From_Template")" Value="2" />
+                                                    </Items>
+                                                </RadzenRadioButtonList>
+                                            </div>
+                                        </ChildContent>
+                                    </RadzenFieldset>
+                                </div>
+                            </div>
+                        }
+                        @if (radioValue == 2)
+                        {
+                            <div class="row pt-2">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="form-group mb-2">
+                                        <RadzenLabel Text="@(translationState.Translate("Select_Template") + " *")" Component="Select_Template" />
+                                        <RadzenDropDown Data="@CaseTemplates" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;" @bind-Value="TemplateId" Name="Select_Template" />
+                                        <RadzenRequiredValidator DefaultValue="0" Component="Select_Template" Text="@translationState.Translate("Required_Field")" />
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="row mt-4 popup-buttons-alignment">
+                            <div class="col-12 p-0">
+
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit" style="margin-right: 0.2rem !important" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

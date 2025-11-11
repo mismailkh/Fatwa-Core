@@ -1,0 +1,328 @@
+﻿@page "/link-llslegalprinciplecontent/{JudmentDocumentId}/{selectedTabIndex}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.LLSLegalPrinciple;
+@using FATWA_DOMAIN.Models.ViewModel.DmsVMs
+@using FATWA_DOMAIN.Models.ViewModel.LLSLegalPrinciple;
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using Syncfusion.Blazor.Navigations
+@using static FATWA_DOMAIN.Enums.LegalPrinciple.LegalPrincipleEnum;
+
+
+<!--<History Author = "Muhammad Abuzar" Date="2024-05-7" Version="1.0" Branch="master"> Link LLS Legal Principle Contents with Documents</History>-->
+@* @if ((loginState.ClaimList.Where(x => x.Value == "Permissions.LPS.Principles.Link_Principle_Content").Count() > 0 && PrincipleId == null) || (loginState.ClaimList.Where(x => x.Value == "Permissions.LPS.Principles.Edit").Count() > 0 && PrincipleId != null))
+{ *@
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Path="/llslegalprincipledocuments-list" Text="@translationState.Translate("legal-principle")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Link_Legal_Principle_Contents")" />
+                </RadzenBreadCrumb>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        
+
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Link_Legal_Principle_Contents")"></RadzenHeading>
+
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+            </div>
+        </div>
+
+        <div class="row justify-content-center mainContentBlock no-gutters" style="overflow:scroll">
+            <div class="col-md-6 save-case-request-col">
+                <div class="row justify-content-center mainContentBlock py-2">
+                    <div class="col-md-12">
+
+                        <div class="row no-gutters">
+                            <div class="col-md-4 ">
+                                <RadzenTextBox class="searchBox"
+                                               Placeholder="@translationState.Translate("Grid_Search")"
+                                               Name="Textbox0"
+                                               @bind-Value=PrincipleContentSearch.PrincipleContent />
+                            </div>
+                            <div class="col-md-8 px-0 pb-3" style="text-align-last: end;">
+                                <RadzenButton class="addBtn" Icon="search" Text="@translationState.Translate("Search")" Click="OnSearchPrincipleContent" />
+                                <RadzenButton class="addBtn"
+                                              Icon="clear"
+                                              Text="@translationState.Translate("Clear")" Click="OnClear" />
+                            </div>
+                        </div>
+
+                        <div class="row tableContent table-responsive no-gutters pb-3">
+                            <RadzenDataGrid @ref="@PrincipleContentGrid"
+                                            AllowFiltering="false"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            Data="@PrincipleContents"
+                                            TItem="LLSLegalPrinciplesRelationVM"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            SelectionMode="DataGridSelectionMode.Single"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            ShowPagingSummary="true"
+                                            ColumnWidth="130px">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Width="40px" Sortable="false" Filterable="false">
+                                        <HeaderTemplate>
+                                            <RadzenCheckBox TriState="false"
+                                                            TValue="bool"
+                                                            @bind-Value=@isAll
+                                                            Change="() => OnChangeHeader()" />
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            <RadzenCheckBox TriState="false"
+                                                            TValue="bool"
+                                                            @bind-Value=@data.IsChecked
+                                                            Change="@(() => OnChange(data))"/>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Title="@translationState.Translate("Actions")" Filterable="false" Sortable="false" Width="80px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                     <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                        class="approvalIcon"
+                                        Icon="visibility"
+                                        Title="@translationState.Translate("View_Detail")"
+                                        Size="ButtonSize.Small"
+                                                          Click="@((args) => ViewLinkedDocments(rowItem.PrincipleContentId))"
+                                        @onclick:stopPropagation="true" />
+                                    </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="PrincipleContent" Width="230px" Title="@translationState.Translate("Principle_Content")">
+                                        <Template Context="data">
+                                            @if (data.PrincipleContent != null)
+                                            {
+                                                @if (data.PrincipleContent.Length > 30)
+                                                {
+                                                    <a href="#" style="color:black" @onclick="@(() => OnPrincipleContentDetail(PrincipleContents.Where(x=>x.PrincipleContentId == data.PrincipleContentId).Select(x=>x.PrincipleContent).FirstOrDefault()))" @onclick:preventDefault>
+                                                        @data.PrincipleContent
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    @data.PrincipleContent
+                                                }
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="StartDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Start_Date")" />
+                                    <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="Category" Title="@translationState.Translate("Categories")">
+                                        <Template Context="data">
+                                            <a href="#" @onclick="@(() => PrincipleCategoriesDialog(data.PrincipleContentId))" @onclick:preventDefault>
+                                                Categories
+                                            </a>
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="LLSLegalPrinciplesRelationVM" Property="PageNumber" Title="@translationState.Translate("Page_Number")" >
+                                        <Template Context="data">
+                                            <RadzenNumeric ShowUpDown="false" TValue="int?" Disabled=@(!(data.IsChecked)) @bind-Value=@data.PageNumber Placeholder="@translationState.Translate("Page_Number")" />
+                                        </Template>
+                                        </RadzenDataGridColumn>
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12 justify-content-end ml-3">
+                    <RadzenButton Disabled=@(selectedPrincipleContents.Count() == 0) Click="@(()=>LinkPrincipleContents())" Style="width: 120px ">@translationState.Translate("LinkButton")</RadzenButton>
+                    <RadzenButton Click="@(() => Cancel())" Style="width: 120px; background-color:#404040;">@translationState.Translate("Cancel")</RadzenButton>
+                </div>
+            </div>
+
+            <div class="col-md-6 save-case-request-col">
+                <SfPdfViewerServer EnableNavigationToolbar="false"
+                                   ZoomMode="ZoomMode.FitToWidth"
+                                   Width="100%"
+                                   Height="600px"
+                                   ID="pdfviewer"
+                                   DownloadFileName="@DownloadFileName"
+                                   DocumentPath="@DocumentPath"
+                                   @ref="@pdfViewer"
+                                   ToolbarSettings="@ToolbarSettings"
+                                   EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                   InteractionMode="InteractionMode.Pan">
+                                   <PdfViewerEvents DocumentLoaded="DocumentLoaded"></PdfViewerEvents>
+					</SfPdfViewerServer>
+
+                @if (ShowSourceDocumentGrid)
+                {
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        @if (dataCommunicationService.selectedLegalPrincipleDocumentTab == (int)JudgementsTabsEnums.AppealJudgements
+                        || dataCommunicationService.selectedLegalPrincipleDocumentTab == (int)JudgementsTabsEnums.SupremeJudgements)
+                        {
+                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                    AllowFiltering="false"
+                                    FilterMode="Radzen.FilterMode.Advanced"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    Data="@SourceDocument"
+                                    TItem="LLSLegalPrincipleDocumentVM"
+                                    PageSize="@systemSettingState.Grid_Pagination"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                    ShowPagingSummary="true"
+                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                    ColumnWidth="150px">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="LLSLegalPrincipleDocumentVM" Property="CANNumber" Title="@translationState.Translate("CAN_Number")" />
+                                    <RadzenDataGridColumn TItem="LLSLegalPrincipleDocumentVM" Property="CaseNumber" Title="@translationState.Translate("Case_Number")" />
+                                    <RadzenDataGridColumn TItem="LLSLegalPrincipleDocumentVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CourtEn" : "CourtAr") Title="@translationState.Translate("Court")" />
+                                    <RadzenDataGridColumn TItem="LLSLegalPrincipleDocumentVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ChamberNameEn" : "ChamberNameAr") Title="@translationState.Translate("Chamber_Name")" />
+                                    <RadzenDataGridColumn TItem="LLSLegalPrincipleDocumentVM" Property="ChamberNumber" Title="@translationState.Translate("Chamber_Number")" />
+                                    <RadzenDataGridColumn TItem="LLSLegalPrincipleDocumentVM" Property="JudgementDate" Title="@translationState.Translate("Judgement_Date")" FormatString="{0:dd/MM/yyyy}" />
+
+                                </Columns>
+                            </RadzenDataGrid>
+                        }
+                        else if (dataCommunicationService.selectedLegalPrincipleDocumentTab == (int)JudgementsTabsEnums.LegalAdvice)
+                        {
+                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        Data="@LegalAdviceSourceDocument"
+                                        TItem="LLSLegalPrinciplLegalAdviceDocumentVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        ColumnWidth="150px">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="LLSLegalPrinciplLegalAdviceDocumentVM" Property="CreatedDate" Title="@translationState.Translate("Created_Date")" FormatString="{0:dd/MM/yyyy}" />
+                                    <RadzenDataGridColumn TItem="LLSLegalPrinciplLegalAdviceDocumentVM" Property="FinalDocFileName" Title="@translationState.Translate("File_Name")" />
+                                    <RadzenDataGridColumn TItem="LLSLegalPrinciplLegalAdviceDocumentVM" Property="FileNumber" Title="@translationState.Translate("File_Number")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        }
+                        else if (dataCommunicationService.selectedLegalPrincipleDocumentTab == (int)JudgementsTabsEnums.KuwaitAlYawm)
+                        {
+                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                    AllowFiltering="false"
+                                    FilterMode="Radzen.FilterMode.Advanced"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    Data="@KuwaitAlYawmDocument"
+                                    TItem="LLSLegalPrincipleKuwaitAlYoumDocuments"
+                                    PageSize="@systemSettingState.Grid_Pagination"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                    ShowPagingSummary="true"
+                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                    ColumnWidth="150px">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="LLSLegalPrincipleKuwaitAlYoumDocuments" Property="DocumentTitle" Title="@translationState.Translate("Document_Title")"> </RadzenDataGridColumn>      
+                                    <RadzenDataGridColumn TItem="LLSLegalPrincipleKuwaitAlYoumDocuments" Property="PublicationDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Publication_Date")"> </RadzenDataGridColumn>      
+                                    <RadzenDataGridColumn TItem="LLSLegalPrincipleKuwaitAlYoumDocuments" Property="PublicationDateHijri" Width="180px" Title="@translationState.Translate("Publication_Date_Hijri")"> </RadzenDataGridColumn>      
+                                    <RadzenDataGridColumn TItem="LLSLegalPrincipleKuwaitAlYoumDocuments" Property="EditionNumber" Title="@translationState.Translate("Edition_Number")"> </RadzenDataGridColumn>
+                                </Columns>
+                            </RadzenDataGrid>
+                        }
+                        else if (dataCommunicationService.selectedLegalPrincipleDocumentTab == (int)JudgementsTabsEnums.Others)
+                        {
+                            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                    AllowFiltering="false"
+                                    FilterMode="Radzen.FilterMode.Advanced"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    Data="@OtherDocument"
+                                    TItem="LLSLegalPrinciplOtherDocumentVM"
+                                    PageSize="@systemSettingState.Grid_Pagination"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                    ShowPagingSummary="true"
+                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                    ColumnWidth="150px">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="LLSLegalPrinciplOtherDocumentVM" Property="DocumentDate" Title="@translationState.Translate("Document_Date")" FormatString="{0:dd/MM/yyyy}" />
+                                    <RadzenDataGridColumn TItem="LLSLegalPrinciplOtherDocumentVM" Property="OtherAttachmentType" Title="@translationState.Translate("Document_Type")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+    </ChildContent>
+</RadzenContent>
+@* }
+else
+{
+	<div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} *@
+
+@code
+{
+    async Task OnPrincipleContentDetail(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Principle_Content"), ds =>
+    @<div clas s="col-12 mt-0 mb-2">
+        @(new MarkupString(args))
+    </div>
+    , new DialogOptions
+            {
+                Width = "60%"
+            });
+    }
+
+    async Task PrincipleCategoriesDialog(Guid? principleContentId)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Principle_Content"), ds =>
+    @<div clas s="col-12 mt-1 mb-2">
+        @foreach(var items in PrincipleCategories.Where(x=>x.PrincipleContentId == principleContentId))
+    {
+        @( "-> "+ (Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? items.CategoryPathEn : items.CategoryPathAr))
+        <br />
+
+    }
+    </div>
+        , new DialogOptions
+        {
+            Width = "30%"
+        });
+    }
+}
+<style>
+    input#pdfviewer_fileUploadElement {
+        display: none !important;
+    }
+
+    .rz-dialog-content {
+        padding-top: 8px !important;
+    }
+
+    .save-case-request-col {
+        background: #f8f9fa;
+        padding: 5px 10px !important;
+    }
+
+</style>

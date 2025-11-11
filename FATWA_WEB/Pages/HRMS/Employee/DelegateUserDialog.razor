@@ -1,0 +1,103 @@
+﻿@page "/delegate-employee"
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@layout MainLayout
+
+@if(EmployeeStatusId == 1)
+{
+    <RadzenTemplateForm Data="EmployeeLeaveDelegation" TItem="EmployeeLeaveDelegationInformation" Visible="true" Submit="SaveEmployeeLeaveDelegationInformation">
+        <ChildContent>
+            <div class="pt-2 pb-2">
+                <div class="row pb-2">
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <RadzenLabel Text="@(translationState.Translate("From_Date"))" />
+                            <RadzenDatePicker DateFormat="dd/MM/yyyy" @bind-Value="EmployeeLeaveDelegation.FromDate" Change="@CheckExistingLeave" Class="w-100" Name="LeaveFromDate" Style="display:block;" />
+                            <RadzenRequiredValidator Component="LeaveFromDate" Text="@translationState.Translate("Required_Field")" />
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <RadzenLabel Text="@(translationState.Translate("To_Date"))" />
+                            <RadzenDatePicker DateFormat="dd/MM/yyyy" @bind-Value="EmployeeLeaveDelegation.ToDate" Change="@CheckExistingLeave" Class="w-100" Name="LeaveToDate" Style="display:block;" />
+                            <RadzenRequiredValidator Component="LeaveToDate" Text="@translationState.Translate("Required_Field")" />
+                        </div>
+                    </div>
+                </div>
+                @if (EmployeeLeaveDelegation.FromDate != null && EmployeeLeaveDelegation.ToDate != null)
+                {
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="form-group">
+                                <RadzenLabel Text="@(translationState.Translate("Select_Delegated_Employee"))" />
+                                <RadzenDropDown Data="@AlternateEmployeesList"
+                                                AllowFiltering="true"
+                                                TValue="string"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowClear="true"
+                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar")"
+                                                ValueProperty="UserId"
+                                                Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;"
+                                                @bind-Value="EmployeeLeaveDelegation.DelegatedUserId"
+                                                Name="SelectUser">
+                                </RadzenDropDown>
+                                <RadzenRequiredValidator Component="SelectUser" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                        </div>
+                    </div>
+                }
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 popup-buttons-alignment">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                  ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")">
+                    </RadzenButton>
+
+                    <RadzenButton Text="@translationState.Translate("Cancel")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@ButtonCancelClick">
+                    </RadzenButton>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenTemplateForm>
+}
+else
+{
+    <RadzenTemplateForm Data="EmployeeDelegation" TItem="EmployeeDelegationVM" Visible="true" Submit="SaveEmployeeTaskDelegationInformation">
+        <ChildContent>
+            <div class="pt-2 pb-2">
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="form-group">
+                            <RadzenLabel Text="@(translationState.Translate("Select_Delegated_Employee"))" />
+                            <RadzenDropDown Data="@DelegatedEmployeesList"
+                                            AllowFiltering="true"
+                                            TValue="string"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowClear="true"
+                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar")"
+                                            ValueProperty="UserId"
+                                            Placeholder="@translationState.Translate("Select")"
+                                            Style="display:block;"
+                                            @bind-Value="EmployeeDelegation.DelegatedUserId"
+                                            Name="DelegatedUser" />
+                            <RadzenRequiredValidator Component="DelegatedUser" Text="@translationState.Translate("Required_Field")" />
+
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 popup-buttons-alignment">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                  ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")">
+                    </RadzenButton>
+
+                    <RadzenButton Text="@translationState.Translate("Cancel")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@ButtonCancelClick">
+                    </RadzenButton>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenTemplateForm>
+}

@@ -1,0 +1,60 @@
+﻿@*@page "/edit-lms-literature-index-division/{DivisionAisleId}"*@
+@page "/lmsliteratureindexdivisionaisle-edit"
+@layout MainLayout
+
+@using FATWA_DOMAIN.Models
+
+<!-- <History Author = 'Umer Zaman' Date='2022-03-21' Version="1.0" Branch="master">Edit Existing Literature division</History> -->
+<!-- <History Author = 'Umer Zaman' Date='2022-07-08' Version="1.0" Branch="master">Modified division according to dewey decimal system</History> -->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.Literatures.Create").Count() > 0)
+{
+
+    <PageTitle>@translationState.Translate("Edit_Lms_Literature_Index_Division")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row">
+                <div class="col-md-12">
+                    <RadzenTemplateForm TItem="LmsLiteratureIndexDivisionAisle" Data="@lmsLiteratureIndexDivision" Visible="@(lmsLiteratureIndexDivision != null)" Submit="@Form0Submit">
+                        <ChildContent>
+                            <div style="margin-bottom: 1rem" class="row">
+                                <div class="col-md-3">
+                                    <RadzenLabel Text="@translationState.Translate("Division_Number")" Component="DivisionNumber" style="width: 100%"> </RadzenLabel>
+                                    <small style="display: block">@translationState.Translate("3_Digit_Number")</small>
+                                </div>
+                                <div class="col-md-9">
+                                    <RadzenTextBox Placeholder="@translationState.Translate("number_placeholder")" onkeypress="return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57"
+                                               style="display: block; width: 100%" @bind-Value="@(lmsLiteratureIndexDivision.DivisionNumber)" Name="DivisionNumber" />
+                                    <RadzenRequiredValidator Component="DivisionNumber" Text="@translationState.Translate("Required_Field")" style="position: absolute;" />
+                                </div>
+                            </div>
+                            <div style="margin-bottom: 1rem" class="row">
+                                <div class="col-md-3">
+                                    <RadzenLabel Text="@translationState.Translate("Aisle_Number")" Component="AisleNumber" style="width: 100%"> </RadzenLabel>
+                                    <small style="display: block">@translationState.Translate("3_Digit_Number")</small>
+                                </div>
+                                <div class="col-md-9">
+                                    <RadzenTextBox Placeholder="@translationState.Translate("number_placeholder")" onkeypress="return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57"
+                                               style="display: block; width: 100%" @bind-Value="@(lmsLiteratureIndexDivision.AisleNumber)" Name="AisleNumber" />
+                                    <RadzenRequiredValidator Component="AisleNumber" Text="@translationState.Translate("Required_Field")" style="position: absolute;" />
+                                </div>
+                            </div>
+                            <div class="row popup-buttons-alignment">
+                                <div class="col offset-sm-3">
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Index_Create")">
+                                    </RadzenButton>
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@Button2Click">
+                                    </RadzenButton>
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenTemplateForm>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

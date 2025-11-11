@@ -1,0 +1,149 @@
+﻿@page "/execution-view/{ExecutionId}"
+@using FATWA_DOMAIN.Common;
+@using FATWA_DOMAIN.Models.ViewModel;
+@using static FATWA_DOMAIN.Enums.TaskEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Execution_Detail")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+            <div class="col-9">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem onclick=@RedirectBack Text="@translationState.Translate("Case")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Execution_Detail")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-3 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-12">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Execution_Detail")" />
+                </div>
+            </div>
+        </div>
+        <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Text="@translationState.Translate("Detail")" Selected="true">
+                        <div class="row no-gutters">
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Execution_File_Number") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@executionDetail?.ExecutionFileNumber</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("File_Opening_Date") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@executionDetail?.FileOpeningDate?.ToString("dd/MM/yyyy")</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Amount") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(executionDetail?.Amount != null ? string.Format("{0:n3}", executionDetail?.Amount) : "0.000") @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "(KWD)" : "(د.ك)")</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Paid_Amount") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(executionDetail?.PaidAmount != null ? string.Format("{0:n3}", executionDetail?.PaidAmount) : "0.000") @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "(KWD)" : "(د.ك)")</h3>
+                                </div>
+                            </div>
+
+
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Payer_Name") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@executionDetail?.PayerName</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Receiver_Name") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@executionDetail?.ReceiverName</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("File_Status") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @executionDetail?.FileStatusEn : @executionDetail?.FileStatusAr)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@(translationState.Translate("Remarks") + ":")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@executionDetail?.Remarks</h3>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Text="@translationState.Translate("Document_Details")" Selected="false">
+                        <FileUpload ReferenceGuid="Guid.Parse(ExecutionId)"
+                                    IsViewOnly="true"
+                                    ModuleId="(int)WorkflowModuleEnum.CaseManagement " />
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+        </div>
+
+        <div class="row py-4">
+            <div class="col-md-12 d-flex justify-content-end tableAdditionButton pb-3">
+                <TelerikButton Class="cancleBtn mx-2"
+                               ButtonType="Telerik.Blazor.ButtonType.Button"
+                               ThemeColor="light"
+                               OnClick="@BtnBack"> @translationState.Translate("Back") </TelerikButton>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

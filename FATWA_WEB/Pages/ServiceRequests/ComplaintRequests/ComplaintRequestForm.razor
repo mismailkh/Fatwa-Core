@@ -1,0 +1,210 @@
+﻿@page "/add-complaint-request/{RequestTypeId}/{SectorId}"
+@page "/edit-complaint-request/{ServiceRequestId}"
+
+@using FATWA_DOMAIN.Models.ServiceRequestModels.ComplaintRequestModels;
+@using FATWA_WEB.Pages.Shared
+@using Syncfusion.Blazor.RichTextEditor
+@using static FATWA_DOMAIN.Enums.ServiceRequests.ServiceRequestEnums
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+@using FATWA_DOMAIN.Models.ServiceRequestModels;
+
+@layout MainLayout
+
+
+@if ((loginState.ClaimList.Where(x => x.Value == "Permissions.SR.ServiceRequest.Create").Count() > 0 && ServiceRequestId == null) || (loginState.ClaimList.Where(x => x.Value == "Permissions.SR.ServiceRequest.Edit").Count() > 0 && ServiceRequestId != null))
+{
+<PageTitle>@(ServiceRequestId == null ? translationState.Translate("Add_Complaint_Request") : translationState.Translate("Edit_Complaint_Request"))</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/servicerequest-list" Text="@translationState.Translate("Service_Requests")" />
+                        <RadzenBreadCrumbItem Text="@((ServiceRequestId == null ? translationState.Translate("Add_Complaint_Request") : translationState.Translate("Edit_Complaint_Request")))" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard"> 
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@((ServiceRequestId == null ? translationState.Translate("Add_Complaint_Request") : translationState.Translate("Edit_Complaint_Request")))"></RadzenHeading>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+            </div>
+        </div>
+
+        <div class="row justify-content-center mainContentBlock no-gutters bg-light p-0">
+            <div class="col-md-12 save-case-request-col k-overflow-y-scroll">
+                <RadzenTemplateForm Data="@ComplaintRequest" TItem="ComplaintRequest" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="col-md-12 save-case-request-col k-overflow-y-scroll">
+                            <RadzenCard class="m-2">
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Service_Request_Number"))"
+                                                         Component="Service_Request_Number" />
+
+                                            <RadzenTextBox @bind-Value="@(RequestNumber)"
+                                                           Placeholder="@translationState.Translate("Service_Request_Number")"
+                                                           Name="Service_Request_Number" Disabled />
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Subject") + "*")"
+                                                         Component="Subject" />
+
+                                            <RadzenTextBox 
+                                                           Placeholder="@translationState.Translate("Subject")"
+                                                           @bind-Value="@ComplaintRequest.Subject"
+                                                           Name="Subject" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12  col-md-6 col-lg-6 col-xl-60">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Complaint_Type") + "*")"
+                                                         Component="Complaint_Type" />
+                                            <RadzenDropDown Data="@ComplaintTypes"
+                                                            Style="width:100%;max-width:100%;"
+                                                            PageSize="20"
+                                                            @bind-Value="@ComplaintRequest.TypeId"
+                                                            ValueProperty="Id"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                            AllowClear=true
+                                                            AllowFiltering="true"
+                                                            Placeholder="@translationState.Translate("Select")"
+                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                            @onclick:stopPropagation="true"
+                                                            Name="Complaint_Type">
+                                            </RadzenDropDown>
+                                            <RadzenRequiredValidator DefaultValue="null" Component="Complaint_Type" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-sm-12  col-md-6 col-lg-6 col-xl-60">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Priority") + "*")" Component="Priority" />
+                                            <RadzenDropDown Data="@Priorities"
+                                                            Style="width:100%;max-width:100%;"
+                                                            PageSize="20"
+                                                            @bind-Value="@ComplaintRequest.PriorityId"
+                                                            ValueProperty="Id"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                                            AllowClear=true
+                                                            AllowFiltering="true"
+                                                            Placeholder="@translationState.Translate("Select")"
+                                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                            @onclick:stopPropagation="true"
+                                                            Name="Priority">
+                                            </RadzenDropDown>
+                                            <RadzenRequiredValidator DefaultValue="null" Component="Priority" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row pb-2">
+                                    @if (ComplaintRequest.TypeId == (int)ComplaintTypeEnum.Other)
+                                    {
+                                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                            <div class="form-group">
+
+                                                <RadzenLabel Style="font-weight:bold"
+                                                Text="@(translationState.Translate("Other_Complaint_Type") + "*")"
+                                                Component="Other_Complaint_Type" />
+
+                                                <RadzenTextBox Placeholder="@translationState.Translate("Other_Complaint_Type")"
+                                                @bind-Value="@ComplaintRequest.OtherType"
+                                                Name="Other_Complaint_Type" />
+                                                <RadzenRequiredValidator Component="Other_Complaint_Type" Text="@translationState.Translate("Required_Field")" />
+                                            </div>
+                                        </div>
+                                    }
+
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold"
+                                                         Text="@(translationState.Translate("Issue_Start_Date") + "*")"
+                                                         Component="Issue_Start_Date" />
+
+                                            <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Max="DateTime.Now" Placeholder="@translationState.Translate("Date_of_Entry")" Name="Issue_Start_Date" @bind-Value="@ComplaintRequest.IssueStartDate" />
+
+                                            <RadzenRequiredValidator Component="Issue_Start_Date" Text="@translationState.Translate("Required_Field")" />
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@(translationState.Translate("Description") + " *")" />
+                                            <SfRichTextEditor EnableAutoUrl="false" EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")" @bind-Value="@ComplaintRequest.Description">
+                                                <RichTextEditorToolbarSettings Items="@Tools" />
+                                                <RichTextEditorQuickToolbarSettings Image="@ImageTools" />
+                                                <RichTextEditorImageSettings EnableResize="true" AllowedTypes=@allowedTypes SaveFormat="SaveFormat.Base64"></RichTextEditorImageSettings>
+                                            </SfRichTextEditor>
+                                            <div class="rz-message rz-messages-error ">@descriptionValidationMessage</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 form-group">
+                                        <FileUpload ReferenceGuid="@ComplaintRequest.Id"
+                                                    MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                                    ModuleId="(int)WorkflowModuleEnum.ServiceRequest"
+                                                    Multiple="true"
+                                                    AutoDelete="true"
+                                                    UploadFrom="VendorContract"
+                                                    @bind-DeletedAttachementIds="@DeletedAttachementIds"
+                                                    MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.ComplaintSR"
+                                                    FileTypes="@systemSettingState.FileTypes" />
+                                </div>
+                            </RadzenCard>
+                            <RadzenCard>
+                                <div class="col-12 p-0 d-flex justify-content-end">
+                                    <RadzenButton Click="@(()=>SaveAsDraft())" style="margin-left: 0.5rem !important" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save_As_Draft")" />
+                                     <RadzenButton ButtonType="Radzen.ButtonType.Submit" style="margin-left: 0.5rem !important" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" />
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.5rem !important" Text="@translationState.Translate("Cancel")" Click="@CancelForm">
+                                    </RadzenButton>
+                                </div>
+                            </RadzenCard>
+                        </div>
+
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

@@ -1,0 +1,220 @@
+﻿@page "/lmsliteratureborrowdetail-list"
+@layout MainLayout
+
+@using FATWA_DOMAIN.Enums
+@using FATWA_DOMAIN.Models.ViewModel
+@using static FATWA_DOMAIN.Enums.LiteratureEnum;
+
+<PageTitle>@translationState.Translate("BorrowerDetails") </PageTitle>
+
+<!--<History Author = 'Zain Ul Islam' Date='2022-03-21' Version="1.0" Branch="master"> Literature Borrow Detail Grid and CRUD</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.LMS.LiteratureBorrowDetail").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("BorrowerDetails")" />
+                    </RadzenBreadCrumb>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row TitleBar justify-content-center align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("BorrowerDetails")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4">
+                            <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                                           class="searchBox"
+                                           Name="Textbox0"
+                                           @oninput="@(async(args) => {
+                                        search = $"{args.Value}";
+                                        await grid0.GoToPage(0);await OnSearchInput();
+                                    })" />
+                        </div>
+                        <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                            <RadzenButton class="addBtn"
+                                          Icon="add"
+                                          Style="margin-bottom: 10px; "
+                                          Text="@translationState.Translate("Add")"
+                                          Click="@ButtonAddClick" />
+                            <RadzenButton ButtonType="Radzen.ButtonType.Button"
+                                          Icon="search"
+                                          Text="@translationState.Translate("Advanced_Search")"
+                                          Click="ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+
+					<div class="row tableContent table-responsive no-gutters pb-3">
+						<RadzenDataGrid @ref="grid0"
+									FilterMode="Radzen.FilterMode.Advanced"
+									Count="@(getLmsLiteratureBorrowDetailsResult != null ? getLmsLiteratureBorrowDetailsResult.Count() : 0)"
+									AllowPaging="true"
+									AllowSorting="true"
+									AllowFiltering="false"
+									Data="@FilteredGetLmsLiteratureBorrowDetailsResult"
+									TItem="BorrowDetailVM"
+									PageSize="@systemSettingState.Grid_Pagination"
+									PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+									PageSizeText="@translationState.Translate("Items_Per_Page")"
+									PageSizeOptions="@systemSettingState.Page_Size_Options"
+									EmptyText="@translationState.Translate("No_record_found")"
+									PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+									ShowPagingSummary="true" ColumnWidth="100px">
+							<Columns>
+								<RadzenDataGridColumn TItem="BorrowDetailVM" Title="@translationState.Translate("Action")" Width="140px" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+									<Template Context="rowItem">
+										@*@if (rowItem.DecisionId == (int)BorrowApprovalStatus.PendingForApproval && rowItem.DecisionId != (int)BorrowApprovalStatus.Expired)
+										{
+											<RadzenButton ButtonStyle="ButtonStyle.Secondary"
+												  Class="editIcon"
+												  Icon="mode"
+												  Title="@translationState.Translate("Edit")"
+												  Size="ButtonSize.Small"
+												  Click="@((args) => EditLiteratureBorrow(rowItem))"
+												  @onclick:stopPropagation="true" />
+										}*@
+										@if (rowItem.DecisionId == (int)BorrowApprovalStatus.PendingForApproval && rowItem.DecisionId != (int)BorrowApprovalStatus.BorrowingPeriodExpired)
+										{
+											<RadzenButton ButtonStyle="ButtonStyle.Danger"
+											Class="deleteIcon"
+											Icon="delete_outline"
+											Title="@translationState.Translate("delete")"
+											Size="ButtonSize.Small"
+											Click="@((args) => DeleteLiteratureBorrow(rowItem))"
+											@onclick:stopPropagation="true" />
+										}
+										@if (rowItem.DecisionId != (int)BorrowApprovalStatus.PendingForApproval && rowItem.DecisionId != (int)BorrowApprovalStatus.Rejected && rowItem.DecisionId != (int)BorrowApprovalStatus.BorrowingPeriodExpired && rowItem.ReturnApprovalId != (int)BorrowReturnApprovalStatus.Returned && rowItem.ReturnApprovalId != (int)BorrowReturnApprovalStatus.PendingForReturnBookApproval && rowItem.ExtensionApprovalStatus != (int)BorrowApprovalStatus.PendingForExtensionApproval)
+										{
+											<RadzenButton ButtonStyle="ButtonStyle.Danger"
+												  Class="deleteIcon"
+												  Icon="assignment_return"
+												  Title="@translationState.Translate("Return")"
+												  Size="ButtonSize.Small"
+												  Click="@((args) => ReturnLiteratureBorrow(rowItem))"
+												  @onclick:stopPropagation="true" />
+										}
+										@if (rowItem.DueDate < DateTime.Now && !rowItem.Extended && rowItem.DecisionId == (int)BorrowApprovalStatus.Approved && rowItem.ApplyReturnDate == null && rowItem.ReturnDate == null)
+										{
+											<RadzenButton ButtonStyle="ButtonStyle.Secondary"
+												  class="editIcon"
+												  Icon="extension"
+												  Title="@translationState.Translate("Apply_Extension")"
+												  Size="ButtonSize.Small"
+												  Click="@((args) => EditLmsLiteratureBorrowDetail(rowItem))"
+												  @onclick:stopPropagation="true" />
+										}
+									</Template>
+								</RadzenDataGridColumn>
+								<RadzenDataGridColumn TItem="BorrowDetailVM" Property="LiteratureName" Title="@translationState.Translate("Book_Name")" />
+								<RadzenDataGridColumn TItem="BorrowDetailVM" Property="BarCodeNumber" Title="@translationState.Translate("Barcode_No")" />
+								<RadzenDataGridColumn TItem="BorrowDetailVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar") Title="@translationState.Translate("Borrower_Full_Name")" />
+								<RadzenDataGridColumn TItem="BorrowDetailVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "BorrowApprovalStatus" : "BorrowApprovalStatusAr") Title="@translationState.Translate("Status")" />
+								<RadzenDataGridColumn TItem="BorrowDetailVM" Property="IssueDate" Title="@translationState.Translate("Borrow_Issue_Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+								<RadzenDataGridColumn TItem="BorrowDetailVM" Property="ApprovalDate" Title="@translationState.Translate("Borrow_Approval_Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+								@*<RadzenDataGridColumn TItem="BorrowDetailVM" Property="ReturnDate" Title="@translationState.Translate("Return_Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />*@
+								@*<RadzenDataGridColumn TItem="BorrowDetailVM" Property="DueDate" Title="@translationState.Translate("Due_Date_Borrow")" FormatString="{0:dd/MM/yyyy h:mm tt}" />*@
+								<RadzenDataGridColumn TItem="BorrowDetailVM" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Due_Date_Borrow")">
+									<Template Context="rowItem">
+										@if (rowItem.DecisionId != (int)BorrowApprovalStatus.PendingForApproval && rowItem.DecisionId != (int)BorrowApprovalStatus.Rejected && rowItem.DecisionId != (int)BorrowApprovalStatus.BorrowingPeriodExpired)
+										{
+											@rowItem.DueDate.ToString("dd/MM/yyyy h:mm tt")
+										}
+									</Template>
+								</RadzenDataGridColumn>
+							</Columns>
+						</RadzenDataGrid>
+					</div>
+				</div>
+			</div>
+		</ChildContent>
+	</RadzenContent>
+
+    @*Advance search Window*@
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("View_by")" />
+                    <RadzenDropDown TValue="BorrowDetailVM.SearchViewBy"
+                                    Style="width: 100%;"
+                                    Data="Options"
+                                    @bind-Value="@(SerachTypeId)"
+                                    TextProperty="EnumName"
+                                    ValueProperty="EnumValue" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Choose_Search_Item")" />
+                    @if (SerachTypeId == BorrowDetailVM.SearchViewBy.BookName || SerachTypeId == BorrowDetailVM.SearchViewBy.UserName)
+                    {
+                        <RadzenTextBox MaxLength="100"
+                                       @bind-Value="@(SearchBoxTextValue)"
+                                       Placeholder="@translationState.Translate("Enter_keywords")"
+                                       Name="KeywordsType" />
+                    }
+                    else
+                    {
+                        <TelerikDatePicker Format="dd/MM/yyyy"
+                                           @bind-Value="@SearchBoxValue"
+                                           Min="@Min"
+                                           Placeholder="@translationState.Translate("Enter_keywords")" />
+                    }
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 popup-buttons-alignment">
+
+                    <RadzenButton Text="@translationState.Translate("Grid_Search")"
+                                  Icon="search"
+                                  Size="ButtonSize.Medium"
+                                  Click="SearchAsync" />
+
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton Text="@translationState.Translate("Reset")"
+                                      Icon="find_replace"
+                                      Size="Radzen.ButtonSize.Medium"
+                                      Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

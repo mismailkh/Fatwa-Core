@@ -1,0 +1,225 @@
+﻿@page "/moj-imagedocument-list"
+@using DMS_WEB.Shared;
+@using FATWA_DOMAIN.Models.ViewModel.DmsVMs
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@layout MainLayout
+@*<History Author = 'ijaz Ahmad' Date='2024-02-27' Version="1.0" Branch="master"> Moj images Document list </History>*@
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.DMS.MojImage.DocumentList").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("List_Case_Document")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row pt-3 no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("List_Case_Document")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-6 ">
+                            <RadzenTextBox class="searchBox" Placeholder="@translationState.Translate("Grid_Search")" Name="Textbox0"
+                                           @oninput="@(async(args) => {search = $"{args.Value}";await grid.GoToPage(0);await OnSearchInput();})" />
+                        </div>
+                        <div class="col-md-6 tableAdditionButton addPrincipleBtn px-0 pb-3">
+                            <RadzenButton class="addBtn"
+                                          Icon="search"
+                                          Text="@translationState.Translate("Advanced_Search")"
+                                          Click="ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        ExpandMode="DataGridExpandMode.Single"
+                                        PagerHorizontalAlign="HorizontalAlign.Center"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        Data="@FilteredMojImageDocumentList"
+                                        TItem="MojDocumentVM"
+                                        RowExpand="ExpendMojDocument"
+                                        ShowPagingSummary="true"
+                                        PageSize="@loginState.PageSize"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                            <Template Context="mojdocumentlist">
+                                <RadzenCard class="bg-light">
+                                    <div class="row pb-2">
+                                        <div class="col-md-12 tableAdditionButton d-flex justify-content-end px-0 pb-3">
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                            <div class="tableContent table-responsive">
+                                                <RadzenDataGrid @ref="mojdocumentgridpVM"
+                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                Width="100%"
+                                                                AllowFiltering="false"
+                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                PagerHorizontalAlign="HorizontalAlign.Center"
+                                                                ExpandMode="DataGridExpandMode.Single"
+                                                                AllowPaging="true"
+                                                                AllowSorting="true"
+                                                                Data="@mojexpandImagedocumentList"
+                                                                TItem="MojDocumentVM"
+                                                                ShowPagingSummary="true"
+                                                                PageSize="@loginState.PageSize"
+                                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                                                    <Columns>
+                                                        <RadzenDataGridColumn TItem="MojDocumentVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="50px" TextAlign="TextAlign.Center">
+                                                            <Template Context="attachment">
+
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="visibility" Class="viewIcon" Click="@(args => ViewAttachement(attachment))" @onclick:stopPropagation="true" Disabled="attachment.StoragePath == null">
+                                                                </RadzenButton>
+
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="download" Class="m-1" Click="@(args => DownloadAttachement(attachment))" @onclick:stopPropagation="true" Disabled="attachment.StoragePath == null">
+                                                                </RadzenButton>
+                                                            </Template>
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="MojDocumentVM" Width="150px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AttachmentTypeEn" : "AttachmentTypeAr")" Title="@translationState.Translate("Attachment_Type")">
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="MojDocumentVM" Width="133px" Property="DocumentDate" Title="@translationState.Translate("Document_Date")">
+                                                        </RadzenDataGridColumn>
+                                                    </Columns>
+                                                </RadzenDataGrid>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </RadzenCard>
+                            </Template>
+                            <Columns>
+                                <RadzenDataGridColumn TItem="MojDocumentVM" Width="172px" Property="CANNumber" Title="@translationState.Translate("CAN")" />
+                                <RadzenDataGridColumn TItem="MojDocumentVM" Width="133px" Property="CaseNumber" Title="@translationState.Translate("Case_Number")" />
+                                <RadzenDataGridColumn TItem="MojDocumentVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" Title="@translationState.Translate("Court_type")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </div>
+
+            @if (DisplayDocumentViewer)
+            {
+                <RadzenCard>
+                    <div class="row pb-2">
+                        <div class="col-md-4">
+                            <h2 class="formHeading">@translationState.Translate("Document_Viewer")</h2>
+                        </div>
+                        <div class="col-md-8 d-flex justify-content-end">
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" class="btn-close-custom" Text="@translationState.Translate("Close")" Click="@( () => DisplayDocumentViewer = false )">
+                            </RadzenButton>
+                        </div>
+                    </div>
+                    <div class="row pb-2" style="overflow:scroll">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    @* <TelerikPdfViewer @ref="PdfViewerRef"
+                            Width="100%"
+                            Height="800px"
+                            Data="@FileData">
+                            <PdfViewerToolBar>
+                            <PdfViewerToolBarSeparator />
+                            <PdfViewerToolBarDownloadTool />
+                            <PdfViewerToolBarPrintTool />
+                            <PdfViewerToolBarPagerTool />
+                            <PdfViewerToolBarSpacer />
+                            <PdfViewerToolBarZoomTool />
+                            <PdfViewerToolBarSelectionTool />
+                            <PdfViewerToolBarSearchTool />
+                            </PdfViewerToolBar>
+                            </TelerikPdfViewer> *@
+                            <SfPdfViewerServer EnableNavigationToolbar="false"
+                                               Width="100%"
+                                               Height="1000px"
+                                               @ref="@pdfViewer"
+                                               EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                               Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                               ID="pdfviewerDetailCommunication"
+                                               DocumentPath="@DocumentPath"
+                                               InteractionMode="InteractionMode.Pan">
+                            </SfPdfViewerServer>
+                        </div>
+                    </div>
+                </RadzenCard>
+            }
+        </ChildContent>
+    </RadzenContent>
+
+    @*Advance search Window*@
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Case_Number")" Component="CaseNumber" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Case_Number")" @bind-Value="@advanceSearchVM.CANNumber" Name="CaseNumber" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Attachment_Type")" Component="AttachmentTypeId" />
+                    <RadzenDropDown Data="@attachmentTypes" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "Type_En" : "Type_Ar")" ValueProperty="AttachmentTypeId" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchVM.AttachmentTypeId" Name="AttachmentTypeId" />
+                </div>
+
+            </div>
+            <div class="row" Style="margin-top:10px;">
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Request_From")" Component="CreatedFrom" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="CreatedFrom" @bind-Value="@advanceSearchVM.CreatedFrom" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Request_To")" Component="CreatedTo" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="CreatedTo" @bind-Value="@advanceSearchVM.CreatedTo" />
+                </div>
+
+            </div>
+            <div class="row justify-content-end pt-3">
+                <div class="col-md-6" style="text-align:right;">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+

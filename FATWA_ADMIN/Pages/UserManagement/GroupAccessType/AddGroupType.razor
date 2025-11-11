@@ -1,0 +1,66 @@
+﻿@layout MainLayout
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+
+<RadzenTemplateForm Data="@groupAccessTypeVM" TItem="GroupAccessTypeVM" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="col-12">
+            <div class="row">
+                <div class="col-12 form-group">
+                    <div class="k-form-field">
+                        <div class="k-form-field-wrap">
+                            <label for="ccs" class="k-label k-form-label">@(translationState.Translate("Name") + " *")</label>
+                            <div class="k-form-field-wrap">
+                                <RadzenTextArea Class="telerik-textarea-height-38" Name="Name" Placeholder="@translationState.Translate("Name")" @bind-Value="@groupAccessTypeVM.Name"></RadzenTextArea>
+                                <RadzenRequiredValidator Component="Name" Text="@translationState.Translate("Required_Field")" />
+                                <RadzenRegexValidator Component="Name" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesTextAreaPattern" />
+                                <RadzenLengthValidator Component="Name" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 form-group">
+                    <div class="k-form-field">
+                        <div class="k-form-field-wrap">
+                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Description")</label>
+                            <div class="k-form-field-wrap">
+                                <RadzenTextArea Class="telerik-textarea-height-38"
+                                                Placeholder="@translationState.Translate("Description")"
+                                                Name="Description"
+                                                @bind-Value="@groupAccessTypeVM.Description"></RadzenTextArea>
+                                <RadzenRegexValidator Component="Description" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesTextAreaPattern" />
+                                <RadzenLengthValidator Component="Description" Max="500" Text="@translationState.Translate("Max_Five_Hundred_Characters")" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 form-group">
+                    <div class="k-form-field">
+                        <div class="k-form-field-wrap">
+                            <label for="ccs" class="k-label k-form-label">@translationState.Translate("Web_Systems")</label>
+                            <div class="k-form-field-wrap">
+                                <RadzenDropDown Data="@websystemList"
+                                                TextProperty=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "NameEn" : "NameAr")
+                                                ValueProperty="WebSystemId"
+                                                Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;"
+                                                Multiple="true"
+                                                @bind-Value="groupAccessTypeVM.SelectedIdz" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+            <div class="popup-buttons-alignment form-group">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Text="@(Id == null ? translationState.Translate("Create") : translationState.Translate("Update"))" />
+
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@CancelChanges" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>
+

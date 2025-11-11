@@ -1,0 +1,28 @@
+﻿@page "/approvereject-ConsultationFile/{ReferenceId}"
+@using FATWA_DOMAIN.Models.CaseManagment
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Approve_Reject_ConsultationFile")</PageTitle>
+
+
+<div class="row TitleBar justify-content-left align-items-center">
+    <div class="col-md-12">
+        <div class="row no-gutters">
+            <RadzenLabel Text="@translationState.Translate("Approve_Reject_CaseFile_Sure")" />
+        </div>
+    </div>
+</div>
+@*inline css use for aligmnet, both Eng and Arabic view*@
+<div class="col-md-12 d-flex justify-content-center align-items-center" style="margin-top: 12px; padding-top: 7px;">
+    <div style="min-width: fit-content;padding: 0px 10px;">
+        <RadzenButton Text="@translationState.Translate("Approve_Consultation_file")"
+                      ButtonStyle="ButtonStyle.Primary"
+                      Click="@ApproveConsultationFile" />
+    </div>
+    <div style="min-width: fit-content;padding: 0px 10px;">
+        <RadzenButton Text="@translationState.Translate("Reject_Consultation_file")"
+                      ButtonStyle="ButtonStyle.Light"
+    Click="@RejectConsultationFile" />
+    </div>
+</div>
+

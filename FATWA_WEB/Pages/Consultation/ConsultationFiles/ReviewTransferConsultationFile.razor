@@ -1,0 +1,500 @@
+﻿@page "/consultationfile-transfer-review/{FileId}/{SectorTypeId}/{TaskId}"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs
+@using FATWA_DOMAIN.Models.ViewModel.ConsultationVMs;
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowEnums
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.TaskEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+
+@layout MainLayout
+
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+
+                        <RadzenBreadCrumbItem onclick="@RedirectBack" Text="@translationState.Translate("Previous_page")" />
+
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("View_Details")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("View_Consultation_File_Details")" />
+                </div>
+            </div>
+        </div>
+        <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+            <RadzenCard>
+                <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Client">
+                    <Tabs>
+                        <RadzenTabsItem Text="@translationState.Translate("Consultation_File_Info")">
+                            <RadzenAccordion>
+                                <Items>
+                                    <RadzenAccordionItem Text="@translationState.Translate("File_Details")" Selected="true">
+                                        <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Client">
+                                            <Tabs>
+                                                <RadzenTabsItem Text="@translationState.Translate("File_Info")">
+                                                    <div class="row pb-2">
+                                                        <div class="col-12 datagrid-rz-label">
+                                                            <div class="row no-gutters">
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("File_Number"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@consultationFile?.FileNumber</h3>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("File_Date"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@consultationFile?.FileDate.ToString("dd/MM/yyyy")</h3>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("Request_Number"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@consultationFile?.RequestNumber</h3>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("Request_Date"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@consultationFile?.RequestDate?.ToString("dd/MM/yyyy")</h3>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("Status"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationFile?.StatusNameEn : consultationFile?.StatusNameAr)</h3>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("Government_Entity"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationFile?.EntityName_En : consultationFile?.EntityName_Ar)</h3>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("Department"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationFile?.DepartmentName_En : consultationFile?.DepartmentName_Ar)</h3>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("Operating_Sector_Type"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationFile?.SectorName_En : consultationFile?.SectorName_Ar)</h3>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("Priority"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationFile?.PriorityName_En : consultationFile?.PriorityName_Ar)</h3>
+                                                                    </div>
+                                                                </div>
+                                                                @if (Convert.ToInt32(SectorTypeId) == (int)OperatingSectorTypeEnum.Contracts)
+                                                                {
+                                                                    <div class="col-6 detailSection">
+                                                                        <div class="detailHeading">
+                                                                            <h3>@translationState.Translate("Contract_Amount_75000KD"):</h3>
+                                                                        </div>
+                                                                        <div class="detailContent">
+                                                                            <h3>@consultationFile?.ContractAmount75000KD</h3>
+                                                                        </div>
+                                                                    </div>
+                                                                }
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("Subject"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@consultationFile?.Subject</h3>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("GE_User"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationFile?.GEUserNameEn : consultationFile?.GEUserNameAr)</h3>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-6 detailSection">
+                                                                    <div class="detailHeading">
+                                                                        <h3>@translationState.Translate("Is_Confidential"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        @*<h3>@consultationFile?.IsConfidential</h3>*@
+                                                                        @if (@consultationFile?.IsConfidential == true)
+                                                                        {
+                                                                            <h3>@translationState.Translate("Yes")</h3>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            <h3>@translationState.Translate("No")</h3>
+                                                                        } 
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12 detailSection">
+                                                                    <div class="detailHeading detailAlignment">
+                                                                        <h3>@translationState.Translate("Remarks"):</h3>
+                                                                    </div>
+                                                                    <div class="detailContent">
+                                                                        <h3>@consultationFile?.Remarks</h3>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </RadzenTabsItem>
+                                                <RadzenTabsItem Text="@translationState.Translate("Assignment")">
+                                                    <div class="row pb-2">
+                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                            <div class="tableContent table-responsive">
+                                                                <RadzenDataGrid @ref="AssigneeGrid"
+                                                                                AllowPaging="true"
+                                                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                                                Data="@consultationFileAssignmentHistoryVM"
+                                                                                TItem="ConsultationFileAssignmentHistoryVM"
+                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                Width="100%"
+                                                                                AllowFiltering="false"
+                                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                                AllowSorting="true"
+                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn TItem="ConsultationFileAssignmentHistoryVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AssignorNameEn" : "AssignorNameAr") Title="@translationState.Translate("Assigned_By")">
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="ConsultationFileAssignmentHistoryVM" Width="80px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")">
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="ConsultationFileAssignmentHistoryVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AssigneeNameEn" : "AssigneeNameAr") Title="@translationState.Translate("Assigned_To")">
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="ConsultationFileAssignmentHistoryVM" Property="Remarks" Title="@translationState.Translate("Remarks")">
+                                                                            <Template Context="remarks">
+                                                                                @if (remarks.Remarks != null)
+                                                                                {
+                                                                                    @if (remarks.Remarks.Length > 40)
+                                                                                    {
+                                                                                        @remarks.Remarks.Substring(0, 40) <a href="#" @onclick="@(() => OnDescriptionFullRemarksDetail(remarks.Remarks))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        @remarks.Remarks
+                                                                                    }
+                                                                                }
+                                                                            </Template>
+                                                                        </RadzenDataGridColumn>
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </RadzenTabsItem>
+                                                <RadzenTabsItem Text="@translationState.Translate("File_History")">
+                                                    <div class="row pb-2">
+                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                            <div class="tableContent table-responsive">
+                                                                <RadzenDataGrid @ref="HistoryGrid"
+                                                                                AllowPaging="true"
+                                                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                                                Data="@consultationFileHistory"
+                                                                                TItem="ConsultationFileHistoryVM"
+                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                Width="100%"
+                                                                                AllowFiltering="false"
+                                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                                AllowSorting="true"
+                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn TItem="ConsultationFileHistoryVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="60px" TextAlign="TextAlign.Center">
+                                                                            <Template Context="rowItem">
+                                                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                                              Icon="visibility"
+                                                                                              Size="ButtonSize.Small"
+                                                                                              Title="@translationState.Translate("Detail")"
+                                                                                              Click="@((args) => ViewHistoryDetail(rowItem))"
+                                                                                              @onclick:stopPropagation="true" />
+                                                                            </Template>
+                                                                        </RadzenDataGridColumn>
+                                                                        <RadzenDataGridColumn TItem="ConsultationFileHistoryVM" Width="100px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EventNameEn" : "EventNameAr") Title="@translationState.Translate("Event")" />
+                                                                        <RadzenDataGridColumn TItem="ConsultationFileHistoryVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr") Title="@translationState.Translate("Username")" />
+                                                                        <RadzenDataGridColumn TItem="ConsultationFileHistoryVM" Width="90px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")" />
+                                                                        <RadzenDataGridColumn TItem="ConsultationFileHistoryVM" Property="Remarks" Title="@translationState.Translate("Remarks")">
+                                                                            <Template Context="remarks">
+                                                                                @if (remarks.Remarks != null)
+                                                                                {
+                                                                                    @if (remarks.Remarks.Length > 40)
+                                                                                    {
+                                                                                        @remarks.Remarks.Substring(0, 40) <a href="#" @onclick="@(() => OnDescriptionFullRemarksDetail(remarks.Remarks))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        @remarks.Remarks
+                                                                                    }
+                                                                                }
+                                                                            </Template>
+                                                                        </RadzenDataGridColumn>
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </RadzenTabsItem>
+                                                <RadzenTabsItem Text="@translationState.Translate("Transfer_History")">
+                                                    <div class="row pb-2">
+                                                        <div class="col-12 datagrid-rz-label">
+                                                            <div class="tableContent ">
+                                                                <RadzenDataGrid @ref="transferHistoryGrid"
+                                                                                AllowPaging="true"
+                                                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                                                Data="@cmsCaseRequestTransferHistory"
+                                                                                TItem="CmsTransferHistoryVM"
+                                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                                Width="100%"
+                                                                                AllowFiltering="false"
+                                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                                AllowSorting="false"
+                                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                                                    <Columns>
+                                                                        <RadzenDataGridColumn Width="60px" TItem="CmsTransferHistoryVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorFromEn" : "SectorFromAr") Title="@translationState.Translate("Sector_From")" />
+                                                                        <RadzenDataGridColumn Width="60px" TItem="CmsTransferHistoryVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorToEn" : "SectorToAr") Title="@translationState.Translate("Sector_To")" />
+                                                                        <RadzenDataGridColumn Width="60px" TItem="CmsTransferHistoryVM" Property="Reason" Title="@translationState.Translate("Reason")" />
+                                                                        <RadzenDataGridColumn Width="60px" TItem="CmsTransferHistoryVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserName_En" : "UserName_Ar") Title="@translationState.Translate("Created_By")" />
+                                                                        <RadzenDataGridColumn Width="60px" TItem="CmsTransferHistoryVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy hh:mm tt}" Title="@translationState.Translate("Date")" />
+                                                                        <RadzenDataGridColumn Width="60px" TItem="CmsTransferHistoryVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StatusEn" : "StatusAr") Title="@translationState.Translate("Status")" />
+                                                                    </Columns>
+                                                                </RadzenDataGrid>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </RadzenTabsItem>
+                                            </Tabs>
+                                        </RadzenTabs>
+                                    </RadzenAccordionItem>
+                                </Items>
+                            </RadzenAccordion>
+
+                            <RadzenAccordion>
+                                <Items>
+                                    <RadzenAccordionItem Text="@translationState.Translate("Document_Details")" Selected="false">
+                                        @if (RefreshFileUploadGrid)
+                                        {
+                                            <FileUpload ReferenceGuid="Guid.Parse(FileId)"
+                                                        IsViewOnly="true"
+                                                        ModuleId="(int)WorkflowModuleEnum.COMSConsultationManagement " />
+                                        }
+                                    </RadzenAccordionItem>
+                                </Items>
+                            </RadzenAccordion>
+                            <RadzenAccordion>
+                                <Items>
+                                    <RadzenAccordionItem Text="@translationState.Translate("List_Draft_Documents")" Selected="false">
+
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                    Width="100%"
+                                                                    @ref="DraftConsultationRequestGrid"
+                                                                    AllowFiltering="false"
+                                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                                    AllowPaging="true"
+                                                                    AllowSorting="true"
+                                                                    Data="@DraftDocuments"
+                                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                                        <Columns>
+                                                            <RadzenDataGridColumn TItem="ComsDraftedDocumentVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                                                <Template Context="rowItem">
+                                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="visibility" Size="ButtonSize.Small" Click="@((args) => DetailDraft(rowItem))" @onclick:stopPropagation="true" />
+                                                                </Template>
+                                                            </RadzenDataGridColumn>
+                                                            <RadzenDataGridColumn TItem="ComsDraftedDocumentVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "TypeEn" : "TypeAr") Title="@translationState.Translate("Document_Type")" />
+                                                            <RadzenDataGridColumn TItem="ComsDraftedDocumentVM" Width="150px" Property="Name" Title="@translationState.Translate("Name")" />
+                                                            <RadzenDataGridColumn TItem="ComsDraftedDocumentVM" Width="150px" Property="DraftNumber" Title="@translationState.Translate("Draft_Number")" />
+                                                            <RadzenDataGridColumn TItem="ComsDraftedDocumentVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "StatusEn" : "StatusAr") Title="@translationState.Translate("Status")" />
+                                                            <RadzenDataGridColumn TItem="ComsDraftedDocumentVM" Width="150px" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")" />
+
+                                                        </Columns>
+                                                    </RadzenDataGrid>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </RadzenAccordionItem>
+                                </Items>
+                            </RadzenAccordion>
+
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@translationState.Translate("Communication")">
+                            <RadzenCard class="mt-4">
+                                <div class="row pb-2 pt-4">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="tableContent table-responsive">
+                                            <RadzenDataGrid @ref="CommunicationGrid"
+                                                            AllowPaging="true"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            ColumnWidth="200px"
+                                                            Data="@communicationListVm"
+                                                            TItem="CommunicationListVM"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            Width="100%"
+                                                            AllowFiltering="false"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            AllowSorting="true"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="CommunicationListVM" Title="@translationState.Translate("Action")"
+                                                                          Filterable="false"
+                                                                          Sortable="false"
+                                                                          Width="100px"
+                                                                          TextAlign="TextAlign.Center">
+                                                        <Template Context="rowItem">
+                                                            @if (rowItem.IsRead != true)
+                                                            {
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                              Icon="visibility"
+                                                                              Size="ButtonSize.Small"
+                                                                              Click="@((args) => ViewResponse(rowItem))"
+                                                                              @onclick:stopPropagation="true" />
+
+                                                            }
+                                                            else
+                                                            {
+                                                                <RadzenButton Style="background-color: #06be3d !important;" ButtonStyle="ButtonStyle.Secondary"
+                                                                              Icon="visibility"
+                                                                              Size="ButtonSize.Small"
+                                                                              Click="@((args) => ViewResponse(rowItem))"
+                                                                              @onclick:stopPropagation="true" />
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+
+                                                    <RadzenDataGridColumn TItem="CommunicationListVM" Property="FileNo" Title="@translationState.Translate("Reference_No")" />
+                                                    <RadzenDataGridColumn TItem="CommunicationListVM" Property="GeReferenceNo" Title="@translationState.Translate("Reference_No")" />
+                                                    <RadzenDataGridColumn TItem="CommunicationListVM" Property="GeReferenceDate" Title="@translationState.Translate("Reference_Date")" FormatString="{0:dd/MM/yyyy}" />
+                                                    <RadzenDataGridColumn TItem="CommunicationListVM" Property="FatwaReferenceNo" Title="@translationState.Translate("Fatwa_Reference_No")" />
+                                                    <RadzenDataGridColumn TItem="CommunicationListVM" Property="FatwaReferenceDate" Title="@translationState.Translate("Fatwa_Reference_Date")" FormatString="{0:dd/MM/yyyy}" />
+                                                    <RadzenDataGridColumn TItem="CommunicationListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CorrespondenceTypeEn" : "CorrespondenceTypeAr") Title="@translationState.Translate("Correspondence_Type")" />
+                                                    <RadzenDataGridColumn TItem="CommunicationListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Activity_En" : "Activity_Ar") Title="@translationState.Translate("Activity_Title")" />
+                                                    <RadzenDataGridColumn TItem="CommunicationListVM" FormatString="{0:dd/MM/yyyy}" Property="CreatedDate" Title="@translationState.Translate("Date")" />
+                                                    <RadzenDataGridColumn TItem="CommunicationListVM" Property="CreatedBy" Title="@translationState.Translate("Initiated_By")" />
+                                                    <RadzenDataGridColumn TItem="CommunicationListVM" Property="Remarks" Title="@translationState.Translate("Remarks")">
+                                                        <Template Context="remarks">
+                                                            @if (remarks.Remarks != null)
+                                                            {
+                                                                @if (remarks.Remarks.Length > 40)
+                                                                {
+                                                                    @remarks.Remarks.Substring(0, 40) <a href="#" @onclick="@(() => OnDescriptionFullRemarksDetail(remarks.Remarks))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                                }
+                                                                else
+                                                                {
+                                                                    @remarks.Remarks
+                                                                }
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenCard>
+                        </RadzenTabsItem>
+                    </Tabs>
+                </RadzenTabs>
+            </RadzenCard>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenCard>
+                    <div class="row">
+                        <div class="col-12 px-5">
+                            <RadzenLabel Text="@translationState.Translate("Reason")" Component="Remarks" style="width: 100%"> </RadzenLabel>
+                            <RadzenTextArea Placeholder="@translationState.Translate("Reason")" Name="Remarks" Disabled="true" @bind-Value="@(approvalTracking.Remarks)" Rows="3" class="w-100" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        @if (!managerTaskReminderData.Where(x => x.ManagerId == loginState.UserDetail.UserId).Any())
+                        {
+                            @if (taskDetailVM?.TaskStatusId != (int)TaskStatusEnum.Done && workflowInstance?.StatusId != (int)WorkflowInstanceStatusEnum.Success)
+                            {
+                                <div class="col-12 d-flex justify-content-end tableAdditionButton px-5 pb-2 pt-4">
+
+
+                                    <RadzenButton Text="@translationState.Translate("Select_Option")"
+                                                  ButtonStyle="ButtonStyle.Primary"
+                                                  Click="@ApproveTransferComs"
+                                                  Disabled="@(approvalTracking.StatusId != (int)ApprovalStatusEnum.Pending)"
+                                                  ButtonType="Radzen.ButtonType.Submit" />
+
+                                </div>
+                            }
+                        }
+                    </div>
+                </RadzenCard>
+            </div>
+        </div>
+
+
+
+    </ChildContent>
+</RadzenContent>
+@code
+{
+    async Task OnDescriptionFullRemarksDetail(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Remarks"), ds =>
+    @<div>
+        <p class="mb-4" style="min-height:200px;min-width:550px;line-height:2.5">@args</p>
+    </div>);
+    }
+}

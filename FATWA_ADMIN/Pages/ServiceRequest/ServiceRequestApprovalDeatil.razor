@@ -1,0 +1,113 @@
+﻿@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+<RadzenContent Container="main">
+    <ChildContent>
+        <RadzenAccordion>
+            <Items>
+                <RadzenAccordionItem Text="@translationState.Translate("Details")" Selected="true">
+                    <div class="row no-gutters">
+                        <div class="col-6 detailSection">
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("Service_Request_Name")</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>
+                                    @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? serviceRequestApprovalDetailVm.ServiceRequestNameEn : @serviceRequestApprovalDetailVm.ServiceRequestNameAr)
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="col-6 detailSection">
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("No_Of_Approval")</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>
+                                    @serviceRequestApprovalDetailVm.NoOfApprovals
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="col-6 detailSection">
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("Department")</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>
+                                    @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? serviceRequestApprovalDetailVm.DepartmentNameEn : serviceRequestApprovalDetailVm.DepartmentNameAr)
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="col-6 detailSection">
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("Created_By")</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>
+                                    @serviceRequestApprovalDetailVm.CreatedBy
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="col-6 detailSection">
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("Created_Date")</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>
+                                    @serviceRequestApprovalDetailVm.CreatedDate.ToString("dd/MM/yyyy")
+                                </h3>
+                            </div>
+                        </div>
+                        @if (serviceRequestApprovalDetailVm.ApprovalFlowDetailsEn != null)
+                        {
+                            string[] ApprovalSeq = new string[serviceRequestApprovalDetailVm.NoOfApprovals];
+
+                            ApprovalSeq = Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? serviceRequestApprovalDetailVm.ApprovalFlowDetailsEn.Split('#') : serviceRequestApprovalDetailVm.ApprovalFlowDetailsAr.Split('#');
+                            int Number = 1;
+                            @for (int i = 0; i < serviceRequestApprovalDetailVm.NoOfApprovals; i++)
+                            {
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Approval_No " + Number)</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>
+                                            @((MarkupString)ApprovalSeq[i]);
+                                        </h3>
+                                    </div>
+                                </div>
+                                Number++;
+                            }
+                        }
+                    </div>
+                </RadzenAccordionItem>
+                <RadzenAccordionItem Text="@translationState.Translate("History")" Selected="false">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <RadzenDataGrid @ref="HistoryGrid"
+                                            FilterMode="Radzen.FilterMode.Advanced"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            AllowFiltering="false"
+                                            Data="@ServiceReqApprovalHistory"
+                                            TItem="ServiceRequestApprovalHistoryVm"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            ShowPagingSummary="true"
+                                            Count="@(ServiceReqApprovalHistory != null ? ServiceReqApprovalHistory.Count() : 0)"
+                                            PageSize="@loginState.PageSize"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="ServiceRequestApprovalHistoryVm" Width="40px" Property="NoOfApprovals" Title="@translationState.Translate("No_Of_Approvals")" />
+                                    <RadzenDataGridColumn TItem="ServiceRequestApprovalHistoryVm" Width="40px" Property="ApprovalSequenceNo" Title="@translationState.Translate("Approval_Sequnece_No")" />
+                                    <RadzenDataGridColumn TItem="ServiceRequestApprovalHistoryVm" Width="100px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorNameEn" : "SectorNameAr") Title="@translationState.Translate("Sectors")" />
+                                    <RadzenDataGridColumn TItem="ServiceRequestApprovalHistoryVm" Width="80px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?"RoleNameEn" : "RoleNameAr") Title="@translationState.Translate("Roles")" />
+                                    <RadzenDataGridColumn TItem="ServiceRequestApprovalHistoryVm" Width="40px" Property="VersionId" Title="@translationState.Translate("Version_No")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </RadzenAccordionItem>
+            </Items>
+        </RadzenAccordion>
+    </ChildContent>
+</RadzenContent>

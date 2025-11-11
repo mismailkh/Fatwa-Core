@@ -1,0 +1,133 @@
+﻿@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+<div class="row pb-2">
+    <div class="col-12 datagrid-rz-label">
+        <div class="row no-gutters">
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Case_Type"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>
+                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @caseRequest?.RequestType_Name_En : @caseRequest?.RequestType_Name_Ar)
+                    </h3>
+                </div>
+            </div>
+            @if (caseRequest.RequestTypeId == (int)RequestTypeEnum.CivilCommercial)
+            {
+                <div class="col-6 detailSection">
+                    <div class="detailHeading">
+                        <h3>@translationState.Translate("SubType"):</h3>
+                    </div>
+                    <div class="detailContent">
+                        <h3>
+                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @caseRequest.SubType_En : @caseRequest.SubType_Ar)
+                        </h3>
+                    </div>
+                </div>
+            }
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Subject"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@caseRequest?.Subject</h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Government_Entity"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>
+                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @caseRequest?.EntityName_En : @caseRequest?.EntityName_Ar)
+                    </h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Department"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>
+                        @( Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @caseRequest?.DepartmentName_En : @caseRequest?.DepartmentName_Ar)
+                    </h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Claim_Amount"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>
+                        @(caseRequest?.ClaimAmount != null ? string.Format("{0:n3}", caseRequest.ClaimAmount) : "0.000") @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "(KWD)" : "(د.ك)")
+                    </h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Court_level"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>
+                        @(
+                            Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @caseRequest?.Court_Type_Name_En : @caseRequest?.Court_Type_Name_Ar
+                            )
+                    </h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Priority"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>
+                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @caseRequest?.PriorityName_En : @caseRequest?.PriorityName_Ar)
+                    </h3>
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Is_Confidential"):</h3>
+                </div>
+                <div class="detailContent">
+                    @{ bool isConfidential = caseRequest?.IsConfidential ?? false;}
+                    @if (isConfidential)
+                    {
+                        <h3>@translationState.Translate("Yes")</h3>
+                    }
+                    else
+                    {
+                        <h3>@translationState.Translate("No")</h3>
+
+                    }
+                </div>
+            </div>
+            <div class="col-6 detailSection">
+                <div class="detailHeading">
+                    <h3>@translationState.Translate("Status"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>
+                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @dataCommunicationService.caseFile?.StatusNameEn : @dataCommunicationService.caseFile?.StatusNameAr)
+                    </h3>
+                </div>
+            </div>
+            <div class="col-12 detailSection">
+                <div class="detailHeading detailAlignment">
+                    <h3>@translationState.Translate("Remarks"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@caseRequest?.Remarks</h3>
+                </div>
+            </div>
+            <div class="col-12 detailSection">
+                <div class="detailHeading detailAlignment">
+                    <h3>@translationState.Translate("Case_Requirements"):</h3>
+                </div>
+                <div class="detailContent">
+                    <h3>@caseRequest?.CaseRequirements</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

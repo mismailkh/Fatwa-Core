@@ -1,0 +1,58 @@
+﻿@page "/assign-hearingrollstolawyer/{ChamberNumberId}/{HearingDate}"
+@using FATWA_DOMAIN.Common;
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@using FATWA_INFRASTRUCTURE.Database
+@using FATWA_WEB.Services.Lms;
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+@layout MainLayout
+
+<!--<History Author = "Ijaz AHmad" Date="2024-07-27" Version="1.0" Branch="master"> Assign Hearing Rolls to lawayer</History>-->
+@* @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.CMS.AssignHearingRollsToLawyer").Any())
+{ *@
+    <RadzenContent Container="main">
+        <RadzenTemplateForm Data="@assignLawyerToCourt" Visible="@(assignLawyerToCourt != null)" TItem="CmsAssignLawyerToCourt" Submit="@Form0Submit">
+            <ChildContent>
+               
+               
+                    <div class=" row">
+                        <div class="col-md-12 rz-calendar-webkit-fill">
+                    <RadzenLabel Text="@(translationState.Translate("Lawyer") + " *")" />
+                            <RadzenDropDown TValue="string"
+                                            AllowClear="true"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            Name="LawyerName"
+                                            @bind-Value="LawyerId"
+                                            Placeholder="@translationState.Translate("Select_Lawyer")"
+                                            Data=@lawyers
+                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr")
+                                            ValueProperty="Id"
+                                            Style="display:block;">
+                            </RadzenDropDown>
+                            <RadzenRequiredValidator Component="LawyerName" Text="@translationState.Translate("Required_Field")" style="position: absolute" DefaultValue="0">
+                            </RadzenRequiredValidator>
+                        </div>
+                    </div>
+                   
+                    <div class="row justify-content-end pt-3">
+                        <div class="col-md-6 popup-buttons-alignment">
+                            <RadzenButton Text="@translationState.Translate("Assign")"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          ButtonType="Radzen.ButtonType.Submit" />
+                            <RadzenButton Text="@translationState.Translate("Cancel")"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Style="margin-left: 1rem"
+                                          Click="@ButtonCancel" />
+                        </div>
+                    </div>
+            </ChildContent>
+        </RadzenTemplateForm>
+    </RadzenContent>
+@* }
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} *@
+

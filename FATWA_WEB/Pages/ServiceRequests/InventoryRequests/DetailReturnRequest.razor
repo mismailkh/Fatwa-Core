@@ -1,0 +1,271 @@
+﻿@page "/detail-return-servicerequest/{ServiceRequestId}"
+@page "/detail-return-servicerequest/{ServiceRequestId}/{TaskId}"
+
+@using FATWA_DOMAIN.Common
+@using FATWA_DOMAIN.Models.ViewModel.InventoryManagementVMs;
+@using FATWA_DOMAIN.Models.ViewModel.ServiceRequestVMs
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.TaskEnums
+@using static FATWA_DOMAIN.Enums.ServiceRequests.ServiceRequestEnums
+@using static FATWA_DOMAIN.Enums.Inventory.InventoryEnum;
+
+@layout MainLayout
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.SR.ServiceRequest.Detail").Any())
+{
+    <PageTitle>@translationState.Translate("Service_Request_Detail")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/servicerequest-list" Text="@translationState.Translate("Service_Requests")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Service_Request_Detail")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Service_Request_Detail")" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+                <RadzenCard>
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Details")" Selected="true">
+                                <div class="row pb-2">
+                                    <div class="col-12 datagrid-rz-label">
+                                        <div class="row no-gutters">
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Request_Number")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @ServiceRequestDetail?.ServiceRequestNumber
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Request_Date")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @ServiceRequestDetail?.RequestCreatedDate.?.ToString("dd/MM/yyyy")
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Requestor_Name")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? ServiceRequestDetail?.RequestorNameEn : @ServiceRequestDetail?.RequestorNameAr)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Sector_Sent_By")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? ServiceRequestDetail?.SectorFromEn : @ServiceRequestDetail.SectorFromAr)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Sector_Received_By")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? ServiceRequestDetail?.SectorToEn : @ServiceRequestDetail.SectorToAr)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Request_Status")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? ServiceRequestDetail?.RequestStatusEn : @ServiceRequestDetail?.RequestStatusAr)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Description")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(ServiceRequestDetail?.ReturnItemReason)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Special_Instructions")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(ServiceRequestDetail?.SpecialInstruction)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Items_List")">
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="tableContent table-responsive">
+                                            <RadzenDataGrid @ref="grid1"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            AllowPaging="true"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            Data="@ReturnItemList"
+                                                            TItem="ReturnItemVM"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                            ShowPagingSummary="true"
+                                                            ColumnWidth="180px"
+                                                            Width="100%"
+                                                            AllowFiltering="false"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            ExpandMode="DataGridExpandMode.Single"
+                                                            AllowSorting="true">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="ReturnItemVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ItemCategoryNameEn" : "ItemCategoryNameEn")" Title="@translationState.Translate("Category")" />
+                                                    <RadzenDataGridColumn TItem="ReturnItemVM" Property="ItemCode" Title="@translationState.Translate("Code")" />
+                                                    <RadzenDataGridColumn TItem="ReturnItemVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ItemNameEn" : "ItemNameEn")" Title="@translationState.Translate("Name")" />
+                                                    <RadzenDataGridColumn TItem="ReturnItemVM" Property="ReturnQuantity" Title="@translationState.Translate("Quantity")" />
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </div>
+                                </div>
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                    <RadzenAccordion>
+                        <Items>
+                            <RadzenAccordionItem Text="@translationState.Translate("Document_Details")" Selected="false">
+                                <FileUpload ReferenceGuid="ServiceRequestDetail.ServiceRequestId"
+                                            IsViewOnly="true"
+                                            ModuleId="(int)WorkflowModuleEnum.InventoryManagement" />
+                            </RadzenAccordionItem>
+                        </Items>
+                    </RadzenAccordion>
+                    @if (RequestRemarksDetailVM.Where(x => x.TypeId == (int)RemarkTypeEnum.Rejected).Count() > 0)
+                    {
+                        <RadzenAccordion>
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Rejection_Reason")">
+                                    <div class="row pb-2">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                            <div class="tableContent table-responsive">
+                                                <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                AllowPaging="true"
+                                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                                Data="@RequestRemarksDetailVM.Where(x => x.TypeId == (int)RemarkTypeEnum.Rejected)"
+                                                                TItem="RequestRemarksDetailVM"
+                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                ShowPagingSummary="true"
+                                                                ColumnWidth="200px"
+                                                                Width="100%"
+                                                                AllowFiltering="false"
+                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                AllowSorting="true">
+                                                    <Columns>
+                                                        <RadzenDataGridColumn TItem="RequestRemarksDetailVM" Property="RemarkContent" Title="@translationState.Translate("Description")" />
+                                                        <RadzenDataGridColumn TItem="RequestRemarksDetailVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RemarkByEn" : "RemarkByAr")" Title="@translationState.Translate("Rejected_By")" />
+                                                        <RadzenDataGridColumn TItem="RequestRemarksDetailVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")" />
+
+                                                    </Columns>
+                                                </RadzenDataGrid>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    }
+
+                    @if (TaskId is not null && taskDetailVM.TaskStatusId == (int)TaskStatusEnum.Pending)
+                    {
+                        <div class="row d-flex justify-content-center align-items-center pb-3 mt-2">
+                            <div class="col-md-12 d-flex justify-content-end">
+                                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                              class="m-1"
+                                              Size="ButtonSize.Small"
+                                              Text="@translationState.Translate("Approve")"
+                                              Click="@((args) => ApproveReturnInventoryRequest((int)ServiceRequestStatusEnum.ApprovedbyHOS))"
+                                              @onclick:stopPropagation="true" />
+
+                                <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                              Size="ButtonSize.Small"
+                                              Text="@translationState.Translate("Reject")"
+                                              class="m-1"
+                                              Click="@((args) => RejectReturnInventoryRequest((int)ServiceRequestStatusEnum.RejectedByHOS))"
+                                              @onclick:stopPropagation="true" />
+
+                            </div>
+                        </div>
+                    }
+                </RadzenCard>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

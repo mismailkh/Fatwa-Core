@@ -1,0 +1,181 @@
+﻿@page "/add-user"
+@layout MainLayout
+@inherits FATWA_WEB.Pages.AddUserComponent
+
+@using Radzen
+@using Radzen.Blazor
+@using FATWA_DOMAIN.Models
+<PageTitle>Add User</PageTitle>
+<RadzenContent Container="main">
+  <ChildContent>
+    <div class="row">
+      <div class="col-md-12">
+        <RadzenTemplateForm Data="@user" Visible="@(user != null)" TItem="FATWA_DOMAIN.Models.AdminModels.UserManagement.User" Submit="@Form0Submit">
+          <ChildContent>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Id" Component="Id" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox MaxLength="450" style="display: block; width: 100%" @bind-Value="@(user.Id)" Name="Id">
+                </RadzenTextBox>
+                <RadzenRequiredValidator Component="Id" Text=@arbitext style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="User Name" Component="UserName" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox MaxLength="256" style="width: 100%" @bind-Value="@(user.UserName)" Name="UserName">
+                </RadzenTextBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Normalized User Name" Component="NormalizedUserName" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox MaxLength="256" style="width: 100%" @bind-Value="@(user.NormalizedUserName)" Name="NormalizedUserName">
+                </RadzenTextBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Email" Component="Email" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox MaxLength="256" style="width: 100%" @bind-Value="@(user.Email)" Name="Email">
+                </RadzenTextBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Normalized Email" Component="NormalizedEmail" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox MaxLength="256" style="width: 100%" @bind-Value="@(user.NormalizedEmail)" Name="NormalizedEmail">
+                </RadzenTextBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Email Confirmed" Component="EmailConfirmed" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenCheckBox @bind-Value="@(user.EmailConfirmed)" Name="EmailConfirmed">
+                </RadzenCheckBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Password Hash" Component="PasswordHash" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox style="width: 100%" @bind-Value="@(user.PasswordHash)" Name="PasswordHash">
+                </RadzenTextBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Security Stamp" Component="SecurityStamp" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">    
+                <RadzenTextBox style="width: 100%" @bind-Value="@(user.SecurityStamp)" Name="SecurityStamp">
+                </RadzenTextBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Concurrency Stamp" Component="ConcurrencyStamp" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenTextBox style="width: 100%" @bind-Value="@(user.ConcurrencyStamp)" Name="ConcurrencyStamp">
+                </RadzenTextBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Phone Number" Component="PhoneNumber" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+               @* <RadzenTextBox style="width: 100%" @bind-Value="@(user.PhoneNumber)" Name="PhoneNumber" />*@
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+               @* <RadzenLabel Text="Phone Number Confirmed" Component="PhoneNumberConfirmed" style="width: 100%" />*@
+              </div>
+              <div class="col-md-9">
+                @*<RadzenCheckBox @bind-Value="@(user.PhoneNumberConfirmed)" Name="PhoneNumberConfirmed" />*@
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Two Factor Enabled" Component="TwoFactorEnabled" style="width: 100%" />
+              </div>
+              <div class="col-md-9">
+                @*<RadzenCheckBox @bind-Value="@(user.TwoFactorEnabled)" Name="TwoFactorEnabled" />*@
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Lockout End" Component="LockoutEnd" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenDatePicker Format="dd/MM/yyyy"  style="width: 100%" @bind-Value="@(user.LockoutEnd)" Name="LockoutEnd">
+                </RadzenDatePicker>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Lockout Enabled" Component="LockoutEnabled" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenCheckBox @bind-Value="@(user.LockoutEnabled)" Name="LockoutEnabled">
+                </RadzenCheckBox>
+              </div>
+            </div>
+            <div style="margin-bottom: 1rem" class="row">
+              <div class="col-md-3">
+                <RadzenLabel Text="Access Failed Count" Component="AccessFailedCount" style="width: 100%">
+                </RadzenLabel>
+              </div>
+              <div class="col-md-9">
+                <RadzenNumeric style="display: block; width: 100%" @bind-Value="@(user.AccessFailedCount)" Name="AccessFailedCount">
+                </RadzenNumeric>
+                <RadzenRequiredValidator Component="AccessFailedCount" Text="AccessFailedCount is required" style="position: absolute">
+                </RadzenRequiredValidator>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col offset-sm-3">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" Text="Save" ButtonStyle="ButtonStyle.Primary">
+                </RadzenButton>
+                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="Cancel" Click="@Button2Click">
+                </RadzenButton>
+              </div>
+            </div>
+          </ChildContent>
+        </RadzenTemplateForm>
+      </div>
+    </div>
+  </ChildContent>
+</RadzenContent>
+@code
+{
+    string arbitext = "arbi alfaz";
+}

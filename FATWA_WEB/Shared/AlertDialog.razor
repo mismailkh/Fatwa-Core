@@ -1,0 +1,14 @@
+﻿<div class="rz-dialog-content">
+    <div>
+        <p style="margin-bottom: 20px;">@(translationState.Translate(Content))</p>
+
+        <div class="row mt-4 popup-buttons-alignment">
+            <div class="col-12 p-0">
+                <RadzenButton Text="@translationState.Translate(OkButtonText)"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Click="@OnOkClick"
+                              ButtonType="Radzen.ButtonType.Button" />
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,316 @@
+﻿@page "/lmsliteratureborrowdetail-edit/{BorrowId}"
+@page "/lmsliteratureborrowreturn-edit/{BorrowId}/{IsReturn}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel;
+@using static FATWA_DOMAIN.Enums.LiteratureEnum
+@using static FATWA_GENERAL.Helper.Enum
+
+<PageTitle>@translationState.Translate("Editing_Liberary_Borrowing_Details")</PageTitle>
+
+    <!--<History Author = 'Zain Ul Islam' Date='2022-03-22' Version="1.0" Branch="master"> Edit Literature Borrow Detail</History>-->
+    @if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.LiteratureBorrowDetail.Edit").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row justify-content-center align-items-center breadcrumbBar pb-3">
+                <div class="col-md-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/lmsliteratureborrowdetail-list" Text="@translationState.Translate("BorrowerDetails")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Literary_Borrow_Edit")" />
+                    </RadzenBreadCrumb>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard"> 
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Literary_Borrow_Edit")"></RadzenHeading>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+
+            <div class="row justify-content-center mainContentBlock pb-5 pt-5">
+                <div class="col-md-12">
+
+                    <RadzenTemplateForm Data="@lmsliteratureborrowdetail" Visible="@(lmsliteratureborrowdetail != null)" TItem="LmsLiteratureBorrowDetail" Submit="@FormSubmit">
+                        <ChildContent>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="row formHeadingSection">
+                                        <div class="col-md-12">
+                                            <p class="formHeading">@translationState.Translate("User_information")</p>
+                                            <div class="divider"></div>
+                                        </div>
+                                    </div>
+                                    <div class="row formContentSection">
+                                        <div class="col">
+                                            <div class="NT-sub-div">
+                                                <p class="NT-label">@translationState.Translate("Borrower_Name")</p>
+                                                <RadzenTextBox Disabled style="display: block; width: 100%" @bind-Value="@(lmsliteratureborrowdetail.UserName)" Name="UserName" />
+                                             </div>
+                                         </div>
+                                     </div>
+                                     <div class="row formContentSection">
+                                         <div class="col-12">
+                                             <div class="NT-sub-div">
+                                                 <p class="NT-label">@translationState.Translate("Mobile_Phone_Number")</p>
+                                                <RadzenTextBox Placeholder="@translationState.Translate("Mobile_Phone_Number")"
+                                                               ReadOnly="true"
+                                                               class="NT-input"
+                                                               Style="display: block; width: 100%"
+                                                               @bind-Value="@(lmsliteratureborrowdetail.PhoneNumber)"
+                                                               Name="MobileNumber" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row formContentSection">
+                                        <div class="col-12">
+                                            <div class="NT-sub-div">
+                                                <p class="NT-label">@translationState.Translate("Number_of_borrowed_books")</p>
+                                                <RadzenNumeric class="NT-input" ShowUpDown="false" ReadOnly="true" style="width: 100%" @bind-Value="@(lmsliteratureborrowdetail.EligibleCount)" Name="EligibleCount"> </RadzenNumeric>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @*<History Author = 'Nadia Gull' Date='2022-11-8' Version="1.0" Branch="master"> Add Grid </History>*@
+                                    @{
+                                        if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.LiteratureBorrowDetail.BorrowApprovalStatusDiv").Count() > 0)
+                                        {
+                                            if (isPendingOrApprovedStatus)
+                                            {
+                                                <div class="row formContentSection">
+                                                    <div class="col">
+                                                        <div class="NT-sub-div">
+
+                                                            <p class="NT-label">@translationState.Translate("Decision")</p>
+                                                            <RadzenDropDown class="NT-grid" @bind-Value="@(lmsliteratureborrowdetail.BorrowApprovalStatus)"
+                                                                            Name="DecisionId"
+                                                                            Data="@getExcludedLiteratureBorrowApprovalType"
+                                                                            AllowClear="true"
+                                                                            Style="display: block; width: 100%"
+                                                                            TextProperty="Name"
+                                                                            ValueProperty="DecisionId"
+                                                                            Placeholder="@translationState.Translate("Select_Resolution")" />
+                                                            <RadzenRequiredValidator Component="DecisionId" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="row formHeadingSection">
+                                        <div class="col-md-12">
+                                            <p class="formHeading">@translationState.Translate("Book_borrow_information")</p>
+                                            <div class="divider"></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row formContentSection">
+                                        <div class="col-12">
+                                            <div class="NT-sub-div">
+                                                <RadzenLabel class="NT-label" Text="@translationState.Translate("Book_Name")" Component="LiteratureName"></RadzenLabel>
+                                                <RadzenTextBox ReadOnly="true"
+                                                               Style="display: block; width: 100%"
+                                                               @bind-Value="@(lmsliteratureborrowdetail.LiteratureName)"
+                                                               Name="LiteratureName" />
+
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row formContentSection">
+                                        <div class="col-12">
+                                            <div class="NT-sub-div">
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <RadzenLabel class="NT-label" Text="@translationState.Translate("Book_Details")"></RadzenLabel>
+                                                    </div>
+                                                    <div class="col-12">
+                                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                        @ref="BorrowLiteratureGrid"
+                                                                        AllowFiltering="false"
+                                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                                        AllowPaging="false"
+                                                                        AllowSorting="true"
+                                                                        Data="@lmsliteratureborrowdetail.literatureDetailsForBorrowRequestModel"
+                                                                        TItem="LiteratureDetailsForBorrowRequestVM"
+                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Left"
+                                                                        ColumnWidth="150px"
+                                                                        ShowPagingSummary="false">
+                                                            <Columns>
+                                                                <RadzenDataGridColumn TItem="LiteratureDetailsForBorrowRequestVM" Property="LiteratureName" Title="@translationState.Translate("Book_Name")" />
+                                                                <RadzenDataGridColumn TItem="LiteratureDetailsForBorrowRequestVM" Property="EditionNumber" Title="@translationState.Translate("Edition_Number")" />
+                                                                <RadzenDataGridColumn TItem="LiteratureDetailsForBorrowRequestVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AuthorNameEn" :"AuthorNameAr") Title="@translationState.Translate("Author_Name_100")" />
+                                                                <RadzenDataGridColumn TItem="LiteratureDetailsForBorrowRequestVM" Property="BarcodeNumber" Title="@translationState.Translate("Barcode")" />
+                                                                <RadzenDataGridColumn TItem="LiteratureDetailsForBorrowRequestVM" Property="BorrowDate" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Borrow_Date")" />
+                                                                @*<RadzenDataGridColumn TItem="LiteratureDetailsForBorrowRequestVM" Property="ReturnDate" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Return_Date")" />*@
+                                                            </Columns>
+                                                        </RadzenDataGrid>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div> 
+                                    </div> 
+                                    <div class="row formContentSection">
+
+                                        <div class="col-5">
+                                            <div class="NT-sub-div">
+                                                <p class="NT-label">@translationState.Translate("extended")</p>
+                                                <RadzenCheckBox class="NT-checkbox" @bind-Value=@(lmsliteratureborrowdetail.Extended)
+                                                                Disabled="@isExtended"
+                                                                Name="Extended"
+                                                                TValue="bool"
+                                                                Change=@(args => OnChange(args, "Extended CheckBox")) />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row formContentSection">
+                                        <div class="col-6">
+                                            <div class="NT-sub-div">
+
+                                                <p class="NT-label">@translationState.Translate("Extend_Due_Date")</p>
+                                                <RadzenDatePicker class="NT-datepicker" Disabled="@isExtendedDue"
+                                                                  DateFormat="dd/MM/yyyy"
+                                                                  Style="width: 100%"
+                                                                  @bind-Value="@(lmsliteratureborrowdetail.ExtendDueDate)"
+                                                                  DateRender=@ExtendedDueDateRender
+                                                                  Name="ExtendDueDate" />
+
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="NT-sub-div">
+
+                                                <p class="NT-label">@translationState.Translate("Return_date")</p>
+                                                @if (@IsReturn != null)
+                                                {
+                                                    <RadzenDatePicker class="NT-datepicker" @bind-Value="@(lmsliteratureborrowdetail.ReturnDate)"
+                                                                      Placeholder="@translationState.Translate("Return_date")"
+                                                                      Max="@maxDate"
+                                                                      Disabled="true"
+                                                                      DateFormat="dd/MM/yyyy"
+                                                                      style="width: 100%"
+                                                                      Name="ReturnDate" />
+                                                }
+                                                else
+                                                {
+                                                    <RadzenDatePicker class="NT-datepicker" @bind-Value="@(lmsliteratureborrowdetail.ReturnDate)"
+                                                                      Placeholder="@translationState.Translate("Return_date")"
+                                                                      Max="@maxDate"
+                                                                      Disabled="@isAllowedToReturnDisableFromUI"
+                                                                      DateFormat="dd/MM/yyyy"
+                                                                      Change=@OnChangeReturnDate
+                                                                      DateRender=@DateRender style="width: 100%"
+                                                                      Name="ReturnDate" />
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row formContentSection">
+                                        <div class="col-6">
+                                            <div class="NT-sub-div">
+
+                                                <p class="NT-label">@translationState.Translate("Apply_Return_Date")</p>
+                                                <RadzenDatePicker class="NT-datepicker" Disabled="true"
+                                                                  DateFormat="dd/MM/yyyy"
+                                                                  Style="width: 100%"
+                                                                  @bind-Value="@(lmsliteratureborrowdetail.ApplyReturnDate)"
+                                                                  DateRender=@ExtendedDueDateRender
+                                                                  Name="ExtendDueDate" />
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row formContentFooterSection pt-5 pb-3">
+                                <div class="col">
+                                    <div class="NT-sub-div">
+
+                                        <RadzenButton class="NT-button-submit" ButtonStyle="ButtonStyle.Primary"
+                                                      ButtonType="Radzen.ButtonType.Submit"
+                                                      Text="@translationState.Translate("Save")"
+                                                      Disabled="@isAllowToReturnDisable" />
+
+
+                                        <RadzenButton class="NT-button-cancel" ButtonStyle="ButtonStyle.Light"
+                                                      Style="margin-left: 1rem"
+                                                      Text="@translationState.Translate("Cancel")"
+                                                      Click="@ButtonCancelClick" />
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row formContentSection no-gutters pb-3">
+                                <div class="col-12">
+                                    <RadzenLabel class="NT-label" Text="@translationState.Translate("Borrowed_Book_Details")"></RadzenLabel>
+                                </div>
+                                <div class="col-12">
+                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                    @ref="userBorrowLiteratureGrid"
+                                                    AllowFiltering="false"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    AllowPaging="false"
+                                                    AllowSorting="true"
+                                                    Data="@userBorrowLiteratureDetails"
+                                                    TItem="UserBorrowLiteratureVM"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Left"
+                                                    ColumnWidth="110px"
+                                                    ShowPagingSummary="false">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="UserBorrowLiteratureVM" Property="LiteratureName" Title="@translationState.Translate("Book_Name")" />
+                                            <RadzenDataGridColumn TItem="UserBorrowLiteratureVM" Property="BarCodeNumber" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("BarCodeNumber")" />
+                                            <RadzenDataGridColumn TItem="UserBorrowLiteratureVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "BorrowApprovalStatus" : "BorrowApprovalStatusAr")" Title="@translationState.Translate("Status")" />
+                                            <RadzenDataGridColumn TItem="UserBorrowLiteratureVM" Property="IssueDate" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Borrow_Issue_Date")" />
+                                            <RadzenDataGridColumn TItem="UserBorrowLiteratureVM" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Due_Date_Borrow")">
+                                                <Template Context="rowItem">
+                                                    @if (rowItem.DecisionId != (int)BorrowApprovalStatus.PendingForApproval && rowItem.DecisionId != (int)BorrowApprovalStatus.Rejected && rowItem.DecisionId != (int)BorrowApprovalStatus.BorrowingPeriodExpired)
+                                                    {
+                                                        @rowItem.DueDate
+                                                    }
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenTemplateForm>
+
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

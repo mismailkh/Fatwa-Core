@@ -1,0 +1,93 @@
+﻿@page "/caserequest-historydetail/{HistoryId}"
+
+@layout MainLayout
+
+<!-- <History Author = 'Zain Ul Islam' Date='2023-01-18' Version="1.0" Branch="master">History Of Case Request Detail View</History> -->
+<PageTitle>@translationState.Translate("History_Of_Case_Request")</PageTitle>
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/case-requests" Text="@translationState.Translate("Case_Requests")" />
+                        <RadzenBreadCrumbItem Path="@caseRequestViewPath" Text="@translationState.Translate("Case_Request_Detail_View")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("History_Of_Case_Request")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  Title="@translationState.Translate("Go_Back_Dashboard")"
+                                  Class="returnBtn"
+                                  Icon="dashboard"
+                                  Click="@GoBackDashboard" /> 
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  Title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  Class="returnBtn"
+                                  Icon="home"
+                                  Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters" style="margin-top:15px">
+                    <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("History_Of_Case_Request")" />
+                </div>
+            </div>
+        </div>
+        <div class="row d-block justify-content-left mainContentBlock py-4">
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Text="@translationState.Translate("MetaData_Section")" Selected="true">
+                        <div class="row no-gutters">
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Event")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @cmsCaseRequestHistoryVM?.EventEn : @cmsCaseRequestHistoryVM?.EventAr)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Status")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @cmsCaseRequestHistoryVM?.StatusEn : @cmsCaseRequestHistoryVM?.StatusAr)</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Date")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@cmsCaseRequestHistoryVM?.CreatedDate.ToString("dd/MM/yyyy")</h3>
+                                </div>
+                            </div>
+                            <div class="col-12 detailSection">
+                                <div class="detailHeading detailAlignment">
+                                    <h3>@translationState.Translate("Remarks")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@cmsCaseRequestHistoryVM?.Remarks</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenAccordionItem>
+
+                </Items>
+            </RadzenAccordion>
+        </div>
+    </ChildContent>
+</RadzenContent>

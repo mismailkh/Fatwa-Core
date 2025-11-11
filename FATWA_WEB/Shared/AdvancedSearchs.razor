@@ -1,0 +1,86 @@
+﻿@page "/advanced-search"
+@inherits FATWA_WEB.Shared.AdvancedSearchsComponent
+
+@using FATWA_DOMAIN.Models.ViewModel
+@using static FATWA_DOMAIN.Models.ViewModel.AdvancedSearchVM
+
+<!-- <History Author = 'Umer Zaman' Date='2022-04-04' Version="1.0" Branch="master">Advanced Search Implementation</History> -->
+
+<PageTitle>البحث المتقدم</PageTitle>
+
+<RadzenContent Container="main">
+  <ChildContent>
+    <RadzenHeading Size="H1" Text="البحث المتقدم">
+    </RadzenHeading>
+    <RadzenTemplateForm Data="@advancedSearchVM" Submit="@((AdvancedSearchVM args) => { Submit(args); })">
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenFieldset Text="البحث المتقدم" Style="background-color:white;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="col-md-12">
+                                <RadzenLabel Text="اختر الفئة" Style="display:block;"/>
+                            </div>
+                            <div class="col-md-12">
+                                <RadzenDropDownDataGrid TValue="int" Data="@lmsLiteratureClassificationsGrid" AllowFiltering="true" AllowClear="true"
+                                                    TextProperty="Name_Ar" ValueProperty="ClassificationId" Placeholder="اختر الفئة..."
+                                                    @bind-Value="@(advancedSearchVM.ClassificationId)" Style="display:block;">
+							    </RadzenDropDownDataGrid>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+						    <div class="col-md-12">
+                                <RadzenLabel Text="اختر صنف" Style="display:block;" />
+                            </div>
+                            <div class="col-md-12">
+                                <RadzenDropDownDataGrid TValue="AdvancedSearchDropDownEnum" Data="@AdvancedSearchOptions" AllowFiltering="true" AllowClear="true"
+                                                    TextProperty="advancedSearchEnumName" ValueProperty="advancedSearchEnumValue" Placeholder="اختر صنف..."
+                                                   @bind-Value="@(advancedSearchVM.EnumSearchValue)" Style="display:block;">
+							    </RadzenDropDownDataGrid>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+						    <div class="col-md-12">
+                                <RadzenLabel Text="أدخل الكلمات الرئيسية" Style="display:block;" />
+                            </div>
+                            <div class="col-md-12">
+                                <RadzenTextBox MaxLength="100" style="display: block; width: 100%" Name="KeywordsType" @bind-Value="@(advancedSearchVM.KeywordsType)" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-4">
+                            <div class="col-md-12">
+                                <RadzenLabel Text="من التاريخ" Style="display:block;"></RadzenLabel>
+                            </div>
+                            <div class="col-md-12">
+							    <RadzenDatePicker  TValue="DateTime?" DateFormat="dd/MM/yyyy" @bind-Value="@(advancedSearchVM.FromDate)" Name="FromDate" Style="display:block;">
+							    </RadzenDatePicker>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+						    <div class="col-md-12">
+                                <RadzenLabel Text="حتى تاريخه" Style="display:block;"></RadzenLabel>
+                            </div>
+                            <div class="col-md-12">
+							    <RadzenDatePicker  TValue="DateTime?" DateFormat="dd/MM/yyyy" @bind-Value="@(advancedSearchVM.ToDate)" Name="ToDate" Style="display:block;">
+							    </RadzenDatePicker>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+						    <div class="col-md-12">
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit" Icon="search" Text="بحث" />
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+						    <div class="col-md-12">
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit" Icon="search" Text="بحث" />
+                            </div>
+                        </div>
+                    </div>
+                </RadzenFieldset>
+            </div>
+        </div>
+    </RadzenTemplateForm>
+  </ChildContent>
+</RadzenContent>

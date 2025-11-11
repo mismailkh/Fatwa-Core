@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121.
+-->
+<Project>
+  <PropertyGroup>
+    <_PublishTargetUrl>D:\Publishes\FATWA_ADMIN</_PublishTargetUrl>
+    <History>True|2025-02-13T06:23:54.7275334Z;True|2024-01-29T11:30:28.5027266+05:00;True|2024-01-25T12:07:04.7320909+05:00;True|2024-01-23T14:08:28.6970224+05:00;True|2024-01-18T08:59:41.2905498+05:00;True|2024-01-16T20:13:51.0341760+05:00;True|2024-01-16T20:00:52.6291010+05:00;True|2024-01-10T20:26:27.1631043+05:00;</History>
+    <LastFailureDetails />
+  </PropertyGroup>
+</Project>

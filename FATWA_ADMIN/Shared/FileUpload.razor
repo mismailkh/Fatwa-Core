@@ -1,0 +1,263 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel
+@using Telerik.Blazor.Components.Upload
+@using Syncfusion.Blazor
+@using System.Text.Json
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+
+<!--<History Author = "Hassan Abbas" Date="2022-04-22" Version="1.0" Branch="master"> Generic File Upload Component Implemented</History>-->
+<!--<History Author = "Hassan Abbas" Date="2022-10-05" Version="1.0" Branch="master"> Added new layout, condition, columns for Case Management System</History>-->
+<!--<History Author = "Umer Zaman" Date="2025-02-12" Version="1.0" Branch="master"> Component modified that covered same UI flow according to others portals</History>-->
+<!--<History Author = "Umer Zaman" Date="2025-03-02" Version="1.0" Branch="master"> Modified UI and rearranged actions buttons.</History>-->
+@if (!IsViewOnly && (bool)IsUploadPopup)
+{
+    <RadzenTemplateForm Data="@TempAttachement" Visible="@(TempAttachement != null)" onkeydown="return event.keyCode !== 13" TItem="TempAttachementVM" Submit="@Form0Submit">
+        <ChildContent>
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="form-group mb-2">
+                        <RadzenLabel Text="@(translationState.Translate("Document_Type") + " *")" Component="Attachment_Type" />
+                        <RadzenDropDown Data="@AttachmentTypes?.Where(t => t.IsMandatory == false || t.AttachmentTypeId == MandatoryAttachmentTypeId)"
+                                        AllowFiltering="false"
+                                        AllowClear="true"
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"?"Type_En":"Type_Ar")"
+                                        ValueProperty="AttachmentTypeId"
+                                        Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;"
+                                        @bind-Value="TempAttachement.AttachmentTypeId"
+                                        Name="Attachment_Type"
+                                        Disabled="MandatoryAttachmentTypeId > 0" />
+                        <RadzenRequiredValidator DefaultValue="0" Component="Attachment_Type" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row file-upload-popup-custom">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="form-group mb-2">
+                        <RadzenLabel Text="@(translationState.Translate("Upload_Attachment") + " *")" />
+                        <div class="k-form-field-wrap mb-2">
+                            <TelerikUpload Class="@SelectFileButton" SaveUrl="@SaveUrl"
+                                           RemoveUrl="@RemoveUrl"
+                                           RemoveField="_fileToRemove"
+                                           AutoUpload="false"
+                                           MaxFileSize="@MaxFileSize"
+                                           MinFileSize="1"
+                                           AllowedExtensions="@FileTypes"
+                                           OnSelect="@OnSelectHandler"
+                                           OnCancel="@OnCancelHandler"
+                                           OnRemove="@OnRemoveHandler"
+                                           OnUpload="@OnUploadHandler"
+                                           OnSuccess="@OnSuccessHandler"
+                                           OnError="@OnErrorHandler"
+                                           Multiple="@Multiple"
+                                           Enabled="@Enabled" />
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <div class="k-form-hint">
+                                        @translationState.Translate("Accepted_Files")
+                                        <strong>
+                                            @if (FileTypes != null)
+                                            {
+                                                @foreach (var type in FileTypes)
+                                                {
+                                                    @type
+                                                }
+
+                                            }
+                                        </strong>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6">
+                                    <div class="k-form-hint justify-content-end">
+                                        @translationState.Translate("File_Maximum_Size")
+                                        <strong>
+                                            @if (MaxFileSize != null && MaxFileSize != 0)
+                                            {
+                                                @(FormatFileMaxSize((int)MaxFileSize))
+                                            }
+                                        </strong>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <div class="form-group mb-2 ">
+                        <RadzenLabel class="w-100" Text="@translationState.Translate("Description")" />
+                        <RadzenTextBox class="w-100" @bind-Value="@TempAttachement.Description" Placeholder="@translationState.Translate("Description")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-4 px-3 popup-buttons-alignment">
+                <div class="col-12 p-0">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                  Text="@translationState.Translate("Continue")" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                  Text="@translationState.Translate("Cancel")"
+                                  Click="@CloseDialog" />
+
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenTemplateForm>
+}
+else if (true)
+{
+    <RadzenCard>
+        @if (!IsViewOnly)
+        {
+            <div class="row pb-2">
+                <div class="col-md-6">
+                    <h2 class="formHeading">@translationState.Translate("Additional_Documents")</h2>
+                </div>
+                <div class="col-md-6 popup-buttons-alignment">
+                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="add" Text="@translationState.Translate("Add_Document")" Click="@( () => AddDocument(null) )" />
+                </div>
+            </div>
+        }
+        <div class="row pb-2">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="tableContent table-responsive">
+                <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")" @ref="additionalAttachGrid"
+                                AllowPaging="true"
+                                PageSize="systemSettingState.Grid_Pagination"
+                                Data="@AdditionalTempFiles"
+                                TItem="TempAttachementVM"
+                                Count="@(AdditionalTempFiles != null ? AdditionalTempFiles.Count() : 0)"
+                                AllowSorting="true"
+                                FilterMode="Radzen.FilterMode.Advanced"
+                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                ShowPagingSummary="true">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="TempAttachementVM" Width="100px" Context="attachment" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
+                            <Template Context="attachment">
+                                @if (!IsViewOnly)
+                                {
+                                    <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                  Icon="delete"
+                                                  Class="deleteIcon"
+                                                  title="@translationState.Translate("Delete")"
+                                                  Click="@(args => RemoveTempAttachement(attachment))"
+                                                  @onclick:stopPropagation="true" />
+                                }
+                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                              Icon="visibility" Class="viewIcon"
+                                              Click="@(args => ViewAttachement(attachment))"
+                                              title="@translationState.Translate("View")"
+                                              @onclick:stopPropagation="true"
+                                              Disabled="attachment.StoragePath == null">
+                                </RadzenButton>
+
+                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                              Icon="download"
+                                              Class="downloadIcon"
+                                              title="@translationState.Translate("Download")"
+                                              Click="@(args => DownloadAttachement(attachment))"
+                                              @onclick:stopPropagation="true"
+                                              Disabled="attachment.StoragePath == null" />
+
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="TempAttachementVM" Width="150px" Property="AttachmentTypeId" Title="@translationState.Translate("Document_Type")">
+                            <Template Context="attachment">
+                                @if (attachment.AttachmentTypeId == (int)AttachmentTypeEnum.Other)
+                                {
+                                    <RadzenLabel Text="@attachment.OtherAttachmentType" />
+
+                                }
+                                else
+                                {
+                                    @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                    {
+                                        <RadzenLabel Text="@AttachmentTypes?.Where(t => t.AttachmentTypeId == attachment.AttachmentTypeId).FirstOrDefault().Type_En" />
+                                    }
+                                    else
+                                    {
+                                        <RadzenLabel Text="@AttachmentTypes?.Where(t => t.AttachmentTypeId == attachment.AttachmentTypeId).FirstOrDefault().Type_Ar" />
+                                    }
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="TempAttachementVM" Width="150px" Property="Description" Title="@translationState.Translate("Description")">
+                            <Template Context="attachment">
+                                @if (String.IsNullOrEmpty(attachment.Description) || attachment.Description == "null")
+                                {
+                                    <RadzenLabel Text="-" />
+                                }
+                                else
+                                {
+                                    @if (attachment.Description.Length > 15)
+                                    {
+                                        @attachment.Description.Substring(0, 15) <a href="#" @onclick="@(() => OnDescriptionFullDetail(attachment.Description))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                    }
+                                    else
+                                    {
+                                        <RadzenLabel Text="@attachment.Description" />
+                                    }
+                                }
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="TempAttachementVM" Width="150px" Property="FileName" Title="@translationState.Translate("File_Name")" />
+                        <RadzenDataGridColumn TItem="TempAttachementVM" Width="150px" Property="DocDateTime" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Document_Date")" />
+
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+    </RadzenCard>
+}
+
+@if (DisplayDocumentViewer)
+{
+    <TelerikWindow Class="documentViewerWindow" Size="@(ThemeConstants.Window.Size.Medium)" Visible="@(DisplayDocumentViewer)" Draggable="true" Top="0%" Left="0%">
+        <WindowTitle>
+            <RadzenHeading Size="H2" Text="@translationState.Translate("Document_Viewer")" />
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Upload" Icon="launch"
+                          OnClick="@OpenInNewWindow" />
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@( () => DisplayDocumentViewer = false )"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            @if (DisplayDocumentViewer)
+            {
+                <div class="row pb-2 h-100">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <SfPdfViewerServer EnableNavigationToolbar="false"
+                                           ZoomMode="ZoomMode.FitToWidth"
+                                           EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                           ID="pdfviewer"
+                                           DocumentPath="@DocumentPath">
+                            <PdfViewerEvents DocumentLoaded="DocumentLoaded"></PdfViewerEvents>
+                            <PdfViewerToolbarSettings ToolbarItems="ToolbarItems"></PdfViewerToolbarSettings>
+                        </SfPdfViewerServer>
+                    </div>
+                </div>
+            }
+        </WindowContent>
+    </TelerikWindow>
+
+}
+
+@code
+{
+    async Task OnDescriptionFullDetail(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Description"), ds =>
+    @<div>
+        <p class="mb-4" style="min-height:200px;min-width:550px;line-height:2.5">@args</p>
+    </div>
+    );
+    }
+}

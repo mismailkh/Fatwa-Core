@@ -1,0 +1,57 @@
+﻿@page "/pacidocument_View/{Id}"
+@layout MainLayout
+@using Radzen
+@using Radzen.Blazor
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using Telerik.Blazor.Components
+<!--<History Author = 'Ijaz Ahmad' Date='2022-03-16' Version="1.0" Branch="master">For Document view</History>-->
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-12">
+                        <RadzenCard style="height:526px;width:100%;">
+                            <RadzenHtml>
+                                @if (ShowDocumentViewer)
+                                {
+                                    @* <TelerikPdfViewer Width="100%"
+                                Height="490px"
+                                Data="@FileData">
+                                <PdfViewerToolBar>
+                                <PdfViewerToolBarSeparator />
+
+                                <PdfViewerToolBarSpacer />
+                                <PdfViewerToolBarZoomTool />
+                                <PdfViewerToolBarPagerTool />
+                                <PdfViewerToolBarPrintTool />
+                                <PdfViewerToolBarDownloadTool />
+                                </PdfViewerToolBar>
+                                </TelerikPdfViewer> *@
+                                    <SfPdfViewerServer EnableNavigationToolbar="false"
+                                                       Width="100%"
+                                                       Height="1000px"
+                                                       @ref="@pdfViewer"
+                                                       EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                                       Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                                       ID="pdfviewerDetailCommunication"
+                                                       DocumentPath="@DocumentPath"
+                                                       InteractionMode="InteractionMode.Pan">
+                                    </SfPdfViewerServer>
+                                }
+                            </RadzenHtml>
+                        </RadzenCard>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+<style>
+    .rz-dialog {
+        width: 90% !important;
+    }
+
+</style>
+

@@ -1,0 +1,81 @@
+﻿@page "/task/add"
+@page "/task/edit/{Id:int}"
+@using FATWA_DOMAIN.Models
+@inject NavigationManager NavigationManager
+@inject IConfiguration _config
+<h1>@Title مهمة</h1>
+<hr />
+<EditForm Model="@task" OnValidSubmit="SaveTask">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label for="Name" class="form-label">عنوان</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="task.Title" />
+        </div>
+        <ValidationMessage For="@(() => task.Title)" />
+    </div>
+    <div class="mb-3">
+        <label for="Address" class="form-label">وصف</label>
+        <div class="col-md-4">
+            <InputText class="form-control" @bind-Value="task.Description" id="description"/>
+        </div>
+        @*<ValidationMessage For="@(() => task.Description)" />*@
+    </div>
+    <div class="mb-3">
+        <label for="Cellnumber" class="form-label">تاريخ محدد</label>
+        <div class="col-md-4">
+            <InputDate class="form-control" @bind-Value="task.AssignedDate" />
+        </div>
+        <ValidationMessage For="@(() => task.AssignedDate)" />
+    </div>
+    <div class="mb-3">
+        <label for="Emailid" class="form-label">تاريخ الاستحقاق</label>
+        <div class="col-md-4">
+            <InputDate class="form-control" @bind-Value="task.DueDate" />
+        </div>
+        <ValidationMessage For="@(() => task.DueDate)" />
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">حفظ</button>
+        <button class="btn btn-light" @onclick="Cancel">إلغاء</button>
+    </div>
+</EditForm>
+@code {
+    DateTime startDate = DateTime.Today;
+    public DateTime Max = new DateTime(2150, 12, 31);
+    public DateTime Min = new DateTime(1900, 1, 1);
+    //private DateTime? selectedDate;
+    //Telerik.Blazor.Components.TelerikDatePicker<DateTime> theDatePicker;
+
+    [Parameter]
+    public int Id { get; set; }
+    protected string Title = "يضيف";
+    protected FATWA_DOMAIN.Models.UserTask task = new();
+
+    protected override async System.Threading.Tasks.Task OnParametersSetAsync()
+    {
+        if (Id != 0)
+        {
+            Title = "تعديل";
+            task = await new HttpClient().GetFromJsonAsync<UserTask>(_config["api_url"] +"/Tasks/" + Id);
+        }
+        //task.DueDate = DateTime.Today;
+        //task.AssignedDate = DateTime.Today;
+    }
+    protected async System.Threading.Tasks.Task SaveTask()
+    {
+        if (task.TaskId != 0)
+        {
+            await new HttpClient().PostAsJsonAsync(_config["api_url"] + "/Tasks/UpdateTask", task);
+        }
+        else
+        {
+            await new HttpClient().PostAsJsonAsync(_config["api_url"] + "/Tasks/AddTask", task);
+        }
+        Cancel();
+    }
+    public void Cancel()
+    {
+        NavigationManager.NavigateTo("/fetchtasks");
+    }
+}

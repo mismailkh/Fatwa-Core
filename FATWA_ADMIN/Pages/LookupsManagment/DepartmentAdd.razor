@@ -1,0 +1,41 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@layout MainLayout
+
+@*< History Author = 'Ammaar Naveed' Date = '2024-06-04' Version = "1.0" Branch = "master"> UI fixations in pages and dialogs</History>*@
+<!-- <History Author = 'Nabeel Ur Rehman' Date='2022-09-09' Version="1.0" Branch="master">Add New Legal Principle Tags</History> -->
+ 
+
+<RadzenTemplateForm Data="@departments" Visible="@(departments != null)" TItem="Department" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("English_Name") + " *")" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("English_Name")" @bind-Value="@departments.Name_En" Name="Name_En" />
+                    <RadzenRegexValidator Component="Name_En" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                    <RadzenRequiredValidator Component="Name_En" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                    <RadzenLengthValidator Component="Name_En" Max="300" Text="@translationState.Translate("Max_Three_Hundred_Characters")" />
+                </div>
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Arabic_Name") +" *")" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Arabic_Name")" @bind-Value="@departments.Name_Ar" Name="Name_Ar" />
+                    <RadzenRegexValidator Component="Name_Ar" Text="@translationState.Translate("Only_Arabic_Characters_Are_Allowed")" Pattern="@RegexPatterns.ArabicPattern" />
+                    <RadzenRequiredValidator Component="Name_Ar" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenLengthValidator Component="Name_Ar" Max="300" Text="@translationState.Translate("Max_Three_Hundred_Characters")" />
+                </div>
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Borrow_Return_Day_Duration") + " *")" />
+                    <RadzenNumeric class="pt-1 flex-grow-1" Max="999" ShowUpDown="false" Name="BorrowReturnDayDuration" Style="width:100%" Placeholder="@translationState.Translate("Borrow_Return_Day_Duration")" @bind-Value="@departments.Borrow_Return_Day_Duration" TValue="int" onkeypress="return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46" Change="@(() => CheckReturnDay())" />
+                    <RadzenRequiredValidator Component="BorrowReturnDayDuration" DefaultValue="0" Style="width:100%;" Text="@(ReturnDayValidation && departments.Borrow_Return_Day_Duration == 0 ? @translationState.Translate("Required_Field") : "")" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 p-3" style="text-align:end;">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")" style="margin-left: 0.2rem !important" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Cancel")" Click="@Button2Click" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

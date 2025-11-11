@@ -1,0 +1,278 @@
+﻿@page "/notification-eventlist"
+@using FATWA_DOMAIN.Models.Notifications.ViewModel;
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using static FATWA_GENERAL.Helper.Enum;
+<PageTitle>@translationState.Translate("Event_List")</PageTitle>
+
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.Notfication"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Event_List")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" Text="@translationState.Translate("Event_List")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <div class="row col-md-12 pt-3">
+                            <div class="col-md-4">
+                                <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                                               Style="display: block; margin-bottom: 10px; width: 100%"
+                                               Name="Textbox0"
+                                @oninput="@(async(args) => {await EventGrid.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="tableContent table-responsive no-gutters pb-3">
+                                <RadzenDataGrid @ref="EventGrid"
+                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                Count="@(FilteredEvent != null ? FilteredEvent.Count() : 0)"
+                                                AllowPaging="true"
+                                                AllowSorting="true"
+                                                SelectionMode="DataGridSelectionMode.Multiple"
+                                                RowExpand="@((args) => ExpandFileTimelog(args.EventId))"
+                                                ExpandMode="DataGridExpandMode.Single"
+                                                AllowFiltering="false"
+                                                Data="@FilteredEvent"
+                                                TItem="NotificationEventListVM"
+                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                ShowPagingSummary="true">
+                                    <Template Context="file">
+                                        <RadzenCard class="bg-light">
+                                            <div class="row pb-2">
+                                                <div class="col-md-4">
+                                                    <h2 class="formHeading">@translationState.Translate("Template_List")</h2>
+                                                    <div class="divider"></div>
+                                                </div>
+                                            </div>
+                                            <div class="row pb-2">
+                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <div class="tableContent table-responsive">
+                                                        <RadzenDataGrid @ref="TemplateGrid"
+                                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                                        Count="@(FilteredNotificationTemplateList != null ? FilteredNotificationTemplateList.Count() : 0)"
+                                                                        AllowPaging="true"
+                                                                        AllowSorting="true"
+                                                                        AllowFiltering="false"
+                                                                        Data="@FilteredNotificationTemplateList"
+                                                                        TItem="NotificationTemplateListVM"
+                                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                                        ShowPagingSummary="true">
+                                                            <Columns>
+                                                                <RadzenDataGridColumn TItem="NotificationTemplateListVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="80px" TextAlign="TextAlign.Center">
+                                                                    <Template Context="NotificationTemplateListVM">
+                                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                                      Icon="edit"
+                                                                                      title="@translationState.Translate("Edit")"
+                                                                                      Size="ButtonSize.Small"
+                                                                                      Click="@((args) =>EditEventTemplate(args, NotificationTemplateListVM.TemplateId))"
+                                                                        @onclick:stopPropagation="true" />
+                                                                    </Template>
+                                                                </RadzenDataGridColumn>
+                                                                <RadzenDataGridColumn TItem="NotificationTemplateListVM" Width="90px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr") Title="@translationState.Translate("Name")" />
+                                                                <RadzenDataGridColumn TItem="NotificationTemplateListVM" Width="80px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ChannelNameEn" : "ChannelNameAr") Title="@translationState.Translate("Channel")" />
+                                                                <RadzenDataGridColumn TItem="NotificationTemplateListVM" Width="200px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "BodyEn" : "BodyAr") Title="@translationState.Translate("Message")" />
+                                                                <RadzenDataGridColumn TItem="NotificationTemplateListVM" Title="@translationState.Translate("Active")" Filterable="false" Sortable="false" Width="60px" TextAlign="TextAlign.Center">
+                                                                    <Template Context="NotificationTemplateListVM">
+                                                                        <RadzenSwitch Value="@NotificationTemplateListVM.isActive"
+                                                                                      Style=" padding: 15px 0px 5px 0px;margin: 3px;"
+                                                                                      title="@translationState.Translate("Active")"
+                                                                                      Change="@((args) => UpdateTemplateStatus(args , NotificationTemplateListVM))"
+                                                                        @onclick:stopPropagation="true" />
+                                                                    </Template>
+                                                                </RadzenDataGridColumn>
+                                                            </Columns>
+                                                        </RadzenDataGrid>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </RadzenCard>
+                                    </Template>
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="NotificationEventListVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="80px" TextAlign="TextAlign.Center">
+                                            <Template Context="NotificationEventListVM">
+                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                              Icon="language"
+                                                              title="@translationState.Translate("Browser")"
+                                                              Size="ButtonSize.Small"
+                                                              Disabled="@NotificationEventListVM.Browser"
+                                                              Click="@((args) => AddTemplate(NotificationEventListVM.EventId,(int)NotificationChannelEnum.Browser))"
+                                                @onclick:stopPropagation="true" />
+                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                              Icon="phone_android"
+                                                              title="@translationState.Translate("Mobile")"
+                                                              Size="ButtonSize.Small"
+                                                              Disabled="@NotificationEventListVM.Mobile"
+                                                              Click="@((args) => AddTemplate(NotificationEventListVM.EventId,(int)NotificationChannelEnum.Mobile))"
+                                                @onclick:stopPropagation="true" />
+                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                              Icon="email"
+                                                              title="@translationState.Translate("Email")"
+                                                              Size="ButtonSize.Small"
+                                                              Disabled="@NotificationEventListVM.Email"
+                                                              Click="@((args) => AddTemplate(NotificationEventListVM.EventId,(int)NotificationChannelEnum.Email))"
+                                                @onclick:stopPropagation="true" />
+                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                              Icon="edit"
+                                                              title="@translationState.Translate("Edit")"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@((args) =>EditEvent(NotificationEventListVM.EventId))"
+                                                @onclick:stopPropagation="true" />
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="NotificationEventListVM" Width="110px" Property=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "NameEn" : "NameAr") Title="@translationState.Translate("Event")" />
+                                        <RadzenDataGridColumn TItem="NotificationEventListVM" Width="120px" Property=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "DescriptionEn" : "DescriptionAr") Title="@translationState.Translate("Description")" />
+                                        <RadzenDataGridColumn TItem="NotificationEventListVM" Width="80px" Property="ReceiverTypeName" Title="@translationState.Translate("Reciever_Type")" />
+                                        <RadzenDataGridColumn TItem="NotificationEventListVM" Width="80px" Property="CourtNameEn" Sortable="false" TextAlign="TextAlign.Center" Title="@translationState.Translate("Templates")">
+                                            <Template Context="Templates">
+                                                @if (FilteredNotificationTemplateList != null)
+                                                {
+                                                    <a href="#" @onclick="@(() => CourtNameEnglish(Templates))" @onclick:preventDefault>@translationState.Translate("Templates")</a>
+                                                }
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                        <RadzenDataGridColumn TItem="NotificationEventListVM" Title="@translationState.Translate("Active")" Filterable="false" Sortable="false" Width="40px" TextAlign="TextAlign.Center">
+                                            <Template Context="NotificationEventListVM">
+                                                <RadzenSwitch Value="@NotificationEventListVM.IsActive"
+                                                              Style=" padding: 15px 0px 5px 0px;margin: 3px;"
+                                                              title="@translationState.Translate("Active")"
+                                                              Change="@((args) => UpdateEventStatus(args , NotificationEventListVM))"
+                                                @onclick:stopPropagation="true" />
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                    </Columns>
+                                </RadzenDataGrid>
+                            </div>
+                        </div>
+                    </RadzenCard>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+@code {
+    async Task CourtNameEnglish(NotificationEventListVM args)
+    {
+        await ExpandFileTimelog(args.EventId);
+        var title = (Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? args.NameEn : args.NameAr);
+        await dialogService.OpenAsync(@translationState.Translate("Event_Name") + ": " + title, ds =>
+    @<div class="col-12 pt-3 pb-3">
+        <RadzenGrid Data="@FilteredNotificationTemplateList"
+                    TItem="NotificationTemplateListVM"
+                    AllowPaging="true"
+                    PageSize="@systemSettingState.Grid_Pagination"
+                    EmptyText="@translationState.Translate("No_record_found")"
+                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                    ShowPagingSummary="true"
+                    Count="@(FilteredNotificationTemplateList != null ? FilteredNotificationTemplateList.Count() : 0)">
+            <Columns>
+                <RadzenGridColumn TItem="NotificationTemplateListVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="30px" TextAlign="TextAlign.Center">
+                    <Template Context="NotificationTemplateListVM">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Icon="edit"
+                                      title="@translationState.Translate("Edit")"
+                                      Size="ButtonSize.Small"
+                                      Click="@((args) =>EditEventTemplate(args, NotificationTemplateListVM.TemplateId))"
+                                      @onclick:stopPropagation="true" />
+                    </Template>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="NotificationTemplateListVM" Width="40px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ChannelNameEn" : "ChannelNameAr") Title="@translationState.Translate("Channel")" />
+                <RadzenGridColumn TItem="NotificationTemplateListVM" Title="@translationState.Translate("Message")" Width="100px">
+                    <Template Context="NotificationTemplateListVM">
+                        <div class="multilinetext"> @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? NotificationTemplateListVM.BodyEn : NotificationTemplateListVM.BodyAr) </div>
+                    </Template>
+                </RadzenGridColumn>
+                <RadzenGridColumn TItem="NotificationTemplateListVM" Title="@translationState.Translate("Active")" Filterable="false" Sortable="false" Width="30px" TextAlign="TextAlign.Center">
+                    <Template Context="NotificationTemplateListVM">
+                        <RadzenSwitch Value="@NotificationTemplateListVM.isActive"
+                                      Style=" padding: 15px 0px 5px 0px;margin: 3px;"
+                                      title="@translationState.Translate("Active")"
+                                      Change="@((args) => UpdateTemplateStatus(args , NotificationTemplateListVM))"
+                        @onclick:stopPropagation="true" />
+                    </Template>
+                </RadzenGridColumn>
+            </Columns>
+        </RadzenGrid>
+    </div>,
+        new DialogOptions()
+        {
+            Width = "900px !important",
+            CloseDialogOnOverlayClick = false,
+        });
+    }
+
+}
+
+<style>
+    .rz-switch .rz-switch-circle:before {
+        width: 0.85rem;
+        height: 0.85rem;
+        left: 0.2rem;
+        margin-top: -0.4rem;
+    }
+
+    .rz-switch {
+        width: 2.5rem;
+        min-width: 2.5rem;
+        height: 1.5rem;
+    }
+
+    .rz-switch-circle {
+        top: 1px;
+        left: 1px;
+        right: 0px;
+        bottom: 1px;
+    }
+
+    .txtmsg:hover {
+        font-size: 15px !important;
+    }
+
+    .multilinetext {
+        white-space: pre-wrap;
+    }
+</style>

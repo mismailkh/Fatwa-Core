@@ -1,0 +1,277 @@
+﻿@page "/add-legal-article"
+
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel
+@using static FATWA_DOMAIN.Enums.LegalLegislationEnum
+
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Add_Article")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@legalArticles" Visible="@(legalArticles != null)" TItem="LegalArticle" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row">
+                            <div class="col-12 pb-3">
+                                @if (IsArticalEffect == "IsArticalEffect")
+                                {
+
+                                }
+                                else
+                                {
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="add" Text="@translationState.Translate("Add_Relation")" Click="@( () => AddRelation() )" />
+
+                                }
+                            </div>
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Article_Name")" Component="Article_Name_En" />
+                                            <RadzenTextBox Placeholder="@translationState.Translate("Article_Name")" @bind-Value="@legalArticles.Article_Name" Name="Article_Name" Class="@validations.ArticleNameEn" />
+                                            <RadzenLengthValidator Component="Article_Name" Text="@translationState.Translate("Max_Three_Hundred_Characters")" Max="300" />
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Article_Title")" Component="Article_Title_En" />
+                                            <RadzenTextBox Placeholder="@translationState.Translate("Article_Title")" @bind-Value="@legalArticles.Article_Title" Name="Article_Title" Class="@validations.ArticleTitleEn" />
+                                            <RadzenLengthValidator Component="Article_Title" Text="@translationState.Translate("Max_Three_Hundred_Characters")" Max="300" />
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Article_Start_Date")" Component="Start_Date" />
+                                            <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                              Min="@Min"
+                                                              Max="@Max"
+                                                              Class="@validations.ArticleStartDate"
+                                                              @bind-Value="@legalArticles.Start_Date" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>                            
+                            @if (ArticleWithSectionCheck)
+                            {
+                                <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="k-form-field">
+                                        <div class="k-form-field-wrap">
+                                            <label for="ccs" class="k-label k-form-label">@(translationState.Translate("Article_Parent_Section"))</label>
+                                            <div class="k-form-field-wrap">
+                                                <TelerikDropDownList Data="@SectionParentDetails" DefaultText="@translationState.Translate("Select")"
+                                                                     GroupField="SectionParentTitle"
+                                                                     ValueField="SectionId"
+                                                                     TextField="SectionTitle"
+                                                                     @bind-Value="@legalArticles.SectionId">
+                                                </TelerikDropDownList>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="ccs" class="k-label k-form-label">@(translationState.Translate("Article_Status"))</label>
+                                        <div class="k-form-field-wrap">
+                                            @if (AddArticleFromGrid != null)
+                                            {
+                                                <RadzenDropDown Data="@ArticleStatusDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                @bind-Value="@legalArticles.Article_Status" Name="Name_En" Class="@validations.ArticleStatus" Disabled />
+                                            }
+                                            else
+                                            {
+                                                <RadzenDropDown Data="@ArticleStatusDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                @bind-Value="@legalArticles.Article_Status" Name="Name_En" Class="@validations.ArticleStatus" Disabled />
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="ccs" class="k-label k-form-label">@(translationState.Translate("Article_End_Date"))</label>
+                                        <div class="k-form-field-wrap">
+                                            @if (legalArticles.Article_Status == (int)LegalArticleStatusEnum.Expired)
+                                            {
+                                                <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                                  Min="@Min"
+                                                                  Max="@Max"
+                                                                  Class="@validations.ArticleEndDate"
+                                                                  @bind-Value="@legalArticles.End_Date" />
+                                            }
+                                            else
+                                            {
+                                                <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                                  Min="@Min"
+                                                                  Max="@Max"
+                                                                  @bind-Value="@legalArticles.End_Date" Disabled />
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <div class="k-form-field-wrap">
+                                            <RadzenHtmlEditor @bind-Value=@(legalArticles.Article_Text) Class="@validations.ArticleTextArea" style="height: 200px; margin-bottom: 1rem;">
+                                                <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                                                <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                                                <RadzenHtmlEditorSeparator />
+                                                <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                                                <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                                                <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                                                <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                                                <RadzenHtmlEditorSeparator />
+                                                <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                                                <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                                                <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                                            </RadzenHtmlEditor>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @if (ShowExplanatoryNoteInArticle)
+                        {
+                            <div class="row pb-2">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="k-form-field">
+                                        <div class="k-form-field-wrap">
+                                            <label for="ccs" class="k-label k-form-label">@(translationState.Translate("ExplanatoryNotes"))</label>
+                                            <div class="k-form-field-wrap">
+                                                <RadzenHtmlEditor @bind-Value=@(legalArticles.Article_Explanatory_Note) style="height: 200px; margin-bottom: 1rem;">
+                                                    <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                                                    <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                                                    <RadzenHtmlEditorSeparator />
+                                                    <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                                                    <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                                                    <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                                                    <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                                                    <RadzenHtmlEditorSeparator />
+                                                    <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                                                    <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                                                    <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                                                </RadzenHtmlEditor>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        <div class="row popup-buttons-alignment">
+                            <div class="col-12">
+                                @if (SelectedArticleFromEffectGrid == null)
+                                {
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Click="@AddArticleEffect" Text="@translationState.Translate("Add_Article_Effect")">
+                                    </RadzenButton>
+                                }
+                                @if (SelectedArticleFromEffectGrid != null && SelectedArticleFromEffectGrid.Article_Status == (int)LegalArticleStatusEnum.Expired)
+                                {
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Icon="cancel" Text="@translationState.Translate("Article_Cancel")" Click="@ArticleCancelButtonClick">
+                                    </RadzenButton>
+                                }
+                                else
+                                {
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")">
+                                    </RadzenButton>
+                                }
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+<style>
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .box {
+        margin: 4.5em 7.5em;
+        padding: 3em;
+        background-color: rgba(20,53,80,0.038);
+        border: 1px solid rgba(20,53,80,0.05);
+    }
+
+    .demo-section {
+        margin: 0 auto;
+        padding: 3em;
+        border: 1px solid rgba(20,53,80,0.14);
+        box-shadow: 0 1px 2px 1px rgba(0,0,0,.08), 0 3px 6px rgba(0,0,0,.08);
+    }
+
+    .auto {
+        max-width: max-content;
+    }
+
+    .demo-section:not(.wide):not(.auto),
+    .box:not(.wide):not(.auto) {
+        max-width: 500px;
+    }
+
+    .box:after,
+    .demo-section:after {
+        content: "";
+        display: block;
+        clear: both;
+        height: 0;
+    }
+
+    .box {
+        margin: 4.5em auto;
+    }
+
+        .box:first-child {
+            margin-top: 0;
+        }
+
+    .center {
+        text-align: center;
+    }
+
+    .demo-section.editor {
+        max-width: 100%;
+        border: none;
+    }
+
+    .demo-alert {
+        font: normal 18px "Metric";
+        border-radius: 2px;
+        margin: 20px auto 40px auto;
+        padding: 20px;
+        border-left: 4px solid;
+    }
+
+    .demo-alert-success {
+        border-left-color: rgb(55,180,0);
+        background: rgba(55,180,0, 0.1);
+    }
+
+    .demo-alert-info {
+        border-left-color: rgb(83,146,228);
+        background: rgba(83,146,228, 0.1);
+    }
+
+    .demo-alert-error {
+        border-left-color: rgb(243, 23, 0);
+        background: rgba(243, 23, 0, 0.1);
+    }
+
+    .demo-alert-warning {
+        border-left-color: rgb(255, 192, 0);
+        background: rgba(255, 192, 0, 0.1);
+    }
+</style>

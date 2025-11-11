@@ -1,0 +1,40 @@
+﻿@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@using FATWA_DOMAIN.Enums;
+@layout MainLayout
+
+
+<RadzenTemplateForm Data="UserEnum" TItem="UserEnum" Visible="true" Submit="@SubmitChanges">
+    <ChildContent>
+        <div class="pt-2 pb-2">
+           
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Employee_Type") + " *")" />
+                    <RadzenDropDown Data="employeeTypes"
+                                    AllowClear="true" 
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                    ValueProperty="Id"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;"
+                    @bind-Value="employeetypeId"
+                                    Name="usertype"
+                                  >
+                    </RadzenDropDown>
+                     <RadzenRequiredValidator DefaultValue="0"Component="usertype" Text="@translationState.Translate("Required_Field")" />
+                 </div>
+            </div>
+
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 popup-buttons-alignment">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                              ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Proceed")">
+                </RadzenButton>
+
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@ButtonCancelClick">
+                </RadzenButton>
+            </div>
+
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

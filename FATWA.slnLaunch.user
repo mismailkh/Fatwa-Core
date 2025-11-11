@@ -1,0 +1,23 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "FATWA_WEB\\FATWA_WEB.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "FATWA_API\\FATWA_API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "DMS_API\\DMS_API.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "FATWA_ADMIN\\FATWA_ADMIN.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

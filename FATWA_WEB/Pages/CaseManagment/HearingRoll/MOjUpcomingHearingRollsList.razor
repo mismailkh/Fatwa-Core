@@ -1,0 +1,195 @@
+﻿@page "/upcominghearings-rolls-list"
+@using FATWA_DOMAIN.Models.ViewModel.MojRollsVM
+@using static FATWA_GENERAL.Helper.Enum
+@using Radzen
+@using Radzen.Blazor
+@using Syncfusion.Blazor
+@using System.Text.Json
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using FATWA_DOMAIN.Common;
+@layout MainLayout
+
+<!--<History Author = 'IJaz Ahmad' Date='2024-04-03' Version="1.0" Branch="master"> Upcoming Hearing List </History>-->
+
+<PageTitle>@translationState.Translate("Upcoming_Hearing_Rolls")</PageTitle>
+
+    @if (loginState.ClaimList.Any(x => x.Value == "Permissions.Submenu.CMS.UpcomingHearingRollsList"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6 col-sm-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Upcoming_Hearing_Rolls_List")" />
+                    </RadzenBreadCrumb>
+
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Upcoming_Hearing_Rolls_List")" />
+                    </div>
+
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 tableAdditionButton addPrincipleBtn px-0">
+                            <RadzenTextBox class="searchBox"
+                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                           Name="Textbox0"
+                                           @oninput="@(async(args) => {search = $"{args.Value}";await gridupcomingrolls.GoToPage(0);await OnSearchInputUpcomingRolls();})" />
+                        </div>
+                        <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3 addPrincipleBtn">
+                            <RadzenButton style="margin-left: 0.2rem !important" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Create_Hearing_Roll")" Click="@AddHearingRollls">
+                            </RadzenButton>
+
+                        </div>
+                    </div>
+
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="gridupcomingrolls"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        ShowPagingSummary="true"
+                                        Data="@FilteredGetMojUpComingRollsList"
+                                        TItem="MOJRollsRequestListVM"
+                                        Count="@(getMojUpComingRollsList != null ? getMojUpComingRollsList.Count() : 0)"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Width="100px" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center">
+                                    <Template Context="mojrollscontext">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      Icon="info"
+                                                      Size="ButtonSize.Small"
+                                                      Title="@translationState.Translate("Details")"
+                                                      Click="@((args) => Assigntolawyer(args, mojrollscontext))"
+                                                      @onclick:stopPropagation="true" />
+                                        <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                      Icon="visibility"
+                                                      Class="viewIcon"
+                                                      Click="@(args => ViewAttachement(mojrollscontext))"
+                                                      @onclick:stopPropagation="true" Disabled="mojrollscontext.StatusId!=(int)MOJRollsRequestStatusEnum.Completed" />
+
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Width="230px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "LawyerFullNameEn" : "LawyerFullNameAr") Title="@translationState.Translate("Assigned_To")" />
+                                <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Width="200px" Property="RollDescription" Title="@translationState.Translate("Roll_type")">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Width="200px" Property="CourtName_Ar" Title="@translationState.Translate("Court_Type")">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Width="200px" Property="ChamberName_Ar" Title="@translationState.Translate("Chamber")">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Width="150px" Property="ChamberNumber" Title="@translationState.Translate("Chamber_Number")">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MOJRollsRequestListVM" Width="150px" Property="SessionDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Session_Date")">
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+
+                </div>
+            </div>
+            <TelerikWindow Class="mojrollsPreviewWindow" Size="@(ThemeConstants.Window.Size.Large)" Visible="@(DisplayDocumentViewer && !busyPreviewBtn)" Draggable="true" Top="0%" Left="0%">
+                <WindowTitle>
+                    <RadzenHeading Size="H2" Text="@translationState.Translate("Document_Preview")" />
+                </WindowTitle>
+                <WindowActions>
+                    <WindowAction Name="Minimize"></WindowAction>
+                    <WindowAction Name="Close" OnClick="@( () => DisplayDocumentViewer = false )"></WindowAction>
+                </WindowActions>
+                <WindowContent>
+                    @if (DisplayDocumentViewer && !busyPreviewBtn)
+                    {
+                        <div class="row">
+                            <div class="col-md-4">
+                                <RadzenCard>
+                                    <RadzenFieldset Text="@translationState.Translate("Request_Details")" style="font-weight: bold;">
+                                        <label>
+                                            @translationState.Translate("Session_Date"):
+                                        </label>
+                                        <label>
+                                            @SessionDate?.ToString("dd/MM/yyyy")
+                                        </label>
+                                        <br />
+                                        <label>
+                                            @translationState.Translate("Chamber_Name") :
+                                        </label>
+                                        <label>
+                                            @Chamber_Name
+                                        </label>
+                                        <br />
+                                        <label>
+                                            @translationState.Translate("Chambers_Number"):
+                                        </label>
+                                        <label>
+                                            @ChamberTypeCode_Name
+                                        </label>
+                                        <br />
+                                        <label>
+                                            @translationState.Translate("Court_Type"):
+                                        </label>
+                                        <label>
+                                            @Court_Name
+                                        </label>
+                                    </RadzenFieldset>
+                                </RadzenCard>
+                            </div>
+                            <div class="col-md-8">
+                                <div class="row pb-2 h-100">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <SfPdfViewerServer EnableNavigationToolbar="false"
+                                                           ZoomMode="ZoomMode.FitToWidth"
+                                                           EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                                           ID="pdfviewer"
+                                                           Width="100%"
+                                                           Height="120%"
+                                                           DocumentPath="@DocumentPath">
+                                            <PdfViewerEvents DocumentLoaded="DocumentLoaded"></PdfViewerEvents>
+                                            <PdfViewerToolbarSettings ToolbarItems="ToolbarItems"></PdfViewerToolbarSettings>
+                                        </SfPdfViewerServer>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </WindowContent>
+            </TelerikWindow>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

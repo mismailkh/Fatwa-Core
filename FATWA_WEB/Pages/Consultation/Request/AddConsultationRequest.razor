@@ -1,0 +1,513 @@
+﻿@page "/consultationrequest-add"
+@page "/consultationrequest-add/{ConsultationRequestId}"
+@using FATWA_DOMAIN.Models.Consultation
+@using FATWA_WEB.Pages.Shared
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@layout MainLayout
+@implements IDisposable
+
+<PageTitle>@(ConsultationRequestId == null ? translationState.Translate("Add_Consultation_File") : translationState.Translate("Edit_Consultation_File"))</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/consultationfile-list/" Text="@translationState.Translate(TransKeyHeader)" />
+                        <RadzenBreadCrumbItem Text="@((ConsultationRequestId == null ? translationState.Translate("Create") : translationState.Translate("Update")) + " " + (Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? RequestTypes?.Where(t => t.Id == dataCommunicationService.consultationRequest?.RequestTypeId).FirstOrDefault()?.Name_En : RequestTypes?.Where(t => t.Id == dataCommunicationService.consultationRequest?.RequestTypeId).FirstOrDefault()?.Name_Ar) + " " + translationState.Translate("File"))" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@((ConsultationRequestId == null ? translationState.Translate("Create") : translationState.Translate("Update")) + " " + (Thread.CurrentThread.CurrentUICulture.Name == "en-US" ?  RequestTypes?.Where(t => t.Id == dataCommunicationService.consultationRequest?.RequestTypeId).FirstOrDefault()?.Name_En : RequestTypes?.Where(t => t.Id == dataCommunicationService.consultationRequest?.RequestTypeId).FirstOrDefault()?.Name_Ar) + " " + translationState.Translate("File"))"></RadzenHeading>
+                    </div>
+
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+            </div>
+        </div>
+        <div class="row justify-content-center mainContentBlock no-gutters bg-light p-0">
+            <div class="col-md-6 d-flex coms-add-viewer">
+                @if (dataCommunicationService.consultationRequest?.RequestTypeId == (int)RequestTypeEnum.Contracts)
+                {
+                    <RadzenTabs TabPosition="@tabPosition" RenderMode="TabRenderMode.Client">
+                        <Tabs>
+                            <RadzenTabsItem Text=@translationState.Translate("Official_Letters")>
+                                @if (ShowDocumentViewer)
+                                {
+
+                                    <SfPdfViewerServer EnableNavigationToolbar="false"
+                                                        Width="100%"
+                                                        @ref="@PdfViewerPreview"
+                                                        ID="pdfviewerConsultationPreview"
+                                                       EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                                       Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                                       DocumentPath="@DocumentPathPreview"
+                                                       ToolbarSettings="@ToolbarSettings"
+                                                        InteractionMode="InteractionMode.Pan">
+                                        </SfPdfViewerServer>
+                                }
+                            </RadzenTabsItem>
+                            <RadzenTabsItem Text=@translationState.Translate("Template")>
+                                @if (TemplateDetails.Content != null)
+                                {
+                                    <RadzenHtmlEditor class="draftEditor" @ref="editor" @bind-Value="@(TemplateDetails.Content)" style="width: 100%; height: 1601px; margin-bottom: 1rem;">
+                                        <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                                        <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                                        <RadzenHtmlEditorSeparator />
+                                        <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                                        <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                                        <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                                        <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                                        <RadzenHtmlEditorSeparator />
+                                        <RadzenHtmlEditorAlignLeft Title=@translationState.Translate("Align_Left") />
+                                        <RadzenHtmlEditorAlignCenter Title=@translationState.Translate("Align_Centre") />
+                                        <RadzenHtmlEditorAlignRight Title=@translationState.Translate("Align_Right") />
+                                        <RadzenHtmlEditorJustify Title=@translationState.Translate("Justify") />
+                                        <RadzenHtmlEditorSeparator />
+                                        <RadzenHtmlEditorIndent Title=@translationState.Translate("Indent") />
+                                        <RadzenHtmlEditorOutdent Title=@translationState.Translate("Outdent") />
+                                        <RadzenHtmlEditorUnorderedList Title=@translationState.Translate("Bullet_List") />
+                                        <RadzenHtmlEditorOrderedList Title=@translationState.Translate("Ordered_List") />
+                                        <RadzenHtmlEditorSeparator />
+                                        <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                                        <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                                        <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                                        <RadzenHtmlEditorSeparator />
+                                        <RadzenHtmlEditorSubscript Title=@translationState.Translate("Subscript") />
+                                        <RadzenHtmlEditorSuperscript Title=@translationState.Translate("Superscript") />
+                                        <RadzenHtmlEditorSeparator />
+                                        <RadzenHtmlEditorLink Title=@translationState.Translate("Link")
+                                                              UrlText=@translationState.Translate("Web_Address")
+                                                              LinkText=@translationState.Translate("Text")
+                                                              OpenInNewWindowText=@translationState.Translate("Open_in_new_window")
+                                                              OkText=@translationState.Translate("OK")
+                                                              CancelText=@translationState.Translate("Cancel") />
+                                        <RadzenHtmlEditorUnlink Title=@translationState.Translate("Unlink") />
+                                         <RadzenHtmlEditorFontName Placeholder="@translationState.Translate("Sultan")" Title="@translationState.Translate("Sultan")">
+                                            <ChildContent>
+                                                <RadzenHtmlEditorFontNameItem Text="Sultan" Value="Sultan" />
+                                                <RadzenHtmlEditorFontNameItem Text="Sultan Medium" Value='"Sultan Medium"' />
+                                            </ChildContent>
+                                        </RadzenHtmlEditorFontName>
+                                        <RadzenHtmlEditorFontSize Placeholder="@translationState.Translate("Font_Size")" Title="@translationState.Translate("Font_Size")" />
+                                        <RadzenHtmlEditorFormatBlock Placeholder="@translationState.Translate("Format_Block")" Title="@translationState.Translate("Format_Block")" />
+                                    </RadzenHtmlEditor>
+                                }
+                                else
+                                {
+                                    <RadzenLabel Text="@(translationState.Translate("No_Record_Found"))" />
+                                }
+                            </RadzenTabsItem>
+                        </Tabs>
+                    </RadzenTabs>
+                }
+                else
+                {
+                    @if (ShowDocumentViewer)
+                    {
+                        <SfPdfViewerServer EnableNavigationToolbar="false"
+                                            Width="100%"
+                                            @ref="@PdfViewerPreview"
+                                            ID="pdfviewerConsultationPreview"
+                                           EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                           Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                           DocumentPath="@DocumentPathPreview"
+                                           ToolbarSettings="@ToolbarSettings"
+                                            InteractionMode="InteractionMode.Pan">
+                            </SfPdfViewerServer>
+                    }
+                }
+            </div>
+            @if (dataCommunicationService.consultationRequest == null)
+            {
+                <div class="col-md-6 save-case-request-col"></div>
+            }
+            <RadzenTemplateForm Data="@dataCommunicationService.consultationRequest" Visible="@(dataCommunicationService.consultationRequest != null)" TItem="ConsultationRequest" Submit="@Form0Submit" Style="display:contents">
+                <ChildContent>
+                    <div class="col-md-6 save-consultation-request-col k-overflow-y-scroll">
+                        <RadzenCard class="m-1">
+                            <div class="row pb-2">
+                                <div class="col-md-4">
+                                    <h2 class="formHeading">@translationState.Translate("File_Details")</h2>
+                                    <div class="divider"></div>
+                                </div>
+                            </div>
+                            <div class="row pb-2">
+                                <div class="col-12 custom-col">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("File_Number") + ": " + dataCommunicationService.consultationRequest.ConsultationFile.FileNumber)" Component="Number" />
+                                    </div>
+                                </div>
+                                <div class="col-12 custom-col">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("File_Date") + ": " + dataCommunicationService.consultationRequest.RequestDate.Date.ToString("dd/MM/yyyy"))" Component="Number" />
+                                    </div>
+                                </div>
+                                <div class="col-12 custom-col">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Operating_Sector_Type") + ": " + (Thread.CurrentThread.CurrentUICulture.Name == "en-US"?RequestTypes.Where(x => x.Id == dataCommunicationService.consultationRequest.RequestTypeId).FirstOrDefault()?.Name_En : RequestTypes.Where(x => x.Id == dataCommunicationService.consultationRequest.RequestTypeId).FirstOrDefault()?.Name_Ar))" Component="Operating_Sector_Type" />
+                                    </div>
+                                </div>
+                                <div class="col-12 custom-col">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Government_Entity") + ": " + (Thread.CurrentThread.CurrentUICulture.Name == "en-US"?GovtEntities.Where(x => x.EntityId == dataCommunicationService.consultationRequest.GovtEntityId).FirstOrDefault()?.Name_En : GovtEntities.Where(x => x.EntityId == dataCommunicationService.consultationRequest.GovtEntityId).FirstOrDefault()?.Name_Ar))" Component="Government_Entity" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row pb-2">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("File_Name") + "*")" Component="RequestTitle" />
+                                        <RadzenTextBox Disabled="true" @bind-Value="@dataCommunicationService.consultationRequest.RequestTitle" Placeholder="@translationState.Translate("Name")" Name="RequestTitle" />
+                                        <RadzenRequiredValidator Component="RequestTitle" Text="@translationState.Translate("Required_Field")" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Subject") + "*")" Component="Subject" />
+                                        <RadzenTextBox @bind-Value="@dataCommunicationService.consultationRequest.Subject" Placeholder="@translationState.Translate("Subject")" Name="Subject" />
+                                        <RadzenRequiredValidator Component="Subject" Text="@translationState.Translate("Required_Field")" />
+                                        <RadzenRegexValidator Component="Subject" Text="@(translationState.Translate("Cannot_Have_Trailing_Spaces"))" Pattern="@RegexPatterns.NoLeadingSpacesPattern"/>
+                                        <RadzenLengthValidator Component="Subject" Max="50" Text="@translationState.Translate("Max_Fifty_Characters")" />
+
+                                    </div>
+                                </div>
+                            </div>
+                            @if (dataCommunicationService.consultationRequest.RequestTypeId == (int)RequestTypeEnum.LegalAdvice)
+                            {
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold; display: contents;" Text="@(translationState.Translate("LegalAdvice_SubType") + "*")" Component="RequestSubTypeId" />
+                                            <RadzenDropDown Data="@SelectedRequestSubtypes" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"?"Name_En":"Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="dataCommunicationService.consultationRequest.RequestSubTypeId" Name="RequestSubType" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="RequestSubType" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold" Text="@translationState.Translate("Govt_Entity_Opinion")" Component="GovtEntityOpinion" />
+                                            <RadzenTextArea Rows="5" Placeholder="@translationState.Translate("Govt_Entity_Opinion")" @bind-Value="@(dataCommunicationService.consultationRequest.GEOpinion)" Name="GovtEntityOpinion" Class="w-100" />
+                                            <RadzenLengthValidator Component="GovtEntityOpinion" Max="300" Text="@translationState.Translate("Max_Three_Hundred_Characters")" />
+                                            <RadzenRegexValidator Component="GovtEntityOpinion" Text="@(translationState.Translate("Cannot_Have_Trailing_Spaces"))" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (dataCommunicationService.consultationRequest.RequestTypeId == (int)RequestTypeEnum.Contracts)
+                            {
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold; display: contents;" Text="@(translationState.Translate("Contracts_SubType") + "*")" Component="RequestSubTypeId" />
+                                            <RadzenDropDown Data="@SelectedRequestSubtypes" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"?"Name_En":"Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="dataCommunicationService.consultationRequest.RequestSubTypeId" Name="RequestSubType" Change="@OnContractTypeChange" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="RequestSubType" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold; display: contents;" Text="@(translationState.Translate("Template")+ "*")" Component="TemplateId" />
+                                            <RadzenDropDown Data="@_templateFilteredList" AllowFiltering="true" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"?"NameEn":"NameAr")" ValueProperty="TemplateId" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="dataCommunicationService.consultationRequest.TemplateId" Name="TemplateId" Change="@OnChangeConsultationTemplate" />
+
+                                            <RadzenRequiredValidator DefaultValue="0" Component="TemplateId" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold" Text="@translationState.Translate("Govt_Entity_Opinion")" Component="GovtEntityOpinion" />
+                                            <RadzenTextArea Rows="5" Placeholder="@translationState.Translate("Govt_Entity_Opinion")" @bind-Value="@(dataCommunicationService.consultationRequest.GEOpinion)" Name="GovtEntityOpinion" Class="w-100" />
+                                            <RadzenLengthValidator Component="GovtEntityOpinion" Max="300" Text="@translationState.Translate("Max_Three_Hundred_Characters")" />
+                                            <RadzenRegexValidator Component="GovtEntityOpinion" Text="@(translationState.Translate("Cannot_Have_Trailing_Spaces"))" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7">
+                                        <div class="k-form-field">
+                                            <div class="k-form-field-wrap">
+                                                <div class="k-form-field-wrap">
+                                                    <TelerikCheckBox Id="isContractMoreThan75000KD" @bind-Value="@dataCommunicationService.consultationRequest.ContractAmount75000KD"></TelerikCheckBox>
+                                                    <RadzenLabel Style="font-weight:bold" Text="@translationState.Translate("Contract_More_Than_75000KD")" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (dataCommunicationService.consultationRequest.RequestTypeId == (int)RequestTypeEnum.AdministrativeComplaints)
+                            {
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Complainant_Name") + " *")" Component="ComplainantsName" />
+                                            <RadzenTextBox @bind-Value="@dataCommunicationService.consultationRequest.ComplainantName" Placeholder="@translationState.Translate("Complainant_Name")" Name="ComplainantsName" />
+                                            <RadzenRequiredValidator Component="ComplainantsName" Text="@translationState.Translate("Required_Field")" />
+                                            <RadzenLengthValidator Component="ComplainantsName" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                                            <RadzenRegexValidator Component="ComplainantsName" Text="@(translationState.Translate("Cannot_Have_Trailing_Spaces"))" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group mb-2">
+                                            <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Complaints_Against") + " *")" Component="ComplaintAgainst" />
+                                            <RadzenTextBox @bind-Value="@dataCommunicationService.consultationRequest.ComplaintAgainst" Placeholder="@translationState.Translate("Complaints_Against")" Name="ComplaintAgainst" />
+                                            <RadzenRequiredValidator Component="ComplaintAgainst" Text="@translationState.Translate("Required_Field")" />
+                                            <RadzenLengthValidator Component="ComplaintAgainst" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                                            <RadzenRegexValidator Component="ComplaintAgainst" Text="@(translationState.Translate("Cannot_Have_Trailing_Spaces"))" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
+                                        <div class="form-group mb-2">
+                                            <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Complainant_Decision_Number") + " *")" Component="complainantDecisionNumber" />
+                                            <RadzenTextBox @bind-Value="@dataCommunicationService.consultationRequest.ComplainantDecisionNumber" Placeholder="@translationState.Translate("Complainant_Decision_Number")" Name="complainantDecisionNumber" />
+                                            <RadzenRequiredValidator Component="complainantDecisionNumber" Text="@translationState.Translate("Required_Field")" />
+                                            <RadzenLengthValidator Component="complainantDecisionNumber" Max="30" Text="@translationState.Translate("Max_Thirty_Characters")" />
+                                            <RadzenRegexValidator Component="complainantDecisionNumber" Text="@(translationState.Translate("Cannot_Have_Trailing_Spaces"))" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold; display: contents;" Text="@(translationState.Translate("Administrative_Authority_Issued_Decision") + " *")" Component="AdministrativeAuthorityIssuedDecision" />
+                                            <RadzenDropDown Data="@GovtEntities" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"?"Name_En":"Name_Ar")" ValueProperty="EntityId" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="dataCommunicationService.consultationRequest.CompetentAuthorityId" Name="AdministrativeAuthorityIssuedDecision" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="AdministrativeAuthorityIssuedDecision" Text="@translationState.Translate("Required_Field")" />
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Date_Submission_CSC") + " *")" Component="SubmissionDateCSC" />
+                                            <RadzenDatePicker @bind-Value="@(dataCommunicationService.consultationRequest.CSCSubmissionDate)" Max="@DateTime.Today" Min="@Min" DateFormat="dd/MM/yyyy" Class="w-100" Name="SubmissionDateCSC" />
+                                        </div>
+
+                                    </div>
+                                    @if (ConsultationRequestId == null)
+                                    {
+                                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                            <div class="form-group">
+                                                <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("CivilId") + " *")" Component="CivilId" />
+                                                <RadzenTextBox @bind-Value="@dataCommunicationService.consultationRequest.CivilId" MaxLength="12" Placeholder="@translationState.Translate("CivilId")" Name="CivilId" />
+                                                <RadzenLengthValidator Component="CivilId" Min="12" Text="@translationState.Translate("Must_Twelve_Characters")" />
+                                                <RadzenRegexValidator Component="CivilId" Text="@translationState.Translate("Only_Digits_Allowed")" Pattern="^[0-9]+$" />
+                                                <RadzenRequiredValidator Component="CivilId" Text="@translationState.Translate("Required_Field")" />
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            @if (dataCommunicationService.consultationRequest.RequestTypeId == (int)RequestTypeEnum.Legislations)
+                            {
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold; display: contents;" Text="@(translationState.Translate("Legislation_File_Type") + " *")" Component="LegislationFileType" />
+                                            <RadzenDropDown Data="@LegislationFileTypesDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"?"Name_En":"Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="dataCommunicationService.consultationRequest.LegislationFileTypeId" Name="LegislationFileType" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="LegislationFileType" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold; display: contents;" Text="@(translationState.Translate("Administrative_Authority_Issued_Decision") + " *")" Component="AdministrativeAuthorityIssuedDecision" />
+                                            <RadzenDropDown Data="@GovtEntities" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"?"Name_En":"Name_Ar")" ValueProperty="EntityId" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="dataCommunicationService.consultationRequest.CompetentAuthorityId" Name="AdministrativeAuthorityIssuedDecision" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="AdministrativeAuthorityIssuedDecision" Text="@translationState.Translate("Required_Field")" />
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold" Text="@(translationState.Translate("Competent_Authority"))" Component="CompetentAuthority" />
+                                            <RadzenTextArea Rows="5" Placeholder="@translationState.Translate("Competent_Authority")" @bind-Value="@(dataCommunicationService.consultationRequest.CompetentAuthorityOpinionWithNote)" Name="CompetentAuthority" Class="w-100" />
+                                            <RadzenLengthValidator Component="CompetentAuthority" Max="300" Text="@translationState.Translate("Max_Three_Hundred_Characters")" />
+                                            <RadzenRegexValidator Component="CompetentAuthority" Text="@(translationState.Translate("Cannot_Have_Trailing_Spaces"))" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            @if (dataCommunicationService.consultationRequest.RequestTypeId == (int)RequestTypeEnum.InternationalArbitration)
+                            {
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold; display: contents;" Text="@(translationState.Translate("International_Arbitration_Type") + "*")" Component="InternationalArbitrationTypeId" />
+                                            <RadzenDropDown Data="@InternationalArbitrationList" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"?"NameEn":"NameAr")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="dataCommunicationService.consultationRequest.InternationalArbitrationTypeId" Name="InternationalArbitrationType" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="InternationalArbitrationType" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row pb-2">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold" Text="@translationState.Translate("Govt_Entity_Opinion")" Component="GovtEntityOpinion" />
+                                            <RadzenTextArea Rows="5" Placeholder="@translationState.Translate("Govt_Entity_Opinion")" @bind-Value="@(dataCommunicationService.consultationRequest.GEOpinion)" Name="GovtEntityOpinion" Class="w-100" />
+                                            <RadzenLengthValidator Component="GovtEntityOpinion" Max="300" Text="@translationState.Translate("Max_Three_Hundred_Characters")" />
+                                            <RadzenRegexValidator Component="GovtEntityOpinion" Text="@(translationState.Translate("Cannot_Have_Trailing_Spaces"))" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <div class="row pb-2">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Style="font-weight:bold" Text="@translationState.Translate("Remarks")" Component="Remarks" />
+                                        <RadzenTextArea Rows="1" Placeholder="@translationState.Translate("Remarks")" @bind-Value="@(dataCommunicationService.consultationRequest.Remarks)" Name="Remarks" Class="w-100" />
+                                        <RadzenLengthValidator Component="Remarks" Max="300" Text="@translationState.Translate("Max_Three_Hundred_Characters")" />
+                                        <RadzenRegexValidator Component="Remarks" Text="@(translationState.Translate("Cannot_Have_Trailing_Spaces"))" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row pb-2">
+
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Style="font-weight:bold; display: contents;" Text="@(translationState.Translate("Priority") + " *")" Component="Priority" />
+                                        <RadzenDropDown Data="@Priorities" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"?"Name_En":"Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;" @bind-Value="dataCommunicationService.consultationRequest.PriorityId" Name="Priority" Change="@OnChangeConsultationPriority" />
+                                        <RadzenRequiredValidator DefaultValue="0" Component="Priority" Text="@translationState.Translate("Required_Field")" Change="@OnChangeConsultationPriority" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="row">
+                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                            <div class="k-form-field">
+                                                <div class="k-form-field-wrap">
+                                                    <RadzenLabel Style="font-weight:bold" Text="@translationState.Translate("Is_Confidential")" />
+                                                    <TelerikCheckBox Id="isSeries" Enabled="false" @bind-Value="@dataCommunicationService.consultationRequest.IsConfidential"></TelerikCheckBox>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @if (ShowConsultationPriority)
+                                {
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="form-group">
+                                            <RadzenLabel Style="font-weight:bold" Text="@translationState.Translate("High_Priority_Reason")" Component="HighPriorityReason" />
+                                            <RadzenTextArea Rows="5" Placeholder="@translationState.Translate("High_Priority_Reason")" @bind-Value="@(dataCommunicationService.consultationRequest.HighPriorityReason)" Name="HighPriorityReason" Class="w-100" />
+                                            <RadzenLengthValidator Component="HighPriorityReason" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")" />
+                                            <RadzenRegexValidator Component="HighPriorityReason" Text="@(translationState.Translate("Cannot_Have_Trailing_Spaces"))" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
+                        </RadzenCard>
+                        <RadzenCard class="m-1">
+                            <div class="row pb-2">
+                                <div class="col-md-4">
+                                    <h2 class="formHeading">@translationState.Translate("List_Documents")</h2>
+                                    <div class="divider"></div>
+                                </div>
+                            </div>
+                            <FileUpload ReferenceGuid="@dataCommunicationService.consultationRequest.ConsultationRequestId"
+                                        @bind-DeletedAttachementIds="@dataCommunicationService.consultationRequest.DeletedAttachementIds"
+                                        Multiple="false"
+                                        MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                        FileTypes="@systemSettingState.FileTypes.ToList()"
+                                        UploadFrom="ConsultationManagement"
+                                        IsCaseRequest="true"
+                                        HideView="true"
+                                        ModuleId="(int)WorkflowModuleEnum.COMSConsultationManagement" />
+                        </RadzenCard>
+                        <RadzenCard class="m-2">
+                            <div class="row pb-2">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="k-form-field">
+                                        <div class="k-form-field-wrap">
+                                            <div class="k-form-field-wrap">
+                                                <TelerikCheckBox Id="Pledge" OnChange="@((args) => OnChangePledge(args))" @bind-Value="@dataCommunicationService.consultationRequest.Pledge"></TelerikCheckBox>
+                                                <RadzenLabel class="px-2" Text="@translationState.Translate("Consultation_Pledge_Statement")" />
+                                                @if (PledgeErrorShow)
+                                                {
+                                                    <div>
+                                                        <div class="rz-message rz-messages-error">@(translationState.Translate("CheckBox_Required"))</div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenCard>
+                    </div>
+                    <div class="col-md-12 p-0">
+                        <RadzenCard Style="padding: 10px 13px;">
+                            <div class="col-12 d-flex justify-content-end p-0 popup-buttons-alignment">
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit" style="margin-left: 0.5rem !important" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit_And_Assign")" Click="@SubmitClicked"/>
+                                @if (dataCommunicationService.consultationRequest?.RequestStatusId == (int)CaseRequestStatusEnum.Draft)
+                                {
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Button" style="margin-left: 0.5rem !important" ButtonStyle="ButtonStyle.Primary" Click="@(() => SaveAsDraftForConsultation(false))" Text="@translationState.Translate("Save_As_Draft")" />
+                                }
+                                @if (dataCommunicationService.consultationRequest?.RequestTypeId == (int)RequestTypeEnum.Contracts)
+                                {
+                                    <RadzenButton IsBusy=@(busyPreviewBtn) style="margin-left: 0.5rem !important" ButtonType="Radzen.ButtonType.Button" Disabled="@busyPreviewBtn" ButtonStyle="ButtonStyle.Light" Click="@PreviewTemplate" Text="@translationState.Translate("Template_Preview")"/>
+                                }
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.5rem !important" Text="@translationState.Translate("Cancel")" Click="@CancelRequest"/>
+                            </div>
+                        </RadzenCard>
+                    </div>
+                </ChildContent>
+            </RadzenTemplateForm>
+        </div>
+    </ChildContent>
+
+</RadzenContent>

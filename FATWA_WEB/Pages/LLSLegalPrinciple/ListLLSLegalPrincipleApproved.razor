@@ -1,0 +1,16 @@
+﻿@page "/legalprinciple-approved"
+@layout MainLayout
+@using static FATWA_DOMAIN.Enums.LegalPrinciple.LegalPrincipleEnum;
+
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.LPS.Principles.PrincipleApproval").Count() > 0)
+{
+    <LLSLegalPrincipleListComponent 
+        FlowStatusId="(int)PrincipleFlowStatusEnum.Approve"
+        UserId="@(loginState.UserDetail.UserId)">
+    </LLSLegalPrincipleListComponent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} 

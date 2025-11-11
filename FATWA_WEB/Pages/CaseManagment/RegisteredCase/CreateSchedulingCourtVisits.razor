@@ -1,0 +1,266 @@
+﻿@page "/scheduling-court-visits/{HearingId}/{CaseId}"
+@using FATWA_DOMAIN.Models.CaseManagment
+@layout MainLayout
+@*<History Author = 'Danish' Date='2022-12-02' Version="1.0" Branch="master"> Schedulng Court Visits </History>*@
+<RadzenContent Container="main">
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Scheduling_Court_Visits")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard"> 
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_Dashboard")"
+                              class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+
+    <RadzenTemplateForm Data="@schedulingCourtVisit" Visible="@(schedulingCourtVisit != null)" TItem="SchedulingCourtVisits" Submit="@FormSubmit">
+        <ChildContent>
+            <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+                <HeaderTemplate>
+                    <span class="d-inline-flex align-items-center align-middle">
+                        <RadzenIcon Class="me-1" /><b>@translationState.Translate("Visit_Action_Items")</b>
+                    </span>
+                </HeaderTemplate>
+                <ChildContent>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("Action_Name")" Component="Action_Name" Style="width: 100%" />
+                                <RadzenTextBox MaxLength="256" style="width: 100%" @bind-Value="@(schedulingCourtVisit.ActionName)" Name="Action_Name">
+                                </RadzenTextBox>
+                                @if (!IsVisible)
+                                {
+                                    <RadzenRequiredValidator Component="Action_Name" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                                    </RadzenRequiredValidator>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("Assign_To")" Component="Assign_To" Style="width: 100%" />
+                              <RadzenDropDown Data="@users"
+                                                AllowFiltering="true"
+                                                  FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowClear="true"
+                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr")
+                                                ValueProperty="Id"
+                                                Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;"
+                                                @bind-Value="@schedulingCourtVisit.LawyerId"
+                                                Name="Assign_To" />
+                                @if (!IsVisible)
+                                {
+                                    <RadzenRequiredValidator Component="Assign_To" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                                    </RadzenRequiredValidator>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("Notes")" Component="Notes" Style="width: 100%" />
+                                <RadzenTextBox MaxLength="256" style="width: 100%" @bind-Value="@(schedulingCourtVisit.Notes)" Name="Notes">
+                                </RadzenTextBox>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("Due_Date")" Component="Due_Date" Style="width: 100%" />
+                                <TelerikDatePicker Format="dd/MM/yyyy" Min="DateTime.Now"
+                                                   @bind-Value="@schedulingCourtVisit.DueDate">
+                                </TelerikDatePicker>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("Is_Urgent")" Component="Is_Urgent" Style="width: 100%" />
+                                <RadzenCheckBox @bind-Value="@(schedulingCourtVisit.IsUrgent)" Name="Is_Urgent"/>
+                            </div>
+                        </div>
+                    </div>
+                </ChildContent>
+            </RadzenFieldset>
+            <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+                <HeaderTemplate>
+                    <span class="d-inline-flex align-items-center align-middle">
+                        <RadzenIcon Class="me-1" /><b>@translationState.Translate("Court_Visit_Details")</b>
+                    </span>
+                </HeaderTemplate>
+                <ChildContent>
+                    <div class="row col-md-12 d-flex justify-content-end" > 
+                        <div class="form-group">
+                            <RadzenLabel Text="@translationState.Translate("Is_Reccuring")" Component="IsReccuring"   Style="width: 100%" /> 
+                            <RadzenCheckBox @bind-Value="@(schedulingCourtVisit.IsReccuring)" Name="IsReccuring" TValue="bool" Change="@OnChangeClear"/>
+                                                  
+                        </div>
+                    </div>
+                    @if (schedulingCourtVisit.IsReccuring)
+                    {
+                        <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+                            <ChildContent>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Start_Date")" Component="Start_Date" Style="width: 100%" />
+                                            <TelerikDatePicker Format="dd/MM/yyyy" Min="DateTime.Now"
+                                                           @bind-Value="@schedulingCourtVisit.StartDate">
+                                            </TelerikDatePicker>
+                                        </div
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("End_Date")" Component="End_Date" Style="width: 100%" />
+                                            <TelerikDatePicker Format="dd/MM/yyyy" Min="(DateTime)schedulingCourtVisit.StartDate"
+                                                           @bind-Value="@schedulingCourtVisit.EndDate">
+                                            </TelerikDatePicker>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Start_Time")" Component="Start_Time" Style="width: 100%" />
+                                            <TelerikTimePicker Format="HH:mm:ss" 
+                                                           @bind-Value="@schedulingCourtVisit.StartTime"
+                                                           OnChange="OnChangeTime" />
+                                                        
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("End_Time")" Component="End_Time" Style="width: 100%" />
+                                            <TelerikTimePicker Format="HH:mm:ss" Min="(DateTime)schedulingCourtVisit.StartTime.AddMinutes(1)"
+                                                           @bind-Value="@schedulingCourtVisit.EndTime"
+                                                           OnChange="OnChangeTime" />
+                                                           
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Duration")" Component="Duration" Style="width: 100%" />
+                                            <RadzenTextBox MaxLength="256" style="width: 100%" @bind-Value="@(schedulingCourtVisit.Duration)" Name="Duration" Disabled="true">
+                                            </RadzenTextBox>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ChildContent>
+                        </RadzenFieldset>
+                    }
+                    else
+                    {
+                        <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+                            <ChildContent>
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Visit_Date")" Component="Visit_Date" Style="width: 100%" />
+                                            <TelerikDatePicker Format="dd/MM/yyyy"
+                                                           Min="DateTime.Now"
+                                                           @bind-Value="@schedulingCourtVisit.VisitDate">
+                                            </TelerikDatePicker>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Start_Time")" Component="Start_Time" Style="width: 100%" />
+                                            <TelerikTimePicker Format="HH:mm:ss"
+                                                          OnChange="OnChangeTime"
+                                                           @bind-Value="@schedulingCourtVisit.StartTime" />
+                                                           <div class="rz-message rz-messages-error ">@starttimeValidationMsg</div>
+
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("End_Time")" Component="End_Time" Style="width: 100%" />
+                                            <TelerikTimePicker Format="HH:mm:ss" Min="(DateTime)schedulingCourtVisit.StartTime.AddMinutes(1)"
+                                            OnChange="OnChangeTime"
+                                                           @bind-Value="@schedulingCourtVisit.EndTime" />
+                                                           <div class="rz-message rz-messages-error ">@endtimeValidationMsg</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ChildContent>
+                        </RadzenFieldset>
+                    }
+                    <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+                        <ChildContent>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("Purpose_Name")" Component="Purpose_Name" Style="width: 100%" />
+                                        <RadzenTextBox MaxLength="256" style="width: 100%" @bind-Value="@(schedulingCourtVisit.PurposeName)" Name="Purpose_Name">
+                                        </RadzenTextBox>
+                                        @if (!IsVisible)
+                                        {
+                                            <RadzenRequiredValidator Component="Purpose_Name" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                                            </RadzenRequiredValidator>
+                                        }
+                                    </div>
+
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("Visit_Type")" Component="Visit_Type" Style="width: 100%" />
+                                         <RadzenDropDown Data="@CaseVisitTypes"
+                                                        AllowFiltering="true"
+                                                          FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        AllowClear="true"
+                                                        TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")
+                                                        ValueProperty="Id"
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        @bind-Value="@schedulingCourtVisit.VisitTypeId"
+                                                        Name="Visit_Type" />
+                                       @if (!IsVisible)
+                                        {
+                                            <RadzenRequiredValidator Component="Visit_Type" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                                            </RadzenRequiredValidator>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("Other")" Component="Other" Style="width: 100%" />
+                                        <RadzenTextBox MaxLength="256" style="width: 100%" @bind-Value="@(schedulingCourtVisit.Other)" Name="Other">
+                                        </RadzenTextBox>
+                                    </div>
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenFieldset>
+                </ChildContent>
+            </RadzenFieldset>
+
+            <div class="row">
+                <div class="col-md-12" style="text-align:right;">
+
+                    <RadzenButton Text="@translationState.Translate("Back")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@ButtonBackDialog" />
+
+                    <RadzenButton Text="@translationState.Translate("Draft_A_File")"
+                                  ButtonStyle="ButtonStyle.Primary"
+                                  ButtonType="Radzen.ButtonType.Submit" />
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenTemplateForm>
+</RadzenContent>

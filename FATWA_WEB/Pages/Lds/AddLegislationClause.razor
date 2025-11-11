@@ -1,0 +1,126 @@
+﻿@page "/add-legal-clause"
+@using FATWA_DOMAIN.Models
+@using static FATWA_DOMAIN.Enums.LegalLegislationEnum
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Add_Clause")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@legalClauses" Visible="@(legalClauses != null)" TItem="LegalClause" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row">
+                            <div class="col-12 pb-3">
+                                 <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="add" Text="@translationState.Translate("Add_Relation")" Click="@( () => AddRelation() )" />                              
+                            </div>
+                            <div class="col-md-12">
+                                <div class="row">
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Clause_Name")" Component="Clause_Name" />
+                                            <RadzenTextBox MaxLength="1000" Placeholder="@translationState.Translate("Clause_Name")" @bind-Value="@legalClauses.Clause_Name" Name="Clause_Name" Class="@validations.ClauseNameEn" />
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Clause_Status")" Component="Clause_Status" />
+                                            @if (AddClauseFromGrid != null)
+                                            {
+                                                    <RadzenDropDown Data="@ArticleStatusDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            @bind-Value="@legalClauses.Clause_Status" Name="Name_En" Class="@validations.ClaueStatus" Disabled />
+                                            }
+                                            else
+                                            {
+                                                    <RadzenDropDown Data="@ArticleStatusDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            @bind-Value="@legalClauses.Clause_Status" Name="Name_En" Class="@validations.ClaueStatus" />
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Clause_Start_Date")" Component="Start_Date" />
+                                            <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                              Min="@Min"
+                                                              Max="@Max"
+                                                              Class="@validations.ClauseStartDate"
+                                                              @bind-Value="@legalClauses.Start_Date" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    @if (ClauseWithSectionCheck)
+                                    {
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Clause_Parent_Section")" Component="SectionId" />
+                                                @*<RadzenDropDown Data="@SectionParentDetails" AllowFiltering="true" AllowClear="true"
+                                                        TextProperty="SectionTitle" ValueProperty="SectionId" Placeholder="@translationState.Translate("Select")"
+                                                        @bind-Value="@legalClauses.SectionId" Name="SectionTitle" Class="@validations.SectionWithClause" />*@
+
+                                                <TelerikDropDownList Data="@SectionParentDetails" DefaultText="@translationState.Translate("Select")"
+                                                                 GroupField="SectionParentTitle"
+                                                                 ValueField="SectionId"
+                                                                 TextField="SectionTitle"
+                                                                 @bind-Value="@legalClauses.SectionId" Class="@validations.SectionWithClause">
+                                                </TelerikDropDownList>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@translationState.Translate("Clause_End_Date")" Component="End_Date" />
+                                            @if (legalClauses.Clause_Status == (int)LegalArticleStatusEnum.Expired)
+                                            {
+                                                <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                              Min="@Min"
+                                                              Max="@Max"
+                                                              Class="@validations.ClauseEndDate"
+                                                              @bind-Value="@legalClauses.End_Date" />
+                                            }
+                                            else
+                                            {
+                                                <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                              Min="@Min"
+                                                              Max="@Max"
+                                                              @bind-Value="@legalClauses.End_Date" Disabled />
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="row pb-2">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <RadzenHtmlEditor @bind-Value=@(legalClauses.Clause_Content) Class="@validations.ClauseContentArea"  style="height: 200px; margin-bottom: 1rem;">
+                                    <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                                    <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                                    <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                                    <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                                    <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                                    <RadzenHtmlEditorSeparator />
+                                    <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                                    <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                                    <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                                </RadzenHtmlEditor>
+                            </div>
+                        </div>
+                        <div class="row popup-buttons-alignment">
+                            <div class="col-12 p-0">
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

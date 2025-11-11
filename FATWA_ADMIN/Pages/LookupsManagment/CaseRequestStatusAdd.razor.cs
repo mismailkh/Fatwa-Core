@@ -1,0 +1,139 @@
+using FATWA_ADMIN.Services.General;
+using FATWA_DOMAIN.Models.CaseManagment;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Radzen;
+using static FATWA_GENERAL.Helper.Response;
+
+namespace FATWA_ADMIN.Pages.LookupsManagment
+{
+
+    public partial class CaseRequestStatusAdd : ComponentBase
+    {
+        #region Paramter
+        [Parameter]
+        public dynamic Id { get; set; }
+        #endregion
+
+        #region Variables
+        CaseRequestStatus _caserequeststatuslist;
+        protected CaseRequestStatus caserequeststatuslist
+        {
+            get
+            {
+                return _caserequeststatuslist;
+            }
+            set
+            {
+                if (!object.Equals(_caserequeststatuslist, value))
+                {
+                    var args = new PropertyChangedEventArgs() { Name = "caserequeststatuslist", NewValue = value, OldValue = _caserequeststatuslist };
+                    _caserequeststatuslist = value;
+                    OnPropertyChanged(args);
+                    Reload();
+                }
+            }
+        }
+        ApiCallResponse response = new ApiCallResponse();
+        #endregion
+
+        #region On Load
+        protected override async Task OnInitializedAsync()
+        {
+            await Load();
+        }
+        protected async Task Load()
+        {
+            if (Id == null)
+            {
+                spinnerService.Show();
+                caserequeststatuslist = new CaseRequestStatus() { };
+                spinnerService.Hide();
+            }
+            else
+            {
+                spinnerService.Show();
+                response = await lookupService.GetCaseRequestStatusById(Id);
+                if (response.IsSuccessStatusCode)
+                {
+                    caserequeststatuslist = (CaseRequestStatus)response.ResultData;
+                }
+                else
+                {
+                    await invalidRequestHandlerService.ReturnBadRequestNotification(response);
+                }
+                spinnerService.Hide();
+            }
+
+        }
+        #endregion
+
+        #region Grid funtions
+        public void Reload()
+        {
+            InvokeAsync(StateHasChanged);
+        }
+
+        public void OnPropertyChanged(PropertyChangedEventArgs args)
+        {
+        }
+        #endregion
+
+        #region Form submit
+        protected async Task SaveChanges(CaseRequestStatus args)
+        {
+            try
+            {
+                bool? dialogResponse = await dialogService.Confirm(
+                                    translationState.Translate("Sure_Submit"),
+                                    translationState.Translate("Confirm"),
+                                    new ConfirmOptions()
+                                    {
+                                        OkButtonText = translationState.Translate("OK"),
+                                        CancelButtonText = translationState.Translate("Cancel")
+                                    });
+                if (dialogResponse == true)
+                {
+                    spinnerService.Show();
+                    if (Id != null)
+                    {
+                        var fatwaDbUpdateLmsLiteratureTypeResult = await lookupService.UpdateCaseRequestStatus(caserequeststatuslist);
+                        if (fatwaDbUpdateLmsLiteratureTypeResult.IsSuccessStatusCode)
+                        {
+                            notificationService.Notify(new NotificationMessage()
+                            {
+                                Severity = NotificationSeverity.Success,
+                                Detail = translationState.Translate("Case_Request_Status_Upadated_Successfully"),
+                                Style = "position: fixed !important; left: 0; margin: auto; "
+                            });
+                        }
+                        else
+                        {
+                            await invalidRequestHandlerService.ReturnBadRequestNotification(response);
+                        }
+                    }
+
+                    dialogService.Close(true);
+                    StateHasChanged();
+                    spinnerService.Hide();
+                }
+            }
+            catch (Exception)
+            {
+                notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Detail = Id == null ? translationState.Translate("Could_not_create_a_new_Case_Request_Status") : translationState.Translate("Case_Request_Status_could_not_be_updated"),
+                    Style = "position: fixed !important; left: 0; margin: auto; "
+                });
+                spinnerService.Hide();
+            }
+        }
+
+        protected async Task Button2Click(MouseEventArgs args)
+        {
+            dialogService.Close(false);
+        }
+        #endregion
+    }
+}

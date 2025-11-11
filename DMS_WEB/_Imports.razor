@@ -1,0 +1,49 @@
+﻿@using System.Net.Http
+@using BlazorDownloadFile;
+@using Blazored.LocalStorage;
+@using DMS_WEB.Data;
+@using DMS_WEB.Extensions
+@using DMS_WEB.Services;
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using DMS_WEB
+@using DMS_WEB.Shared
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Blazored.Toast
+@using Blazored.Toast.Services
+@using Radzen
+@using Radzen.Blazor
+
+@*General Services*@
+@inject SystemSettingState systemSettingState
+@inject NavigationState navigationState
+@inject TranslationState translationState
+@inject LoginState loginState
+@inject SpinnerService spinnerService
+@inject DialogService dialogService
+@inject NotificationService notificationService
+@inject NavigationManager navigationManager
+@inject SystemSettingService systemSettingStateService
+@inject SystemConfigurationService systemConfigurationService
+@inject NotificationDetailService notificationDetailService
+@inject RoleService roleService
+@inject UserService userService
+@inject GroupService groupService
+@inject FileUploadService fileUploadService
+@inject RadzenGridSearchExtension gridSearchExtension
+
+@inject ILocalStorageService BrowserStorage
+@inject IJSRuntime JSRuntime
+@inject IBlazorDownloadFileService blazorDownloadFileService
+@inject ILocalStorageService BrowserStorage
+@inject IConfiguration _config
+@inject IJSRuntime JsInterop
+@inject IWebHostEnvironment _environment
+@*SSO*@
+@inject AuthenticationStateProvider GetAuthenticationStateAsync

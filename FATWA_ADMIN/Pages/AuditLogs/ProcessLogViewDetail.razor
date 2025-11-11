@@ -1,0 +1,195 @@
+﻿@page "/lds-ProcessLog-view/{ProcessLogId}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+@using static FATWA_GENERAL.Helper.Enum
+
+@inherits FATWA_ADMIN.Pages.AuditLogs.ProcessLogViewDetailComponent
+
+<PageTitle>@translationState.Translate("ProcessLog_View_Page_Title")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/processlogs" Text="@translationState.Translate("Operation_logs")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Process_Log_View_Page_Title")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Process_Log_View_Page_Title")" />
+                </div>
+            </div>
+        </div>
+
+        <RadzenCard>
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Selected="true" Text="@translationState.Translate("Process_Log_Information")">
+                        <RadzenTemplateForm TItem="ProcessLog" Data="@getProcesslogsResult" Visible="@(getProcesslogsResult != null )">
+                            <ChildContent>
+                                <div class="row no-gutters">
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Process")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getProcesslogsResult?.Process</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Task")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getProcesslogsResult?.Task</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Log_Date")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getProcesslogsResult?.StartDate.ToString("dd/MM/yyyy")</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Description")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getProcesslogsResult?.Description</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("computer")</h3>
+                                        </div>
+                                        <div class="detailContent">
+                                            <h3>@getProcesslogsResult?.Computer</h3>
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("user_name")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getProcesslogsResult?.UserName</h3>
+
+
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("IP_Details")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getProcesslogsResult?.IPDetails</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Process_Log_Event_Id")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@((ProcessLogEnum)getProcesslogsResult?.ProcessLogEventId)</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("End_Date")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getProcesslogsResult?.EndDate.ToString("dd/MM/yyyy")</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Message")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getProcesslogsResult?.Message</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Channel_Name")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@getProcesslogsResult?.ChannelName</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Application_ID")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@((PortalEnum)getProcesslogsResult?.ApplicationID)</h3>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="col-6 detailSection">
+                                        <div class="detailHeading">
+                                            <h3>@translationState.Translate("Module_ID")</h3>
+                                        </div>
+                                        <div class="detailContent">
+
+                                            <h3>@((ModuleEnum)getProcesslogsResult?.ModuleID)</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ChildContent>
+                        </RadzenTemplateForm>
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+        </RadzenCard>
+    </ChildContent>
+</RadzenContent>

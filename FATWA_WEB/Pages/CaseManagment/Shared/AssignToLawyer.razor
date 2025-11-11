@@ -1,0 +1,189 @@
+﻿@page "/assign-tolawyer"
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@layout MainLayout
+
+<RadzenTemplateForm Data="@caseRequestLawyerAssignment" Visible="@(caseRequestLawyerAssignment != null)" TItem="CaseAssignment" Submit="@FormSubmit">
+    <ChildContent>
+
+        <div class="col-12 pt-4 popup-buttons-alignment">
+            <RadzenButton class="btn btn-primary"
+                          Text="@translationState.Translate("Select_More_Member")"
+                          Click="ShowAdvanceSelectionGrid" />
+        </div>
+
+        <div class="col-12">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Lawyer_Selection"))" />
+                <RadzenDropDown TValue="string"
+                                AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                Name="LawyerName"
+                                @bind-Value="caseRequestLawyerAssignment.LawyerId"
+                                Placeholder="@translationState.Translate("Select_Lawyer")"
+                                Data=@lawyers
+                                Change="@(args => OnTypeChange(args))"
+                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr")
+                                ValueProperty="Id"
+                                Style="display:block;">
+                    <Template Context="data">
+                        @{
+                            var lawyer = data as LawyerVM;
+                            var lastActivityDate = lawyer.LastActivityDate == null ? translationState.Translate("No_Last_Activity") : lawyer.LastActivityDate.Value.ToString("dd/MM/yyyy");
+                        }
+                        <div class=@(lawyer.AbsentTillDate != null ? "disable-item" : "")>
+                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? lawyer.UserNameEn : lawyer.UserNameAr),
+                            @translationState.Translate("Total_Cases"): @lawyer.TotalCases,
+                            @translationState.Translate("Current_Cases"): @lawyer.CurrentCases,
+                            @translationState.Translate("Last_Activity_Date"): @lastActivityDate
+                            @(lawyer.AbsentTillDate != null ? $"{"," + translationState.Translate("Absent_Till_Date")}: {lawyer.AbsentTillDate?.ToString("dd/MM/yyyy")}" : "")
+                        </div>
+                    </Template>
+                </RadzenDropDown>
+                @if (!IsVisible)
+                {
+                    <RadzenRequiredValidator Component="LawyerName" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+
+                }
+            </div>
+        </div>
+        @if (IsVisible)
+        {
+            <div class="col-12">
+                <div class="form-group">
+                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                    @ref="grid"
+                                    AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                    AllowFiltering="false"
+                                    FilterMode="Radzen.FilterMode.Advanced"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    SelectionMode="DataGridSelectionMode.Multiple"
+                                    Data="@lawyers"
+                                    TItem="LawyerVM"
+                                    PageSize="@systemSettingState.Grid_Pagination"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    Visible="@IsVisible"
+                                    @bind-Value="caseRequestLawyerAssignment.SelectedUsers"
+                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                    ShowPagingSummary="true"
+                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                    PageSizeOptions="@systemSettingState.Page_Size_Options">
+                        <Columns>
+                            <RadzenDataGridColumn TItem="LawyerVM" Width="40px" Sortable="false" Filterable="false">
+
+                                <Template Context="data">
+                                    <RadzenCheckBox TriState="false"
+                                                    Value="@(caseRequestLawyerAssignment.SelectedUsers != null && caseRequestLawyerAssignment.SelectedUsers.Contains(data))"
+                                                    TValue="bool"
+                                                    Change=@(args => { if(!allowRowSelectOnRowClick) {grid.SelectRow(data); }}) />
+                                </Template>
+                            </RadzenDataGridColumn>
+                            <RadzenDataGridColumn TItem="LawyerVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr") Title="@translationState.Translate("Lawyer_Name")" />
+                            <RadzenDataGridColumn TItem="LawyerVM" Width="130px" Property="TotalTasks" Title="@translationState.Translate("Current_Tasks")" />
+                            <RadzenDataGridColumn TItem="LawyerVM" Width="150px" Property="LastActivityDate" Title="@translationState.Translate("Last_Activity_Date")" FormatString="{0:dd/MM/yyyy}" />
+                        </Columns>
+                    </RadzenDataGrid>
+
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@translationState.Translate("Select_Primary_Lawyer")" Visible="IsVisible" />
+                    <RadzenDropDown TValue="string"
+                                    Data="@caseRequestLawyerAssignment.SelectedUsers"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    Name="PrimaryLawyer"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr")
+                                    ValueProperty="Id"
+                                    Change="@(args => OnPrimaryLawyerChange(args))"
+                                    @bind-Value="caseRequestLawyerAssignment.PrimaryLawyerId"
+                                    Placeholder="@translationState.Translate("Select_Lawyer")"
+                                    Style="display:block;"
+                                    Visible="IsVisible" />
+
+                    @if (IsVisible == true)
+                    {
+                        <RadzenRequiredValidator Component="PrimaryLawyer" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="form-group">
+            <div class="col-12">
+                <RadzenLabel Text="@(translationState.Translate("Supervisor_Selection"))" />
+                <RadzenDropDown TValue="string"
+                                AllowClear="true"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                Name="SupervisorName"
+                                @bind-Value="caseRequestLawyerAssignment.SupervisorId"
+                                Placeholder="@translationState.Translate("Select_Supervisor")"
+                                Data="@supervisors"
+                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr")
+                                ValueProperty="Id"
+                                Disabled="true"
+                                Style="display:block;">
+                    <Template Context="data">
+                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (data as LawyerVM).UserNameEn : (data as LawyerVM).UserNameAr)
+                        @* @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (data as LawyerVM).UserNameEn + ", " + translationState.Translate("Current_Tasks") + ": " + (data as LawyerVM).TotalTasks : (data as LawyerVM).UserNameAr + ", " + translationState.Translate("Current_Tasks") + ": " + (data as LawyerVM).TotalTasks) *@
+                    </Template>
+                </RadzenDropDown>
+                <RadzenRequiredValidator Component="SupervisorName" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+            </div>
+        </div>
+
+
+        <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 10px auto;">
+            <HeaderTemplate>
+                <span class="d-inline-flex align-items-center align-middle">
+                    <RadzenIcon Class="me-1" /><b>@translationState.Translate("Remarks")</b>
+                </span>
+            </HeaderTemplate>
+            <ChildContent>
+                <div class="row">
+                    <div class="col-md-12">
+                        <RadzenTextArea @bind-Value="caseRequestLawyerAssignment.Remarks"
+                                        class="w-100"
+                                        Placeholder="@translationState.Translate("Remarks")"
+                                        Style="display:block;"
+                                        Rows="3"
+                                        Name="Remarks" />
+                        <RadzenLengthValidator Max="1000" Component="Remarks" Text="@translationState.Translate("Max_Thousand_Characters")" />
+                        <RadzenRegexValidator Component="Remarks" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+                    </div>
+                </div>
+            </ChildContent>
+        </RadzenFieldset>
+
+        <div class="row mt-4 popup-buttons-alignment">
+            <div class="col-12 p-0">
+                <RadzenButton Text="@translationState.Translate("Assign")"
+                              ButtonStyle="ButtonStyle.Primary"
+                              style="margin-right: 0.2rem !important"
+                              ButtonType="Radzen.ButtonType.Submit" />
+                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                {
+                    <RadzenButton Text="@translationState.Translate("Cancel")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Click="@ButtonCloseDialog" />
+                }
+                else
+                {
+                    <RadzenButton Text="@translationState.Translate("Cancel")"
+                                  ButtonStyle="ButtonStyle.Light"
+                                  Style="margin-left: 1rem"
+                                  Click="@ButtonCloseDialog" />
+                }
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

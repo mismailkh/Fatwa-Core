@@ -1,0 +1,27 @@
+﻿<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>@translationState.Translate("Not_Found")</PageTitle>
+        <LayoutView Layout="@typeof(MainLayout)">
+            <p role="alert">@translationState.Translate("Nothing_At_This_Address")</p>
+        </LayoutView>
+    </NotFound>
+</Router>
+
+@code{
+    protected override async Task OnInitializedAsync()
+    {
+        var cookieFound = await JsInterop.InvokeAsync<bool>("getCookieResult");
+        if (!cookieFound)
+        {
+            var uri = new Uri(navigationManager.Uri).GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+            var query = $"?culture={Uri.EscapeDataString("ar-KW")}&redirectUri={Uri.EscapeDataString(uri)}";
+
+            // use a path that matches your culture redirect controller from the previous steps
+            navigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
+        }
+    }
+}

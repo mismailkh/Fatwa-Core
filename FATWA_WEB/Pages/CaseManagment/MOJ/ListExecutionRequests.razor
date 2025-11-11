@@ -1,0 +1,169 @@
+﻿@page "/execution-requests"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@using FATWA_WEB.Services.Lms;
+@layout MainLayout
+
+<!--<History Author = "Hassan Abbas" Date="2023-03-23" Version="1.0" Branch="master"> List of Moj Execution Requests</History>-->
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.CMS.MOJ.ExecutionList"))
+{
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Moj_Execution_Requests")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Moj_Execution_Requests")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 d-flex">
+                            <RadzenTextBox class="searchBox"
+                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                           Name="Textbox0" 
+                                           @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+                         </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenTabs @bind-SelectedIndex="selectedIndex" Change=@OnTabChange TabPosition="Radzen.TabPosition.Top" style="margin: 20px auto;" RenderMode="TabRenderMode.Server">
+                            <Tabs>
+                                <RadzenTabsItem Text="@translationState.Translate("Moj_Execution_Requests")">
+                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                    @ref="ExecReqGrid"
+                                                    Width="100%"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    TItem="MojExecutionRequestVM"
+                                                    LoadData="OnLoadExecutionRequestData"
+                                                    Data="@FilteredMojExecutionRequests"
+                                                    Sort="OnSortExecutionRequestData"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    Count="@(MojExecutionRequests?.Any() == true ? MojExecutionRequests.FirstOrDefault().TotalCount : 0)"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="MojExecutionRequestVM"
+                                                                  Title="@translationState.Translate("Action")"
+                                                                  Filterable="false"
+                                                                  Sortable="false"
+                                                                  Width="100px"
+                                                                  TextAlign="TextAlign.Center">
+
+                                                <Template Context="rowItem">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="visibility" Class="viewIcon"
+                                                                  title="@translationState.Translate("Detail")"
+                                                                  Size="ButtonSize.Small"
+                                                                  Click="@((args) => ViewDetail(rowItem))"
+                                                    @onclick:stopPropagation="true" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="MojExecutionRequestVM" Width="100px" Property="CANNumber" Title="@translationState.Translate("Case_Number")" />
+                                            <RadzenDataGridColumn TItem="MojExecutionRequestVM" Width="100px" Property="CaseNumber" Title="@translationState.Translate("CAN_Number")" />
+                                            <RadzenDataGridColumn TItem="MojExecutionRequestVM" Width="300px" Property="Remarks" Title="@translationState.Translate("Remarks")">
+                                                <Template Context="remarks">
+                                                    @if (remarks.Remarks != null)
+                                                    {
+                                                        @if (remarks.Remarks.Length > 30)
+                                                        {
+                                                            @remarks.Remarks.Substring(0,30) <a href="#" @onclick="@(() => OnDescriptionFullRemarksDetail(remarks.Remarks))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                        }
+                                                        else
+                                                        {
+                                                            @remarks.Remarks
+                                                        }
+                                                    }
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="MojExecutionRequestVM" Width="150px" Property="AssignedDate" FormatString="{0:dd/MM/yyyy hh:mm tt}" Title="@translationState.Translate("Request_Date")">
+                                                <Template Context="rowItem">
+                                                    <RadzenLabel Style="font-weight:normal" Text="@rowItem.AssignedDate?.ToString("dd/MM/yyyy hh:mm tt")" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="@translationState.Translate("Regenrate_Execution_Requests")">
+                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                        <RadzenDataGrid @ref="RegenExecReqGrid"
+                                                        AllowFiltering="false"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        LoadData="OnLoadInterpretationExecutionRequestsData"
+                                                        Data="@FilteredGetjugdmentDecisionVMs"
+                                                        Sort="OnSortInterpretationExecutionRequestsData"
+                                                        TItem="CmsJugdmentDecisionVM"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        Count="@(getjugdmentDecisionVMs?.Any() == true ? getjugdmentDecisionVMs.FirstOrDefault().TotalCount : 0)"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="CmsJugdmentDecisionVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
+                                                    <Template Context="row">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="visibility" Size="ButtonSize.Small" title="@translationState.Translate("Details")" Click="@((args) => DetailJudgmentDecision(row))" @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CmsJugdmentDecisionVM" Width="150px" Property="Title" Title="@translationState.Translate("Title")" />
+                                                <RadzenDataGridColumn TItem="CmsJugdmentDecisionVM" Width="150px" Property="Description" Title="@translationState.Translate("Description")" />
+                                                <RadzenDataGridColumn TItem="CmsJugdmentDecisionVM" Width="150px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DecisionTypeEn" : "DecisionTypeAr") Title="@translationState.Translate("Decision_Type")" />
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </RadzenTabsItem>
+                            </Tabs>
+                        </RadzenTabs>
+
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+@code
+{
+    async Task OnDescriptionFullRemarksDetail(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Remarks"), ds =>
+    @<div>
+        <p class="mb-4" style="min-height:200px;min-width:550px;line-height:2.5">@args</p>
+    </div>);
+    }
+}

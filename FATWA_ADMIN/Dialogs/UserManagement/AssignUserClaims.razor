@@ -1,0 +1,37 @@
+﻿@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@layout MainLayout
+
+@* < History Author = "Ammaar Naveed" Date = "08/08/2024" Version = "1.0" Branch = "master" >Assign user claims (the implementation is specific for sigital signature for now)</ History> *@
+
+    <RadzenTemplateForm TItem="UserClaimsVM" Data="UserClaimsVM" Submit="@(SaveUserClaims)">
+        <ChildContent>
+        <div class="row">
+            <div class="col-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Digital_Signature_Methods"))" />
+                    <RadzenDropDown Data="UMSClaimsList"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    @bind-Value="UserClaimsVM.SelectedUserClaims"
+                                    ValueProperty="ClaimValue"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ClaimTitle_En" : "ClaimTitle_Ar")"
+                                    Name="UserClaims" 
+                                    SelectAllText="@translationState.Translate("Selected_All")"
+                                SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                Multiple="true"/>
+                </div>
+
+            </div>
+        </div>
+        <div class="popup-buttons-alignment pt-1">
+            <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                          ButtonStyle="ButtonStyle.Primary"
+                          Text="@(translationState.Translate("Submit"))"/>
+            <RadzenButton Text="@translationState.Translate("Cancel")"
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="@ButtonCancelClick" />
+        </div>
+        </ChildContent>
+    </RadzenTemplateForm>

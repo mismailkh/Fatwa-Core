@@ -1,0 +1,22 @@
+{
+  "ExtendedData": {
+    "inputs": [
+      "https://fatwa.gov.kw:8855/DSPRemoteSigning/DUC.DSP.RemoteSigningService.ServiceImp.RemoteSigningService.svc"
+    ],
+    "collectionTypes": [
+      "System.Array",
+      "System.Collections.Generic.Dictionary`2"
+    ],
+    "namespaceMappings": [
+      "*, DSPRemoteSigning"
+    ],
+    "references": [
+      "Microsoft.OpenApi, {Microsoft.OpenApi, 1.2.3}",
+      "Swashbuckle.AspNetCore.Swagger, {Swashbuckle.AspNetCore.Swagger, 6.5.0}",
+      "Swashbuckle.AspNetCore.SwaggerGen, {Swashbuckle.AspNetCore.SwaggerGen, 6.5.0}",
+      "Swashbuckle.AspNetCore.SwaggerUI, {Swashbuckle.AspNetCore.SwaggerUI, 6.5.0}"
+    ],
+    "targetFramework": "net6.0",
+    "typeReuseMode": "All"
+  }
+}

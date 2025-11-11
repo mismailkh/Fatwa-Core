@@ -1,0 +1,59 @@
+﻿@using static FATWA_DOMAIN.Enums.DmsEnums;
+@if(StatusId == (int)SigningTaskStatusEnum.SendForSigning && task != null && task.ReceiverId != loginState.UserDetail.UserId)
+{
+    <div class="col-12">
+        @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+        {
+            <p>@($"{translationState.Translate("signing_Message")} {task.ReceiverNameEn}")</p>
+        }
+        else
+        {
+            <p>@($"{translationState.Translate("signing_Message")} {task.ReceiverNameAr}")</p>
+        }
+    </div>
+} 
+else
+{
+<div class="row">
+    <div class="col-12 mt-4">
+        <div class="text-center">
+            @if (attachmentType.DesignationIds.Contains(loginState.UserDetail.DesignationId) && loginState.UserDetail.CanSignDocument)
+            { 
+                @if (attachmentType.SigningMethodIds.Contains((int)SigningMethodEnum.LocalSigning))
+                {
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                        Text="@translationState.Translate("Local_Signing")"
+                        Title="@translationState.Translate("Local_Signing")"
+                        Size="ButtonSize.Small"
+                        Click="@((args) => LocalSigning())"
+                        @onclick:stopPropagation="true" />
+                }
+                @if (attachmentType.SigningMethodIds.Contains((int)SigningMethodEnum.RemoteSigning))
+                {
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                            Text="@translationState.Translate("Remote_Signing")"
+                            Title="@translationState.Translate("Remote_Signing")"
+                            Size="ButtonSize.Small"
+                            Style="margin-bottom: 10px !important;"
+                            Click="@((args) => RemoteSigning())"
+                            @onclick:stopPropagation="true" />
+            
+                }
+                @if (attachmentType.SigningMethodIds.Contains((int)SigningMethodEnum.ExternalSigning))
+                {
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                            Text="@translationState.Translate("External_Signing")"
+                            Title="@translationState.Translate("External_Signing")"
+                            Size="ButtonSize.Small"
+                            Click="@((args) => ExternalSigning())"
+                            @onclick:stopPropagation="true" />
+                }
+            }
+            else
+            {
+                <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Designation_Unauthorized_Digital_Signature")</div>
+            }
+        </div>
+    </div>
+</div>
+}

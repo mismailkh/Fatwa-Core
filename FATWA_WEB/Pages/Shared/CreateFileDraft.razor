@@ -1,0 +1,343 @@
+﻿@page "/create-filedraft/{ReferenceId}/{TypeId}/{TemplateId}/{ModuleId}"
+@page "/create-filedraft/{ReferenceId}/{TypeId}/{TemplateId}/{TaskId}/{ModuleId}"
+@page "/create-filedraft/{ReferenceId}/{TypeId}/{TemplateId}/{DraftId}/{VersionId}/{ModuleId}"
+@page "/create-filedraft/{ReferenceId}/{TypeId}/{TemplateId}/{DraftId}/{VersionId}/{TaskId}/{ModuleId}"
+@using FATWA_DOMAIN.Common;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@using static FATWA_DOMAIN.Enums.UserEnum;
+@using static FATWA_DOMAIN.Enums.WorkflowParameterEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using Radzen.Blazor.Rendering
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@implements IDisposable
+
+@layout MainLayout
+
+<PageTitle>@(translationState.Translate(Convert.ToInt32(TypeId) == (int)AttachmentTypeEnum.ContractReview ? "Review_Contract_Template" : "File_Draft"))</PageTitle>
+<!--<History Author = "Hassan Abbas" Date="2022-11-22" Version="1.0" Branch="master"> Create Draft Document from Template, Blank Template, Without Template</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.CMS.DraftDocument.Create" || x.Value == "Permissions.COMS.DraftDocument.Create").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            @if (DocumentModuleId == (int)WorkflowModuleEnum.COMSConsultationManagement)
+                            {
+                                <RadzenBreadCrumbItem Path="/consultationfile-list/" Text="@translationState.Translate(TransKeyHeader)" />
+                            }
+                            else
+                            {
+                                <RadzenBreadCrumbItem Path="/case-files" Text="@translationState.Translate("Case_Files")" />
+                            }
+                            <RadzenBreadCrumbItem Text="@translationState.Translate(Convert.ToInt32(TypeId) == (int)AttachmentTypeEnum.ContractReview ? "Review_Contract_Template" : "File_Draft")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate(Convert.ToInt32(TypeId) == (int)AttachmentTypeEnum.ContractReview ? "Review_Contract_Template" : "File_Draft")" />
+                    </div>
+                </div>
+            </div>
+            <RadzenCard>
+                <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill steps-center">
+                    @if (draftedTemplate?.TemplateId == (int)CaseTemplateEnum.NoTemplate)
+                    {
+                        <b>@translationState.Translate(Convert.ToInt32(TypeId) == (int)AttachmentTypeEnum.ContractReview ? "Review_Contract_Template" : "Draft_Without_Template")</b>
+                    }
+                    else
+                    {
+                        <RadzenHeading Size="H2" Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Template?.NameEn : Template?.NameAr)" />
+                    }
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <RadzenFieldset AllowCollapse="false" Style=" margin: 40px auto;">
+                                <HeaderTemplate>
+                                    <span class="d-inline-flex align-items-center align-middle">
+                                        <b>@translationState.Translate("Document_Information")</b>
+                                    </span>
+                                </HeaderTemplate>
+                                <ChildContent>
+                                    <div class="row">
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group" style="display: grid;">
+                                                <RadzenLabel Text="@(translationState.Translate("Document_Type") + " *")" Component="Attachment_Type" />
+                                                <RadzenDropDown Data="@AttachmentTypes" AllowFiltering="true" AllowClear="true"
+                                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar") ValueProperty="AttachmentTypeId" Placeholder="@translationState.Translate("Select")"
+                                                                Style="display:block;" @bind-Value="draftedTemplate.AttachmentTypeId" Name="Attachment_Type" Disabled="true"
+                                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                                                <RadzenRequiredValidator DefaultValue="0" Component="Attachment_Type" Text="@translationState.Translate("Required_Field")" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="row">
+                                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                    <div class="form-group">
+                                                        <RadzenLabel Text="@(translationState.Translate("Created_Datetime") + " *")" Component="Created_Datetime" />
+                                                        <RadzenDatePicker @bind-Value="@(draftedTemplate.CreatedDate)" DateFormat="dd/MM/yyyy" Class="w-100" Disabled="true" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            @* <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Last_Modified_Datetime") + " *")" Component="Last_Modified_Datetime" />
+                                        <RadzenDatePicker @bind-Value="@(draftedTemplate.ModifiedDate)" FormatString="{0:dd/MM/yyyy}" DateFormat="dd/MM/yyyy" Class="w-100" Disabled="true" />
+                                        </div> *@
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@(translationState.Translate("Version_Number") + " *")" Component="Version_Number" />
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Version_Number")" @bind-Value="@(draftedTemplate.DraftedTemplateVersion.VersionNumber)" Name="Version_Number" Disabled="true" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </ChildContent>
+                            </RadzenFieldset>
+                            <RadzenFieldset AllowCollapse="false" Style=" margin: 40px auto;">
+                                <ChildContent>
+                                    @if (Template?.Id == (int)CaseTemplateEnum.NoTemplate)
+                                    {
+                                        <RadzenHtmlEditor class="draftEditor" @onclick="@(() => TogglePreviewWindow(false))" @ref="editor" @bind-Value="@(Template.Content)" style="width: 100%; height: 400px; margin-bottom: 1rem;">
+                                            <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                                            <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                                            <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                                            <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                                            <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorAlignLeft Title=@translationState.Translate("Align_Left") />
+                                            <RadzenHtmlEditorAlignCenter Title=@translationState.Translate("Align_Centre") />
+                                            <RadzenHtmlEditorAlignRight Title=@translationState.Translate("Align_Right") />
+                                            <RadzenHtmlEditorJustify Title=@translationState.Translate("Justify") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorIndent Title=@translationState.Translate("Indent") />
+                                            <RadzenHtmlEditorOutdent Title=@translationState.Translate("Outdent") />
+                                            <RadzenHtmlEditorUnorderedList Title=@translationState.Translate("Bullet_List") />
+                                            <RadzenHtmlEditorOrderedList Title=@translationState.Translate("Ordered_List") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                                            <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                                            <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorSubscript Title=@translationState.Translate("Subscript") />
+                                            <RadzenHtmlEditorSuperscript Title=@translationState.Translate("Superscript") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorLink Title=@translationState.Translate("Link")
+                                                                  UrlText=@translationState.Translate("Web_Address")
+                                                                  LinkText=@translationState.Translate("Text")
+                                                                  OpenInNewWindowText=@translationState.Translate("Open_in_new_window")
+                                                                  OkText=@translationState.Translate("OK")
+                                                                  CancelText=@translationState.Translate("Cancel") />
+                                            <RadzenHtmlEditorUnlink Title=@translationState.Translate("Unlink") />
+                                            <RadzenHtmlEditorFontName Placeholder="@translationState.Translate("Sultan")" Title="@translationState.Translate("Sultan")">
+                                                <ChildContent>
+                                                    <RadzenHtmlEditorFontNameItem Text="Sultan" Value="Sultan" />
+                                                    <RadzenHtmlEditorFontNameItem Text="Sultan Medium" Value='"Sultan Medium"' />
+                                                </ChildContent>
+                                            </RadzenHtmlEditorFontName>
+                                            <RadzenHtmlEditorFontSize Placeholder="@translationState.Translate("Font_Size")" Title="@translationState.Translate("Font_Size")" />
+                                            <RadzenHtmlEditorFormatBlock Placeholder="@translationState.Translate("Format_Block")" Title="@translationState.Translate("Format_Block")" />
+                                        </RadzenHtmlEditor>
+                                    }
+                                    else if (Template != null)
+                                    {
+                                        <RadzenHtmlEditor class="draftEditor" @ref="editor" @bind-Value="@(Template.Content)" style="width: 100%; height: 400px; margin-bottom: 1rem;">
+                                            <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                                            <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                                            <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                                            <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                                            <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorAlignLeft Title=@translationState.Translate("Align_Left") />
+                                            <RadzenHtmlEditorAlignCenter Title=@translationState.Translate("Align_Centre") />
+                                            <RadzenHtmlEditorAlignRight Title=@translationState.Translate("Align_Right") />
+                                            <RadzenHtmlEditorJustify Title=@translationState.Translate("Justify") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorIndent Title=@translationState.Translate("Indent") />
+                                            <RadzenHtmlEditorOutdent Title=@translationState.Translate("Outdent") />
+                                            <RadzenHtmlEditorUnorderedList Title=@translationState.Translate("Bullet_List") />
+                                            <RadzenHtmlEditorOrderedList Title=@translationState.Translate("Ordered_List") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                                            <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                                            <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorSubscript Title=@translationState.Translate("Subscript") />
+                                            <RadzenHtmlEditorSuperscript Title=@translationState.Translate("Superscript") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorLink Title=@translationState.Translate("Link")
+                                                                  UrlText=@translationState.Translate("Web_Address")
+                                                                  LinkText=@translationState.Translate("Text")
+                                                                  OpenInNewWindowText=@translationState.Translate("Open_in_new_window")
+                                                                  OkText=@translationState.Translate("OK")
+                                                                  CancelText=@translationState.Translate("Cancel") />
+                                            <RadzenHtmlEditorUnlink Title=@translationState.Translate("Unlink") />
+                                            <RadzenHtmlEditorFontName Placeholder="Sultan" Title="@translationState.Translate("Sultan")">
+                                                <ChildContent>
+                                                    <RadzenHtmlEditorFontNameItem Text="Sultan" Value="Sultan" />
+                                                    <RadzenHtmlEditorFontNameItem Text="Sultan Medium" Value='"Sultan Medium"' />
+                                                </ChildContent>
+                                            </RadzenHtmlEditorFontName>
+                                            <RadzenHtmlEditorFontSize Placeholder="@translationState.Translate("Font_Size")" Title="@translationState.Translate("Font_Size")" />
+                                            <RadzenHtmlEditorFormatBlock Placeholder="@translationState.Translate("Format_Block")" Title="@translationState.Translate("Format_Block")" />
+                                        </RadzenHtmlEditor>
+                                    }
+                                    else if (Convert.ToInt32(TypeId) == (int)AttachmentTypeEnum.ContractReview && consultationFileDetailVM.RequestTemplateContent != null)
+                                    {
+                                        <RadzenHtmlEditor class="draftEditor " @ref="editor" @bind-Value="@(consultationFileDetailVM.RequestTemplateContent)" style="width: 100%; height: 400px; margin-bottom: 1rem;">
+                                            <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                                            <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                                            <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                                            <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                                            <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorAlignLeft Title=@translationState.Translate("Align_Left") />
+                                            <RadzenHtmlEditorAlignCenter Title=@translationState.Translate("Align_Centre") />
+                                            <RadzenHtmlEditorAlignRight Title=@translationState.Translate("Align_Right") />
+                                            <RadzenHtmlEditorJustify Title=@translationState.Translate("Justify") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorIndent Title=@translationState.Translate("Indent") />
+                                            <RadzenHtmlEditorOutdent Title=@translationState.Translate("Outdent") />
+                                            <RadzenHtmlEditorUnorderedList Title=@translationState.Translate("Bullet_List") />
+                                            <RadzenHtmlEditorOrderedList Title=@translationState.Translate("Ordered_List") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                                            <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                                            <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorSubscript Title=@translationState.Translate("Subscript") />
+                                            <RadzenHtmlEditorSuperscript Title=@translationState.Translate("Superscript") />
+                                            <RadzenHtmlEditorSeparator />
+                                            <RadzenHtmlEditorLink Title=@translationState.Translate("Link")
+                                                                  UrlText=@translationState.Translate("Web_Address")
+                                                                  LinkText=@translationState.Translate("Text")
+                                                                  OpenInNewWindowText=@translationState.Translate("Open_in_new_window")
+                                                                  OkText=@translationState.Translate("OK")
+                                                                  CancelText=@translationState.Translate("Cancel") />
+                                            <RadzenHtmlEditorUnlink Title=@translationState.Translate("Unlink") />
+                                            <RadzenHtmlEditorFontName Placeholder="@translationState.Translate("Font")" Title="@translationState.Translate("Font")">
+                                                <ChildContent>
+                                                    <RadzenHtmlEditorFontNameItem Text="Sultan" Value="Sultan" />
+                                                    <RadzenHtmlEditorFontNameItem Text="Sultan Medium" Value='"Sultan Medium"' />
+                                                </ChildContent>
+                                            </RadzenHtmlEditorFontName>
+                                            <RadzenHtmlEditorFontSize Placeholder="@translationState.Translate("Font_Size")" Title="@translationState.Translate("Font_Size")" />
+                                            <RadzenHtmlEditorFormatBlock Placeholder="@translationState.Translate("Format_Block")" Title="@translationState.Translate("Format_Block")" />
+                                        </RadzenHtmlEditor>
+                                    }
+                                </ChildContent>
+                            </RadzenFieldset>
+                            <div class="row d-flex justify-content-center align-items-center pb-3 mt-2">
+                                <div class="col-md-12 d-flex justify-content-end">
+                                    <RadzenButton IsBusy=@(busyPreviewBtn) ButtonType="Radzen.ButtonType.Submit" Disabled="@busyPreviewBtn" ButtonStyle="ButtonStyle.Primary" Click="@PreviewDraft" Text="@translationState.Translate("Preview")">
+                                    </RadzenButton>
+                                    <RadzenButton Text="@translationState.Translate("Back")"
+                                                  ButtonStyle="ButtonStyle.Light"
+                                                  Click="@RedirectBack" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </RadzenCard>
+
+        </ChildContent>
+    </RadzenContent>
+
+    @if (isVisible && !busyPreviewBtn)
+    {
+        @*Template Previewer*@
+        <TelerikWindow Class="draftPreviewWindow" Size="@(ThemeConstants.Window.Size.Medium)" Visible="true" Draggable="true" Top="0%" Left="0%">
+            <WindowTitle>
+                <RadzenHeading Size="H2" Text="@translationState.Translate("Preview_Draft")" />
+            </WindowTitle>
+            <WindowActions>
+                <WindowAction Name="Maximize"></WindowAction>
+                <WindowAction Name="Minimize"></WindowAction>
+                <WindowAction Name="Close" OnClick="@(() => TogglePreviewWindow(null))"></WindowAction>
+            </WindowActions>
+            <WindowContent>
+                <div class="row pb-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        @* <TelerikPdfViewer @ref="PdfViewerRef"
+                            Width="100%"
+                            Height="calc(100vh - 160px)!Important"
+                            Data="@FileData">
+                            <PdfViewerToolBar>
+                            <PdfViewerToolBarSeparator />
+                            <PdfViewerToolBarDownloadTool />
+                            <PdfViewerToolBarPrintTool />
+                            <PdfViewerToolBarPagerTool />
+                            <PdfViewerToolBarSpacer />
+                            <PdfViewerToolBarZoomTool />
+                            <PdfViewerToolBarSelectionTool />
+                            <PdfViewerToolBarSearchTool />
+                            </PdfViewerToolBar>
+                            </TelerikPdfViewer> *@
+                        <SfPdfViewerServer EnableNavigationToolbar="false"
+                                           Width="100%"
+                                           Height="1000px"
+                                           @ref="@pdfViewer"
+                                           EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                           Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                           ID="pdfviewerDetailCommunication"
+                                           DocumentPath="@DocumentPath"
+                                           InteractionMode="InteractionMode.Pan">
+                        </SfPdfViewerServer>
+                    </div>
+                </div>
+                <div class="row mt-2 popup-buttons-alignment">
+                    <div class="col-12">
+                        @if (DraftId == null)
+                        {
+                            <label style="margin: 5px 0px 5px 10px;">@translationState.Translate("Create_Another")</label>
+                            <TelerikCheckBox Class="m-2" @bind-Value="@CreateAnother"></TelerikCheckBox>
+                        }
+                        <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@SaveDraftAsDraft">@translationState.Translate("Save_As_Draft")</TelerikButton>
+                        <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@SubmitDraft">@translationState.Translate("Submit")</TelerikButton>
+                    </div>
+                </div>
+            </WindowContent>
+        </TelerikWindow>
+    }
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+<style>
+    .rz-dialog-wrapper {
+        z-index: 10010 !important;
+    }
+
+    .rz-dropdown-panel.rz-popup {
+        z-index: 10010 !important;
+    }
+</style> 

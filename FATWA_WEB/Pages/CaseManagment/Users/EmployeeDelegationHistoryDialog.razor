@@ -1,0 +1,39 @@
+﻿@page "/view-employee-leave-delegation-history"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Employee_Leave_Delegation_History")</PageTitle>
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row tableContent table-responsive py-4 no-gutters pb-3">
+            <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                            AllowFiltering="false"
+                            AllowPaging="true" ColumnWidth="230px"
+                            AllowSorting="false"
+                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                            Data="@EmployeeDelegationHistories"
+                            TItem="EmployeeDelegationHistoryVM"
+                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                            PageSize="@loginState.PageSize"
+                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                            ShowPagingSummary="true">
+                <Columns>
+                        <RadzenDataGridColumn TItem="EmployeeDelegationHistoryVM" Property="FromDate" Title="@translationState.Translate("From_Date")" Width="150px">
+                        <Template Context="item">
+                            @String.Format("{0:dd/MM/yyyy}", item.FromDate) 
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="EmployeeDelegationHistoryVM" Property="ToDate" Title="@translationState.Translate("To_Date")" Width="150px">
+                        <Template Context="item">
+                            @String.Format("{0:dd/MM/yyyy}", item.ToDate)
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="EmployeeDelegationHistoryVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar")" Title="@translationState.Translate("Delegated_Employee")" Width="150px" />
+                    <RadzenDataGridColumn TItem="EmployeeDelegationHistoryVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DelegatorName_En" : "DelegatorName_Ar")" Title="@translationState.Translate("Delegated_By")" Width="150px" />
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    </ChildContent>
+</RadzenContent>

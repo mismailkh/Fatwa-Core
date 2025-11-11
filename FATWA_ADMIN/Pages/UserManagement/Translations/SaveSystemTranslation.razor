@@ -1,0 +1,51 @@
+﻿@using FATWA_DOMAIN.Models
+<div class="row">
+    <div class="col-md-12">
+        <RadzenTemplateForm Data="@Translation" TItem="Translation" Submit="@SaveTranslationSubmit">
+            <ChildContent>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group  ">
+                            <RadzenLabel Text="@(translationState.Translate("Translation_Key") + " *")" />
+                            <RadzenTextBox @bind-Value="@(Translation.TranslationKey)" Disabled="true" />
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group">
+                                    <RadzenLabel Text='@translationState.Translate("Value_En")' Component="Value_En" />
+                                    <RadzenTextBox Placeholder='@translationState.Translate("Value_En")' @bind-Value="@(Translation.Value_En)" Name="Value_En" />
+                                    <RadzenRequiredValidator Component="Value_En" Text='@translationState.Translate("Required_Field")' />
+                                    <RadzenLengthValidator Component="Value_En" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                                    <RadzenRegexValidator Component="Value_En" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-group  ">
+                                    <RadzenLabel Text='@translationState.Translate("Value_Ar")' Component="Value_Ar" />
+                                    <RadzenTextBox Placeholder='@translationState.Translate("Value_Ar")' @bind-Value="@(Translation.Value_Ar)" Name="Value_Ar" />
+                                    <RadzenRequiredValidator Component="Value_Ar" Text='@translationState.Translate("Required_Field")'></RadzenRequiredValidator>
+                                    <RadzenLengthValidator Component="Value_Ar" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                                    <RadzenRegexValidator Component="Value_Ar" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group  ">
+                                    <RadzenLabel Text='@translationState.Translate("Reference_Screen")' Component="ReferenceScreen" />
+                                    <RadzenTextBox Placeholder='@translationState.Translate("Reference_Screen")' @bind-Value="@(Translation.ReferenceScreen)" Name="ReferenceScreen" />
+                                    <RadzenRequiredValidator Component="ReferenceScreen" Text='@translationState.Translate("Required_Field")' />
+                                    <RadzenLengthValidator Component="ReferenceScreen" Max="300" Text="@translationState.Translate("Max_Three_Hundred_Characters")" />
+                                    <RadzenRegexValidator Component="ReferenceScreen" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesPattern" />
+                        </div>
+                    </div>
+
+                    <div class="col-12 popup-buttons-alignment">
+                        <RadzenButton ButtonType="Radzen.ButtonType.Submit" class="m-2" ButtonStyle="ButtonStyle.Primary" Icon="save" Text="@translationState.Translate("Translation_Update")" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Cancel")" Click="@CancelClick" />
+                    </div>
+                </div>
+            </ChildContent>
+        </RadzenTemplateForm>
+    </div>
+</div>

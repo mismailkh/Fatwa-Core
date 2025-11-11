@@ -1,0 +1,67 @@
+﻿@using DMS_WEB.Data
+@using DMS_WEB.Services;
+
+@inject SpinnerService SpinnerService
+@inject TranslationState translationState
+
+@implements IDisposable
+@*<History Author = 'Hassan Abbas' Date='2022-05-21' Version="1.0" Branch="master"> Added Generic Spinner Service</History>*@
+@if(IsVisible)
+{
+    <TelerikLoaderContainer Visible="@LoaderContainerVisible" ThemeColor="@ThemeColor" OverlayThemeColor="@OverlayThemeColor"
+                                LoaderPosition="@SelectedLoaderPosition"
+                                Text="@LoaderContainerText"
+                                LoaderType="@SelectedLoaderType"></TelerikLoaderContainer>
+}
+
+@code
+{
+    string SelectedLoaderSize { get; set; } = ThemeConstants.Loader.Size.Medium;
+    string ThemeColor { get; set; } = "light";
+    string OverlayThemeColor { get; set; } = "dark";
+    string LoaderContainerText { get; set; }
+    string isLoginFailed { get; set; } = "none";
+    LoaderType SelectedLoaderType { get; set; } = LoaderType.InfiniteSpinner;
+    LoaderPosition SelectedLoaderPosition { get; set; } = LoaderPosition.Top;
+    public bool LoaderContainerVisible { get; set; } = true;
+
+    private bool VisibleProperty { get; set; } = true;
+    protected bool IsVisible { get; set; }
+    protected override void OnInitialized()
+    {
+        if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+        {
+            LoaderContainerText = "Loading";
+        }
+        else
+        {
+            LoaderContainerText = "جاري تحميل";
+        }
+        SpinnerService.OnShow += ShowSpinner;
+        SpinnerService.OnHide += HideSpinner;
+    }
+    //<History Author = 'Hassan Abbas' Date='2022-05-21' Version="1.0" Branch="master"> Invoke Show Spinner</History>
+    public void ShowSpinner()
+    {
+        InvokeAsync(() =>
+        {
+            IsVisible = true;
+            StateHasChanged();
+        });
+    }
+    //<History Author = 'Hassan Abbas' Date='2022-05-21' Version="1.0" Branch="master"> Invoke Hide Spinner</History>
+    public void HideSpinner()
+    {
+        InvokeAsync(() =>
+        {
+            IsVisible = false;
+            StateHasChanged();
+        });
+    }
+    //<History Author = 'Hassan Abbas' Date='2022-05-21' Version="1.0" Branch="master"> Dispose events</History>
+    public void Dispose()
+    {
+        SpinnerService.OnShow -= ShowSpinner;
+        SpinnerService.OnHide -= HideSpinner;
+    }
+}

@@ -1,0 +1,113 @@
+﻿@page "/translations"
+@using FATWA_DOMAIN.Models;
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Translations")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Users.Translations"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("Translations")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Translations")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="col-md-12">
+                <div class="row tableContent pb-3">
+                    <RadzenCard>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                                               style="display: block; margin-bottom: 10px; width: 100%"
+                                @oninput="@(async(args) => {await grid.GoToPage(0);await OnSearchInput($"{args.Value}");})" />
+                             </div>
+                            <div class="col-md-8 text-right-custom-gridcolumn">
+                            </div>
+                        </div>
+
+                        <RadzenDataGrid Width="100%"
+                        @ref="grid"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count=@(FilteredGetTransaltionResult.Count() )
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        AllowFiltering="false"
+                                        Data="@FilteredGetTransaltionResult"
+                                        TItem="Translation"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="Translation" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="100px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      class="editIcon"
+                                                      Icon="mode"
+                                                      title="@translationState.Translate("Edit")"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => GridEditButtonClick(rowItem))"
+                                        @onclick:stopPropagation="true" />
+
+                                @*         <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                      class="deleteIcon"
+                                                      Icon="delete_outline"
+                                                      title="@translationState.Translate("Delete")"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) =>GridDeleteButtonClick(rowItem))"
+                                        @onclick:stopPropagation="true" /> *@
+                                    </Template>
+                                </RadzenDataGridColumn>
+
+                                <RadzenDataGridColumn TItem="Translation" Property="TranslationKey" Title="@translationState.Translate("Translation_Key")" />
+                                <RadzenDataGridColumn TItem="Translation" Property="Value_En" Title="@translationState.Translate("Value_En")" />
+                                <RadzenDataGridColumn TItem="Translation" Property="Value_Ar" Title="@translationState.Translate("Value_Ar")" />
+                                <RadzenDataGridColumn TItem="Translation" Property="ReferenceScreen" Title="@translationState.Translate("Reference_Screen")" />
+                                @* <RadzenDataGridColumn TItem="Translation" Property="CreateDate" Title="@translationState.Translate("Create_Date")" FormatString="{0:dd/MM/yyyy}" /> *@
+                                <RadzenDataGridColumn TItem="Translation" Title="@translationState.Translate("Update_Date")">
+                                    <Template Context=data>
+                                        @{
+                                            var displayDate = data.UpdateDate?.ToString("dd/MM/yyyy") ?? data.CreateDate.ToString("dd/MM/yyyy");
+                                        }
+                                        @displayDate
+                                    </Template>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenCard>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

@@ -1,0 +1,154 @@
+﻿@*@page "/lms-literature-index/{ParentIndexId}/{ParentIndexNumber}"*@
+@page "/lmsliteratureindex-list/{ParentIndexId}/{ParentIndexNumber}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+
+
+<PageTitle>@translationState.Translate("Literature_Index")</PageTitle>
+
+    <!-- <History Author = 'Umer Zaman' Date='2022-03-18' Version="1.0" Branch="master">Create & show all literature index's</History> -->
+    <!-- <History Author = 'Umer Zaman' Date='2022-07-07' Version="1.0" Branch="master">Modified literature index according to dewey decimal system</History> -->
+    @if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.LiteratureIndex.List").Count() > 0)
+{
+
+    <PageTitle>@translationState.Translate("Literature_Index")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem onclick=@RedirectBack Text="@translationState.Translate("Literature_Parent_Index")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Literature_Index")" />
+                    </RadzenBreadCrumb>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+              Size="ButtonSize.Small"
+              title="@translationState.Translate("Go_Back")"
+              class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-centre align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Literature_Index")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                        <div class="row pb-4 ">
+                            <div class="col-md-6">
+                                <div class="k-form-field-wrap">
+                                    <RadzenLabel Text="@translationState.Translate("Parent_Index_Number")" style="width: 100%;">
+                                    </RadzenLabel>
+                                </div>
+
+                                <div class="k-form-field-wrap">
+                                    <RadzenTextBox ReadOnly=true Placeholder="@translationState.Translate("Parent_Index_Number")" @bind-Value="@(RegisteredIndexDetails.IndexParentNumber)" MaxLength="100" style="display: block; width: 100%" Name="IndexParentNumber" />
+                                </div>
+
+                            </div>
+                            <div class="col-md-6">
+
+                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                {
+
+                                    <div class="k-form-field-wrap">
+                                        <RadzenLabel Text="@translationState.Translate("Name_En")" style="width: 100%;">
+                                        </RadzenLabel>
+                                    </div>
+
+                                    <div class="k-form-field-wrap">
+                                        <RadzenTextBox ReadOnly=true Placeholder="@translationState.Translate("Name_En")" @bind-Value="@(RegisteredIndexDetails.Parent_Name_En)" MaxLength="100" style="display: block; width: 100%" Name="Parent_Name_En" />
+                                    </div>
+
+                                }
+                                else
+                                {
+
+                                    <div class="k-form-field-wrap">
+                                        <RadzenLabel Text="@translationState.Translate("Name_Ar")" style="width: 100%;">
+                                        </RadzenLabel>
+                                    </div>
+
+                                    <div class="k-form-field-wrap">
+                                        <RadzenTextBox ReadOnly=true Placeholder="@translationState.Translate("Name_Ar")" @bind-Value="@(RegisteredIndexDetails.Parent_Name_Ar)" MaxLength="100" style="display: block; width: 100%" Name="Parent_Name_Ar" />
+                                    </div>
+
+                                }
+                            </div>
+                        </div>
+                        <div class="row no-gutters">
+                            <div class="col-md-4">
+                                <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                                               class="searchBox"
+                                               Name="Textbox0" @oninput="@(async(args) =>
+                            {search = $"{args.Value}";await grid0.GoToPage(0);await OnSearchInput();})">
+                                </RadzenTextBox>
+                            </div>
+                            <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                                <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add")" Click="@Button0Click">
+                                </RadzenButton>
+                            </div>
+                        </div>
+
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        @ref="grid0"
+                                        AllowFiltering="false"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        Data="@FilteredGetLmsLiteratureIndexResult"
+                                        TItem="LmsLiteratureIndex"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        RowSelect="@ShowChildsByUsingParentIdAndNumber"
+                                        Count="@totalRecords"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Left"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="LmsLiteratureIndex" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                    <Template Context="fatwaModelsFatwaDbLmsLiteratureIndex">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" class="editIcon" Icon="mode" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) =>GridEditButtonClick(args, fatwaModelsFatwaDbLmsLiteratureIndex))" @onclick:stopPropagation="true" />
+                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" class="deleteIcon" Icon="delete_outline" title="@translationState.Translate("delete")" Size="ButtonSize.Small" Click="@((args) =>GridDeleteButtonClick(args, fatwaModelsFatwaDbLmsLiteratureIndex))" @onclick:stopPropagation="true" />
+                                        <RadzenButton ButtonStyle="ButtonStyle.Info" Text="@translationState.Translate("Index_Division_Show")" Size="ButtonSize.Small" Click="@((args) =>Grid0RowSelect(fatwaModelsFatwaDbLmsLiteratureIndex))" @onclick:stopPropagation="true" style="height: auto !important; width: 50% !important; padding: 5px 20px !important; border-radius: 20px !important; background-color: #8c7b6c;" />
+
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LmsLiteratureIndex" Width="90px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") Title="@translationState.Translate("CategoryName")">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LmsLiteratureIndex" Width="90px" Property="IndexNumber" Title="@translationState.Translate("Index_Number")" />
+                                <RadzenDataGridColumn TItem="LmsLiteratureIndex" Width="90px" Property="IndexCreationDate" Title="@translationState.Translate("Creation_Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+<style>
+    /*only for this view because grid is clickable
+                    */ tbody {
+        cursor: pointer;
+    }
+</style>

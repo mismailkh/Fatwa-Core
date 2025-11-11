@@ -1,0 +1,48 @@
+﻿@page "/add-transfer-Requests"
+@using FATWA_DOMAIN.Models.CaseManagment
+@layout MainLayout
+
+<PageTitle>Page Title</PageTitle>
+
+<div class="col-md-12">
+    <RadzenTemplateForm Data="@cmsCaseFileTranferRequest" Visible="@(cmsCaseFileTranferRequest != null)" TItem="CmsCaseFileTranferRequest" Submit="@FormSubmit">
+        <ChildContent>
+            <div class="row pt-2 pb-2">
+                <div class="col-12 col-sm-12  col-md-12 col-lg-12 col-xl-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Sector") + " *")" Component="SectorType" />
+                        <RadzenDropDown Data="@SectorTypesList" AllowFiltering="true" AllowClear="true"
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                        ValueProperty="Id"
+                                        Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;"
+                        @bind-Value="cmsCaseFileTranferRequest.SectorTo"
+                                        Name="SectorType"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" />
+                        <RadzenRequiredValidator Component="SectorType" DefaultValue="0" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Description") + " *")" Component="Remarks" style="width: 100%"> </RadzenLabel>
+                        <RadzenTextArea Placeholder="@translationState.Translate("Description")" Name="Remarks" @bind-Value="@(cmsCaseFileTranferRequest.Description)" Cols="54" Rows="3" />
+                        <RadzenRequiredValidator Component="Remarks" Text="@translationState.Translate("Required_Field")" />
+                        <RadzenLengthValidator Component="Remarks" Text="@translationState.Translate("Max_Thousand_Characters")" Max="1000" />
+                    </div>
+                    <div class="row mt-4 popup-buttons-alignment">
+                        <div class="col-12 p-0">
+					        <RadzenButton Text="@translationState.Translate("Submit")"
+								          ButtonStyle="ButtonStyle.Primary"
+                                          style="margin-right: 0.2rem !important"
+                                          Click="@FormSubmit"
+								          ButtonType="Radzen.ButtonType.Submit" />
+					        <RadzenButton Text="@translationState.Translate("Cancel")"
+								          ButtonStyle="ButtonStyle.Light" 
+								          Click="@ButtonCancelClick" />
+				        </div>
+			        </div>
+                </div>
+            </div>
+        </ChildContent>
+
+    </RadzenTemplateForm>
+</div>

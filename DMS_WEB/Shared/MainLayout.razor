@@ -1,0 +1,665 @@
+@*@inherits LayoutComponentBase*@
+@using Blazored.LocalStorage
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel
+@using DMS_WEB.Extensions
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@using DMS_WEB.Pages
+@using DMS_WEB.Shared
+@using DMS_WEB.Services
+@using Radzen
+@using Radzen.Blazor
+@using System.Net
+@using DMS_WEB.Data
+@using static FATWA_GENERAL.Helper.Enum;
+
+@implements IDisposable
+@inherits DMS_WEB.Layouts.MainLayoutComponent
+@inject IJSRuntime JsInterop
+@inject ILocalStorageService BrowserStorage 
+@inject DMS_WEB.Services.SideMenuService SideMenuService
+
+
+
+
+<!--<History Author = 'Hassan Abbas' Date='2022-02-28' Version="1.0" Branch="master"> Check If User is logged in then show NavMenu else don't.</History>-->
+<!--<History Author = 'Hassan Abbas' Date='2022-03-14' Version="2.0" Branch="master"> Login updated with Custom Design plus Telerik Form</History>-->
+<!--<History Author = 'Hassan Abbas' Date='2022-07-06' Version="2.0" Branch="master"> Login updated when changed as scoped</History>-->
+
+<TelerikRootComponent>
+    <Spinner />
+    @if (loginState.IsLoggedIn && loginState.IsStateChecked)
+    {
+        <RadzenDialog />
+        <RadzenNotification />
+        <RadzenTooltip />
+        <RadzenContextMenu />
+        <RadzenPager />
+        <RadzenLayout>
+            <ChildContent>
+                <RadzenHeader @ref="Head0" class="head rz-header-collapsed">
+                    <RadzenContentContainer>
+                        <ChildContent>
+                            <div class="row justify-content-start align-items-center no-gutters mostUsedData">
+                                    
+                                <div class="col-1">
+                                    <RadzenSidebarToggle Click="@SidebarToggle0Click">
+                                    </RadzenSidebarToggle>
+                                </div>
+                                <div class="col-7 d-flex align-items-center">
+                                </div>
+                                <div class="col-1">
+                                    <CultureChooser />
+                                </div>
+                                 
+                                <div class="col-1">
+                                    @* <BellNotification/>  *@
+                                </div>
+                                    
+                                <div class="col-2">
+                                    <RadzenMenu class="TopMenu profileTopMenu">
+                                        <RadzenMenuItem Text="@loginState?.Username?.Split('@')[0]" Image="@loginState?.ProfilePicUrl?.Replace("\\wwwroot\\Attachments\\", "\\Attachments\\")">                          
+                                        </RadzenMenuItem>
+                                    </RadzenMenu>
+                                </div>
+                            </div>   
+                        </ChildContent>
+                    </RadzenContentContainer>
+                </RadzenHeader>
+                <RadzenBody @ref="body0" class="body">
+                    <ChildContent>
+                        <RadzenContentContainer Name="main">
+                            <div class="content" style="padding:0px !important;display:none;">
+                                <div class="row title_bar">
+                                    <div class="col-md-11 p-0"> 
+                                        <RadzenBreadCrumb>
+                                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                                            <RadzenBreadCrumbItem Text="@translationState.Translate("Literature_Borrow_Approval")" />
+                                        </RadzenBreadCrumb>
+                                    </div>
+                                    <div class="col-1 p-0">
+                                        <div class="backtoDashboard">
+                                            <RadzenButton 
+                                                ButtonStyle="ButtonStyle.Secondary"
+                                                Size="ButtonSize.Small" 
+                                                title="@translationState.Translate("Go_Back_Dashboard")"
+                                                class="returnBtn" Icon="dashboard" 
+                                                style="" Click="@GoBackDashboard" />
+                                            <RadzenButton 
+                                                ButtonStyle="ButtonStyle.Secondary" S
+                                                ize="ButtonSize.Small" 
+                                                title="@translationState.Translate("Go_Back_HomeScreen")" 
+                                                class="returnBtn" 
+                                                Icon="home" style="" 
+                                                Click="@GoBackHomeScreen" />
+                                        </div>
+                                        </div>
+                                </div>
+                            </div>
+                                @Body
+                            @* <ErrorBoundary @ref="@errorBoundary">
+                                <ChildContent>
+                                    @Body
+                                </ChildContent>
+                                <ErrorContent>
+                                    <div class="row" style="min-height: 200px;">
+                                        <div class="col-md-12 d-flex flex-row p-3">
+                                            <p style="color: red;">@translationState.Translate("Error_Boundary_Message")</p>
+                                            <a href="/index" class="reload">@translationState.Translate("Error_Message_Reload")</a>
+                                        </div>
+                                    </div>
+                                </ErrorContent>
+                            </ErrorBoundary>*@
+                        </RadzenContentContainer>
+                    </ChildContent>
+                </RadzenBody>
+                <RadzenSidebar @ref="sidebar0" class="demos-sidebar rz-sidebar-collapsed">
+                    <ChildContent>
+                        <div class="Div_logo d-flex justify-content-center align-items-center">
+                            <img src="../images/FatwaLogoColor.png">
+                        </div>
+                        <div class="Div_collapse_logo d-none justify-content-center align-items-center">
+                            <img src="../images/icon-logo.png">
+                        </div>
+                        <RadzenPanelMenu Match="NavLinkMatch.Prefix">
+                            <ul class="rz-panel-menu">  
+                                @foreach (var category in sideMenus)
+                                {
+                                    @if (loginState.ClaimList.Where(x => x.Value == category.Claim).Count() > 0)
+                                    {
+                                        <NavigationItem @bind-Expanded=@category.Expanded SideMenu=@category>
+                                            @if (category.Children != null)
+                                            {
+                                                @foreach (var menu in category.Children)
+                                                {
+                                                    if (menu.Children != null)
+                                                    {
+                                                        @if (loginState.ClaimList.Where(x => x.Value == menu.Claim).Count() > 0)
+                                                        {
+                                                            <NavigationItem SideMenu=@menu>
+                                                                @foreach (var child in menu.Children)
+                                                                {
+                                                                    @if (loginState.ClaimList.Where(x => x.Value == child.Claim).Count() > 0)
+                                                                    {
+                                                                        <NavigationItem SideMenu=@child />
+                                                                    }
+                                                                }
+                                                            </NavigationItem>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        @if (loginState.ClaimList.Where(x => x.Value == menu.Claim).Count() > 0)
+                                                        {
+                                                            <NavigationItem SideMenu=@menu />
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        </NavigationItem>
+                                    }
+                                }
+                                @if (!loginState.IsSSOAthenticated)
+                                {
+                                    <li class="rz-navigation-item">
+                                        <div class="rz-navigation-item-wrapper">
+                                            <a href="/#" class="rz-navigation-item-link" @onclick="HandleLogout" @onclick:preventDefault>
+                                                <i class="rzi rz-navigation-item-icon">logout</i>
+                                                <span class="rz-navigation-item-text">@translationState.Translate("LogOut")</span>
+                                            </a>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        </RadzenPanelMenu>
+                    </ChildContent>
+                    </RadzenSidebar>
+                    <RadzenFooter>
+                        <ChildContent>
+                            <RadzenLabel Text="@(translationState.Translate("Fatwa_Footer").Replace("#year#", DateTime.Now.Year.ToString()))">
+                            </RadzenLabel>
+                        </ChildContent>
+                    </RadzenFooter>
+            </ChildContent>
+        </RadzenLayout>
+    }
+    else if (loginState.IsStateChecked)
+    {
+        <RadzenLayout>
+            <ChildContent>
+                <RadzenBody>
+                    <ChildContent>
+                        <RadzenContentContainer Name="main">
+                            <LogIn />
+                        </RadzenContentContainer>
+                    </ChildContent>
+                </RadzenBody>
+            </ChildContent>
+        </RadzenLayout>
+    }
+</TelerikRootComponent>
+<style>
+    .editIcon {
+    background: #FFF!important;
+    color: #222020 !important;
+    border-color: #8C7B6C;
+    height: 25px !important;
+    width: 25px !important;
+    padding: 0px !important;
+    border-radius: 0.25rem !important;
+}
+    .deleteIcon {
+        background: #8C7B6C !important;
+        color: #fff !important;
+        border-color: #000;
+        height: 25px !important;
+        width: 25px !important;
+        padding: 0px !important;
+        border-radius: 0.25rem !important;
+        border: 1px white solid;
+    }
+        .deleteIcon {
+        background: #8C7B6C !important;
+        color: #fff !important;
+        border-color: #000;
+        height: 25px !important;
+        width: 25px !important;
+        padding: 0px !important;
+        border-radius: 0.25rem !important;
+        border: 1px white solid;
+    }
+    
+    @*.rz-button.btn-secondary, .btn-secondary.rz-paginator-element {
+        
+        padding: 5px 40px 17px !important;
+        border-radius: 20px !important;*@
+    }
+</style>
+@code {
+    private void GoBackDashboard(){
+        navigationManager.NavigateTo("/dashboard");
+    }
+    private void GoBackHomeScreen(){
+        navigationManager.NavigateTo("/index");
+    }
+    private ErrorBoundary? errorBoundary;
+    protected override void OnParametersSet()
+    {
+        errorBoundary?.Recover();
+    }
+
+    IEnumerable<SideMenu> sideMenus;
+    //<History Author = 'Hassan Abbas' Date='2022-02-28' Version="1.0" Branch="master"> Invoke Login State Change Event</History>
+    protected override async Task OnInitializedAsync()
+    {
+        sideMenus = SideMenuService.SideMenus;
+        await JsInterop.InitilizeInActivityTimer(DotNetObjectReference.Create(this));
+        loginState.OnChange += StateHasChanged;
+    }
+
+    //<History Author = 'Aqeel Altaf' Date='2022-08-09' Version="1.0" Branch="master"> Code Rectification and Review</History>
+    //<History Author = 'Aqeel Altaf' Date='2022-08-09' Version="1.0" Branch="master"> implement force logout when user is inactivated and any permission changed</History>
+    //<History Author = 'Hassan Abbas' Date='2022-07-06' Version="1.0" Branch="master"> Check if user session is still valid to reinitialize loginState data</History>
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            var user = (await BrowserStorage.GetItemAsync<string>("User")) ?? "";
+            if (!loginState.IsLoggedIn)
+            {
+                spinnerService.Show();
+                var token = (await BrowserStorage.GetItemAsync<string>("Token")) ?? "";
+                var refreshToken = (await BrowserStorage.GetItemAsync<string>("RefreshToken")) ?? "";
+                var profilePicUrl = (await BrowserStorage.GetItemAsync<string>("ProfilePicUrl")) ?? "";
+                var userDetail = await BrowserStorage.GetItemAsync<UserDetailVM>("UserDetail");
+				var isSSOAuthenticated = await BrowserStorage.GetItemAsync<bool>("IsSSOAuthenticated");
+                loginState.Token = token;
+                loginState.RefreshToken = refreshToken;
+                loginState.Username = user;
+                loginState.ProfilePicUrl = profilePicUrl;
+                loginState.UserDetail = userDetail;
+				loginState.IsSSOAthenticated = isSSOAuthenticated;
+                if (!String.IsNullOrEmpty(user))
+                {
+                    //var response = await roleService.GetRoleCLaims(user);
+                    var response = await groupService.GetGroupClaims(user);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        loginState.ClaimList = (List<ClaimSucessResponse>)response.ResultData;
+                    }
+                    else
+                    {
+                        loginState.ClaimList = new List<ClaimSucessResponse>();
+                        DeleteBrowserStorageValues();
+                        loginState.IsLoggedIn = false;
+                        loginState.IsStateChecked = true;
+                        spinnerService.Hide();
+                        return;
+                    }
+                    response = await userService.GetUserRoles(user);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        loginState.UserRoles = (List<UserRole>)response.ResultData;
+                    }
+                    else
+                    {
+                        loginState.ClaimList = new List<ClaimSucessResponse>();
+                        DeleteBrowserStorageValues();
+                        loginState.IsLoggedIn = false;
+                        loginState.IsStateChecked = true;
+                        spinnerService.Hide();
+                        return;
+                    }
+
+                    response = await roleService.GetAllTranslations();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        translationState.TranslationList = (List<TranslationSucessResponse>)response.ResultData;
+                    }
+                    else
+                    {
+                        translationState.TranslationList = new List<TranslationSucessResponse>();
+                    }
+
+                    loginState.IsLoggedIn = true;
+                    loginState.IsStateChecked = true;
+                    spinnerService.Hide();
+                }
+                else
+                {
+                    spinnerService.Hide();
+                    loginState.IsLoggedIn = false;
+                    loginState.IsStateChecked = true;
+                }
+            }
+            else
+            {
+                ForceLogOutSpecificUser(user);
+
+                loginState.IsLoggedIn = true;
+                loginState.IsStateChecked = true;
+            }
+            await InitializeSessionState();
+        }
+        catch (Exception ex)
+        {
+            spinnerService.Hide();
+            loginState.IsLoggedIn = false;
+            loginState.IsStateChecked = true;
+        }
+    }
+
+    protected async Task InitializeSessionState()
+    {
+        try
+        {
+            if (!systemSettingState.IsInitialized)
+            {
+                var response = await systemSettingStateService.GetSystemSetting();
+                if (response.IsSuccessStatusCode)
+                {
+                    var setting = (SystemSetting)response.ResultData;
+                    systemSettingState.Grid_Pagination = setting.Grid_Pagination;
+                    systemSettingState.Book_Copy_Count = setting.Book_Copy_Count;
+                    systemSettingState.Eligible_Count = setting.Eligible_Count;
+                    systemSettingState.Borrow_Period = setting.Borrow_Period;
+                    systemSettingState.Extension_Period = setting.Extension_Period;
+                    systemSettingState.File_Minimum_Size = setting.File_Minimum_Size;
+                    systemSettingState.File_Maximum_Size = setting.File_Maximum_Size;
+                    systemSettingState.IsInitialized = true;
+                }
+                else
+                {
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+    protected async void ForceLogOutSpecificUser(string user)
+    {
+        try
+        {
+            var securityStamp = (await BrowserStorage.GetItemAsync<string>("SecurityStamp")) ?? "";
+            var response = await userService.GetSecurityStampByEmail(user);
+            if (response.IsSuccessStatusCode)
+            {
+                string originalSecurityStamp = (string)response.ResultData;
+                if (securityStamp != originalSecurityStamp)
+                {
+                    notificationService.Notify(new NotificationMessage()
+                        {
+                            Severity = NotificationSeverity.Info,
+                            Detail = "User Permissions/Activations are updated you'll be redirect to login and get latest updates.",
+                            Style = "position: fixed !important; left: 0; margin: auto; "
+                        });
+                    await Task.Delay(4000);
+                    loginState.SetLogout(false);
+                    DeleteBrowserStorageValues();
+                    navigationManager.NavigateTo("Login", true);
+                    return;
+                }
+            }
+        }
+        catch (JSDisconnectedException ex)
+        {
+
+        }
+    }
+    protected async void DeleteBrowserStorageValues()
+    {
+        try
+        {
+            await BrowserStorage.RemoveItemAsync("User");
+            await BrowserStorage.RemoveItemAsync("Token");
+            await BrowserStorage.RemoveItemAsync("RefreshToken");
+            await BrowserStorage.RemoveItemAsync("ProfilePicUrl");
+            await BrowserStorage.RemoveItemAsync("SecurityStamp");
+            await BrowserStorage.RemoveItemAsync("SessionTimeout");
+        }
+        catch (JSDisconnectedException ex)
+        {
+        }
+    }
+    //<History Author = 'Aqeel Altaf' Date='2022-08-09' Version="1.0" Branch="master"> Code Rectification and Review</History>
+    //<History Author = 'Hassan Abbas' Date='2022-02-28' Version="1.0" Branch="master"> Invoke Login State Change Event</History>
+    public void Dispose()
+    {
+        loginState.OnChange -= StateHasChanged;
+    }
+    //<History Author = 'Aqeel Altaf' Date='2022-08-09' Version="1.0" Branch="master"> Code Rectification and Review</History>
+    //<History Author = 'Hassan Abbas' Date='2022-02-28' Version="1.0" Branch="master"> Update Login State on Web Project</History>
+    //<History Author = 'Hassan Abbas' Date='2022-03-15' Version="2.0" Branch="master"> Change body styling</History>
+    protected async Task HandleLogout(MouseEventArgs args)
+    {
+        await userService.RecordUserLogoutActivity(loginState.Username, loginState.UserDetail.UserId);
+        loginState.SetLogout(false);
+        DeleteBrowserStorageValues();
+        navigationManager.NavigateTo("Login", true);
+    }
+
+    [JSInvokable]
+    public async Task LogOut()
+    {
+        notificationService.Notify(new NotificationMessage()
+            {
+                Severity = NotificationSeverity.Info,
+                Detail = translationState.Translate("Session_TimeOut"),
+                Style = "position: fixed !important; left: 0; margin: auto; "
+            });
+
+        await Task.Delay(5000);
+
+        loginState.SetLogout(false);
+        DeleteBrowserStorageValues();
+        navigationManager.NavigateTo("Login", true);
+    }
+
+    protected async Task SidebarToggle0Click(dynamic args)
+    {
+
+        //await InvokeAsync(() => { sidebar0.Toggle(); });
+
+        await InvokeAsync(() => { body0.Toggle(); });
+        
+        await JsInterop.InvokeVoidAsync("ToggleSideBar");
+        //await InvokeAsync(() => { Head0.Toggle(); });
+    }
+}
+
+
+<style>
+
+    .icons {
+        display: inline;
+        float: right
+    }
+
+    .notification {
+        padding-top: 10px;
+        position: relative;
+        display: inline-block;
+    }
+
+        .notification a:hover {
+            text-decoration: none;
+        }
+
+    .number {
+        height: 15px;
+        width: 15px;
+        background-color: #fff;
+        border-radius: 20px;
+        color: #b68644;
+        text-align: center;
+        position: absolute;
+        top: 0px;
+        left: 20px;
+        padding: 0px;
+        border-style: solid;
+        border-width: 2px;
+        font-size: 10px !important;
+        border-color: #fff;
+        line-height: 12px;
+    }
+
+        .number:empty {
+            display: none;
+        }
+
+    .notBtn {
+        transition: 0.5s;
+        cursor: pointer
+    }
+
+    .notification i {
+        font-size: 20pt;
+        color: #fff;
+        display: block !important;
+    }
+
+    .box {
+        width: 400px;
+        height: 0px;
+        border-radius: 10px;
+        transition: 0.5s;
+        position: absolute;
+        overflow-y: scroll;
+        padding: 0px;
+        left: auto;
+        margin-top: 0px;
+        background-color: #F4F4F4;
+        -webkit-box-shadow: 10px 10px 23px 0px rgba(0,0,0,0.2);
+        -moz-box-shadow: 10px 10px 23px 0px rgba(0,0,0,0.1);
+        box-shadow: 10px 10px 23px 0px rgba(0,0,0,0.1);
+        cursor: context-menu;
+        right: 0px ;
+    }
+
+    .notification i:hover {
+        color: #beb4ab;
+    }
+
+    .notification:hover .number {
+        color: #fff;
+        background: #beb4ab;
+        border-color: #beb4ab;
+    }
+
+    .notBtn:hover > .box {
+        height: auto;
+    }
+    .notificationTitle{
+        padding: 10px 20px;
+        position: sticky;
+        top: 0px;
+        width: 100% !important;
+    }
+    .content {
+        padding: 20px;
+        color: black;
+        vertical-align: middle;
+        @*text-align: left;*@
+    }
+
+    .gry {
+        background-color: #F4F4F4;
+    }
+
+    .top {
+        color: black;
+        padding: 10px
+    }
+
+    .display {
+        position: relative;
+        overflow: scroll;
+        height: 300px !important;
+    }
+
+    .cont {
+        /*position: absolute;*/
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #F4F4F4;
+    }
+
+    .cont:empty {
+        display: none;
+    }
+
+    .notificationBtn {
+        position: sticky;
+        bottom: 0px;
+        width: 100% !important;
+        background: #f8f8f8;
+        padding: 10px 20px;
+    }
+    .stick {
+        text-align: center;
+        display: block;
+        font-size: 50pt;
+        padding-top: 70px;
+        padding-left: 80px
+    }
+
+        .stick:hover {
+            color: black;
+        }
+
+    .cent {
+        text-align: center;
+        display: block;
+    }
+
+    .sec {
+        padding: 10px;
+        background-color: #F4F4F4;
+        transition: 0.5s;
+    }
+
+    .profCont {
+        padding-left: 15px;
+    }
+
+    .profile {
+        -webkit-clip-path: circle(50% at 50% 50%);
+        clip-path: circle(50% at 50% 50%);
+        width: 75px;
+        float: left;
+    }
+
+    .txt {
+        vertical-align: top;
+        font-size: 14px;
+        padding: 5px 10px 0px 5px;
+        color: #000 !important;
+    }
+
+    .sub {
+        font-size: 1rem;
+        color: grey;
+    }
+
+    .new {
+        border-style: none none solid none;
+        border-color: #b68644;
+    }
+
+    .sec:hover {
+        background-color: #BFBFBF;
+    }
+
+@*    .rz-menu:not(.rz-profile-menu) {
+        background-color: #b68644 !important;
+    }
+    .rz-navigation-item:has(.rz-navigation-item-wrapper-active) .rz-navigation-menu .rz-navigation-item-text{
+        color: #000 !important;
+    }*@
+
+</style>

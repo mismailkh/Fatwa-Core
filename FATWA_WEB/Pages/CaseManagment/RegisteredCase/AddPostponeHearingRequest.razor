@@ -1,0 +1,51 @@
+﻿@page "/postpone-hearing"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@layout MainLayout
+
+<!-- <History Author = 'Hassan Abbas' Date='2022-12-05' Version="1.0" Branch="master">Postpone Hearing</History> -->
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@postponeHearing" Visible="@(postponeHearing != null)" TItem="PostponeHearing" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@(translationState.Translate("Reason") + " *")" Component="Reason" />
+                                    <RadzenTextArea Cols="20" Rows="5" @bind-Value="@(postponeHearing.Reason)" />
+                                    <div class="rz-message rz-messages-error ">@reasonValidationMsg</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <FileUpload ReferenceGuid="@postponeHearing.Id"
+                                            IsViewOnly="false"
+                                            HideView="true"
+                                            FileTypes="@(systemSettingState.FileTypes.ToList())"
+                                            MaxFileSize="@(systemSettingState.File_Maximum_Size)"
+                                            UploadFrom="CaseManagement"
+                                            LoadAllAttachmentTypes="true"
+                                            ModuleId="(int)WorkflowModuleEnum.CaseManagement " />
+                            </div>
+                        </div>
+                        <div class="row mt-4 popup-buttons-alignment">
+                            <div class="col-12 p-0 d-flex justify-content-end">
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                                </RadzenButton>
+                                <RadzenButton style="margin-left: 0.2rem !important" ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

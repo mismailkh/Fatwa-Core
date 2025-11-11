@@ -1,0 +1,38 @@
+﻿@page "/add-legal-explanatory-note-attachment"
+@using FATWA_DOMAIN.Models
+@layout MainLayout
+
+
+<PageTitle>@translationState.Translate("Add_Explanatory_Note_Attachment")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row tableContent table-responsive no-gutters pb-3">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <label for="sub" class="k-label k-form-label ">@translationState.Translate("Upload_Explanatory_Note_Attachment")</label>
+                        <TelerikUpload SaveUrl="@SaveUrl"
+                                   RemoveUrl="@RemoveUrl"
+                                   RemoveField="_fileToRemove"
+                                   AutoUpload="false"
+                                   MaxFileSize="@MaxFileSize"
+                                   MinFileSize="@MinFileSize"
+                                   AllowedExtensions="@ValidFiles"
+                                   OnSelect="@OnSelectHandler"
+                                   OnCancel="@OnCancelHandler"
+                                   OnRemove="@OnRemoveHandler"
+                                   OnUpload="@OnUploadHandler"
+                                   OnSuccess="@OnSuccessHandler"
+                                   OnError="@OnErrorHandler"
+                                   Multiple="false"
+                                   Enabled="true" />
+                        <div class="k-form-hint">
+                            @translationState.Translate("Accepted_Files")
+                            <strong>
+                                @translationState.Translate("Pdf")
+                            </strong>
+                        </div>
+                    </RadzenCard>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>

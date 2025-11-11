@@ -1,0 +1,58 @@
+﻿@page "/mentionuser-dialog"
+@layout MainLayout
+
+<PageTitle>Page Title</PageTitle>
+<div class="profile-popup">
+    <div class="header">
+        <div class="avatar">SS</div>
+        <div class="info">
+            <h3>@userDetail?.userPersonalInformation?.FirstName_En</h3>
+            <p>@userDetail?.UserEmploymentInformation?.Designation</p>
+        </div>
+    </div>
+    <div class="actions">
+        <RadzenButton Text="View profile" ButtonStyle="ButtonStyle.Secondary" />
+        <RadzenButton Text="Give kudos" ButtonStyle="ButtonStyle.Primary" />
+    </div>
+</div>
+<style>
+    .profile-popup {
+        width: 300px;
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .header {
+        display: flex;
+        align-items: center;
+        background: #0052CC;
+        color: white;
+        padding: 15px;
+        border-radius: 10px 10px 0 0;
+    }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+        background: orange;
+        color: black;
+        font-size: 20px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .info {
+        margin-left: 10px;
+    }
+
+    .actions {
+        margin-top: 10px;
+        display: flex;
+        justify-content: space-evenly;
+    }
+</style>

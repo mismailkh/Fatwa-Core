@@ -1,0 +1,44 @@
+﻿@page "/history-stocktaking"
+@using FATWA_DOMAIN.Models.Lms
+@using FATWA_DOMAIN.Models.ViewModel.Lms
+@using Syncfusion.Blazor.Inputs
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("StockTaking_History")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenCard class="pb-4">
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid0"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(lmsstocktakinghistoryList != null ? lmsstocktakinghistoryList.Count() : 0)"
+                                        AllowPaging="true"
+                                        Data="@lmsstocktakinghistoryList"
+                                        TItem="LmsStockTakingHistoryVm"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="LmsStockTakingHistoryVm" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EventEn" : "EventAr") Title="@translationState.Translate("Action")" />
+                                <RadzenDataGridColumn TItem="LmsStockTakingHistoryVm" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr") Title="@translationState.Translate("Created_By")" />
+                                <RadzenDataGridColumn TItem="LmsStockTakingHistoryVm" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Created_Date")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </RadzenCard>
+                <div class="row popup-buttons-alignment pt-3 ">
+                    <div class="col-12  d-flex justify-content-end">
+                        <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@Button2Click">
+                        </RadzenButton>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

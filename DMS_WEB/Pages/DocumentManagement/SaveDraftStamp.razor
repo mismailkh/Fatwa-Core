@@ -1,0 +1,86 @@
+﻿@page "/savedraft-stamp"
+@page "/savedraft-stamp/{TemplateId}"
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.CaseManagment
+@using Syncfusion.Blazor.RichTextEditor
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.DocumentEditor
+@using Syncfusion.Blazor.Buttons
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+@inject Microsoft.AspNetCore.Components.NavigationManager UriHelper
+@inject IJSRuntime JSRuntime;
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Save_Draft_Stamp")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/savedraft-stamp" Text="@translationState.Translate("Save_Draft_Stamp")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row pt-3 no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Save_Draft_Stamp")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock">
+                <div class="col-md-12">
+                    <RadzenFieldset AllowCollapse="false" Style=" margin: 40px auto;">
+                        <HeaderTemplate>
+                            <span class="d-inline-flex align-items-center align-middle">
+                            <b>@translationState.Translate(IsHeaderFooterTemplate ? "Content" : "Stamp_Content")</b>
+                            </span>
+                        </HeaderTemplate>
+                        <ChildContent>
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <SfRichTextEditor @bind-Value="Template.Content" EnableAutoUrl="false" EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")">
+                                            <RichTextEditorToolbarSettings Items="@Tools" />
+                                            <RichTextEditorQuickToolbarSettings Image="@ImageTools" />
+                                            <RichTextEditorImageSettings SaveFormat="SaveFormat.Base64"></RichTextEditorImageSettings>
+                                        </SfRichTextEditor>
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenFieldset>
+                </div>
+            </div>
+            <div class="buttoncontainer">
+                <input type="checkbox" id="toggle" />
+                <label class="floatingbutton" for="toggle"></label>
+                <nav class="nav">
+                    <ul>
+                        <TelerikButton Class="cancleBtn"
+                                       ButtonType="Telerik.Blazor.ButtonType.Button"
+                                       ThemeColor="light" OnClick="@SubmitTemplate">@translationState.Translate("Submit")</TelerikButton>
+                            <TelerikButton Class="cancleBtn"
+                                           ButtonType="Telerik.Blazor.ButtonType.Button"
+                                           ThemeColor="light" OnClick="@RedirectBack">@translationState.Translate("Back")</TelerikButton>
+
+                        </ul>
+                    </nav>
+                </div>
+            </ChildContent>
+        </RadzenContent>

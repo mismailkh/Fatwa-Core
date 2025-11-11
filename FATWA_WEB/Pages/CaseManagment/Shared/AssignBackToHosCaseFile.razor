@@ -1,0 +1,37 @@
+﻿@page "/assign-backtO-hos/{ReferenceId}"
+@using FATWA_DOMAIN.Models.CaseManagment
+@layout MainLayout
+
+<PageTitle>Page Title</PageTitle>
+
+<div class="col-md-12">
+    <RadzenTemplateForm Data="@cmsAssignBackToHos" Visible="@(cmsAssignBackToHos != null)" TItem="CmsAssignCaseFileBackToHos" Submit="@FormSubmit">
+        <ChildContent>
+            <div class="row pt-2 pb-2">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                
+
+                    <div class="form-group">
+                        <RadzenLabel Text="@translationState.Translate("Reason")" Component="Remarks" style="width: 100%"> </RadzenLabel>
+                        <RadzenTextArea Placeholder="@translationState.Translate("Reason")" Name="Remarks" @bind-Value="@(cmsAssignBackToHos.Remarks)" Cols="54" Rows="3" />
+
+                        <div class="rz-message rz-messages-error ">@typeValidationMsgReason</div>
+                    </div>
+                    <div class="row mt-4 popup-buttons-alignment">
+                        <div class="col-12 p-0" >
+					        <RadzenButton Text="@translationState.Translate("Submit")"
+								          ButtonStyle="ButtonStyle.Primary"
+                                          style="margin-right: 0.2rem !important"
+                                          Click="@FormSubmit"
+								          ButtonType="Radzen.ButtonType.Submit" />
+					        <RadzenButton Text="@translationState.Translate("Cancel")"
+								          ButtonStyle="ButtonStyle.Light" 
+								          Click="@ButtonCancelClick" />
+				        </div>
+			        </div>
+                </div>
+            </div>
+        </ChildContent>
+
+    </RadzenTemplateForm>
+</div>

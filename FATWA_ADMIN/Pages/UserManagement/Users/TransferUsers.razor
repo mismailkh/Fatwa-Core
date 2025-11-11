@@ -1,0 +1,133 @@
+﻿@page "/transfer-user"
+
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+
+<!--<History Author = "Umer Zaman" Date="2022-07-26" Version="1.0" Branch="master"> Transfer user to another department </History>-->
+<PageTitle>@translationState.Translate("Transfer_User")</PageTitle>
+<div class="row">
+    <div class="col-md-12">
+        <RadzenHeading Size="H1" Text="@translationState.Translate("Transfer_User")" />
+    </div>
+
+    <div class="col-md-12">
+        <RadzenCard>
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                <RadzenBreadCrumbItem Path="/users" Text="@translationState.Translate("Users")" />
+                <RadzenBreadCrumbItem Text="@translationState.Translate("Transfer_User")" />
+            </RadzenBreadCrumb>
+        </RadzenCard>
+    </div>
+</div>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row" style="margin-top:15px;">
+            <div class="col-lg-12">
+                <RadzenCard Style="width: 100%; overflow: hidden; border:1px solid #9b9b94;">
+                    <div class="d-flew row">
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("Transfer_UserName")</label>
+                                    <div class="k-form-field-wrap">
+                                        <TelerikDropDownList TItem="UserVM"
+                                                             TValue="@string"
+                                                             Data="@UserDetailsList"
+                                                             ItemHeight="30"
+                                                             PageSize="20"
+                                                             @bind-Value="transferUserModel.Id"
+                                                             TextField="UserName"
+                                                             ValueField="Id"
+                                                             Filterable="true"
+                                                             OnChange="@ChangeUserName"
+                                                             DefaultText="@translationState.Translate("Select_UserName")"
+                                                             FilterOperator="@Telerik.Blazor.StringFilterOperator.Contains">
+                                        </TelerikDropDownList>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("Transfer_CurrentDept")</label>
+                                    <div class="k-form-field-wrap">
+                                        <TelerikTextBox Placeholder="@translationState.Translate("Transfer_CurrentDept")" Value="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? SelectedUserNameResult.DepartmentEnglish : SelectedUserNameResult.DepartmentArabic)" Enabled="false"></TelerikTextBox>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </RadzenCard>
+
+                @if (TransferDeptDDShow)
+                {
+                    <RadzenCard Style="width: 100%; overflow: hidden; margin-top:15px; border:1px solid #9b9b94;">
+                        <div class="d-flew row">
+                            <div class="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="ccs" class="k-label k-form-label">@translationState.Translate("Transfer_NextDept") *</label>
+                                        <div class="k-form-field-wrap">
+                                            <TelerikDropDownList TItem="Department"
+                                                             TValue="@int"
+                                                             Data="@TransferToDeptList"
+                                                             ItemHeight="30"
+                                                             PageSize="20"
+                                                             @bind-Value="transferUserModel.Current_DepartmentId"
+                                                             TextField=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                                             ValueField="Id"
+                                                             Filterable="true"
+                                                             Class="@transferFieldsValidation.ValidateTransferId"
+                                                             DefaultText="@translationState.Translate("Select_Department")"
+                                                             FilterOperator="@Telerik.Blazor.StringFilterOperator.Contains">
+                                            </TelerikDropDownList>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="ccs" class="k-label k-form-label">@translationState.Translate("Transfer_Start_Date") *</label>
+                                        <div class="k-form-field-wrap">
+                                            <TelerikDatePicker Format="dd/MM/yyyy" Min="@transferUserModel.Min" Class="@transferFieldsValidation.ValidateTransferStartDate"
+                                                           Placeholder="@translationState.Translate("Transfer_Start_Date")" @bind-Value="transferUserModel.TransferStartDate">
+                                            </TelerikDatePicker>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <label for="ccs" class="k-label k-form-label">@translationState.Translate("Transfer_End_Date") *</label>
+                                        <div class="k-form-field-wrap">
+                                            <TelerikDatePicker Format="dd/MM/yyyy" Min="@transferUserModel.Min" Class="@transferFieldsValidation.ValidateTransferEndDate"
+                                                           Placeholder="@translationState.Translate("Transfer_End_Date")" @bind-Value="transferUserModel.TransferEndDate">
+                                            </TelerikDatePicker>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                                <div class="k-form-field">
+                                    <div class="k-form-field-wrap">
+                                        <div class="k-form-field-wrap">
+                                            <TelerikButton Class="mt-3 mb-3" ButtonType="Telerik.Blazor.ButtonType.Button"
+                                                       ThemeColor="primary" OnClick="@SaveTransferButtonClick">
+                                                @translationState.Translate("Transfer_User")
+                                            </TelerikButton>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </RadzenCard>
+                }
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

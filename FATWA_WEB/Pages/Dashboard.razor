@@ -1,0 +1,266 @@
+﻿@page "/dashboard"
+@layout MainLayout
+
+@using FATWA_DOMAIN.Common
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs;
+@using FATWA_WEB.Data
+@using FATWA_DOMAIN.Models
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_DOMAIN.Enums.UserEnum;
+@using static FATWA_DOMAIN.Enums.CommunicationEnums;
+@using static FATWA_GENERAL.Helper.Enum
+@using static FATWA_DOMAIN.Models.ViewModel.AdvancedSearchVM
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+<PageTitle>@translationState.Translate("Dashboard_Main")</PageTitle>
+<!--<History Author = 'Hassan Abbas' Date='2022-04-21' Version="1.0" Branch="master"> Legal Document Grid and CRUD</History>-->
+<!--<History Author = 'Umer Zaman' Date='2022-08-29' Version="1.0" Branch="master"> Legal Document advance search modified add document creared from & to date options</History>-->
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row dashboardLogo topBlock d-flex justify-content-center mt-3">
+            <img class="img-fluid" src="images/FatwaLogoColor.png" />
+        </div>
+        <div class="row moduleBlock d-flex justify-content-center mx-5 my-5">
+            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Dashboard.CMS.View").Any())
+            {
+                <div class="col-sm-6 col-md-3 col-lg-3 text-center m-2">
+                    <a href="@(loginState.UserRoles.Any(u => u.RoleId == SystemRoles.Messenger) && loginState.UserDetail.SectorTypeId != (int)OperatingSectorTypeEnum.Execution ? "/moj-registration-requests" : "/usertask-list")" @onclick="@((args) => OnModuleClick((int)ModuleEnum.CaseManagement))" style="color:#000; text-decoration: none;">
+                        <RadzenCard>
+                            <img src="images/tags.svg" />
+                            <p>@translationState.Translate("Case_Management")</p>
+                            @* <span class="moduleNotification">1</span> *@
+                        </RadzenCard>
+                    </a>
+                </div>
+            }
+            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Dashboard.EM.View").Any())
+            {
+                <div class="col-sm-6 col-md-3 col-lg-3 text-center m-2">
+                    <a href="/employee-list" @onclick="@((args) => OnModuleClick((int)ModuleEnum.EmployeeManagement))" style="color:#000; text-decoration: none;">
+                        <RadzenCard>
+                            <img src="images/Employee_Management.svg" />
+                            <p>@translationState.Translate("Employee_Management")</p>
+                            @* <span class="moduleNotification">1</span> *@
+                        </RadzenCard>
+                    </a>
+                </div>
+            }
+            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Dashboard.LLS.View").Any())
+            {
+                <div class="col-sm-6 col-md-3 col-lg-3 text-center m-2">
+                    <a href="/index" @onclick="@((args) => OnModuleClick((int)ModuleEnum.LegalLibrarySystem))" style="color:#000; text-decoration: none;">
+                        <RadzenCard>
+                            <img src="images/tags.svg" />
+                            <p style="color:!important">@translationState.Translate("Legal_Library")</p>
+                            @* <span class="moduleNotification">4</span> *@
+                        </RadzenCard>
+                    </a>
+                </div>
+            }
+            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Dashboard.COMS.View").Any())
+            {
+                <div class="col-sm-6 col-md-3 col-lg-3 text-center m-2">
+                    <a href="/usertask-list" @onclick="@((args) => OnModuleClick((int)ModuleEnum.ConsultationManagement))" style="color:#000; text-decoration: none;">
+                        <RadzenCard>
+                            <img src="images/tags.svg" />
+                            <p>@translationState.Translate("Consultation_Management")</p>
+                            @* <span class="moduleNotification">3</span> *@
+                        </RadzenCard>
+                    </a>
+                </div>
+            }
+            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Dashboard.SR.View").Any())
+            {
+                <div class="col-sm-6 col-md-3 col-lg-3 text-center m-2">
+                    <a href="/index" @onclick="@((args) => OnModuleClick((int)ModuleEnum.ServiceRequest))" style="color:#000; text-decoration: none;">
+                        <RadzenCard>
+                            <img src="images/tags.svg" />
+                            <p style="color:!important">@translationState.Translate("Service_Requests")</p>
+                            @* <span class="moduleNotification">3</span> *@
+                        </RadzenCard>
+                    </a>
+                </div>
+            }  
+            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Dashboard.CMS/COMS.View").Any())
+            {
+                <div class="col-sm-6 col-md-3 col-lg-3 text-center m-2">
+                    <a href="/usertask-list" @onclick="@((args) => OnModuleClick((int)ModuleEnum.CMSCOMS))" style="color:#000; text-decoration: none;">
+                        <RadzenCard>
+                            <img src="images/tags.svg" />
+                            <p>@translationState.Translate("Case/Consultation_Management")</p>
+                            @* <span class="moduleNotification">3</span> *@
+                        </RadzenCard>
+                    </a>
+                </div>
+            }
+            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Dashboard.Workflow.View").Any())
+            {
+                <div class="col-sm-6 col-md-3 col-lg-3 text-center m-2">
+                    <a href="/workflows" @onclick="@((args) => OnModuleClick((int)ModuleEnum.Workflow))" style="color:#000; text-decoration: none;">
+                        <RadzenCard>
+                            <img src="images/tags.svg" />
+                            <p>@translationState.Translate("Workflow_Management")</p>
+                            @* <span class="moduleNotification">3</span> *@
+                        </RadzenCard>
+                    </a>
+                </div>
+            }
+            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Dashboard.OnDemandPortal.View").Any())
+            {
+                <div class="col-sm-6 col-md-3 col-lg-3 text-center m-2">
+                    <a href="/index" @onclick="@((args) => OnModuleClick((int)ModuleEnum.ODRP))" style="color:#000; text-decoration: none;">
+                        <RadzenCard>
+                            <img src="images/tags.svg" />
+                            <p>@translationState.Translate("On_Demand_Request_Portal")</p>
+                            @* <span class="moduleNotification">3</span> *@
+                        </RadzenCard>
+                    </a>
+                </div>
+            }
+        </div>
+        <div class="row d-block emailBlock mx-5 my-5">
+            <div class="col-md-12">
+                <RadzenTabs RenderMode="TabRenderMode.Server" Change=@OnChange>
+                    <Tabs>
+                        <RadzenTabsItem Text="@translationState.Translate("Inbox")">
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="tableContent table-responsive">
+                                        <RadzenDataGrid @ref="grid"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        Count="@(inboxOutboxList != null ? inboxOutboxList.Count() : 0)"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        AllowFiltering="false"
+                                                        Data="@inboxOutboxList"
+                                                        TItem="CommunicationInboxOutboxVM"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true">
+                                            <Columns>
+                                                  <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Title="@translationState.Translate("Action")"
+                                                                      Filterable="false"
+                                                                      Sortable="false"
+                                                                      Width="100px"
+                                                                      TextAlign="TextAlign.Center">
+                                                    <Template Context="rowItem">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                      Icon="visibility"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="((args) => ViewResponse(rowItem))"
+                                                                      @onclick:stopPropagation="true" />
+                                                        @*@if (rowItem.CommunicationTypeId == (int)CommunicationTypeEnum.RequestForMeeting && rowItem.CorrespondenceTypeId == (int)CommunicationCorrespondenceTypeEnum.Inbox)
+                                                        {
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                      Class="editIcon"
+                                                                      Icon="mode"
+                                                                      Title="@translationState.Translate("Schedule_Meeting")"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => AddMeeting(rowItem))"
+                                                                      @onclick:stopPropagation="true" />
+                                                        }*@
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property="InboxNumber" Title="@translationState.Translate("InboxNo")" />
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property="CreatedDate" Title="@translationState.Translate("Transaction_Date")">
+                                                    <Template Context="rowItem">
+                                                        <RadzenLabel Style="font-weight:normal" Text="@rowItem.CreatedDate?.ToString("dd/MM/yyyy hh:mm tt")" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Activity_En" : "Activity_Ar") Title="@translationState.Translate("Activity")" />
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SourceEn" : "SourceAr") Title="@translationState.Translate("Sent_By")" />
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "GovtEntityEn" : "GovtEntityAr") Title="@translationState.Translate("Sender_Name")" />
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@translationState.Translate("Outbox")">
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="tableContent table-responsive">
+                                        <RadzenDataGrid @ref="grid"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        Count="@(inboxOutboxList != null ? inboxOutboxList.Count() : 0)"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        AllowFiltering="false"
+                                                        Data="@inboxOutboxList"
+                                                        TItem="CommunicationInboxOutboxVM"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true">
+                                            <Columns>
+                                                 <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Title="@translationState.Translate("Action")"
+                                                                      Filterable="false"
+                                                                      Sortable="false"
+                                                                      Width="100px"
+                                                                      TextAlign="TextAlign.Center">
+                                                    <Template Context="rowItem">
+                                                        @if (rowItem.CommunicationTypeId != (int)CommunicationTypeEnum.CaseRequest)
+                                                        {
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                      Icon="visibility"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="((args) => ViewResponse(rowItem))"
+                                                                      @onclick:stopPropagation="true" />
+                                                        }
+                                                        @*@if (rowItem.CommunicationTypeId == (int)CommunicationTypeEnum.RequestForMeeting)
+                                                        {
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                      Class="editIcon"
+                                                                      Icon="mode"
+                                                                      Title="@translationState.Translate("Schedule_Meeting")"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => AddMeeting(rowItem))"
+                                                                      @onclick:stopPropagation="true" />
+                                                        }*@
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property="OutboxNumber" Title="@translationState.Translate("OutboxNo")" />
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property="CreatedDate" Title="@translationState.Translate("Transaction_Date")">
+                                                    <Template Context="rowItem">
+                                                        <RadzenLabel Style="font-weight:normal" Text="@rowItem.CreatedDate?.ToString("dd/MM/yyyy hh:mm tt")" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Activity_En" : "Activity_Ar") Title="@translationState.Translate("Transaction_Type")" />
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "GovtEntityEn" : "GovtEntityAr") Title="@translationState.Translate("Sent_To")" />
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorEn" : "SectorAr") Title="@translationState.Translate("Sender_Name")" />
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenTabsItem>
+                    </Tabs>
+                </RadzenTabs>
+            </div>
+        </div>
+        <nav class="floating_icons">
+            <ul>
+                <li><a href="#"><i class="fab fa-facebook-f"></i><span>@translationState.Translate("Facebook")</span></a></li>
+                <li><a href="#"><i class="fab fa-twitter"></i><span>@translationState.Translate("Twitter")</span></a></li>
+                <li><a href="#"><i class="fab fa-instagram"></i><span>@translationState.Translate("Instagram")</span></a></li>
+                <li><a href="#"><i class="fab fa-linkedin-in"></i><span>@translationState.Translate("Linkedin")</span></a></li>
+                <li><a href="#"><i class="fab fa-github"></i><span>@translationState.Translate("Github")</span></a></li>
+                <li><a href="#"><i class="fab fa-youtube"></i><span>@translationState.Translate("Youtube")</span></a></li>
+                @if (!loginState.IsSSOAthenticated)
+                {
+                    <li><a href="#" @onclick="HandleLogout" @onclick:preventDefault><i class="fa fa-sign-out-alt"></i><span>@translationState.Translate("LogOut")</span></a></li>
+                }
+            </ul>
+        </nav>
+    </ChildContent>
+</RadzenContent>

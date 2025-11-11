@@ -1,0 +1,114 @@
+﻿@using FATWA_DOMAIN.Models.BugReporting
+@using static FATWA_DOMAIN.Enums.BugReporting.BugReportingEnum
+@layout MainLayout
+<RadzenTemplateForm Data="@bugModuleType" TItem="BugModuleTypeAssignment" Submit="@FormSubmit">
+    <ChildContent>
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-12 form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Issue_Type") + " *")" Component="BugType" />
+                        <RadzenDropDown Data="@issueTypes"
+                                        AllowFiltering="true"
+                                        AllowClear="true"
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar")"
+                                        ValueProperty="Id"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        Placeholder="@translationState.Translate("Select")"
+                                        Disabled="true"
+                                        Style="display:block;"
+                        @bind-Value="@bugModuleType.BugTypeId"
+                                        Name="BugType" />
+                        <RadzenRequiredValidator Component="BugType" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Application") + " *")" Component="BugApplication" />
+                        <RadzenDropDown Data="@Applications"
+                                        AllowFiltering="true"
+                                        AllowClear="true"
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                        ValueProperty="Id"
+                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;"
+                        @bind-Value="@bugModuleType.ApplicationId"
+                                        Name="BugApplication"
+                                        Change="@OnChangeApplication" />
+                        <RadzenRequiredValidator Component="BugApplication" DefaultValue="0" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Module") + " *")" Component="BugModule" />
+                        <RadzenDropDown Data="@Modules"
+                                        AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                        AllowClear="true"
+                                        TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                        ValueProperty="Id"
+                                        Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block; "
+                                        SelectAllText="@translationState.Translate("Selected_All")"
+                                        SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                        Multiple="true"
+                        @bind-Value="@bugModuleType.SelectedModule"
+                                        Name="BugModule" Change="@OnChangeModuleDropdown" />
+                        @if (bugModuleType.SelectedModule == null || !bugModuleType.SelectedModule.Any())
+                        {
+                            <RadzenRequiredValidator Component="BugModule" Text="@translationState.Translate("Required_Field")" />
+                        }
+                    </div>
+                </div>
+
+                @if (Assignment == (int)IssueTypeAssignmentEnum.Assign)
+                {
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <RadzenLabel Text="@(translationState.Translate("Priority") + " *")" Component="Priority" />
+                            <RadzenDropDown Data="@priorities"
+                                            AllowFiltering="true"
+                                            AllowClear="true"
+                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                            ValueProperty="Id"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            Placeholder="@translationState.Translate("Select")"
+                                            Disabled="false"
+                                            Style="display:block;"
+                            @bind-Value="@bugModuleType.PriorityId"
+                                            Name="Priority" />
+                            <RadzenRequiredValidator Component="Priority" DefaultValue="0" Text="@translationState.Translate("Required_Field")" />
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                        <div class="form-group">
+                            <RadzenLabel Text="@(translationState.Translate("Severity") + " *")" Component="Severity" />
+                            <RadzenDropDown Data="@severities"
+                                            AllowFiltering="true"
+                                            AllowClear="true"
+                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Value_En" : "Value_Ar")"
+                                            ValueProperty="Id"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            Placeholder="@translationState.Translate("Select")"
+                                            Disabled="false"
+                                            Style="display:block;"
+                            @bind-Value="@bugModuleType.SeverityId"
+                                            Name="Severity" />
+                            <RadzenRequiredValidator Component="Severity" DefaultValue="0" Text="@translationState.Translate("Required_Field")" />
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="popup-buttons-alignment">
+                <RadzenButton Text="@translationState.Translate("Submit")"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Style="margin-left: 10px; margin-right: 10px;"
+                              ButtonType="Radzen.ButtonType.Submit" />
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              ButtonType="Radzen.ButtonType.Button"
+                              Click="@ButtonCancelClick" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>
+
+

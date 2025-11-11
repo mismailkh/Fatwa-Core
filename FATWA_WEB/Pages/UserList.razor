@@ -1,0 +1,78 @@
+﻿@page "/userlist"
+@using FATWA_WEB.Data
+@using Microsoft.AspNetCore.Identity 
+
+@inject userService userServices
+
+<h1>قائمة المستخدم</h1>
+
+<TelerikGrid Data=@GridData EditMode="@GridEditMode.Inline" Height="450px"
+             ShowColumnMenu="true" Width="100%" FilterMode="@GridFilterMode.FilterMenu"
+             Pageable="true" PageSize="10" Resizable="true" Reorderable="true"
+            OnCreate="@CreateHandler" OnDelete="@DeleteHandler" OnUpdate="@UpdateHandler">
+    <GridToolBar>
+        <GridCommandButton Command="Add" Icon="add">إضافة المستخدم</GridCommandButton>
+        <GridCommandButton Command="ExcelExport" Icon="file-excel">تصدير إلى Excel</GridCommandButton>
+        <GridCommandButton Command="CsvExport" Icon="file-csv">تصدير إلى ملف Csv</GridCommandButton>
+        <label class="k-checkbox-label"><TelerikCheckBox @bind-Value="@ExportAllPages" />تصدير كافة الصفحات</label>
+    </GridToolBar>
+    <GridExport>
+        <GridExcelExport FileName="telerik-grid-export" AllPages="@ExportAllPages" />
+        <GridCsvExport FileName="telerik-grid-export-csv" AllPages="@ExportAllPages" />
+    </GridExport>
+    <GridColumns>
+        <GridColumn Field="@nameof(IdentityUser.Id)" Locked="true" Title="هوية شخصية" Width="200px" ShowColumnMenu="false" ShowColumnChooser="false" />
+        <GridColumn Field=@nameof(IdentityUser.UserName) Title="اسم االمستخدم" Width="200px" />
+        <GridColumn Field=@nameof(IdentityUser.Email) Title="عنوان بريد الكتروني" Width="200px" DisplayFormat="{0:C2}" /> 
+        <GridCommandColumn Title="أجراءات" Width="200px" Locked="true" Lockable="false" Resizable="false">
+            <GridCommandButton Command="Edit" Icon="edit">يحرر</GridCommandButton>
+            <GridCommandButton Command="Delete" Icon="delete">حذف</GridCommandButton>
+            <GridCommandButton Command="Save" Icon="save" ShowInEdit="true">يحفظ</GridCommandButton>
+            <GridCommandButton Command="Cancel" Icon="cancel" ShowInEdit="true">يلغي</GridCommandButton>
+        </GridCommandColumn>
+    </GridColumns>
+</TelerikGrid>
+
+@code
+{
+    public IEnumerable<IdentityUser> GridData { get; set; }
+    bool ExportAllPages { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+  
+        var allusersResult = await userService.GetAllUsers();
+        if (allusersResult.IsSuccessStatusCode)
+        {
+            GridData = (IEnumerable<IdentityUser>)allusersResult.ResultData;
+        }
+
+        // return base.OnInitializedAsync();
+    }
+
+    private void CreateHandler(GridCommandEventArgs args)
+    {
+        var response = userServices.Register(args);
+    }
+
+    private void DeleteHandler(GridCommandEventArgs args)
+    {
+       // GridData.Remove((IdentityUser)args.Item);
+    }
+
+    private void UpdateHandler(GridCommandEventArgs args)
+    {
+        //Product product = (Product)args.Item;
+
+        //var existing = GridData.FirstOrDefault(p => p.ProductId == product.ProductId);
+
+        //if (existing != null)
+        //{
+        //    existing.ProductName = product.ProductName;
+        //    existing.Cost = product.Cost;
+        //    existing.CategoryName = product.CategoryName;
+        //    existing.Quantity = product.Quantity;
+        //    existing.Available = product.Available;
+        //}
+    }
+}

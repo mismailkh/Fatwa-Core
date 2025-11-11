@@ -1,0 +1,64 @@
+﻿@using System.Net.Http
+@using BlazorDownloadFile
+@using Blazored.LocalStorage;
+@using FATWA_ADMIN.Data
+@using FATWA_ADMIN.Services.AutomationMonitoring
+@using FATWA_ADMIN.Services.BugReporting
+@using FATWA_ADMIN.Services.General
+@using FATWA_ADMIN.Services.Notifications
+@using FATWA_ADMIN.Services.ServiceRequest
+@using FATWA_ADMIN.Services.UserManagement;
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using FATWA_ADMIN
+@using FATWA_ADMIN.Shared
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Blazored.Toast
+@using Blazored.Toast.Services
+@using Radzen
+@using Radzen.Blazor
+@using Syncfusion.Blazor
+@using FATWA_ADMIN.Extensions
+@using FATWA_ADMIN.Services.TimeInterval
+
+@inject DialogService dialogService
+@inject LoginState loginState
+@inject NavigationManager navigationManager
+@inject TranslationState translationState
+@inject SpinnerService spinnerService
+@inject NotificationService notificationService
+@inject LookupService lookupService
+@inject SystemSettingState systemSettingState
+@inject SystemSettingService systemSettingStateService
+@inject IJSRuntime jSRuntime
+@inject ILocalStorageService BrowserStorage
+@inject IBlazorDownloadFileService blazorDownloadFileService
+@inject IConfiguration _config
+@inject RadzenGridSearchExtension gridSearchExtension
+@inject TimeIntervalService timeIntervalService
+
+@*SSO*@
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+
+
+
+@inject GroupService groupService
+@inject UserService userService
+@inject UserService userService
+@inject NotificationsService notificationsService
+@inject BugReportingService bugReportingService
+@inject FileUploadService fileUploadService
+@inject NotificationDetailService notificationDetailService
+@inject SpinnerService spinnerService
+@inject AutomationMonitoringService automationmonitoringService
+
+@* Service Request *@
+@inject ServiceRequestService serviceRequestService
+@inject TranslationService translationService
+@inject InvalidRequestHandlerService invalidRequestHandlerService

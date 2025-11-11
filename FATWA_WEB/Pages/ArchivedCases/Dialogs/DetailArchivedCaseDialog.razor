@@ -1,0 +1,161 @@
+﻿@using FATWA_DOMAIN.Models.ViewModel.ArchivedCases
+@using FATWA_WEB.Pages.Shared
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@layout MainLayout
+<PageTitle>@translationState.Translate("Archived_Case_Detail")</PageTitle>
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row justify-content-center mainContentBlock">
+            <div class="col-md-12">
+                <RadzenFieldset AllowCollapse="false" Style=" margin: 20px auto;">
+                    <HeaderTemplate>
+                        <span class="d-inline-flex align-items-center align-middle">
+                            <b>@translationState.Translate("Case_Details")</b>
+                        </span>
+                    </HeaderTemplate>
+                    <ChildContent>
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("CAN_Number")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@ArchivedCaseDetail.CANNumber</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Chamber")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? ArchivedCaseDetail.ChamberName_En : ArchivedCaseDetail.ChamberName_Ar)</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Case_Number")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@ArchivedCaseDetail.CaseNumber</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Chamber_Number")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@ArchivedCaseDetail.ChamberNumber</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenFieldset>
+            </div>
+            <div class="col-md-12">
+                <RadzenAccordion Multiple="true">
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Parties")" Selected="true">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row tableContent table-responsive py-4 no-gutters pb-3">
+                                    <RadzenDataGrid @key="@RefreshGrid"
+                                                    @ref="ArchivedCasePartiesGrid"
+                                                    Count="@(ArchivedCaseDetail.CasePartiesList != null ? ArchivedCaseDetail.CasePartiesList.Count() : 0)"
+                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                    Data="@ArchivedCaseDetail.CasePartiesList"
+                                                    TItem="ArchivedCasePartiesVM"
+                                                    AllowSorting="true"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="ArchivedCasePartiesVM" Property="PartyName" Title="@translationState.Translate("Party_Name")" />
+                                            <RadzenDataGridColumn TItem="ArchivedCasePartiesVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "PartyRoleName_En" : "PartyRoleName_Ar")" Title="@translationState.Translate("Party_Role")" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </div>
+                        </RadzenAccordionItem>
+                        <RadzenAccordionItem Text="@translationState.Translate("Documents")" Selected="false">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row tableContent table-responsive py-4 no-gutters pb-3">
+                                    <RadzenDataGrid @key="@RefreshGrid"
+                                                    @ref="ArchivedCaseDocumentsGrid"
+                                                    Count="@(ArchivedCaseDetail.CaseDocumentsList != null ? ArchivedCaseDetail.CaseDocumentsList.Count() : 0)"
+                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                    Data="@ArchivedCaseDetail.CaseDocumentsList"
+                                                    TItem="ArchivedCaseDocumentsVM"
+                                                    AllowSorting="true"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="ArchivedCaseDocumentsVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                <Template Context="UserRowClick">
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" Icon="visibility" Size="ButtonSize.Small" title="@translationState.Translate("View_Document")" Click="@(()=>ViewAttachement(UserRowClick))" @onclick:stopPropagation="true" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="ArchivedCaseDocumentsVM" Property="CaseNumber" Title="@translationState.Translate("Case_Number")" />
+                                            <RadzenDataGridColumn TItem="ArchivedCaseDocumentsVM" Property="DocumentDate" Title="@translationState.Translate("Document_Date")">
+                                                <Template Context="data">
+                                                    @String.Format("{0:dd-MM-yyyy}", data.DocumentDate)
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="ArchivedCaseDocumentsVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DocumentType_En" : "DocumentType_Ar")" Title="@translationState.Translate("Document_Type")" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                            </div>
+                        </RadzenAccordionItem>
+                    </Items>
+                </RadzenAccordion>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+<TelerikWindow Class="documentViewerWindow" Size="@(ThemeConstants.Window.Size.Medium)" Visible="@(DisplayDocumentViewer)" Draggable="true" Top="0%" Left="0%">
+    <WindowTitle>
+        <RadzenHeading Size="H2" Text="@translationState.Translate("Document_Preview")" />
+    </WindowTitle>
+    <WindowActions>
+        <WindowAction Name="Upload" Icon="launch"
+                      OnClick="@OpenInNewWindow" />
+        <WindowAction Name="Minimize"></WindowAction>
+        <WindowAction Name="Close" OnClick="@( () => DisplayDocumentViewer = false )"></WindowAction>
+    </WindowActions>
+    <WindowContent>
+        @if (DisplayDocumentViewer)
+        {
+            <div class="row pb-2 h-100">
+                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                    <SfPdfViewerServer EnableNavigationToolbar="false"
+                                       ZoomMode="ZoomMode.FitToWidth"
+                                       EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                       ID="pdfviewer"
+                                       DocumentPath="@DocumentPath">
+                        <PdfViewerEvents DocumentLoaded="DocumentLoaded"></PdfViewerEvents>
+                        <PdfViewerToolbarSettings ToolbarItems="ToolbarItems"></PdfViewerToolbarSettings>
+                    </SfPdfViewerServer>
+                </div>
+            </div>
+        }
+    </WindowContent>
+</TelerikWindow>
+
+<style>
+    .k-window.k-window-wrapper.telerik-blazor.documentViewerWindow.k-window-md {
+        z-index: 1005 !important;
+    }
+</style>
+                                       

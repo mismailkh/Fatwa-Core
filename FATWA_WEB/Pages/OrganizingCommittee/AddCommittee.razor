@@ -1,0 +1,455 @@
+﻿@page "/add-committee"
+@page "/add-committee/{CommitteeId}"
+@using FATWA_DOMAIN.Models.OrganizingCommittee
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel.OrganizingCommitteeVMs
+@using FATWA_WEB.Pages.Shared
+@using Syncfusion.Blazor.RichTextEditor
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.OrganizingCommittee.OrganizingCommitteeEnum
+
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Create_Committee")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/list-committee" Text="@translationState.Translate("List_Committee")" />
+                        <RadzenBreadCrumbItem Text="@(translationState.Translate("Create_Committee"))" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@(translationState.Translate("Create_Committee"))" />
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center mainContentBlock no-gutters bg-light p-0">
+            <div class="col-md-12 save-case-request-col">
+                <RadzenTemplateForm Data="@saveCommittee.committee" Visible="@(saveCommittee.committee != null)" TItem="Committee" Submit="FormSubmit">
+                    <ChildContent>
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Circular_Reference_No") + " *")" Component="CircularReferenceNo" />
+                                        <RadzenTextBox @bind-Value="@(saveCommittee.committee.CircularReferenceNo)" Name="CircularReferenceNo" />
+                                        <RadzenRequiredValidator Component="CircularReferenceNo" Text="@translationState.Translate("Required_Field")" />
+
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Subject") + " *")" Component="Subject" />
+                                        <RadzenTextBox @bind-Value="@(saveCommittee.committee.Subject)" Name="Subject" />
+                                        <RadzenRequiredValidator Component="Subject" Text="@translationState.Translate("Required_Field")" />
+
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Circular_Issue_Date") + " *")" Component="Request_Date" />
+                                        <RadzenDatePicker @bind-Value="@(saveCommittee.committee.CircularIssueDate)" Max="@DateTime.Today" Min="@Minimum" DateFormat="dd/MM/yyyy" Class="w-100" Name="Reference_Date" />
+                                        <RadzenRequiredValidator Component="Reference_Date" Text="@translationState.Translate("Required_Valid_Date")" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Commencement_Date") + " *")" Component="CommencementDate" />
+                                        <RadzenDatePicker @bind-Value="@(saveCommittee.committee.CommencementDate)" Change="OnChangeCommencementDate" DateFormat="dd/MM/yyyy" Class="w-100" Name="CommencementDate" />
+                                        <RadzenRequiredValidator Component="CommencementDate" Text="@translationState.Translate("Required_Valid_Date")" />
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Expected_End_Date") + " *")" Component="ExpectedEndDate" />
+                                        <RadzenDatePicker @bind-Value="@(saveCommittee.committee.ExpectedEndDate)" Min="saveCommittee.committee.CommencementDate" DateFormat="dd/MM/yyyy" Class="w-100" Name="ExpectedEndDate" />
+                                        <RadzenRequiredValidator Component="ExpectedEndDate" Text="@translationState.Translate("Required_Valid_Date")" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Committee_Description") + " *")" Component="Description" />
+                                        <br />
+                                        <SfRichTextEditor EnableAutoUrl="false" EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")" @bind-Value="@saveCommittee.committee.Description">
+                                            <RichTextEditorToolbarSettings Items="@Tools" />
+                                            <RichTextEditorQuickToolbarSettings Image="@ImageTools" />
+                                            <RichTextEditorImageSettings EnableResize="true" AllowedTypes=@allowedTypes SaveFormat="SaveFormat.Base64"></RichTextEditorImageSettings>
+                                        </SfRichTextEditor>
+                                        <div class="rz-message rz-messages-error ">@descriptionValidationMessage</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12 save-case-request-col">
+                            <RadzenFieldset>
+                                <HeaderTemplate>
+                                    <span class="d-inline-flex align-items-center align-middle">
+                                        <RadzenIcon Class="me-1" /><b>@translationState.Translate("Attachments")</b>
+                                    </span>
+                                </HeaderTemplate>
+                                <ChildContent>
+                                    <div class="row pb-4">
+                                        <div class="col-md-12">
+                                            <FileUpload ReferenceGuid="@saveCommittee.committee?.Id"
+                                                        @bind-DeletedAttachementIds="@saveCommittee.committee.DeletedAttachementIds"
+                                                        Multiple="true"
+                                                        MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                                        FileTypes="@systemSettingState.FileTypes"
+                                                        UploadFrom="OrganizingCommittee"
+                                                        HideView="true"
+                                                        ModuleId="(int)WorkflowModuleEnum.OrganizingCommittee"
+                                                        IsOrganizingCommittee="true"
+                                                        MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.FatwaCircular" />
+
+
+                                        </div>
+                                    </div>
+                                </ChildContent>
+                            </RadzenFieldset>
+                        </div>
+
+                        <div class="col-md-12 save-case-request-col">
+                            <RadzenFieldset>
+                                <HeaderTemplate>
+                                    <span class="d-inline-flex align-items-center align-middle">
+                                        <RadzenIcon Class="me-1" /><b>@translationState.Translate("Team_Members")</b>
+                                    </span>
+                                </HeaderTemplate>
+                                <ChildContent>
+                                    <RadzenCard class="m-1">
+                                        <div class="row pb-2 px-3">
+                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                <div class="rz-alert rz-alert-sm rz-variant-flat rz-warning rz-shade-lighter" aria-live="polite">
+                                                    <div class="rz-alert-item">
+                                                        <i style="" class="rzi rz-alert-icon" id="4zgarvf6ik" _bl_480="">info_outline</i>
+                                                        <div class="rz-alert-message">
+                                                            <div class="rz-alert-content">
+                                                                <p class="m-0">@translationState.Translate("Committee_Creater_Role") <a href="javascript:void(0)"></a></p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row pb-4">
+                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                <div class="rz-p-12 rz-text-align-center">
+                                                    <RadzenRadioButtonList Change="@OnChangeOption" @bind-Value=@isSelectedRole Name="CreatorRole" Orientation="Orientation.Vertical" TValue="int">
+                                                        <Items>
+                                                            <RadzenRadioButtonListItem class="radioMargin pb-4" Style="width:100px" Text="@(translationState.Translate("Organizer"))" Value="(int)CommitteeRoleEnum.Organizer" />
+                                                            <RadzenRadioButtonListItem class="radioMargin" Style="width:140px" Text="@(translationState.Translate("Committee_Head"))" Value="(int)CommitteeRoleEnum.CommitteeHead" />
+                                                        </Items>
+                                                    </RadzenRadioButtonList>
+                                                    <RadzenRequiredValidator Component="CreatorRole" Text="@translationState.Translate("Required_Field")" />
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-12 col-sm-12 col-md-5 col-lg-5 col-xl-5">
+                                                <div class="form-group">
+                                                    <RadzenLabel Text="@(translationState.Translate("Sectors") + " *")" Component="SectorTypes" />
+                                                    <RadzenDropDown Data="@operatingSectorTypes" AllowClear="true"
+                                                                    Name="SectorTypes"
+                                                                    ValueProperty="Id"
+                                                                    AllowFiltering="true"
+                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    Style="width:100%;max-width:100%;"
+                                                                    @bind-Value="@SectorTypeId"
+                                                                    Change="OnChangeSectorType"
+                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar" )"></RadzenDropDown>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-12 col-md-7 col-lg-7 col-xl-7">
+                                                <div class="form-group">
+                                                    <RadzenLabel Text="@(translationState.Translate("Member_Name") + " *")" Component="User" />
+                                                    <RadzenDropDown Data="@usersData.Where(user => !saveCommittee.committeeMembers.Any(member => member.MemberId == user.UserId)).ToList()" AllowClear="true"
+                                                                    Name="User"
+                                                                    ValueProperty="UserId"
+                                                                    AllowFiltering="true"
+                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    Style="width:100%;max-width:100%;"
+                                                                    @bind-Value="@committeeMembersVm.MemberId"
+                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar" )">
+                                                        <Template Context="data">
+                                                            @{
+                                                                var lastActivityDate = (data as CommitteeUserDataVM).LastActivityDate == null ? translationState.Translate("No_Last_Activity") : (data as CommitteeUserDataVM).LastActivityDate.Value.ToString("dd/MM/yyyy");
+                                                            }
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (data as CommitteeUserDataVM).FullName_En : (data as CommitteeUserDataVM).FullName_Ar), @translationState.Translate("Total_Committees"): @((data as CommitteeUserDataVM).TotalCommittee),@translationState.Translate("Current_Tasks"): @((data as CommitteeUserDataVM).TotalTasks), @translationState.Translate("Last_Activity_Date"): @lastActivityDate
+                                                        </Template>
+                                                    </RadzenDropDown>
+                                                    <div class="rz-message rz-messages-error ">@userValidationMessage</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row pb-4">
+                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                <div class="form-group">
+                                                    <RadzenLabel Text="@(translationState.Translate("Committee_Role") + " *")" Component="Role" />
+                                                    <RadzenDropDown Data="@committeeRoles.Where(x => x.Id != (int)CommitteeRoleEnum.Organizer).ToList()" AllowClear="true"
+                                                                    Name="Role"
+                                                                    ValueProperty="Id"
+                                                                    AllowFiltering="true"
+                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    Style="width:100%;max-width:100%;"
+                                                                    @bind-Value="@committeeMembersVm.CommitteeRoleId"
+                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr" )">
+                                                    </RadzenDropDown>
+                                                    <div class="rz-message rz-messages-error ">@roleValidationMessage</div>
+
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 pt-4">
+                                                <div class="form-group">
+                                                    <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add_Member")" Click="@AddMember" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <RadzenDataGrid @ref="committeeMembersGrid"
+                                                                AllowFiltering="false"
+                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                AllowPaging="true"
+                                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                                AllowSorting="true"
+                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                Data="@saveCommittee.committeeMembers"
+                                                                ColumnWidth="150px"
+                                                                TItem="CommitteeMembersVMs">
+                                                    <Columns>
+                                                        <RadzenDataGridColumn TItem="CommitteeMembersVMs" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
+                                                            <Template Context="rowItem">
+                                                                @if (rowItem.MemberId != loginState.UserDetail.UserId)
+                                                                {
+                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                                                  Class="deleteIcon"
+                                                                                  Icon="delete_outline"
+                                                                                  Title="@translationState.Translate("delete")"
+                                                                                  Size="ButtonSize.Small"
+                                                                                  Click="@((args) => DeleteMember(rowItem))"
+                                                                                  @onclick:stopPropagation="true" />
+                                                                }
+
+                                                            </Template>
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="CommitteeMembersVMs" Width="250px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "MemeberNameEn":"MemeberNameAr" )" Title="@translationState.Translate("Member_Name")"></RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="CommitteeMembersVMs" Width="200px" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "RoleNameEn":"RoleNameAr")" Title="@translationState.Translate("Committee_Role")"></RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="CommitteeMembersVMs" Width="250px" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "SectorTypeEn":"SectorTypeAr")" Title="@translationState.Translate("Operating_Sector")"></RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="CommitteeMembersVMs" Width="550px" Property="AssignedActivities" Title="@translationState.Translate("Assigned_Activites")">
+                                                            <Template Context="data">
+                                                                @{
+                                                                    var lastActivityDate = (data as CommitteeMembersVMs).LastActivityDate == null ? translationState.Translate("No_Last_Activity") : (data as CommitteeMembersVMs).LastActivityDate.Value.ToString("dd/MM/yyyy");
+                                                                }
+                                                                @translationState.Translate("Total_Committees"): @((data as CommitteeMembersVMs).TotalCommittee),@translationState.Translate("Current_Tasks"): @((data as CommitteeMembersVMs).TotalTasks), @translationState.Translate("Last_Activity_Date"): @lastActivityDate
+                                                            </Template>
+                                                        </RadzenDataGridColumn>
+                                                    </Columns>
+                                                </RadzenDataGrid>
+                                            </div>
+                                        </div>
+                                    </RadzenCard>
+
+                                </ChildContent>
+                            </RadzenFieldset>
+                        </div>
+
+                        <div class="col-md-12 save-case-request-col">
+                            <RadzenFieldset>
+                                <HeaderTemplate>
+                                    <span class="d-inline-flex align-items-center align-middle">
+                                        <RadzenIcon Class="me-1" /><b>@translationState.Translate("Assign_Tasks")</b>
+                                    </span>
+                                </HeaderTemplate>
+                                <ChildContent>
+                                    <RadzenCard class="m-1">
+
+                                        <div class="row">
+                                            <div class="col-12 col-sm-12 col-md-8 col-lg-8 col-xl-8">
+                                                <div class="form-group">
+                                                    <RadzenLabel Text="@(translationState.Translate("Member_Name") + " *")" Component="Member_Name" />
+                                                    <RadzenDropDown Data="@saveCommittee.committeeMembers.Where(x => x.MemberId != loginState.UserDetail.UserId).ToList()" AllowClear="true"
+                                                                    @ref="addedMemberDropDown"
+                                                                    Name="Member_Name"
+                                                                    ValueProperty="MemberId"
+                                                                    AllowFiltering="true"
+                                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                    Placeholder="@translationState.Translate("Select")"
+                                                                    Style="width:100%;max-width:100%;"
+                                                                    @bind-Value="@committeeTasksVm.MemberId"
+                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "MemeberNameEn" : "MemeberNameAr" )">
+                                                        <Template Context="data">
+                                                            @{
+                                                                var lastActivityDate = (data as CommitteeMembersVMs).LastActivityDate == null ? translationState.Translate("No_Last_Activity") : (data as CommitteeMembersVMs).LastActivityDate.Value.ToString("dd/MM/yyyy");
+                                                            }
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (data as CommitteeMembersVMs).MemeberNameEn : (data as CommitteeMembersVMs).MemeberNameAr), @translationState.Translate("Total_Committees"): @((data as CommitteeMembersVMs).TotalCommittee),@translationState.Translate("Current_Tasks"): @((data as CommitteeMembersVMs).TotalTasks), @translationState.Translate("Last_Activity_Date"): @lastActivityDate
+                                                        </Template>
+                                                    </RadzenDropDown>
+
+                                                    <div class="rz-message rz-messages-error ">@memberValidationMessage</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                <div class="form-group">
+                                                    <RadzenLabel Text="@(translationState.Translate("Task_Name") + " *")" Component="Task" />
+                                                    <RadzenTextBox @bind-Value="@(committeeTasksVm.TaskName)" Name="Task" />
+                                                    <div class="rz-message rz-messages-error ">@taskValidationMessage</div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row pb-4">
+                                            <div class="col-12 col-sm-12 col-md-10 col-lg-10 col-xl-10">
+                                                <div class="form-group">
+                                                    <RadzenLabel Text="@(translationState.Translate("Description"))" Component="Description" />
+                                                    <RadzenTextArea @bind-Value="@(committeeTasksVm.Description)" Name="Description" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row pb-4">
+                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                <div class="form-group">
+                                                    <RadzenLabel Text="@(translationState.Translate("Due_Date") + " *")" Component="Deadline" />
+                                                    <RadzenDatePicker @bind-Value="@(committeeTasksVm.TaskDeadline)" Min="@DateTime.Today" DateFormat="dd/MM/yyyy" Class="w-100" Name="Deadline" />
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 pt-4">
+                                                <div class="form-group">
+                                                    <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add_Task")" Click="AddMemberTasks" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <RadzenDataGrid @ref="committeeTaskGrid"
+                                                                AllowFiltering="false"
+                                                                EmptyText="@translationState.Translate("No_record_found")"
+                                                                AllowPaging="true"
+                                                                PageSize="@systemSettingState.Grid_Pagination"
+                                                                AllowSorting="true"
+                                                                FilterMode="Radzen.FilterMode.Advanced"
+                                                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                Data="@saveCommittee.committeeTasks"
+                                                                TItem="TempCommitteeTaskVm">
+                                                    <Columns>
+                                                        <RadzenDataGridColumn TItem="TempCommitteeTaskVm" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
+                                                            <Template Context="rowItem">
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                                              Class="deleteIcon"
+                                                                              Icon="delete_outline"
+                                                                              Title="@translationState.Translate("delete")"
+                                                                              Size="ButtonSize.Small"
+                                                                              Click="@((args) => DeleteMemberTasks(rowItem))"
+                                                                              @onclick:stopPropagation="true" />
+                                                            </Template>
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="TempCommitteeTaskVm" Property="TaskName" Title="@translationState.Translate("Task_Name")"></RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="TempCommitteeTaskVm" Property="Description" Title="@translationState.Translate("Description")">
+                                                            <Template Context="description">
+                                                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US" && description.Description != null)
+                                                                {
+                                                                    @if (description.Description.Length > 35)
+                                                                    {
+                                                                        @(description.Description.Substring(0, 35))
+
+                                                                        <a href="#" @onclick="@(() => OnDescription(description.Description))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        @(description.Description)
+                                                                    }
+                                                                }
+                                                                else if (Thread.CurrentThread.CurrentUICulture.Name == "ar-KW" && description.Description != null)
+                                                                {
+                                                                    @if (description.Description.Length > 35)
+                                                                    {
+                                                                        @(description.Description.Substring(0, 35))
+
+                                                                        <a href="#" @onclick="@(() => OnDescription(description.Description))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        @(description.Description)
+                                                                    }
+                                                                }
+                                                            </Template>
+                                                        </RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="TempCommitteeTaskVm" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "MemeberNameEn":"MemeberNameAr" )" Title="@translationState.Translate("Member_Name")"></RadzenDataGridColumn>
+                                                        <RadzenDataGridColumn TItem="TempCommitteeTaskVm" Property="TaskDeadline" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Due_Date")"></RadzenDataGridColumn>
+                                                    </Columns>
+                                                </RadzenDataGrid>
+                                            </div>
+                                        </div>
+                                    </RadzenCard>
+
+                                </ChildContent>
+                            </RadzenFieldset>
+                        </div>
+
+                        <div class="row mt-4 popup-buttons-alignment">
+                            <div class="col-12">
+                                <RadzenButton Text="@translationState.Translate("Save_As_Draft")"
+                                              ButtonStyle="ButtonStyle.Primary"
+                                              style="margin-right: 0.2rem !important"
+                                              Click="@SaveAsDraft" />
+                                <RadzenButton Text="@translationState.Translate("Submit")"
+                                              ButtonStyle="ButtonStyle.Primary"
+                                              style="margin-right: 0.2rem !important"
+                                              ButtonType="Radzen.ButtonType.Submit" />
+                                <RadzenButton Text="@translationState.Translate("Cancel")"
+                                              ButtonStyle="ButtonStyle.Light"
+                                              Click="@ButtonCancelClick" />
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+@code
+{
+
+    async Task OnDescription(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Description"), ds =>
+    @<div>
+        <p class="mb-4" style="min-height:50px;min-width:550px;line-height:2.5">@args</p>
+    </div>
+     );
+    }
+}

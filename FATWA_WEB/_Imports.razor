@@ -1,0 +1,168 @@
+﻿@using System.Net.Http
+@using AutoMapper
+@using BlazorDownloadFile
+@using Blazored.LocalStorage
+@using FATWA_WEB.Data
+@using FATWA_WEB.Extensions
+@using FATWA_WEB.Services
+@using FATWA_WEB.Services.ArchivedCases
+@using FATWA_WEB.Services.BugReporting
+@using FATWA_WEB.Services.CaseManagement
+@using FATWA_WEB.Services.Communications
+@using FATWA_WEB.Services.Consultation
+@using FATWA_WEB.Services.ContactManagment;
+@using FATWA_WEB.Services.General;
+@using FATWA_WEB.Services.InventoryManagement;
+@using FATWA_WEB.Services.LLSLegalPrincipleService
+@using FATWA_WEB.Services.MOJRolls
+@using FATWA_WEB.Services.Meet
+@using FATWA_WEB.Services.OrganizingCommittee
+@using FATWA_WEB.Services.PACI
+@using FATWA_WEB.Services.ServiceRequestService.HiringManagement
+@using FATWA_WEB.Services.Tasks;
+@using FATWA_WEB.Services.ServiceRequestService
+@using FATWA_WEB.Services.TimeInterval
+@using Fatwa_WEB.Services.Communications
+@using FATWA_WEB.Services.Lms
+@using FATWA_WEB.Services.Generic
+@using FATWA_WEB.Services.MojStatistics
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using FATWA_WEB
+@using FATWA_WEB.Shared
+@using Telerik.Blazor
+@using Telerik.Blazor.Components
+@using Blazored.Toast
+@using Blazored.Toast.Services
+@using Radzen
+@using Radzen.Blazor
+@using Syncfusion.Blazor 
+@using FATWA_WEB.Services.TimeTracking
+@using FATWA_WEB.Shared.Components
+
+@*General Services*@
+@inject SystemSettingState systemSettingState
+@inject NavigationState navigationState
+@inject TranslationState translationState       
+@inject IdentifyDocumentTypesForDraft identifyDocumentTypes
+@inject LoginState loginState
+@inject SpinnerService spinnerService
+@inject WorkflowService workflowService
+@inject DialogService dialogService
+@inject NotificationService notificationService 
+@inject CustomNotificationService customNotificationService
+@inject NavigationManager navigationManager
+@inject SystemSettingService systemSettingStateService
+@inject NotificationDetailService notificationDetailService
+@inject SystemConfigurationService systemConfigurationService
+@inject RadzenGridSearchExtension gridSearchExtension
+@inject ExcelExportService excelExportService
+@inject ExcelImportService excelImportService
+@inject DataCommunicationState dataCommunicationService
+@inject ApplicationState applicationState
+
+
+@inject ILocalStorageService BrowserStorage 
+@inject IJSRuntime JSRuntime 
+@inject IBlazorDownloadFileService blazorDownloadFileService
+@inject ILocalStorageService BrowserStorage
+@inject IConfiguration _config
+@inject IJSRuntime JsInterop 
+@inject IWebHostEnvironment _environment
+
+@*SSO*@
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+
+@*Ums Service*@
+@inject RoleService roleService
+@inject GroupService groupService
+@inject userService userService
+
+@*Lms Service*@
+@inject LmsLiteratureService lmsLiteratureService
+@inject LmsLiteratureIndexService lmsLiteratureIndexService
+@inject LmsLiteratureIndexDivisionService lmsLiteratureIndexDivisionServices 
+@inject LmsLiteratureTypeService lmsLiteratureTypeService
+@inject LmsLiteratureClassificationService lmsLiteratureClassificationService
+@inject LmsLiteratureIndexService lmsLiteratureIndexServices 
+@inject LmsLiteratureBorrowDetailService lmsLiteratureBorrowDetailService 
+@inject LmsLiteratureParentIndexService lmsliteratureParentIndexServices
+
+@*LLS Legal Principle*@
+@inject LLSLegalPrincipleService lLSLegalPrincipleService
+@inject LegalLegislationService legalLegislationService
+
+@*Case Management*@
+@inject CmsCaseTemplateService cmsCaseTemplateService
+@inject CaseRequestService caseRequestService
+@inject CmsCaseFileService cmsCaseFileService
+@inject CmsRegisteredCaseService cmsRegisteredCaseService
+@inject CmsSharedService cmsSharedService
+
+@*File Upload*@
+@inject FileUploadService fileUploadService
+@inject LookupService lookupService
+@inject CommunicationService communicationService
+@inject CommunicationTarasolService communicationTarasolService
+
+@*Meeting Service*@
+@inject MeetingService meetingService
+
+@*Notification Service*@
+@inject NotificationDetailService notificationServices
+
+@*Task Service*@
+@inject TaskService taskService 
+
+@*Consultation service*@
+@inject COMSConsultationService consultationRequestService
+@inject ComsSharedService comsSharedService
+@inject COMSConsultationFileService consultationFileService
+@inject CNTContactService CntContactService
+@inject INVInventoryService invInventoryService
+
+@* TimeTracking Service*@
+@inject TimeTrackingService timeTrackingService
+@inject MojStatisticsCaseStudyService mojStatisticsService
+@inject MojStatisticsDashboardService mojStatisticsDashboardService
+
+@* PACI Service *@
+@inject PACIRequestService pACIRequestService
+
+@* MOJ Rolls Service *@
+@inject MOJRollsService mojRollsService 
+@inject IMapper mapper
+
+@* Service Request *@
+@inject ServiceRequestSharedService serviceRequestSharedService
+@inject ComplaintRequestService complaintRequestService
+@inject InventoryRequestService inventoryRequestService
+@inject LeaveAndAttendanceRequestService leaveAndAttendanceRequestService
+@inject HiringRequestService hiringRequestService
+
+
+@* Time Interval *@
+@inject TimeIntervalService timeIntervalService
+
+ @* Process Log *@
+@*  @inject ProcessLogService processLogService *@
+
+ @* Error Log *@
+@* inject ErrorLogService errorLogService *@
+
+@* Organizing Committee *@
+@inject OrganizingCommitteeService organizingCommitteeService
+
+@* Archived Case*@
+@inject ArchivedCasesService archivedCasesService
+
+@* Bug Reporting Service *@
+@inject BugReportingService bugReportingService
+@inject InvalidRequestHandlerService invalidRequestHandlerService
+@inject BugTicketEventService bugTicketEventService
+@inject DraftHandlerService draftHandlerService

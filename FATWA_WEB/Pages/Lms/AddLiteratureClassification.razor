@@ -1,0 +1,59 @@
+﻿@*@page "/add-lms-literature-classification"*@
+@page "/lmsliteratureclassification-add"
+@layout MainLayout
+@using Radzen
+@using Radzen.Blazor
+@using FATWA_DOMAIN.Models
+
+<!--<History Author = 'Hassan Abbas' Date='2022-03-16' Version="1.0" Branch="master"> Add Literature Classification</History>-->
+@*<History Author = 'Zain Ul Islam' Date='2022-08-01' Version="1.0" Branch="master"> Add Literature Generic Solution Reverted</History>*@
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.LiteratureClassification.Create").Count() > 0)
+{
+    <PageTitle>@translationState.Translate("Add_category_literature")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row">
+                <div class="col-md-12">
+                    <RadzenTemplateForm Data="@lmsliteratureclassification" Visible="@(lmsliteratureclassification != null)" TItem="LmsLiteratureClassification" Submit="@Form0Submit">
+                        <ChildContent>
+                            <div class="row">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Name_En")" Component="Name_En" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Name_En")"
+                                               MaxLength="100"
+                                               @bind-Value="@(lmsliteratureclassification.Name_En)"
+                                               Name="Name_En" />
+                                    <RadzenRequiredValidator Component="Name_En" Text="@translationState.Translate("Required_Field")" />
+                                    <RadzenRegexValidator Component="Name_En" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="^[A-Za-z ]+$" />
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Name_Ar")" Component="Name_Ar" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Name_Ar")"
+                                               MaxLength="100"
+                                               @bind-Value="@(lmsliteratureclassification.Name_Ar)"
+                                               Name="Name_Ar" />
+                                    <RadzenRegexValidator Component="Name_Ar" Text="@translationState.Translate("Arabic_Name_Is_Allowed")" Pattern="^[\u0621-\u064A ]+$" />
+                                    <RadzenRequiredValidator Component="Name_Ar" Text="@translationState.Translate("Required_Field")" />
+                                </div>
+                            </div>
+                            <div class="row popup-buttons-alignment">
+                                <div class="col-12 p-0">
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Text="@translationState.Translate("Save")" ButtonStyle="ButtonStyle.Primary" />
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@Button2Click" />
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenTemplateForm>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

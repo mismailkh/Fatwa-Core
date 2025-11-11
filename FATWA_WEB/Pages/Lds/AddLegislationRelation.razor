@@ -1,0 +1,156 @@
+﻿@page "/add-legislation-relation"
+
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel
+@using static FATWA_DOMAIN.Enums.LegalLegislationEnum
+
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Add_Relation")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@legislationVMResult" Visible="@(legislationVMResult != null)" TItem="LegalLegislationVM">
+                    <ChildContent>
+                         <div class="row formHeadingSection">
+                            <div class="col-12 col-sm-9 col-md-9 col-lg-9 col-xl-9">
+                                <p class="formHeading">@translationState.Translate("Legislation_Advance_Search")</p>
+                                <div class="divider"></div>
+                            </div>
+                            @if (!ArticleEffectCheckInRelationPage)
+                            {
+                                    <div class="col-12 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="add" Text="@translationState.Translate("Add_New_Relation")" Click="@( () => AddNewRelationButtonClick() )" />
+                                        </div>
+                                    </div>
+                            }
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 case-party-row">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Legislation_Type")" />
+                                    @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                    {
+                                        <RadzenDropDown Data="@GetLegislationTypeDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                    TextProperty="Name_En" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                    @bind-Value="@legislationVMResult.Legislation_Type" Name="Legislation_Type" />
+                                    }
+                                    else
+                                    {
+                                        <RadzenDropDown Data="@GetLegislationTypeDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                    TextProperty="Name_Ar" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                    @bind-Value="@legislationVMResult.Legislation_Type" Name="Legislation_Type" />
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Legislation_Number")" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Name")" @bind-Value="@(legislationVMResult.Legislation_Number)" Name="Legislation_Number" />
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 case-party-row">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Legislation_Year")" />
+                                    <RadzenDropDown Data="@LegislationYearCollection" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                    Placeholder="@translationState.Translate("Select")"
+                                                    @bind-Value="@legislationVMResult.Legislation_Year" Name="Legislation_Year" />
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3 searchBtn">
+                                <div class="form-group">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="search" Text="@translationState.Translate("Search")" Click="@( () => SearchRelationButtonClick() )" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row tableContent table-responsive no-gutters pb-3">
+                            @if (ArticleEffectCheckInRelationPage)
+                            {
+                                <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")" @ref="gridRelation" AllowGrouping="true"
+                                            AllowFiltering="false" ExpandMode="DataGridExpandMode.Single" FilterMode="Radzen.FilterMode.Advanced"
+                                            AllowPaging="true" GroupRowRender="OnGroupRowRender" AllowSorting="true" Data="@legalLegislationVM"
+                                            TItem="LegalLegislationVM" PageSize="@systemSettingState.Grid_Pagination" ColumnWidth="180px"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center" RowRender="@RowRender" PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options" ShowPagingSummary="true">
+                                <Template Context="legalVM">
+                                    @if (ArticleEffectCheckInRelationPage)
+                                    {
+                                            <RadzenDataGrid AllowFiltering="false" AllowPaging="false" AllowSorting="false" Data="@legalVM.RelatedArticles" TItem="LegalArticle" ColumnWidth="150px" PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                   PagerHorizontalAlign="Radzen.HorizontalAlign.Center" PageSizeOptions="@systemSettingState.Page_Size_Options" ShowPagingSummary="true" PageSize="@systemSettingState.Grid_Pagination">
+                                            <Columns>
+                                                <RadzenDataGridColumn Filterable="false" Sortable="false"TItem="LegalArticle" Property="Article_Title" Title="@translationState.Translate("Article_Title")" />
+                                                    <RadzenDataGridColumn Filterable="false" Sortable="false" TItem="LegalArticle" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Article_Status_Name_En" : "Article_Status_Name_Ar") Title="@translationState.Translate("Article_Status")" />
+                                                <RadzenDataGridColumn Filterable="false" Sortable="false" TItem="LegalArticle" Property="Start_Date" Title="@translationState.Translate("Article_StartDate")" FormatString="{0:dd/MM/yyyy}" />
+                                                <RadzenDataGridColumn Filterable="false" Sortable="false" TItem="LegalArticle" Property="End_Date" Title="@translationState.Translate("Article_EndDate")" FormatString="{0:dd/MM/yyyy}" />
+                                                <RadzenDataGridColumn TItem="LegalArticle" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="100px">
+                                                    <Template Context="rowItem">
+                                                        @*<RadzenButton ButtonStyle="ButtonStyle.Secondary" class="viewIcon" Icon="mode" title="@translationState.Translate("View")" Size="ButtonSize.Small" Click="@(() =>GridViewClick(rowItem))" @onclick:stopPropagation="true" />*@
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Primary" class="editIcon" Icon="mode" title="@translationState.Translate("Modify")" Size="ButtonSize.Small" Click="@(() =>GridArticleModifyClick(rowItem))" @onclick:stopPropagation="true" />
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Light" class="addIcon" Icon="add" title="@translationState.Translate("Add")" Size="ButtonSize.Small" Click="@(() =>GridArticleAddClick(rowItem))" @onclick:stopPropagation="true" />
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Danger" class="cancelIcon" Icon="cancel" title="@translationState.Translate("Cancel")" Size="ButtonSize.Small" Click="@(() =>GridArticleCancelClick(rowItem))" @onclick:stopPropagation="true" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    }
+                                </Template>
+                                <Columns>
+                                    @if (ArticleEffectCheckInRelationPage)
+                                    {
+                                        <RadzenDataGridColumn TItem="LegalLegislationVM" Property="LegislationTitleEn" Title="@translationState.Translate("Legislation_Title")" Width="140px" />
+                                    }
+                                        <RadzenDataGridColumn TItem="LegalLegislationVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Legislation_Type_Name_En" : "Legislation_Type_Name_Ar") Title="@translationState.Translate("Legislation_Type")" Width="140px" />
+                                    <RadzenDataGridColumn TItem="LegalLegislationVM" Property="Legislation_Number" Title="@translationState.Translate("Legislation_Number")" Width="150px" />
+                                        <RadzenDataGridColumn TItem="LegalLegislationVM" Property="LegislationIssueDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Legislation_Issue_Date")" Width="130px" />
+                                        <RadzenDataGridColumn TItem="LegalLegislationVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "LegislationStatusNameEn" : "LegislationStatusNameAr") Title="@translationState.Translate("Legislation_Status")" Width="150px" />
+                                    <RadzenDataGridColumn TItem="LegalLegislationVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="120px">
+                                        <Template Context="rowItems">
+                                            @if (ArticleEffectCheckInRelationPage)
+                                            {
+                                                @*<RadzenButton ButtonStyle="ButtonStyle.Secondary" class="viewIcon" Icon="mode" title="@translationState.Translate("View")" Size="ButtonSize.Small" Click="@(() =>GridLegislationViewClick(rowItems))" @onclick:stopPropagation="true" />*@
+                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" class="cancelIcon" Icon="cancel" title="@translationState.Translate("Cancel")" Size="ButtonSize.Small" Click="@(() =>GridLegislationCancelClick(rowItems))" @onclick:stopPropagation="true" />
+                                            }
+                                            else
+                                            {
+                                                <RadzenButton ButtonStyle="ButtonStyle.Primary" class="addIcon" Icon="add" title="@translationState.Translate("Add")" Size="ButtonSize.Small" Click="@(() =>GridAddRelationButtonClick(rowItems))" @onclick:stopPropagation="true" />
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                </Columns>
+                                </RadzenDataGrid>
+                            }
+                            else
+                            {
+                                <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")" @ref="gridRelation" AllowGrouping="true"
+                                            AllowFiltering="false" FilterMode="Radzen.FilterMode.Advanced"
+                                            AllowPaging="true" AllowSorting="true" Data="@legalLegislationVM"
+                                            TItem="LegalLegislationVM" PageSize="@systemSettingState.Grid_Pagination" ColumnWidth="180px"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center" PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options" ShowPagingSummary="true">
+                                    <Columns>
+                                        <RadzenDataGridColumn TItem="LegalLegislationVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Legislation_Type_Name_En" : "Legislation_Type_Name_Ar") Title="@translationState.Translate("Legislation_Type")" Width="140px" />
+                                        <RadzenDataGridColumn TItem="LegalLegislationVM" Property="Legislation_Number" Title="@translationState.Translate("Legislation_Number")" Width="150px" />
+                                        <RadzenDataGridColumn TItem="LegalLegislationVM" Property="LegislationIssueDate" Title="@translationState.Translate("Legislation_Issue_Date")" FormatString="{0:dd/MM/yyyy}" Width="130px" />
+                                        <RadzenDataGridColumn TItem="LegalLegislationVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "LegislationStatusNameEn" : "LegislationStatusNameAr") Title="@translationState.Translate("Legislation_Status")" Width="150px" />
+                                        <RadzenDataGridColumn TItem="LegalLegislationVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="120px">
+                                            <Template Context="rowItems">
+                                                <RadzenButton ButtonStyle="ButtonStyle.Primary" class="addIcon" Icon="add" title="@translationState.Translate("Add")" Size="ButtonSize.Small" Click="@(() =>GridAddRelationButtonClick(rowItems))" @onclick:stopPropagation="true" />
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                    </Columns>
+                                </RadzenDataGrid>
+                            }
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+<style>
+    .rz-group-header{
+        display:none;
+    }
+</style>

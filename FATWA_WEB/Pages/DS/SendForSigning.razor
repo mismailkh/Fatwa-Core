@@ -1,0 +1,75 @@
+﻿@using static FATWA_DOMAIN.Enums.DmsEnums;
+<div class="row">
+    @if (Document.StatusId == (int)SigningTaskStatusEnum.SendForSigning)
+    {
+        <div class="col-12">
+            @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+            {
+                <p>@($"{translationState.Translate("signing_Message")} {task.ReceiverNameEn}")</p>
+            }
+            else
+            {
+                <p>@($"{translationState.Translate("signing_Message")} {task.ReceiverNameAr}")</p>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="col-md-12">
+            <div class="row">
+                <div class="col-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Employee_Name") + " *")" />
+                        <RadzenDropDown Data="employeeList"
+                                        AllowFiltering="true"
+                                        AllowClear="true"
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EmployeeNameEn" : "EmployeeNameAr")"
+                                        ValueProperty="UserId"
+                                        Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;"
+                        @bind-Value="taskForDS.ReceiverId"
+                                        Name="userId"
+                                        Change="@OnUserChange" />
+                        @if (!string.IsNullOrEmpty(userValidationMsg))
+                        {
+                            <div class="rz-message rz-messages-error ">@userValidationMsg</div>
+                        }
+                        @if (string.IsNullOrEmpty(taskForDS.ReceiverId) && HasEmpValue)
+                        {
+                            <div class="rz-message rz-messages-error">@translationState.Translate("Required_Field")</div>
+                        }
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Remarks") + " *")" Component="SelectedReason" />
+                        <RadzenTextArea Placeholder="@translationState.Translate("Remarks")" Name="SelectedReason" @bind-Value="taskForDS.Remarks" @oninput="@(e => taskForDS.Remarks = e.Value?.ToString())" />
+                        @if (string.IsNullOrEmpty(taskForDS.Remarks) && HasRemarksValue)
+                        {
+                            <div class="rz-message rz-messages-error">@translationState.Translate("Required_Field")</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="popup-buttons-alignment">
+
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Text="@translationState.Translate("Submit")"
+                              Title="@translationState.Translate("Submit")"
+                              Size="ButtonSize.Small"
+                              Click="@((args) => Submit())"
+                              Disabled=@notValidUser
+                @onclick:stopPropagation="true" />
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Text="@translationState.Translate("Cancel")"
+                              Title="@translationState.Translate("Cancel")"
+                              Size="ButtonSize.Small"
+                              Click="@((args) => Cancel())"
+                @onclick:stopPropagation="true" />
+            </div>
+        </div>
+    }
+</div>
+

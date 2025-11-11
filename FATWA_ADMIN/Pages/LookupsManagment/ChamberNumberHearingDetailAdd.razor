@@ -1,0 +1,99 @@
+﻿@using FATWA_DOMAIN.Models.CaseManagment;
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.CommonModels;
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.Lookups;
+@layout MainLayout
+
+@*< History Author = 'Ammaar Naveed' Date = '2024-06-04' Version = "1.0" Branch = "master"> UI fixations in pages and dialogs</History>*@
+<RadzenTemplateForm Data="@CmsChamberNumberHearing" Visible="@(CmsChamberNumberHearing != null)" TItem="ChamberNumberHearing" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <div class="row">
+                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Court_Name")+" *")" />
+                        <RadzenDropDown Data="@Courts" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"    SelectAllText="@translationState.Translate("Selected_All")"
+                                SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                Multiple="true"
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                        Style="display:block;" @bind-Value="@CmsChamberNumberHearing.SelectedCourts" Name="CourtName" Change="OnChangeCourt" Disabled="@Disable" />
+                        <div class="rz-message rz-messages-error ">@moduleValidationMessageCourts</div>
+
+                    </div>
+                </div>
+                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                    <div class="form-group">
+
+                        <RadzenLabel Text="@(translationState.Translate("Chamber_Name")+" *")" />
+
+                        <RadzenDropDown Data="@allChambersSelectedbyCourtId" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" SelectAllText="@translationState.Translate("Selected_All")"
+                                        SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                        Multiple="true"
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                        Style="width: 100%;" @bind-Value="@CmsChamberNumberHearing.SelectedChambers" Name="ChamberName" Change="OnChangeChamber" Disabled="@Disable" />
+
+                        <div class="rz-message rz-messages-error ">@moduleValidationMessageChambers</div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Chamber_Number")+" *")" />
+                        <RadzenDropDown Data="@allChamberNumberSelectedbyChamberId" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"    SelectAllText="@translationState.Translate("Selected_All")"
+                                SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                Multiple="true"
+                                        TextProperty="Number" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                        Style="width: 100%;" @bind-Value="@CmsChamberNumberHearing.SelectedChamberNumbers" Name="ChamberNumber" Disabled="@Disable" />
+                        <div class="rz-message rz-messages-error ">@moduleValidationMessageChamberNumbers</div>
+                    </div>
+                </div>
+                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+
+                    <div class="form-group ">
+                        <RadzenLabel Text="@(translationState.Translate("Hearing_Days")+" *")" />
+                        <RadzenDropDown Data="@HearingDays" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" SelectAllText="@translationState.Translate("Selected_All")"
+                                        SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                        Multiple="true"
+                                        TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                        Style="width: 100%;" @bind-Value="@CmsChamberNumberHearing.SelectedHearingDayIds" Name="HearingDay" />
+                        <div class="rz-message rz-messages-error ">@moduleValidationMessageHearingDays</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+
+                    <div class="form-group ">
+                        <RadzenLabel Text="@(translationState.Translate("Hearings_Roll_Days")+" *")" />
+                        <div class="d-flex align-items-center">
+                            <RadzenNumeric class="pt-1 flex-grow-1" Max="999" ShowUpDown="false" Name="HearingRollDay" Style="width:100%" Placeholder="@translationState.Translate("Hearings_Roll_Days")" @bind-Value="@CmsChamberNumberHearing.HearingsRollDays" TValue="int" Disabled="@(Id == null ? false : true)" onkeypress="return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46" Change="@(() => CheckHearingRollDay())" />
+                        </div>
+                        <RadzenRequiredValidator Component="HearingRollDay" DefaultValue="0" Style="width:100%" Text="@(HearingDayValidation && CmsChamberNumberHearing.HearingsRollDays == 0 ? @translationState.Translate("Required_Field") : "")" />
+                    </div>
+                </div>
+                <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Judgments_Roll_Days")+" *")" />
+                        <div class="d-flex align-items-center">
+                            <RadzenNumeric class="pt-1 flex-grow-1" Max="999" ShowUpDown="false" Name="JudgmentRollDay" Style="width:100%" Placeholder="@translationState.Translate("Judgments_Roll_Days")" @bind-Value="@CmsChamberNumberHearing.JudgmentsRollDays" TValue="int" Disabled="@(Id == null ? false : true)" onkeypress="return (event.charCode == 8 || event.charCode == 0) ? null : event.charCode >= 48 && event.charCode <= 57 || event.charCode == 46" Change="@(() => CheckJudgmentDay())" />
+                        </div>
+                        <RadzenRequiredValidator Component="JudgmentRollDay" DefaultValue="0" Style="width:100%" Text="@(JudgmentDayValidation && CmsChamberNumberHearing.JudgmentsRollDays == 0 ? translationState.Translate("Required_Field") : "")" />
+                    </div>
+                </div>
+            </div>
+            <div class="popup-buttons-alignment">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                              Style="margin-left: 10px; margin-right: 10px;"
+                              ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")">
+                </RadzenButton>
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@Button2Click">
+                </RadzenButton>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

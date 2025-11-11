@@ -1,0 +1,213 @@
+﻿@page "/inboxOutbox-list"
+@layout MainLayout
+
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs;
+@using FATWA_WEB.Data
+@using FATWA_DOMAIN.Models
+@using static FATWA_DOMAIN.Enums.CommunicationEnums;
+@using static FATWA_GENERAL.Helper.Enum
+@using static FATWA_DOMAIN.Models.ViewModel.AdvancedSearchVM
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+
+@*<History Author = 'Hassan Abbas' Date='2023-03-22' Version="1.0" Branch="master"> Inbox Outbox List</History>*@
+
+<PageTitle>@translationState.Translate("Inbox_Outbox")</PageTitle>
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Menu.InboxOutbox").Any())
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Correspondences")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Correspondences")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <RadzenTabs RenderMode="TabRenderMode.Server" Change="OnChangeTab">
+                    <Tabs>
+                        <RadzenTabsItem Text="@translationState.Translate("Inbox")">
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="tableContent table-responsive">
+                                        <RadzenDataGrid @ref="grid"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        Count="@(inboxOutboxList?.FirstOrDefault()?.TotalCount ?? 0)"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        AllowFiltering="false"
+                                                        Data="@inboxOutboxList"
+                                                        TItem="CommunicationInboxOutboxVM"
+                                                        LoadData=@OnLoadData
+                                                        Sort=@OnSort
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Title="@translationState.Translate("Action")"
+                                                                      Filterable="false"
+                                                                      Sortable="false"
+                                                                      Width="70px"
+                                                                      TextAlign="TextAlign.Center">
+                                                    <Template Context="rowItem">
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                      Icon="visibility"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="((args) => ViewResponse(rowItem))"
+                                                                      @onclick:stopPropagation="true" />
+                                                        @*@if (rowItem.CommunicationTypeId == (int)CommunicationTypeEnum.RequestForMeeting && rowItem.CorrespondenceTypeId == (int)CommunicationCorrespondenceTypeEnum.Inbox)
+                                                        {
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="editIcon"
+                                                                      Icon="mode"
+                                                                          Title="@translationState.Translate("Schedule_Meeting")"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@((args) => AddMeeting(rowItem))"
+                                                                      @onclick:stopPropagation="true" />
+                                                        }*@
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Width="90px" Property="InboxNumber" Title="@translationState.Translate("InboxNo")" />
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Width="110px" Property="CreatedDate" Title="@translationState.Translate("Transaction_Date")">
+                                                    <Template Context="rowItem">
+                                                        <RadzenLabel Style="font-weight:normal" Text="@rowItem.CreatedDate?.ToString("dd/MM/yyyy hh:mm tt")" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Activity_En" : "Activity_Ar") Title="@translationState.Translate("Activity")" />
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Width="90px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SourceEn" : "SourceAr") Title="@translationState.Translate("Sent_By")" />
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Width="100px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "GovtEntityEn" : "GovtEntityAr") Title="@translationState.Translate("Sender_Name")" />
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@translationState.Translate("Outbox")">
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="tableContent table-responsive">
+                                        <RadzenDataGrid @ref="grid"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                            Count="@(inboxOutboxList?.FirstOrDefault()?.TotalCount ?? 0)"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        AllowFiltering="false"
+                                                        Data="@inboxOutboxList"
+                                                        TItem="CommunicationInboxOutboxVM"
+                                                        LoadData=@OnLoadData
+                                                        Sort=@OnSort
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Title="@translationState.Translate("Action")"
+                                                                      Filterable="false"
+                                                                      Sortable="false"
+                                                                      Width="100px"
+                                                                      TextAlign="TextAlign.Center">
+                                                    <Template Context="rowItem">
+                                                        @if (rowItem.CommunicationTypeId != (int)CommunicationTypeEnum.CaseRequest)
+                                                        {
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Icon="visibility"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="((args) => ViewResponse(rowItem))"
+                                                                          @onclick:stopPropagation="true" />
+                                                        }
+                                                        @if (rowItem.CommunicationTypeId == (int)CommunicationTypeEnum.RequestForMeeting)
+                                                        {
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                          Class="editIcon"
+                                                                          Icon="mode"
+                                                                          Title="@translationState.Translate("Schedule_Meeting")"
+                                                                          Size="ButtonSize.Small"
+                                                                          Click="@((args) => AddMeeting(rowItem))"
+                                                                          @onclick:stopPropagation="true" />
+                                                        }
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Width="125px" Property="OutboxNumber" Title="@translationState.Translate("OutboxNo")" />
+                                                <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Width="180px" Property="CreatedDate" Title="@translationState.Translate("Transaction_Date")">
+                                                    <Template Context="rowItem">
+                                                        <RadzenLabel Style="font-weight:normal" Text="@rowItem.CreatedDate?.ToString("dd/MM/yyyy hh:mm tt")" />
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                {
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Width="165px" Property="Activity_En" Title="@translationState.Translate("Transaction_Type")" />
+                                                }
+                                                else
+                                                {
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Width="165px" Property="Activity_Ar" Title="@translationState.Translate("Transaction_Type")" />
+                                                }
+
+                                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                {
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Width="130px" Property="GovtEntityEn" Title="@translationState.Translate("Sent_To")" />
+                                                }
+                                                else
+                                                {
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Width="130px" Property="GovtEntityAr" Title="@translationState.Translate("Sent_To")" />
+                                                }
+                                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                {
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property="SectorEn" Title="@translationState.Translate("Sender_Name")" />
+                                                }
+                                                else
+                                                {
+                                                    <RadzenDataGridColumn TItem="CommunicationInboxOutboxVM" Property="SectorAr" Title="@translationState.Translate("Sender_Name")" />
+                                                }
+
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenTabsItem>
+                    </Tabs>
+                    </RadzenTabs>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

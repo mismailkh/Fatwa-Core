@@ -1,0 +1,72 @@
+﻿@page "/upload-moj-documents/{FileId}/{MojRegistrationRequestId}/{DocumentId}/{AttachmentTypeId}"
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="@("/register-to-moj/" + FileId + "/" + MojRegistrationRequestId)" Text="@translationState.Translate("Moj_Registration_Detail")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Add_Case_Detail")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard"> 
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Add_Case_Detail")" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row d-block justify-content-center mainContentBlock no-gutters bg-light p-0">
+            <RadzenCard>
+                <RadzenAccordion>
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Document_Details")" Selected>
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <FileUpload ReferenceGuid="@Guid.Parse(FileId)"
+                                                Multiple="true"
+                                                MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                                FileTypes="@systemSettingState.FileTypes"
+                                                UploadFrom="CaseManagement"
+                                                HideView="true"
+                                                MandatoryAttachmentTypeId=@MandatoryAttachmentTypeId
+                                                ModuleId="(int)WorkflowModuleEnum.CaseManagement" />
+                                </div>
+                            </div>
+                        </RadzenAccordionItem>
+                    </Items>
+                </RadzenAccordion>
+                <div class="row d-flex justify-content-center align-items-center px-4 pb-3 mt-4">
+                    <div class="col-md-6 d-flex justify-content-start">
+                        <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="light" OnClick="@RedirectBack">@translationState.Translate("Back")</TelerikButton>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")" Click="@Form0Submit" />
+                    </div>
+                </div>
+            </RadzenCard>
+        </div>
+    </ChildContent>
+</RadzenContent>

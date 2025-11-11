@@ -1,0 +1,41 @@
+﻿@page "/reject-reason/{ReferenceId}"
+
+@using FATWA_DOMAIN.Models.TaskModels;
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Rejection_Reason")</PageTitle>
+<RadzenContent Container="main">
+	<ChildContent>
+		<RadzenTemplateForm Submit="@Form0Submit"
+							Data="@rejectReason"
+							Visible="@(rejectReason != null)"
+							TItem="RejectReason">
+			<ChildContent>
+				<div class="col-12">
+					<div class="row">
+						<div class="form-group">
+							<RadzenLabel Text="@translationState.Translate("Reason")" Component="Reason" />
+							<RadzenTextArea Placeholder="@translationState.Translate("Reason")"
+											@bind-Value="@rejectReason.Reason"
+											Cols="20"
+											Rows="5"
+											Class="w-100"
+											Name="Reason" />
+							<RadzenRequiredValidator Component="Reason" Text="@translationState.Translate("Required_Field")"/>
+						</div>
+					</div>
+
+					<div class="row popup-buttons-alignment">
+						<div class="col-12 p-0">
+							<RadzenButton ButtonStyle="ButtonStyle.Light"
+										  ButtonType="Radzen.ButtonType.Submit"
+										  Text="@translationState.Translate("Save")" />
+						</div>
+					</div>
+				</div>
+			</ChildContent>
+		</RadzenTemplateForm>
+
+
+	</ChildContent>
+</RadzenContent>

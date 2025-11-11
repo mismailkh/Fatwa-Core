@@ -1,0 +1,120 @@
+﻿@page "/add-execution"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+@layout MainLayout
+
+<!-- <History Author = 'Danish' Date='2022-01-04' Version="1.0" Branch="master">Add Execution/History> -->
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@cmsJudgmentExecution" Visible="@(cmsJudgmentExecution != null)" TItem="CmsJudgmentExecution" Submit="@Form0Submit">
+                    <div class="row">
+                        <div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <div class="form-group mb-1">
+                                <RadzenLabel Text="@translationState.Translate("Execution_File_Number")" Component="ExecutionFileNumber" />
+                                <RadzenTextBox @bind-Value="@(cmsJudgmentExecution.ExecutionFileNumber)" Name="ExecutionFileNumber"></RadzenTextBox>
+                                <RadzenRequiredValidator Component="ExecutionFileNumber" Text="@translationState.Translate("Required_Field")" />
+                                <RadzenRegexValidator Component="ExecutionFileNumber" Text="@translationState.Translate("Cannot_have_trailing_spaces")" Pattern="@RegexPatterns.NoLeadingSpacesPattern" />
+                                <RadzenLengthValidator Component="ExecutionFileNumber" Max="100" Text="@translationState.Translate("Max_Hundred_Characters")" />
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <div class="form-group mb-1">
+                                <RadzenLabel Text="@translationState.Translate("File_Opening_Date")" Component="File_Opening_Date" />
+                                <TelerikDatePicker Format="dd/MM/yyyy" Min="DateTime.Now.Date" @bind-Value="@(cmsJudgmentExecution.FileOpeningDate)" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-4 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <div class="form-group mb-1">
+                                <RadzenLabel Text="@translationState.Translate("Amount")" Component="Amount" />
+                                <RadzenNumeric Format="n3" @bind-Value="cmsJudgmentExecution.Amount" TValue="decimal?" Change="@(() => CalculateAmount())" Name="Amount" />
+                                <RadzenNumericRangeValidator Component="Amount" Min="0" Max="1000000000" Text="@(translationState.Translate("Amount_Should_Be_Between") + " 0.000 " + translationState.Translate("And") + " " + string.Format("{0:n3}", 1000000000))" />
+                                <RadzenRequiredValidator DefaultValue="0" Component="Amount" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                        </div>
+                        <div class="col-4 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <div class="form-group mb-1">
+                                <RadzenLabel Text="@translationState.Translate("Paid_Amount")" Component="Paid_Amount" />
+                                <RadzenNumeric Format="n3" @bind-Value="cmsJudgmentExecution.PaidAmount" TValue="decimal?" Change="@(() => CalculateAmount())" Name="Paid_Amount" />
+                                <RadzenNumericRangeValidator Component="Paid_Amount" Min="0" Max="cmsJudgmentExecution.Amount" Text="@(translationState.Translate("Amount_Should_Be_Between") + " 0.000 " + translationState.Translate("And") + " " + string.Format("{0:n3}", cmsJudgmentExecution.Amount))" />
+                                <RadzenRequiredValidator DefaultValue="0" Component="Paid_Amount" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                        </div>
+                        <div class="col-4 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <div class="form-group mb-1">
+                                <RadzenLabel Text="@translationState.Translate("File_Balance")" Component="File_Balance" />
+                                <RadzenNumeric Format="n3" Min="1" Value="@(cmsJudgmentExecution.Amount - cmsJudgmentExecution.PaidAmount)" TValue="decimal?" Disabled Name="File_Balance">
+                                </RadzenNumeric>
+                                <RadzenRequiredValidator DefaultValue="0" Component="File_Balance" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <div class="form-group mb-1">
+                                <RadzenLabel Text="@(translationState.Translate("Payer_Name"))" Component="Payer_Name" />
+                                 <RadzenDropDown TValue="Guid" Data="@caseParties" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                 TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                 Style="display:block;" @bind-Value="@cmsJudgmentExecution.PayerId" Name="Payer_Name">
+                                </RadzenDropDown>
+                                <RadzenRequiredValidator DefaultValue="0" Component="Payer_Name" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <div class="form-group mb-1">
+                                <RadzenLabel Text="@(translationState.Translate("Receiver_Name"))" Component="Receiver_Name" />
+                                 <RadzenDropDown TValue="Guid" Data="@caseParties" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;" @bind-Value="@cmsJudgmentExecution.ReceiverId" Name="Receiver_Name">
+                                </RadzenDropDown>
+                                <RadzenRequiredValidator DefaultValue="0" Component="Receiver_Name" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <div class="form-group mb-1">
+                                <RadzenLabel Text="@(translationState.Translate("File_Status"))" Component="Status" />
+                                 <RadzenDropDown Data="@cmsExecutionFileStatuses" AllowFiltering="true" AllowClear="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;" @bind-Value="@cmsJudgmentExecution.FileStatusId" Name="Status" />
+                                <RadzenRequiredValidator DefaultValue="0" Component="Status" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <FileUpload ReferenceGuid="cmsJudgmentExecution.Id"
+                                            IsViewOnly="false"
+                                            HideView="true"
+                                            Multiple="true"
+                                            FileTypes="@(systemSettingState.FileTypes.ToList())"
+                                            MaxFileSize="@(systemSettingState.File_Maximum_Size)"
+                                            UploadFrom="CaseManagement"
+                                            ModuleId="(int)WorkflowModuleEnum.CaseManagement " />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3 popup-buttons-alignment">
+                        <div class="row form-group">
+                            <div class="col-12 d-flex justify-content-end">
+                                <RadzenButton Class="cancleBtn"
+                                              ButtonType="Radzen.ButtonType.Submit"
+                                              ButtonStyle="ButtonStyle.Primary"
+                                              Text="@translationState.Translate("Submit")">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </div>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

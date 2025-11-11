@@ -1,0 +1,211 @@
+﻿@page "/contact-view/{contactId}/{Module}/{File}/{SectorId}"
+
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs
+@using FATWA_DOMAIN.Models.ViewModel.ConsultationVMs;
+@using FATWA_DOMAIN.Models.ViewModel.ContactManagmentVMs;
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.CommunicationEnums
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.TaskEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+
+@layout MainLayout
+
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+
+                        <RadzenBreadCrumbItem Path="@RedirectURL" Text="@translationState.Translate(TransKeyHeader)" />
+
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Contact_Details")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Contact_Details")" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+            <RadzenCard>
+                <RadzenAccordion>
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Contact_Details")" Selected="true">
+                            <div class="row pb-2">
+                                <div class="col-12 datagrid-rz-label">
+                                    <div class="row no-gutters">
+
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("First_Name")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@contactDetailVM?.FirstName</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Contact_Phone")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@contactDetailVM?.PhoneNumber</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Second_Name")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@contactDetailVM?.SecondName</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Last_Name")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@contactDetailVM?.LastName</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Email")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@contactDetailVM?.Email</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("CivilId")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@contactDetailVM?.CivilId</h3>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Contact_Type")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                          
+                                             <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? contactDetailVM?.ContactTypeEn : contactDetailVM?.ContactTypeAr)</h3>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Contact_Role")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? contactDetailVM?.JobRoleEn : contactDetailVM?.ContactTypeAr)</h3>
+                                            </div>
+                                        </div>
+                                        @* 
+                                            Department has been reomoved 
+                                        *@
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Date_Of_Birth")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3 class="myoverflow" Title="@(contactDetailVM?.DOB == null ? "---" : contactDetailVM?.DOB.Value.ToString("dd/MM/yyyy"))">@(contactDetailVM?.DOB == null ? "---" : contactDetailVM?.DOB.Value.ToString("dd/MM/yyyy"))</h3>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-6 detailSection">
+                                            <div class="detailHeading">
+                                                <h3>@translationState.Translate("Created_Date")</h3>
+                                            </div>
+                                            <div class="detailContent">
+                                                <h3 class="myoverflow" Title="@(contactDetailVM?.CreatedDate == null ? "---" : contactDetailVM?.CreatedDate.Value.ToString("dd/MM/yyyy"))">@(contactDetailVM?.CreatedDate == null ? "---" : contactDetailVM?.CreatedDate.Value.ToString("dd/MM/yyyy"))</h3>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </RadzenAccordionItem>
+                        <RadzenAccordionItem Text="@translationState.Translate("Document_Details")">
+                            <FileUpload ModuleId="(int)WorkflowModuleEnum.CNTContactManagement"
+                                        ReferenceGuid="@Guid.Parse(ContactId)"
+                                        IsCaseRequest="true"
+                                        IsViewOnly="true" />
+                        </RadzenAccordionItem>
+                        <RadzenAccordionItem Text="@translationState.Translate("Linked_File_Details")">
+                            <div class="row pb-2">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    <div class="tableContent table-responsive">
+                                        <RadzenDataGrid @ref="CaseGrid"
+                                                        AllowPaging="true"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        Data="@contactConsultationCaseList"
+                                                        TItem="ContactCaseConsultationListVM"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        Width="100%"
+                                                        AllowFiltering="false"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        AllowSorting="true"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="ContactCaseConsultationListVM" Property="FileName" Title="@translationState.Translate("File_Name")" />
+                                                <RadzenDataGridColumn TItem="ContactCaseConsultationListVM" Property="FileNumber" Title="@translationState.Translate("File_Number")" />
+                                                <RadzenDataGridColumn TItem="ContactCaseConsultationListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "StatusEn" :"StatusAr")" Title="@translationState.Translate("Status")" />
+                                                <RadzenDataGridColumn TItem="ContactCaseConsultationListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "RequestTypeEn" :"RequestTypeAr")" Title="@translationState.Translate("Type_Request")" />
+                                                <RadzenDataGridColumn TItem="ContactCaseConsultationListVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Created_Date")" />
+
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </RadzenAccordionItem>
+                    </Items>
+                </RadzenAccordion>
+            </RadzenCard>
+        </div>
+        <div class="mt-4">
+            <RadzenCard>
+                <div class="popup-buttons-alignment">
+                    <div class="col-12 p-0">
+                        @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Contact.DeleteContact.Delete").Count() > 0 && ContactId != null)
+                        {
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.5rem !important" Text="@translationState.Translate("delete")" Click="@DeleteContact" />
+                        }
+                    </div>
+                </div>
+            </RadzenCard>
+        </div>
+    </ChildContent>
+</RadzenContent>

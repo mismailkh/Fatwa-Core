@@ -1,0 +1,74 @@
+﻿@page "/decision-literature-borrow-extension"
+@layout MainLayout
+<PageTitle>Decision Literature</PageTitle>
+@using FATWA_DOMAIN.Models
+
+<RadzenContent Container="main">
+	<ChildContent>
+		<div class="row">
+			<div class="col-md-12">
+				<RadzenTemplateForm Data="@literatureBorrowApproveReject" Visible="@(literatureBorrowApproveReject != null)" TItem="LmsLiteratureBorrowDetail" Submit="@FormSubmit">
+					<ChildContent>
+						<div class="row">
+							<div class="form-group">
+								@{
+									@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.Literatures.Create").Count() > 0)
+									{
+										<div class="row formContentSection">
+											<div class="col">
+												<div class="NT-sub-div">
+													<p class="NT-label">@translationState.Translate("Decision")</p>
+													<RadzenDropDownDataGrid @bind-Value="@(literatureBorrowApproveReject.ExtensionApprovalStatus)"
+																	Data="@getExcludedLiteratureBorrowApprovalType"
+																	TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name" : "Name_Ar")
+																	ValueProperty="DecisionId"
+																	Placeholder="@translationState.Translate("Select_Resolution")"
+																	ShowSearch="false"
+																	Style="display: block; width: 100%"
+																	Name="DecisionId"
+																	Change=@(args => OnApprovalTypeChange(args, "BorrowApprovalTypeChanged"))>
+														<Columns>
+															<RadzenDropDownDataGridColumn Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name" : "Name_Ar") Title="@translationState.Translate("Name")" />
+														</Columns>
+													</RadzenDropDownDataGrid>
+													<RadzenRequiredValidator Component="DecisionId"
+																			 Text="@translationState.Translate("Required_Field")"
+																	 Style="position: absolute"
+																	 DefaultValue="0" />
+												</div>
+											</div>
+										</div>
+										<div class="row formContentSection" Style="display:@showComment">
+											<div class="col">
+												<div class="NT-sub-div">
+													<p class="NT-label">@translationState.Translate("Comment")</p>
+													<RadzenTextArea @bind-Value="@(literatureBorrowApproveReject.Comment)"
+															Placeholder="@translationState.Translate("Comment")"
+															Name="Comment"
+															Cols="71"
+															Rows="3" />
+													<RadzenLengthValidator Component="Comment"
+																   Min="2"
+																   Text="@translationState.Translate("Comments_must_be_at_least_two_characters_long")" />
+													<RadzenLengthValidator Component="Comment"
+																   Max="1000"
+																   Text="@translationState.Translate("Comments_must_be_less_than_1000_characters_long")" />
+												</div>
+											</div>
+										</div>
+										<div class="row popup-buttons-alignment">
+											<div class="col-12 p-0">
+												<RadzenButton ButtonType="Radzen.ButtonType.Submit" Text="@translationState.Translate("Save")" ButtonStyle="ButtonStyle.Primary" />
+												<RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@Button2Click" />
+											</div>
+										</div>
+									}
+								}
+							</div>
+						</div>
+					</ChildContent>
+				</RadzenTemplateForm>
+			</div>
+		</div>
+	</ChildContent>
+</RadzenContent>

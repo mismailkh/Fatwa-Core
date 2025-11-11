@@ -1,0 +1,109 @@
+﻿@using DiffPlex.DiffBuilder.Model
+@using FATWA_DOMAIN.Enums
+
+@*<History Author = "Aqeel Altaf" Date="2022-06-24" Version="1.0" Branch="master"> Fix logic and other related issues in comparison</History>-->
+*@
+<div class="diff-pane-@PanePosition.ToString().ToLower()">
+    <table class="diff">
+        @foreach (var diffLine in Model.Lines)
+        {
+            <tr>
+                <td class="line-number @diffLine.Type.ToString().ToLower()">
+                    @((MarkupString)(diffLine.Position.HasValue ? diffLine.Position.ToString() : "&nbsp;"))
+                </td>
+                <td class="line @diffLine.Type.ToString().ToLower()-line">
+                    <span  class="line-text" style="white-space: pre-wrap;">
+                        <TextDiffLine Model="diffLine"></TextDiffLine>
+                    </span>
+                </td>
+            </tr>
+        } 
+
+       @* @foreach (var diffLine in Model.Lines)
+        {
+            string spaceValue = "\u00B7";
+            string tabValue = "\u00B7\u00B7";
+            para += "<tr>"; 
+                para += "<td class='line  " + @diffLine.Type.ToString().ToLower() + "-line'>";
+                    para += "<span class='line-text' style='white-space: pre-wrap;'>";
+                        if (diffLine.Type == ChangeType.Deleted || diffLine.Type == ChangeType.Inserted || diffLine.Type == ChangeType.Unchanged)
+                        {
+                            if (ShowWhiteSpace)
+                            { 
+                                 para += diffLine.Text.Replace(" ", spaceValue).Replace("\t", tabValue);
+                            }
+                            else
+                            {
+                                para += diffLine.Text;
+                            }
+
+                        }
+                        else if (diffLine.Type == ChangeType.Modified)
+                        {
+                            foreach (var character in diffLine.SubPieces)
+                            {
+                                if (character.Type == ChangeType.Imaginary) { continue; } 
+                                 
+                                string reponse = "";
+                                if(ShowWhiteSpace)
+                                {
+                                    reponse = character.Text.Replace(" ", spaceValue.ToString());
+                                }
+                                else
+                                {
+                                    reponse = character.Text;
+                                }
+                                para += "<span style='white-space: pre-wrap;' class='" + @character.Type.ToString().ToLower() + "-character'>" + reponse + "</span>"; 
+                            }
+                        }
+                   para += " </span>";
+                para += "</td>";
+            para += "</tr>";
+        }
+        @if(para != null)
+        {
+            <RadzenHtmlEditor @bind-Value="@para" style="height: 500px; margin-bottom: 1rem;" UploadUrl="upload/image" Change=@OnChange Paste=@OnPaste Execute=@OnExecute>
+                <RadzenHtmlEditorUndo />
+                <RadzenHtmlEditorRedo />
+                <RadzenHtmlEditorSeparator />
+                <RadzenHtmlEditorBold />
+                <RadzenHtmlEditorItalic />
+                <RadzenHtmlEditorUnderline />
+                <RadzenHtmlEditorStrikeThrough />
+                <RadzenHtmlEditorSeparator />
+                <RadzenHtmlEditorColor />
+                <RadzenHtmlEditorBackground />
+                <RadzenHtmlEditorRemoveFormat />    
+            </RadzenHtmlEditor>
+       } *@
+
+    </table>
+</div>
+
+
+@code {
+    [CascadingParameter(Name = "ShowWhiteSpace")]
+    bool ShowWhiteSpace { get; set; }
+    [Parameter] public DiffPaneModel Model { get; set; }
+
+    [Parameter] public PanePosition PanePosition { get; set; }
+
+    public string para = ""; 
+ 
+    //EventConsole console;
+
+    void OnPaste(HtmlEditorPasteEventArgs args)
+    {
+        //console.Log($"Paste: {args.Html}");
+    }
+
+    void OnChange(string html)
+    {
+        //console.Log($"Change: {html}");
+    }
+
+    void OnExecute(HtmlEditorExecuteEventArgs args)
+    {
+        //console.Log($"Execute: {args.CommandName}");
+    }
+}

@@ -1,0 +1,133 @@
+﻿@page "/details-principle-content/{PrincipleContentId}"
+@page "/details-principle-content/{PrincipleContentId}/{IsPrincipleContent}"
+@using FATWA_WEB.Pages.Shared
+@using FATWA_DOMAIN.Models.LLSLegalPrinciple;
+@using FATWA_DOMAIN.Models.ViewModel.LLSLegalPrinciple;
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using Syncfusion.Blazor.Navigations
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_DOMAIN.Enums.LegalPrinciple.LegalPrincipleEnum
+
+@layout MainLayout
+
+
+<PageTitle>@translationState.Translate("Legal_Principle_Detail")</PageTitle>
+
+<RadzenContent Container="main">
+    <ChildContent>
+        @if (IsPrincipleContent == false)
+        {
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/principle_hierarchy" Text="@translationState.Translate("Principle_Hierarchy")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Legal_Principle_Detail")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Legal_Principle_Detail")" />
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="row justify-content-center mainContentBlock no-gutters p-0 tab-webkit-fill">
+            <div class="col-md-12 k-overflow-y-scroll">
+                <div class="row no-gutters pl-2">
+                    <div class="col-6">
+                        <div class="row no-gutters">
+                            <div class="col-6 detailSection">
+                                <div class="col-6 detailHeading">
+                                    <h3>@translationState.Translate("Start_Date"):</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@LegalPrincipleContent.StartDate.ToString("dd/MM/yyyy")</h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("End_Date"):</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>
+                                        @if (LegalPrincipleContent.EndDate is not null)
+                                        {
+                                            @LegalPrincipleContent.EndDate.Value.ToString("dd/MM/yyyy")
+                                        }
+                                    </h3>
+                                </div>
+                            </div>
+                            <div class="col-6 detailSection">
+                                <div class="col-6 detailHeading">
+                                    <h3>@translationState.Translate("Page_Number"):</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>
+                                        @pageNumber
+                                    </h3>
+                                </div>
+                            </div>
+
+                            <div class="col-12 detailSection d-block">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Legal_Principle_Content")</h3>
+                                </div>
+                                <div class="detailContent" style="overflow: auto; max-height: 500px;">
+                                    @*@(new MarkupString(LegalPrincipleContent.PrincipleContent))*@
+                                    <RadzenHtmlEditor @bind-Value=@(LegalPrincipleContent.PrincipleContent) style="height: 300px; margin-bottom: 1rem;" Disabled="true">
+                                    </RadzenHtmlEditor>
+                                </div>
+
+                            </div>
+                            <div class="col-12 detailSection d-block">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Category")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <RadzenTextArea Rows="7" ReadOnly=true Placeholder="@translationState.Translate("Categories")" Value="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? categoriesEn.ToString() : categoriesAr.ToString())">
+
+                                    </RadzenTextArea>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 save-case-request-col">
+                        <PrincipleContentLinkedDocumentsDialog @bind-LLSDocumentPageNumber="@pageNumber" PrincipleContentId="PrincipleContentId"></PrincipleContentLinkedDocumentsDialog>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if (IsPrincipleContent == false)
+        {
+            <div class="col-md-6 mt-2 justify-content-start" style="padding-left: 0px;">
+                <RadzenButton ButtonStyle="ButtonStyle.Light" class="m-1" Text="@translationState.Translate("Back")" Click="@RedirectBack" />
+            </div>
+        } 
+    </ChildContent>
+</RadzenContent>

@@ -1,0 +1,537 @@
+﻿@page "/committee-view/{CommitteeId}"
+@using FATWA_DOMAIN.Models.ViewModel.OrganizingCommitteeVMs
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.OrganizingCommittee.OrganizingCommitteeEnum
+
+@layout MainLayout
+<PageTitle>@translationState.Translate("Committee_Details")</PageTitle>
+<div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenBreadCrumb>
+                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                <RadzenBreadCrumbItem Path="/list-committee" Text="@translationState.Translate("List_Committee")" />
+                <RadzenBreadCrumbItem Text="@translationState.Translate("Committee_Details")" />
+
+            </RadzenBreadCrumb>
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+        <div class="backtoDashboard">
+
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Size="ButtonSize.Small"
+                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                          class="returnBtn"
+                          Icon="home" Click="@GoBackHomeScreen" />
+        </div>
+    </div>
+</div>
+<div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+    <div class="col-md-6">
+        <div class="row no-gutters">
+            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Committee_Details")" />
+        </div>
+    </div>
+    <div class="col-md-6 d-flex justify-content-end">
+    </div>
+</div>
+<RadzenContent Container="main">
+    <ChildContent>
+        <RadzenCard Style="padding: 30px; border-radius: 8px;">
+            <div class="row pb-4">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <RadzenAccordion Multiple=true>
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Details")" Selected="true">
+                                    <div class="row pb-2">
+                                        <div class="col-12 datagrid-rz-label">
+                                            <div class="row no-gutters">
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Committe_Number"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@Committee?.CommitteeNumber</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Created_Date"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@Committee?.CreatedDate.ToString("dd/MM/yyyy")</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Subject"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@Committee?.Subject</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Circular_Reference_No"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@Committee?.CircularReferenceNo</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Circular_Issue_Date"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@Committee?.CircularIssueDate.ToString("dd/MM/yyyy")</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Number_Of_Members"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@committeeMembers.Count()</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Committee_Head"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Committee?.MemeberNameEn : Committee?.MemeberNameAr)</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Status"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? Committee?.StatusEn : Committee?.StatusAr)</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Commencement_Date"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@Committee?.CommencementDate?.ToString("dd/MM/yyyy")</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Expected_End_Date"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@Committee?.ExpectedEndDate?.ToString("dd/MM/yyyy")</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Modified_By"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@Committee?.ModifiedBy</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Modification_Date"):</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@Committee?.ModifiedDate?.ToString("dd/MM/yyyy")</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    </RadzenCard>
+                </div>
+            </div>
+            <div class="row pb-4">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <RadzenAccordion Multiple=true>
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Description")" Selected="true">
+                                    <div class="col-6 detailSection">
+                                        <div class="detailContent">
+                                            <h3>@(new MarkupString(Committee?.Description))</h3>
+                                        </div>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    </RadzenCard>
+                </div>
+            </div>
+            <div class="row pb-4">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <RadzenAccordion Multiple="true">
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Committee_Members")" Selected="true">
+                                    @if (!disable)
+                                    {
+                                        <div class="col-md-12 text-right-custom-gridcolumn pb-2">
+                                            <RadzenButton Icon="add_circle" style="margin-bottom: 10px" Disabled="IsReadOnly" Text="@translationState.Translate("Add_Member")" Click="@((args) => AddMembers(Committee.Id))" />
+                                        </div>
+                                    }
+                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                        <RadzenDataGrid AllowFiltering="false"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        AllowPaging="true"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        AllowSorting="true"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        Data="@committeeMembers"
+                                                        TItem="CommitteeMembersVMs">
+                                            <Columns>
+                                                @if (Committee.StatusId != (int)CommitteeStatusEnum.Dissolved)
+                                                {
+                                                    <RadzenDataGridColumn TItem="CommitteeMembersVMs" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="80px" TextAlign="TextAlign.Center">
+                                                        <Template Context="rowitem">
+                                                            @if (!managerTaskReminderData.Where(x => x.ManagerId == loginState.UserDetail.UserId).Any())
+                                                            {
+                                                                @if (Committee.StatusId == (int)CommitteeStatusEnum.Draft)
+                                                                {
+                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" Disabled="IsReadOnly" Icon="delete" title="@translationState.Translate("Delete")" Size="ButtonSize.Small" Click="@((args) => RemoveMembers(rowitem))" @onclick:stopPropagation="true" />
+
+                                                                }
+                                                                @if (!disable)
+                                                                {
+                                                                    @if (rowitem.CommitteeRoleId != (int)CommitteeRoleEnum.CommitteeHead && rowitem.CommitteeRoleId != (int)CommitteeRoleEnum.Organizer)
+                                                                    {
+                                                                        <RadzenButton ButtonStyle="ButtonStyle.Primary" Class="editIcon" Disabled="IsReadOnly" Icon="mode" Title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) => EditCommitteeMembers(rowitem.CommitteeId,rowitem.MemberId))" @onclick:stopPropagation="true" />
+                                                                    }
+                                                                }
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                }
+                                                <RadzenDataGridColumn TItem="CommitteeMembersVMs" Width="250px" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "MemeberNameEn":"MemeberNameAr" )" Title="@translationState.Translate("Member_Name")">
+                                                    <Template Context="members">
+                                                        @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US" && members.MemeberNameEn != null)
+                                                        {
+                                                            @if (members.MemeberNameEn.Length > 35)
+                                                            {
+                                                                @(members.MemeberNameEn.Substring(0, 35)) <a href="#" @onclick="@(() => OnMembersFullName(members.MemeberNameEn))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                @(members.MemeberNameEn)
+                                                            }
+                                                        }
+                                                        else if (Thread.CurrentThread.CurrentUICulture.Name == "ar-KW" && members.MemeberNameAr != null)
+                                                        {
+                                                            @if (members.MemeberNameAr.Length > 35)
+                                                            {
+                                                                @(members.MemeberNameAr.Substring(0, 35)) <a href="#" @onclick="@(() => OnMembersFullName(members.MemeberNameAr))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                @(members.MemeberNameAr)
+                                                            }
+                                                        }
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommitteeMembersVMs" Width="200px" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "RoleNameEn":"RoleNameAr")" Title="@translationState.Translate("Committee_Role")"></RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommitteeMembersVMs" Width="250px" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "SectorTypeEn":"SectorTypeAr")" Title="@translationState.Translate("Operating_Sector")">
+                                                    <Template Context="sector">
+                                                        @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US" && sector.SectorTypeEn != null)
+                                                        {
+                                                            @if (sector.SectorTypeEn.Length > 35)
+                                                            {
+                                                                @(sector.SectorTypeEn.Substring(0, 35)) <a href="#" @onclick="@(() => OnMembersFullName(sector.SectorTypeEn))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                @(sector.SectorTypeEn)
+                                                            }
+                                                        }
+                                                        else if (Thread.CurrentThread.CurrentUICulture.Name == "ar-KW" && sector.SectorTypeAr != null)
+                                                        {
+                                                            @if (sector.SectorTypeAr.Length > 35)
+                                                            {
+                                                                @(sector.SectorTypeAr.Substring(0, 35)) <a href="#" @onclick="@(() => OnMembersFullName(sector.SectorTypeAr))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                @(sector.SectorTypeAr)
+                                                            }
+                                                        }
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommitteeMembersVMs" Width="550px" Property="AssignedActivities" Title="@translationState.Translate("Assigned_Activites")">
+                                                    <Template Context="data">
+                                                        @{
+                                                            var lastActivityDate = (data as CommitteeMembersVMs).LastActivityDate == null ? translationState.Translate("No_Last_Activity") : (data as CommitteeMembersVMs).LastActivityDate.Value.ToString("dd/MM/yyyy");
+                                                        }
+                                                        @translationState.Translate("Total_Committees"): @((data as CommitteeMembersVMs).TotalCommittee),@translationState.Translate("Current_Tasks"): @((data as CommitteeMembersVMs).TotalTasks), @translationState.Translate("Last_Activity_Date"): @lastActivityDate
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    </RadzenCard>
+                </div>
+            </div>
+            <div class="row pb-4">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <RadzenAccordion Multiple=true>
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Member_Task_Detail")" Selected="true">
+
+                                    @if (!disable)
+                                    {
+
+                                        <div class="col-md-12 text-right-custom-gridcolumn pb-2">
+                                            <RadzenButton Icon="add_circle" style="margin-bottom: 10px" Disabled="IsReadOnly" Text="@translationState.Translate("Assign_New_Task")" Click="@((args) => AssignNewTask(Committee.Id))" />
+                                        </div>
+                                    }
+
+                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                        <RadzenDataGrid AllowFiltering="false"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        AllowPaging="true"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        AllowSorting="true"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        Data="@committeeTasks"
+                                                        TItem="CommitteeTaskVm">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="CommitteeTaskVm" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="80px" TextAlign="TextAlign.Center">
+                                                    <Template Context="rowitem">
+                                                        @if (!managerTaskReminderData.Where(x => x.ManagerId == loginState.UserDetail.UserId).Any())
+                                                        {
+                                                            @if (!disable)
+                                                            {
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary" Disabled="IsReadOnly" Icon="visibility" Title="@translationState.Translate("View_Detail")" Size="ButtonSize.Small" Click="@((args) => ViewDetails(rowitem.TaskId))" @onclick:stopPropagation="true" />
+                                                            }
+                                                            @if (Committee.StatusId == (int)CommitteeStatusEnum.Draft)
+                                                            {
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Danger" Icon="delete" title="@translationState.Translate("Delete")" Size="ButtonSize.Small" Click="@((args) => RemoveTempTask(rowitem.TaskId))" @onclick:stopPropagation="true" />
+                                                                <RadzenButton ButtonStyle="ButtonStyle.Primary" Class="editIcon" Icon="mode" Title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@((args) => EditCommitteeTask(rowitem.TaskId))" @onclick:stopPropagation="true" />
+                                                            }
+                                                        }
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommitteeTaskVm" Property="Name" Title="@translationState.Translate("Task")"></RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommitteeTaskVm" Property="Description" Title="@translationState.Translate("Description")">
+                                                    <Template Context="description">
+                                                        @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US" && description.Description != null)
+                                                        {
+                                                            @if (description.Description.Length > 35)
+                                                            {
+                                                                @(description.Description.Substring(0, 35))
+
+                                                                <a href="#" @onclick="@(() => OnDescription(description.Description))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                @(description.Description)
+                                                            }
+                                                        }
+                                                        else if (Thread.CurrentThread.CurrentUICulture.Name == "ar-KW" && description.Description != null)
+                                                        {
+                                                            @if (description.Description.Length > 35)
+                                                            {
+                                                                @(description.Description.Substring(0, 35))
+
+                                                                <a href="#" @onclick="@(() => OnDescription(description.Description))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                            }
+                                                            else
+                                                            {
+                                                                @(description.Description)
+                                                            }
+                                                        }
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommitteeTaskVm" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"? "MemberNameEn":"MemberNameAr" )" Title="@translationState.Translate("Member_Name")"></RadzenDataGridColumn>
+                                                <RadzenDataGridColumn TItem="CommitteeTaskVm" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "RoleNameEn":"RoleNameAr")" Title="@translationState.Translate("Committee_Role")"></RadzenDataGridColumn>
+                                                @if (Committee.StatusId != (int)CommitteeStatusEnum.Draft)
+                                                {
+                                                    <RadzenDataGridColumn TItem="CommitteeTaskVm" Property="TaskNumber" Title="@translationState.Translate("Task_Id")"></RadzenDataGridColumn>
+
+                                                }
+                                                <RadzenDataGridColumn TItem="CommitteeTaskVm" Property="TaskDeadline" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Task_Deadline")"></RadzenDataGridColumn>
+                                                @if (Committee.StatusId != (int)CommitteeStatusEnum.Draft)
+                                                {
+                                                    <RadzenDataGridColumn TItem="CommitteeTaskVm" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "StatusEn":"StatusAr")" Title="@translationState.Translate("Status")"></RadzenDataGridColumn>
+                                                }
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </RadzenAccordionItem>
+
+                            </Items>
+                        </RadzenAccordion>
+                    </RadzenCard>
+                </div>
+            </div>
+            <div class="row pb-4">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <RadzenAccordion>
+                            <Items>
+                                <RadzenAccordionItem Text="@translationState.Translate("Document_Details")" Selected="false">
+                                    <FileUpload ReferenceGuid="Committee.Id"
+                                                IsViewOnly="true"
+                                                ModuleId="(int)WorkflowModuleEnum.OrganizingCommittee " />
+                                </RadzenAccordionItem>
+                            </Items>
+                        </RadzenAccordion>
+                    </RadzenCard>
+                </div>
+            </div>
+            @if (Committee.StatusId == (int)CommitteeStatusEnum.Dissolved)
+            {
+                <div class="row pb-4">
+                    <div class="col-md-12">
+                        <RadzenCard>
+                            <RadzenAccordion Multiple=true>
+                                <Items>
+                                    <RadzenAccordionItem Text="@translationState.Translate("Dissolved_Committee_Reason")" Selected="true">
+                                        <div class="row tableContent table-responsive no-gutters pb-3">
+                                            <RadzenDataGrid AllowFiltering="false"
+                                                            EmptyText="@translationState.Translate("No_record_found")"
+                                                            AllowPaging="true"
+                                                            PageSize="@systemSettingState.Grid_Pagination"
+                                                            AllowSorting="true"
+                                                            FilterMode="Radzen.FilterMode.Advanced"
+                                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                            Data="@rejectReason"
+                                                            TItem="RejectionReasonVm">
+                                                <Columns>
+                                                    <RadzenDataGridColumn TItem="RejectionReasonVm" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "StatusEn":"StatusAr")" Title="@translationState.Translate("Status")"></RadzenDataGridColumn>
+                                                    <RadzenDataGridColumn TItem="RejectionReasonVm" Property="Reason" Title="@translationState.Translate("Reason")">
+                                                        <Template Context="reason">
+                                                            @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US" && reason.Reason != null)
+                                                            {
+                                                                @if (reason.Reason.Length > 35)
+                                                                {
+                                                                    @(reason.Reason.Substring(0, 35))
+
+                                                                    <a href="#" @onclick="@(() => OnReason(reason.Reason))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                                }
+                                                                else
+                                                                {
+                                                                    @(reason.Reason)
+                                                                }
+                                                            }
+                                                            else if (Thread.CurrentThread.CurrentUICulture.Name == "ar-KW" && reason.Reason != null)
+                                                            {
+                                                                @if (reason.Reason.Length > 35)
+                                                                {
+                                                                    @(reason.Reason.Substring(0, 35))
+
+                                                                    <a href="#" @onclick="@(() => OnReason(reason.Reason))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                                }
+                                                                else
+                                                                {
+                                                                    @(reason.Reason)
+                                                                }
+                                                            }
+                                                        </Template>
+                                                    </RadzenDataGridColumn>
+                                                </Columns>
+                                            </RadzenDataGrid>
+                                        </div>
+                                    </RadzenAccordionItem>
+
+                                </Items>
+                            </RadzenAccordion>
+                        </RadzenCard>
+                    </div>
+                </div>
+            }
+        </RadzenCard>
+
+        @if (!disable)
+        {
+            @if (Visible)
+            {
+                @if (Committee?.Id != Guid.Empty && !managerTaskReminderData.Where(x => x.ManagerId == loginState.UserDetail.UserId).Any())
+                {
+                    <div class="buttoncontainer">
+                        <input type="checkbox" id="toggle" />
+                        <label class="floatingbutton" for="toggle"></label>
+                        <nav class="nav">
+                            <ul>
+                                <TelerikButton Class="cancleBtn"
+                                               ButtonType="Telerik.Blazor.ButtonType.Button"
+                                               Enabled="!IsReadOnly"
+                                               ThemeColor="light"
+                                               OnClick="@ChangeAccessToReadOnly">@translationState.Translate("Change_Access_To_Read_Only")</TelerikButton>
+                                <TelerikButton Class="cancleBtn"
+                                               ButtonType="Telerik.Blazor.ButtonType.Button"
+                                               Enabled="!IsReadOnly"
+                                               ThemeColor="light"
+                                               OnClick="@DissolveCommittee">@translationState.Translate("Dissolved_Committee")</TelerikButton>
+                                <TelerikButton Class="cancleBtn"
+                                               ButtonType="Telerik.Blazor.ButtonType.Button"
+                                               Enabled="!IsReadOnly"
+                                               ThemeColor="light"
+                                               OnClick="@MeetingRequest">@translationState.Translate("Meeting_Request")</TelerikButton>
+
+
+                            </ul>
+                        </nav>
+                    </div>
+                }
+            }
+        }
+    </ChildContent>
+</RadzenContent>
+
+@code
+{
+    async Task OnMembersFullName(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Member_Name"), ds =>
+    @<div>
+        <p class="mb-4" style="min-height:50px;min-width:550px;line-height:2.5">@args</p>
+    </div>);
+    }
+
+    async Task OnOperatingSectorFullName(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Operating_Sector"), ds =>
+    @<div>
+        <p class="mb-4" style="min-height:50px;min-width:550px;line-height:2.5">@args</p>
+    </div>
+         );
+    }
+
+    async Task OnReason(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Reason"), ds =>
+    @<div>
+        <p class="mb-4" style="min-height:50px;min-width:550px;line-height:2.5">@args</p>
+    </div>
+         );
+    }
+
+    async Task OnDescription(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Description"), ds =>
+    @<div>
+        <p class="mb-4" style="min-height:50px;min-width:550px;line-height:2.5">@args</p>
+    </div>
+     );
+    }
+}
+
+

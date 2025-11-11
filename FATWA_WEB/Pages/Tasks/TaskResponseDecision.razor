@@ -1,0 +1,354 @@
+﻿@page "/taskresponse-decision/{taskId}"
+
+@layout MainLayout
+@using FATWA_DOMAIN.Models.TaskModels;
+@using FATWA_DOMAIN.Models.ViewModel.TaskVMs;
+
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.TaskEnums;
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+<!-- <History Author = 'Ijaz Ahmad' Date='2022-12-14' Version="1.0" Branch="master">Task Details View</History> -->
+<PageTitle>@translationState.Translate("Respond_to_Task")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/usertask-list" Text="@translationState.Translate("Tasks_List")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Respond_to_Task")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  Title="@translationState.Translate("Go_Back_Dashboard")"
+                                  Class="returnBtn"
+                                  Icon="dashboard"
+                                  Click="@GoBackDashboard" />
+
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  Title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  Class="returnBtn"
+                                  Icon="home"
+                                  Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Respond_to_Task")" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row d-block justify-content-left mainContentBlock p-0">
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Text="@translationState.Translate("Task_MetaData_Information")">
+
+                        <div class="row no-gutters">
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Task_Number")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@taskDetailVM?.TaskNumber</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Task_Date")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@taskDetailVM?.TaskDate.ToString("dd/MM/yyyy")</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Type")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.TypeEn : taskDetailVM?.TypeAr)</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Sub_Type")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.SubTypeEn : taskDetailVM?.SubTypeAr)</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Priority")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.PriorityEn : taskDetailVM?.PriorityAr)</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Due_Date")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(taskDetailVM?.DueDate == null ? "---" : taskDetailVM?.DueDate.Value.ToString("dd/MM/yyyy"))</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Name")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@translationState.Translate(taskDetailVM?.Name)</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Description")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@taskDetailVM?.Description</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("File_Number")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@taskDetailVM?.FileNumber</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Sector")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.SectorEn : taskDetailVM?.SectorAr)</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Department")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.DepartmentEn : taskDetailVM?.DepartmentAr)</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Module")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.ModuleEn : taskDetailVM?.ModuleAr)</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Role")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@taskDetailVM?.Role</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Assigned_To")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@taskDetailVM?.AssignedToName</h3>
+                                </div>
+                            </div>
+
+                            <div class="col-6 detailSection">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Status")</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? taskDetailVM?.TaskStatusEn : taskDetailVM?.TaskStatusAr)</h3>
+                                </div>
+                            </div>
+
+                            @if (taskDetailVM?.TaskStatusId == (int)TaskStatusEnum.Rejected)
+                            {
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@translationState.Translate("Reason")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@taskDetailVM?.Reason</h3>
+                                    </div>
+                                </div>
+                            }
+
+                        </div>
+
+                    </RadzenAccordionItem>
+                    <RadzenAccordionItem Text="@translationState.Translate("Action_Item")" Selected="true">
+                        <div class="row no-gutters">
+
+                            <div class="col-6">
+                                <div class="col-9">
+                                    <div class="mb-2 d-flex justify-content-end">
+
+                                        <RadzenTextBox class="searchBox" width="100%"
+                                                       Placeholder="@translationState.Translate("Grid_Search")"
+                                                       Name="Textbox0"
+                                                       @oninput="@(async(args) => {search = $"{args.Value}";
+						                                    await ActionItemGrid.GoToPage(0);
+						                                    await Load();})" />
+
+
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row tableContent table-responsive no-gutters pb-3">
+                                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                        @ref="ActionItemGrid"
+                                                        Data="@GetActionItemList"
+                                                        AllowFiltering="false"
+                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                        AllowPaging="true"
+                                                        AllowSorting="true"
+                                                        TItem="TaskAction"
+                                                        PageSize="@systemSettingState.Grid_Pagination"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                        EditMode="DataGridEditMode.Single"
+                                                        RowUpdate="@OnUpdateRow">
+                                            <Columns>
+                                                <RadzenDataGridColumn TItem="TaskAction" Width="150px" Property="ActionName" Title="@translationState.Translate("Name")" />
+                                                <RadzenDataGridColumn TItem="TaskAction" Width="80px" Property="DueDate" Title="@translationState.Translate("Due_Date")" FormatString="{0:dd/MM/yyyy}" />
+                                                <RadzenDataGridColumn TItem="TaskAction" Width="140px" Property="CompleteDate" Title="@translationState.Translate("CompleteDate")">
+                                                    <Template Context="order">
+                                                        @String.Format("{0:dd/MM/yyyy}", order.CompleteDate)
+                                                    </Template>
+                                                    <EditTemplate Context="order">
+                                                        <RadzenDatePicker @bind-Value="order.CompleteDate"
+                                                                          DateFormat="dd/MM/yyyy"
+                                                                          Style="width:150px" />
+                                                    </EditTemplate>
+                                                </RadzenDataGridColumn>
+
+                                                <RadzenDataGridColumn TItem="TaskAction"
+                                                                      Width="150px"
+                                                                      Title="@translationState.Translate("Action")"
+                                                                      Filterable="false"
+                                                                      Sortable="false"
+                                                                      TextAlign="TextAlign.Center">
+                                                    <Template Context="rowItem">
+
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                                      Class="deleteIcon"
+                                                                      Icon="edit"
+                                                                      Title="@translationState.Translate("Edit")"
+                                                                      Size="ButtonSize.Small"
+                                                                      Click="@(args => EditRow(rowItem))"
+                                                                      @onclick:stopPropagation="true" />
+
+                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                      Icon="check"
+                                                                      Size="ButtonSize.Small"
+                                                                      Title="@translationState.Translate("Save")"
+                                                                      Click="@(args => SaveRow(rowItem))"
+                                                                      @onclick:stopPropagation="true" />
+
+                                                    </Template>
+                                                </RadzenDataGridColumn>
+                                            </Columns>
+                                        </RadzenDataGrid>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-6">
+                                <RadzenTemplateForm Data="saveTaskResponse " Visible="@(saveTaskResponse  != null)" TItem="TaskResponseVM" Submit="@FormSubmit">
+                                    <div class="row">
+
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Status")" Component="TaskStatusId" Style="width: 100%" />
+                                                <RadzenDropDown Data="@GetTaskStatus"
+                                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                                AllowClear="true"
+                                                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "NameEn": "NameAr")"
+                                                                ValueProperty="TaskStatusId"
+                                                                Style="display:block;"
+                                                                Placeholder="@translationState.Translate("Select")"
+                                                                @bind-Value="@saveTaskResponse.TaskResponse.TaskResponeStatusId"
+                                                                Name="TaskStatusId"
+                                                                Change=@ResponeStatusChange />
+
+                                                <RadzenRequiredValidator Component="TaskStatusId" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+
+                                                <RadzenLabel Text="@translationState.Translate("Reason")" Component="Reason" />
+                                                <RadzenTextArea Cols="30"
+                                                                Rows="2"
+                                                                class="w-100"
+                                                                Placeholder="Reason of response"
+                                                                @bind-Value="saveTaskResponse.TaskResponse.Reason"
+                                                                Name="Reason"
+                                                                Disabled="@isDisabled" /> 
+                                                @if (isDisabled == false)
+                                                {
+                                                    <RadzenLengthValidator Component="Reason" Min="2" Text="@translationState.Translate("Reason_MinLength_Required")" />
+                                                    <RadzenLengthValidator Component="Reason" Max="55" Text="@translationState.Translate("Reason_MaxLength_Required")" />
+                                                }
+
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Attachment")" Component="Attachment" />
+                                                <FileUpload ReferenceGuid="saveTaskResponse.TaskResponse.TaskResponseId"
+                                                            @bind-DeletedAttachementIds="@saveTaskResponse.DeletedAttachementIds"
+                                                            Multiple="true"
+                                                            MaxFileSize="26214400"
+                                                            FileTypes="@( new List<string>() { ".pdf" } )"
+                                                            UploadFrom="Task Response"
+                                                            MandatoryAttachmentTypeId="(int)AttachmentTypeEnum.TaskResponse"
+                                                            ModuleId="(int)WorkflowModuleEnum.Task" />
+                                            </div>
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="col-md-11 d-flex justify-content-end tableAdditionButton p-0">
+                                                <RadzenButton Text="@translationState.Translate("Submit")"
+                                                              ButtonStyle="ButtonStyle.Primary"
+                                                              ButtonType="Radzen.ButtonType.Submit" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </RadzenTemplateForm>
+                            </div>
+
+                        </div>
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+        </div>
+    </ChildContent>
+</RadzenContent>

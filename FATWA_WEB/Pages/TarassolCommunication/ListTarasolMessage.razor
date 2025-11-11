@@ -1,0 +1,123 @@
+﻿@page "/tarasolmessages-list"
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs;
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Tarasol_Messages")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Employees")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Tarasol_Messages")" />
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end ">
+            </div>
+        </div>
+        <div class="row justify-content-center mainContentBlock py-4">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="row no-gutters">
+                    <div class="col-md-4 ">
+                       @* <RadzenTextBox class="searchBox"
+                                       Placeholder="@translationState.Translate("Grid_Search")"
+                                       Name="Textbox0"
+                                       @oninput="@(async(args) => {search = $"{args.Value}";await employeeGrid.GoToPage(0);await OnSearchInput();})" />*@
+                    </div>
+                    <div class="col-md-8 tableAdditionButton addPrincipleBtn px-0 pb-3">@*
+                        <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add_Employee")" Click="@AddEmployee" />
+                        <RadzenButton class="addBtn"
+                                      Icon="search"
+                                      Text="@translationState.Translate("Advanced_Search")"
+                                      Click="ToggleAdvanceSearch" />*@
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="row tableContent table-responsive py-4 no-gutters pb-3">
+                    <RadzenCard>
+                        <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Server" Change=@OnTabChange>
+                            <Tabs>
+                                <RadzenTabsItem Text="@translationState.Translate("Correspondence_Payload")">
+                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                    @ref="communicationPayloadGrid"
+                                                    Count="@(TarasolRPAPayload != null ? TarasolRPAPayload.Count() : 0)"
+                                                    AllowPaging="true" ColumnWidth="230px"
+                                                    AllowSorting="true"
+                                                    Data="@TarasolRPAPayload"
+                                                    TItem="CommunicationTarasolRPAPayloadOutput"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="CommunicationTarasolRPAPayloadOutput" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="CommunicationTarasolRPAPayloadOutput" Property="SenderSiteName" Title="@translationState.Translate("Sender_SiteName")" Width="150px" />
+                                            <RadzenDataGridColumn TItem="CommunicationTarasolRPAPayloadOutput" Property="RecieverSiteName" Title="@translationState.Translate("Reciever_SiteName")" Width="150px" />
+                                            <RadzenDataGridColumn TItem="CommunicationTarasolRPAPayloadOutput" Property="SenderDepartmentSiteName" Title="@translationState.Translate("SenderDepartment_SiteName")" Width="150px" />
+                                            <RadzenDataGridColumn TItem="CommunicationTarasolRPAPayloadOutput" Property="RecieverDepartmentSiteName" Title="@translationState.Translate("RecieverDepartment_SiteName")" Width="150px" />
+                                            <RadzenDataGridColumn TItem="CommunicationTarasolRPAPayloadOutput" Property="Subject" Title="@translationState.Translate("Subject")" Width="150px" />
+                                            <RadzenDataGridColumn TItem="CommunicationTarasolRPAPayloadOutput" Property="Comments" Title="@translationState.Translate("Comments")" Width="150px" />
+                                            <RadzenDataGridColumn TItem="CommunicationTarasolRPAPayloadOutput" Property="LetterNumber" Title="@translationState.Translate("LetterNumber")" Width="200px" />
+                                            <RadzenDataGridColumn TItem="CommunicationTarasolRPAPayloadOutput" Property="SendingDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("SendingDate")" Width="200px" />
+                                            <RadzenDataGridColumn TItem="CommunicationTarasolRPAPayloadOutput" Property="RecievingDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("RecievingDate")" Width="200px" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </RadzenTabsItem>
+                                <RadzenTabsItem Text="@translationState.Translate("Document_Payload")">
+                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                    @ref="documentPayloadGrid"
+                                                    Count="@(DocumentPayload != null ? DocumentPayload.Count() : 0)"
+                                                    AllowPaging="true" ColumnWidth="230px"
+                                                    AllowSorting="true"
+                                                    Data="@DocumentPayload"
+                                                    TItem="CommunicationDocumentPayloadOutput"
+                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                    ShowPagingSummary="true">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="CommunicationDocumentPayloadOutput" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                
+                                            </RadzenDataGridColumn>
+                                            <RadzenDataGridColumn TItem="CommunicationDocumentPayloadOutput" Property="FileName" Title="@translationState.Translate("FileName")" Width="150px" />
+                                            <RadzenDataGridColumn TItem="CommunicationDocumentPayloadOutput" Property="CommunicationGuid" Title="@translationState.Translate("CommunicationGuid")" />
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </RadzenTabsItem>
+                            </Tabs>
+                        </RadzenTabs>
+                    </RadzenCard>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

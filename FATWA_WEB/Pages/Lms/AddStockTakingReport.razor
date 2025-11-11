@@ -1,0 +1,280 @@
+﻿@page "/stocktaking-add"
+@page "/stocktaking-add/{StockTakingId}"
+@using Append.Blazor.Printing
+@using FATWA_DOMAIN.Models.ViewModel.Lms
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@inject IPrintingService PrintingService
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Create_StockTaking_Report")</PageTitle>
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.Literatures.AddStockTaking").Any())
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/stocktaking-list" Text="@translationState.Translate("StockTaking_List")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Create_StockTaking_Report")" />
+                    </RadzenBreadCrumb>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Create_StockTaking_Report")"></RadzenHeading>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock no-gutters p-0">
+                <div class="col-md-12">
+                    <div class="row pb-2">
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("StockTaking_Date")</label>
+                                    <div class="k-form-field-wrap">
+                                        <TelerikDatePicker Format="dd/MM/yyyy" Placeholder="@translationState.Translate("StockTaking_Date")" Min="@Min" Max="@Max" @bind-Value="@saveStockTaking.stockTaking.StockTakingDate"></TelerikDatePicker>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("Status")</label>
+                                    <div class="k-form-field-wrap">
+                                        <RadzenDropDown Data="@StockTakingStatuses"
+                                                        ValueProperty="Id"
+                                                        TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        Style="display:block;"
+                                                        Name="Status"
+                                                        Disabled="true"
+                                        @bind-Value="saveStockTaking.stockTaking.StatusId"
+                                                        AllowFiltering="true"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        AllowClear="true" />
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("Total_No_Of_Books")</label>
+                                    <div class="k-form-field-wrap">
+                                        <RadzenNumeric ShowUpDown="false" Disabled="true" @bind-Value="saveStockTaking.stockTaking.TotalBooks"></RadzenNumeric>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row pb-2">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="k-form-field">
+                                <div class="k-form-field-wrap">
+                                    <label for="ccs" class="k-label k-form-label">@translationState.Translate("Note")</label>
+                                    <div class="k-form-field-wrap">
+                                        <RadzenTextArea @bind-Value="saveStockTaking.stockTaking.Note" Class="w-100"></RadzenTextArea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid0"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(saveStockTaking.lmsStockTakingBooksReportListVms != null ? saveStockTaking.lmsStockTakingBooksReportListVms.Count() : 0)"
+                                        AllowPaging="true"
+                                        Data="@saveStockTaking.lmsStockTakingBooksReportListVms"
+                                        TItem="LmsStockTakingBooksReportListVm"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        CellRender="CellRender"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="LmsStockTakingBooksReportListVm" Context="item" Filterable="false" Sortable="false" TextAlign="Radzen.TextAlign.Center" Width="150px" Title="@translationState.Translate("Action")">
+                                    <Template Context="item">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      class="editIcon"
+                                                      Icon="mode"
+                                                      Title="@translationState.Translate("Edit")"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => EditOptionRow(item))"
+                                        @onclick:stopPropagation="true" />
+                                    </Template>
+                                    <EditTemplate Context="condition">
+                                        <RadzenButton Icon="check"
+                                                      ButtonStyle="ButtonStyle.Danger"
+                                                      Style="background-color: #736356;"
+                                                      class="m-1"
+                                                      Click="@((args) => SaveRow(condition))"></RadzenButton>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LmsStockTakingBooksReportListVm" Property="BookName" Title="@translationState.Translate("Book_Name")" />
+                                <RadzenDataGridColumn TItem="LmsStockTakingBooksReportListVm" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AuthorNameEn" : "AuthorNameAr") Title="@translationState.Translate("Author")" />
+                                <RadzenDataGridColumn TItem="LmsStockTakingBooksReportListVm" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "IndexNameEn" : "IndexNameAr") Title="@translationState.Translate("Book_Index")" />
+                                <RadzenDataGridColumn TItem="LmsStockTakingBooksReportListVm" Property="RFIDValue" Title="@translationState.Translate("RFID_Value")" />
+                                <RadzenDataGridColumn TItem="LmsStockTakingBooksReportListVm" Property="BarCodeNumber" Title="@translationState.Translate("Barcode_No")" />
+                                <RadzenDataGridColumn TItem="LmsStockTakingBooksReportListVm" Property="CopiesNotBorrowed" Title="@translationState.Translate("Total_Copies_Not_Borrowed")" />
+                                <RadzenDataGridColumn TItem="LmsStockTakingBooksReportListVm" Property="CopiesBorrowed" Title="@translationState.Translate("Total_Copies_Borrowed")" />
+                                <RadzenDataGridColumn TItem="LmsStockTakingBooksReportListVm" Title="@translationState.Translate("Excess_Shortage")">
+                                    <Template Context="item">
+                                        <div>
+                                            @{
+                                                if (item.Excess != null)
+                                                {
+                                                    @item.Excess
+                                                }
+                                                else if (item.Shortage != null)
+                                                {
+                                                    @(item.Shortage)
+                                                }
+                                            }
+                                        </div>
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LmsStockTakingBooksReportListVm" Width="300px" Property="Remarks" Title="@translationState.Translate("Remarks")">
+                                    <EditTemplate Context="Item">
+                                        <RadzenTextArea id="input1" TValue="string" @bind-Value="@Item.Remarks"></RadzenTextArea>
+                                    </EditTemplate>
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                    @if (isReportPrinted)
+                    {
+                        <div class="row">
+                            <div class="col-md-12">
+                                <FileUpload ReferenceGuid="saveStockTaking.stockTaking.Id"
+                                            IsViewOnly="true"
+                                            ModuleId="(int)WorkflowModuleEnum.LMSLiterature" />
+                            </div>
+                        </div>
+                    }
+
+                </div>
+            </div>
+            <div class="buttoncontainer">
+                <input type="checkbox" id="toggle" />
+                <label class="floatingbutton" for="toggle"></label>
+                <nav class="nav">
+                    <ul>
+                        <TelerikButton Class="cancleBtn"
+                                       ButtonType="Telerik.Blazor.ButtonType.Button"
+                                       ThemeColor="light"
+                                       Enabled=@(IsGenerateListEnabled)
+                                       OnClick="@(args => GetLmsBookStockTakingReportList(null))">
+                            @translationState.Translate("Generate_Book_List")
+                        </TelerikButton>
+                        <TelerikButton Class="cancleBtn text-wrap"
+                                       ButtonType="Telerik.Blazor.ButtonType.Button"
+                                       ThemeColor="light"
+                                       Enabled=@(isListGenerated == false ? false : true)
+                                       OnClick="@ImportListAndCompare">
+                            @translationState.Translate("Import_List_And_Compare")
+                        </TelerikButton>
+                        <TelerikButton Class="cancleBtn"
+                                       ButtonType="Telerik.Blazor.ButtonType.Button"
+                                       ThemeColor="light"
+                                       Enabled=@(isPrintEnabled)
+                                       OnClick="@PrintStockTakingReport">
+                            @translationState.Translate("Print_Report")
+                        </TelerikButton>
+                        <TelerikButton Class="cancleBtn"
+                                       ButtonType="Telerik.Blazor.ButtonType.Button"
+                                       ThemeColor="light"
+                                       Enabled=@(isSubmitEnabled)
+                                       OnClick="@SubmitStockTakingReport">
+                            @translationState.Translate("Save")
+                        </TelerikButton>
+                        @if (StockTakingId != null)
+                        {
+                            <TelerikButton Class="cancleBtn"
+                                           ButtonType="Telerik.Blazor.ButtonType.Button"
+                                           ThemeColor="light"
+                                           Enabled=@(isApproveEnabled)
+                                           OnClick="@ApproveReport">
+                                @translationState.Translate("Approve_Report")
+                            </TelerikButton>
+                            <TelerikButton Class="cancleBtn"
+                                           ButtonType="Telerik.Blazor.ButtonType.Button"
+                                           ThemeColor="light"
+                                           OnClick="@DeleteReport">
+                                @translationState.Translate("Delete_Report")
+                            </TelerikButton>
+                        }
+                        <TelerikButton Class="cancleBtn"
+                                       ButtonType="Telerik.Blazor.ButtonType.Button"
+                                       ThemeColor="light"
+                                       OnClick="@RedirectBack">
+                            @translationState.Translate("Back")
+                        </TelerikButton>
+
+                    </ul>
+                </nav>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+@code
+{
+    string Remarks = "";
+    async Task OnClickInsertRemarks(LmsStockTakingBooksReportListVm args)
+    {
+        Remarks = args.Remarks;
+        await dialogService.OpenAsync("Remarks", ds =>
+    @<div class="row pt-2 pb-2">
+        <div class="col-md-12">
+            <div class="row pb-2">
+                <RadzenTextArea @bind-Value="@Remarks" Class="w-100"></RadzenTextArea>
+            </div>
+            <div class="row justify-content-end">
+                <RadzenButton ButtonType="Radzen.ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Click="@(() => SaveRemarks(args))" Text="@translationState.Translate("Save")">
+                </RadzenButton>
+            </div>
+        </div>
+    </div>
+    );
+    }
+    async Task SaveRemarks(LmsStockTakingBooksReportListVm args)
+    {
+        if (!string.IsNullOrEmpty(Remarks))
+        {
+            args.Remarks = Remarks;
+            Remarks = "";
+            dialogService.Close();
+        }
+    }
+}

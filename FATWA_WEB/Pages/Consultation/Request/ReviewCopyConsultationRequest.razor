@@ -1,0 +1,1013 @@
+﻿@page "/ConsultationRequest-copy-review/{SectorTypeId}/{ConsultationRequestId}"
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs
+@using FATWA_DOMAIN.Models.ViewModel.ConsultationVMs
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Consultation_Requests_Detail")</PageTitle>
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/consultationrequest-list" Text="@translationState.Translate("Consultation_Request")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Consultation_Requests_Detail")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Consultation_Requests_Detail")" />
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center mainContentBlock no-gutters bg-light p-0 tab-webkit-fill">
+            <div class="col-md-12">
+                <RadzenTabs TabPosition="Radzen.TabPosition.Top" style="margin: 15px auto;" RenderMode="TabRenderMode.Server">
+                    <Tabs>
+                        <RadzenTabsItem Text="@translationState.Translate("Consultation_Info")">
+                            <RadzenAccordion Multiple="true">
+                                <Items>
+                                    @if (SectorTypeIdCheck == (int)OperatingSectorTypeEnum.Contracts)
+                                    {
+                                        <RadzenAccordionItem Text="@translationState.Translate("Request_Details")" Selected="true">
+                                            <div class="row no-gutters">
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Request_Number")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@consultationRequestVM.RequestNumber</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Request_Date")</h3>
+                                                    </div>
+
+                                                    <div class="detailContent">
+                                                        <h3>@consultationRequestVM?.RequestDate?.ToString("dd/MM/yyyy")</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Request_Status")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.requestStatusEn : consultationRequestVM?.requestStatusAr)</h3>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Goverment_Entity")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.gvtEntityEn : consultationRequestVM?.gvtEntityAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Department")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.departmentEn : consultationRequestVM?.departmentAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Type_Request")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.contractSubTypeEn : consultationRequestVM?.contractSubTypeAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Reference_Number")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.ReferenceNo
+                                                                )
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Reference_Date")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.ReferenceDate?.ToString("dd/MM/yyyy")
+                                                                )
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Priority")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.priorityEn : consultationRequestVM?.priorityAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Subject")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.Subject
+                                                                )
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                @if (SectorTypeIdCheck == (int)OperatingSectorTypeEnum.Contracts)
+                                                {
+                                                    <div class="col-6 detailSection">
+                                                        <div class="detailHeading">
+                                                            <h3>@translationState.Translate("Type_Of_Contract")</h3>
+                                                        </div>
+                                                        <div class="detailContent">
+                                                            <h3>
+                                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.contractSubTypeEn : consultationRequestVM?.contractSubTypeAr)
+                                                            </h3>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+
+                                                }
+
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Request_Title")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.RequestTitle)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Is_Confidential")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        @*<h3>
+                                                    (consultationRequestVM?.IsConfidential)
+                                                    </h3>*@
+                                                        @if (@consultationRequestVM?.IsConfidential == true)
+                                                        {
+                                                            <h3 class="myoverflow" Title="yes">@translationState.Translate("Yes")</h3>
+                                                        }
+                                                        else
+                                                        {
+                                                            <h3 class="myoverflow" Title="No">@translationState.Translate("No")</h3>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                @if (SectorTypeIdCheck == (int)OperatingSectorTypeEnum.Contracts)
+                                                {
+                                                    <div class="col-6 detailSection">
+                                                        <div class="detailHeading">
+                                                            <h3>@translationState.Translate("Contract_Amount_75000KD")</h3>
+                                                        </div>
+                                                        <div class="detailContent">
+                                                            <h3>@(consultationRequestVM?.ContractAmount75000KD)</h3>
+                                                        </div>
+                                                    </div>
+                                                }
+                                                else
+                                                {
+
+                                                }
+                                                <div class="col-12 detailSection">
+                                                    <div class="detailHeading detailAlignment">
+                                                        <h3>@translationState.Translate("Remarks")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.Remarks)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 detailSection">
+                                                    <div class="detailHeading detailAlignment">
+                                                        <h3>@translationState.Translate("Govermemt_Opinion")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM.GEOpinion)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </RadzenAccordionItem>
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                    @if (SectorTypeIdCheck == (int)OperatingSectorTypeEnum.Legislations)
+                                    {
+                                        <RadzenAccordionItem Text="@translationState.Translate("Request_Details")" Selected="true">
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Type_Request")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.contractSubTypeEn : consultationRequestVM?.contractSubTypeAr)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Request_Number")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.RequestNumber)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Subject")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.Subject)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Reference_Number")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.ReferenceNo)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Reference_Date")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.ReferenceDate?.ToString("dd/MM/yyyy"))
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("IsConfidential")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.IsConfidential)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 detailSection">
+                                                <div class="col-2 detailHeading">
+                                                    <h3>@translationState.Translate("Goverment_Opinion")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.GEOpinion)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 detailSection">
+                                                <div class="col-2 detailHeading">
+                                                    <h3>@translationState.Translate("Description")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.Description)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                        </RadzenAccordionItem>
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                    @if (SectorTypeIdCheck == (int)OperatingSectorTypeEnum.AdministrativeComplaints)
+                                    {
+                                        <RadzenAccordionItem Text="@translationState.Translate("Request_Details")" Selected="true">
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Type_Request")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.contractSubTypeEn : consultationRequestVM?.contractSubTypeAr)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Request_Number")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.RequestNumber)
+                                                    </h3>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Subject")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.Subject)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Reference_Number")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.ReferenceNo)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Reference_Date")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.ReferenceDate?.ToString("dd/MM/yyyy"))
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("IsConfidential")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.IsConfidential)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Complainant_Name")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.IsConfidential)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Complaint_Against")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.IsConfidential)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 detailSection">
+                                                <div class="detailHeading">
+                                                    <h3>@translationState.Translate("Authority_Decision")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.IsConfidential)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 detailSection">
+                                                <div class="col-2 detailHeading">
+                                                    <h3>@translationState.Translate("Remarks")</h3>
+                                                </div>
+                                                <div class="detailContent">
+                                                    <h3>
+                                                        @(consultationRequestVM?.Remarks)
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                        </RadzenAccordionItem>
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                    @if (SectorTypeIdCheck == (int)OperatingSectorTypeEnum.LegalAdvice)
+                                    {
+                                        <RadzenAccordionItem Text="@translationState.Translate("Request_Details")" Selected="true">
+                                            <div class="row no-gutters">
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Request_Number")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@consultationRequestVM.RequestNumber</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Request_Status")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.requestStatusEn : consultationRequestVM?.requestStatusAr)</h3>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Goverment_Entity")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.gvtEntityEn : consultationRequestVM?.gvtEntityAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Department")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.departmentEn : consultationRequestVM?.departmentAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Type_Request")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.contractSubTypeEn : consultationRequestVM?.contractSubTypeAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Priority")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.priorityEn : consultationRequestVM?.priorityAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Subject")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.Subject
+                                                                )
+                                                        </h3>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Request_Title")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.RequestTitle
+                                                                )
+                                                        </h3>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Is_Confidential")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        @*<h3>
+                                                    @(consultationRequestVM?.IsConfidential)
+                                                    </h3>*@
+                                                        @if (@consultationRequestVM?.IsConfidential == true)
+                                                        {
+                                                            <h3 class="myoverflow" Title="yes">@translationState.Translate("Yes")</h3>
+                                                        }
+                                                        else
+                                                        {
+                                                            <h3 class="myoverflow" Title="No">@translationState.Translate("No")</h3>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 detailSection">
+                                                    <div class="col-2 detailHeading">
+                                                        <h3>@translationState.Translate("Remarks")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.Remarks
+                                                                )
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 detailSection">
+                                                    <div class="col-2 detailHeading">
+                                                        <h3>@translationState.Translate("Govermemt_Opinion")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM.GEOpinion
+                                                                )
+                                                        </h3>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </RadzenAccordionItem>
+                                    }
+
+
+                                    @if (SectorTypeIdCheck == (int)OperatingSectorTypeEnum.InternationalArbitration)
+                                    {
+                                        <RadzenAccordionItem Text="@translationState.Translate("Request_Details")" Selected="true">
+                                            <div class="row no-gutters">
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Request_Number")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@consultationRequestVM.RequestNumber</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Request_Date")</h3>
+                                                    </div>
+
+                                                    <div class="detailContent">
+                                                        <h3>@consultationRequestVM?.RequestDate?.ToString("dd/MM/yyyy")</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Goverment_Entity")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.gvtEntityEn : consultationRequestVM?.gvtEntityAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Department")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.departmentEn : consultationRequestVM?.departmentAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Type_Request")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.contractSubTypeEn : consultationRequestVM?.contractSubTypeAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Reference_Number")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.ReferenceNo
+                                                                )
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Reference_Date")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.ReferenceDate?.ToString("dd/MM/yyyy")
+                                                                )
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Priority")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? consultationRequestVM?.priorityEn : consultationRequestVM?.priorityAr)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Subject")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.Subject
+                                                                )
+                                                        </h3>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Request_Title")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.RequestTitle)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Is_Confidential")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        @*<h3>
+                                                    @(consultationRequestVM?.IsConfidential )
+                                                    </h3>*@
+                                                        @if (@consultationRequestVM?.IsConfidential == true)
+                                                        {
+                                                            <h3 class="myoverflow" Title="yes">@translationState.Translate("Yes")</h3>
+                                                        }
+                                                        else
+                                                        {
+                                                            <h3 class="myoverflow" Title="No">@translationState.Translate("No")</h3>
+                                                        }
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 detailSection">
+                                                    <div class="col-2 detailHeading">
+                                                        <h3>@translationState.Translate("Remarks")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM?.Remarks)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 detailSection">
+                                                    <div class="col-2 detailHeading">
+                                                        <h3>@translationState.Translate("Govermemt_Opinion")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>
+                                                            @(
+                                                                consultationRequestVM.GEOpinion)
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </RadzenAccordionItem>
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                    @if (SectorTypeIdCheck == (int)OperatingSectorTypeEnum.Contracts)
+                                    {
+
+                                        <RadzenAccordionItem Text="@translationState.Translate("Parties")">
+                                            <div class="row pb-2 pt-4">
+                                                <div class="col-12 datagrid-rz-label">
+                                                    <div class="row tableContent table-responsive no-gutters pb-3 ">
+                                                        <div class="row no-gutters">
+
+                                                            <RadzenDataGrid @ref="consultationPartyGrid"
+                                                                            AllowPaging="true"
+                                                                            PageSize="5"
+                                                                            Data="@consultationPartyVM"
+                                                                            TItem="ConsultationPartyListVM">
+                                                                <Columns>
+                                                                    <RadzenDataGridColumn TItem="ConsultationPartyListVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center" />
+                                                                    <RadzenDataGridColumn TItem="ConsultationPartyListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "PartyTypeEn" : "PartyTypeAr") Title="@translationState.Translate("Party_Type")" />
+                                                                    <RadzenDataGridColumn TItem="ConsultationPartyListVM" Property="Designation" Title="@translationState.Translate("Name")" />
+                                                                    <RadzenDataGridColumn TItem="ConsultationPartyListVM" Property="CivilID_CRN" Title="@translationState.Translate("CivilId_CRN")" />
+                                                                    <RadzenDataGridColumn TItem="ConsultationPartyListVM" Property="RepresentativeName" Title="@translationState.Translate("Representative")" />
+                                                                </Columns>
+                                                            </RadzenDataGrid>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </RadzenAccordionItem>
+                                    }
+                                    else
+                                    {
+
+                                    }
+
+                                    @if (SectorTypeIdCheck == (int)OperatingSectorTypeEnum.Contracts || SectorTypeIdCheck == (int)OperatingSectorTypeEnum.LegalAdvice ||
+                                    SectorTypeIdCheck == (int)OperatingSectorTypeEnum.Legislations || SectorTypeIdCheck == (int)OperatingSectorTypeEnum.InternationalArbitration)
+                                    {
+                                        <RadzenAccordionItem Text="@translationState.Translate("List_Documents")">
+                                            <FileUpload ReferenceGuid="Guid.Parse(ConsultationRequestId)"
+                                                        IsViewOnly="true"
+                                                        IsCaseRequest="true"
+                                                        ModuleId="(int)WorkflowModuleEnum.COMSConsultationManagement" />
+                                        </RadzenAccordionItem>
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                </Items>
+                            </RadzenAccordion>
+
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@translationState.Translate("Communication")">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <RadzenFieldset AllowCollapse="false">
+                                        <HeaderTemplate>
+                                            <span class="d-inline-flex align-items-center align-left">
+                                                <RadzenIcon Class="me-1" /><b>@translationState.Translate("Activity")</b>
+                                            </span>
+                                        </HeaderTemplate>
+                                        <ChildContent>
+                                            <div class="row no-gutters ">
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Request_Number")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@consultationRequestVM.RequestNumber</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="col-6 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Subject")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@consultationRequestVM.Subject</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row no-gutters">
+                                                <div class="col-12 detailSection">
+                                                    <div class="detailHeading">
+                                                        <h3>@translationState.Translate("Activity")</h3>
+                                                    </div>
+                                                    <div class="detailContent">
+                                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? ActivityEn : ActivityAr)</h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </ChildContent>
+                                    </RadzenFieldset>
+                                </div>
+                            </div>
+                            <RadzenAccordion>
+                                <Items>
+                                    <RadzenAccordionItem Text="@translationState.Translate("Communication")" Selected="true">
+                                        <div class="row pb-2">
+                                            <div class="col-12 datagrid-rz-label">
+                                                <div class="ow tableContent table-responsive no-gutters pb-3 ">
+                                                    <RadzenDataGrid @ref="CommunicationGrid"
+                                                                    AllowPaging="true"
+                                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                                    ColumnWidth="170px"
+                                                                    Data="@communicationListVm"
+                                                                    TItem="CommunicationListVM"
+                                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                                    Width="100%"
+                                                                    AllowFiltering="false"
+                                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                                    AllowSorting="true"
+                                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                                        <Columns>
+                                                            <RadzenDataGridColumn TItem="CommunicationListVM" Title="@translationState.Translate("Action")"
+                                                                                  Filterable="false"
+                                                                                  Sortable="false"
+                                                                                  Width="100px"
+                                                                                  TextAlign="TextAlign.Center">
+                                                                <Template Context="rowItem">
+                                                                    @if (rowItem.IsRead != true)
+                                                                    {
+                                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                                      Icon="visibility"
+                                                                                      Size="ButtonSize.Small"
+                                                                                      Click="@((args) => ViewResponse(rowItem))"
+                                                                                      @onclick:stopPropagation="true" />
+
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        <RadzenButton Style="background-color: #06be3d !important;" ButtonStyle="ButtonStyle.Secondary"
+                                                                                      Icon="visibility"
+                                                                                      Size="ButtonSize.Small"
+                                                                                      Click="@((args) => ViewResponse(rowItem))"
+                                                                                      @onclick:stopPropagation="true" />
+                                                                    }
+
+                                                                </Template>
+                                                            </RadzenDataGridColumn>
+
+                                                            <RadzenDataGridColumn TItem="CommunicationListVM" Property="GeReferenceNo" Title="@translationState.Translate("InboxNo")" />
+                                                            <RadzenDataGridColumn TItem="CommunicationListVM" Property="GeReferenceDate" Title="@translationState.Translate("InboxDate")" FormatString="{0:dd/MM/yyyy}" />
+                                                            <RadzenDataGridColumn TItem="CommunicationListVM" Property="FatwaReferenceNo" Title="@translationState.Translate("OutboxNo")" />
+                                                            <RadzenDataGridColumn TItem="CommunicationListVM" Property="FatwaReferenceDate" Title="@translationState.Translate("OutboxDate")" FormatString="{0:dd/MM/yyyy}" />
+                                                            <RadzenDataGridColumn TItem="CommunicationListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CorrespondenceTypeEn" : "CorrespondenceTypeAr") Title="@translationState.Translate("Correspondence_Type")" />
+                                                            <RadzenDataGridColumn TItem="CommunicationListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Activity_En" : "Activity_Ar") Title="@translationState.Translate("Activity_Title")" />
+                                                            <RadzenDataGridColumn TItem="CommunicationListVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")" />
+                                                            <RadzenDataGridColumn TItem="CommunicationListVM" Property="CreatedBy" Title="@translationState.Translate("Initiated_By")" />
+                                                            <RadzenDataGridColumn TItem="CommunicationListVM" Property="Remarks" Title="@translationState.Translate("Remarks")">
+                                                                <Template Context="remarks">
+                                                                    @if (remarks.Remarks != null)
+                                                                    {
+                                                                        @if (remarks.Remarks.Length > 40)
+                                                                        {
+                                                                            @remarks.Remarks.Substring(0, 40) <a href="#" @onclick="@(() => OnDescriptionFullRemarksDetail(remarks.Remarks))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            @remarks.Remarks
+                                                                        }
+                                                                    }
+                                                                </Template>
+                                                            </RadzenDataGridColumn>
+                                                        </Columns>
+                                                    </RadzenDataGrid>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </RadzenAccordionItem>
+
+                                </Items>
+                            </RadzenAccordion>
+
+                        </RadzenTabsItem>
+                        <RadzenTabsItem Text="@translationState.Translate("History_Details")">
+                            <RadzenAccordion>
+                                <Items>
+                                    <RadzenAccordionItem Text="@translationState.Translate("History_Details")" Selected="true">
+                                        <div class="row pb-2">
+                                            <div class="col-12 datagrid-rz-label">
+                                                <div class="tableContent table-responsive no-gutters pb-3 ">
+                                                    <RadzenDataGrid @ref="HistoryGrid"
+                                                                    AllowPaging="true"
+                                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                                    Data="@cmsConsultationRequestHistory"
+                                                                    TItem="ComsConsultationRequestHistoryVM"
+                                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                                    Width="100%"
+                                                                    AllowFiltering="false"
+                                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                                    AllowSorting="true"
+                                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                                        <Columns>
+                                                            <RadzenDataGridColumn TItem="ComsConsultationRequestHistoryVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EventEn" : "EventAr") Title="@translationState.Translate("Event")">
+                                                            </RadzenDataGridColumn>
+                                                            <RadzenDataGridColumn TItem="ComsConsultationRequestHistoryVM" Property="CreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Date")" />
+                                                            <RadzenDataGridColumn TItem="ComsConsultationRequestHistoryVM" Property="Remarks" Title="@translationState.Translate("Remarks")">
+                                                                <Template Context="remarks">
+                                                                    @if (remarks.Remarks != null)
+                                                                    {
+                                                                        @if (remarks.Remarks.Length > 40)
+                                                                        {
+                                                                            @remarks.Remarks.Substring(0, 40) <a href="#" @onclick="@(() => OnDescriptionFullRemarksDetail(remarks.Remarks))" @onclick:preventDefault>@translationState.Translate("Role_Description_3_dot")</a>
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            @remarks.Remarks
+                                                                        }
+                                                                    }
+                                                                </Template>
+                                                            </RadzenDataGridColumn>
+
+                                                        </Columns>
+                                                    </RadzenDataGrid>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </RadzenAccordionItem>
+
+                                </Items>
+                            </RadzenAccordion>
+                        </RadzenTabsItem>
+                    </Tabs>
+                </RadzenTabs>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <RadzenCard>
+                    <div class="row">
+                        <div class="col-12 px-5">
+                            <RadzenLabel Text="@translationState.Translate("Reason")" Component="Remarks" style="width: 100%"> </RadzenLabel>
+                            <RadzenTextArea Placeholder="@translationState.Translate("Reason")" Name="Remarks" Disabled="true" @bind-Value="@(approvalTracking.Remarks)" Rows="3" class="w-100" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 d-flex justify-content-end tableAdditionButton px-5 pb-2 pt-4">
+                            <RadzenButton Text="@translationState.Translate("Reject")"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Style="margin-left: 1rem"
+                                          Disabled="@(approvalTracking.StatusId != (int)ApprovalStatusEnum.Pending)"
+                                          Click="@RejectSendACopyComs" />
+                            <RadzenButton Text="@translationState.Translate("Approve")"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          Click="@ApproveSendACopyComs"
+                                          Disabled="@(approvalTracking.StatusId != (int)ApprovalStatusEnum.Pending)"
+                                          ButtonType="Radzen.ButtonType.Submit" />
+                        </div>
+                    </div>
+                </RadzenCard>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+@code
+{
+    async Task OnDescriptionFullRemarksDetail(string args)
+    {
+        await dialogService.OpenAsync(@translationState.Translate("Remarks"), ds =>
+    @<div>
+        <p class="mb-4" style="min-height:200px;min-width:550px;line-height:2.5">@args</p>
+    </div>);
+    }
+}

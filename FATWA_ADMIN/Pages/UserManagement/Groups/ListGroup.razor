@@ -1,0 +1,194 @@
+﻿@page "/groups"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using Radzen
+@using Radzen.Blazor
+<PageTitle>@translationState.Translate("User_Groups")</PageTitle>
+
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Menu.UMS"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("User_Groups")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("User_Groups")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row tableContent table-responsive no-gutters pb-3">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")"
+                                               Style="display: block; margin-bottom: 10px; width: 100%"
+                                               @oninput="@(async(args) => {await OnSearchInput($"{args.Value}"); await grid.GoToPage(0);  })" />
+                            </div>
+                            <div class="col-md-8 d-flex justify-content-end button-pair">
+                                <RadzenButton Icon="search"
+                                              Style="margin-bottom: 10px"
+                                              Text="@translationState.Translate("Advanced_Search")"
+                                              class="compareBtn"
+                                              Click="@ToggleAdvanceSearch" />
+                                <RadzenButton Icon="add_circle"
+                                              Style="margin-bottom: 10px"
+                                              Text="@translationState.Translate("Create_Group")"
+                                              class="compareBtn"
+                                              Click="@ButtonAddClick" />
+                            </div>
+                        </div>
+                        <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                        @ref="grid"
+                                        Data="@FilterUserGroupListVM"
+                                        TItem="UserGroupListVM"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        AllowFiltering="false"
+                                        ColumnWidth="200px"
+                                        SelectionMode="DataGridSelectionMode.Single"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        ShowPagingSummary="true"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        Count="@(FilterUserGroupListVM !=null ? FilterUserGroupListVM.Count() : 0)"
+                                        PageSize="@loginState.PageSize">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="UserGroupListVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="100px" TextAlign="TextAlign.Center">
+                                    <Template Context="GroupRowClick">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      Icon="edit"
+                                                      Size="ButtonSize.Small"
+                                                      Title="@translationState.Translate("Edit")"
+                                                      Click="@((args) =>GridEditButtonClick(args, GroupRowClick))"
+                                                      @onclick:stopPropagation="true" />
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                      Icon="info"
+                                                      Size="ButtonSize.Small"
+                                                      Title="@translationState.Translate("View_Detail")"
+                                                      Click="@((args) => GridViewListButtonClick(args,GroupRowClick))"
+                                                      @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="UserGroupListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "GroupNameEn" : "GroupNameEn")" Title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Group_Name_En" : "Group_Name_Ar")" />
+                                <RadzenDataGridColumn TItem="UserGroupListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DescriptionEn" : "DescriptionAr")" Title="@translationState.Translate(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Group_Description_En" : "Group_Description_Ar")" />
+                                <RadzenDataGridColumn TItem="UserGroupListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "GroupTypeNameEn" : "GroupTypeNameAr")" Title="@translationState.Translate("Group_Type")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </RadzenCard>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="false" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Sector_Type")" Component="OperatingSectorTypes" /> <br />
+                    <RadzenDropDown Data="@OperatingSectorTypes"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    ValueProperty="Id"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;"
+                                    @bind-Value="@advanceSearchVM.SectorId"
+                                    Name="OperatingSectorTypes"
+                                    Change="@PopulateEmployeesListDropdown" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Employee_Type")" Component="EmployeeType" /> <br />
+                    <RadzenDropDown Data="@EmployeeTypes"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    ValueProperty="Id"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;"
+                                    @bind-Value="@advanceSearchVM.EmployeeTypeId"
+                                    Name="EmployeeType"
+                                    Change="@PopulateEmployeesListDropdown" />
+                </div>
+            </div>
+            <div class="row mt-2">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@(translationState.Translate("Roles")+" ")" Component="UserRoles" />
+                    <RadzenDropDown Data="UserRoles"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    @bind-Value="advanceSearchVM.RoleId"
+                                    ValueProperty="Id"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name" : "NameAr")"
+                                    Name="UserRoles"
+                                    Style="display: block;"
+                                    Change="@PopulateEmployeesListDropdown" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@(translationState.Translate("Group_Users") + " *")" Component="UsersList" />
+                    <RadzenDropDown Data="EmployeesList"
+                                    title="@((advanceSearchVM.SectorId == null || advanceSearchVM.EmployeeTypeId == null) ? translationState.Translate("Select_Sector_And_Employee_Type") : string.Empty)"
+                                    AllowFiltering="true"
+                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    @bind-Value="UserId"
+                                    Change="(args => OnChangeUser(args))"
+                                    ValueProperty="UserId"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EmployeeNameEn" : "EmployeeNameAr")"
+                                    Name="UsersList"
+                                    Style="display: block;"
+                                    Disabled="@(advanceSearchVM.SectorId == null || advanceSearchVM.EmployeeTypeId == null)" />
+                </div>
+                <div class="col-md-6 mt-2">
+                    <RadzenLabel Text="@(translationState.Translate("Name"))" />
+                    <RadzenTextBox Placeholder="@translationState.Translate("Name")" @oninput="@OnInputSearchValue" @bind-Value="@advanceSearchVM.Name" />
+                </div>
+                <div class="col-md-12 d-flex button-pair popup-buttons-alignment justify-content-end mt-3">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" Disabled="@(IsSearchDisable)" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

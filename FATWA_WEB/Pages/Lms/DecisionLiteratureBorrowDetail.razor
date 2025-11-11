@@ -1,0 +1,61 @@
+﻿@page "/decision-literature-borrow-detail"
+@layout MainLayout
+<PageTitle>Decision Literature</PageTitle>
+@using FATWA_DOMAIN.Models
+@using static FATWA_DOMAIN.Enums.LiteratureEnum
+@using static FATWA_GENERAL.Helper.Enum
+
+ <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row">
+                <div class="col-md-12">
+                    <RadzenTemplateForm Data="@lmsliteratureborrowdetail" Visible="@(lmsliteratureborrowdetail != null)" TItem="LmsLiteratureBorrowDetail" Submit="@FormSubmit">
+                        <ChildContent>
+                            <div class="row">
+                                <div class="form-group">
+
+ @{
+                                        if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.LiteratureBorrowDetail.BorrowApprovalStatusDiv").Count() > 0)
+                                        {
+                                            if (isPendingOrApprovedStatus)
+                                            {
+
+                                                <div class="row formContentSection">
+                                                    <div class="col">
+                                                        <div class="NT-sub-div">
+
+                                                            <p class="NT-label">@translationState.Translate("Decision")</p>
+                                                            <RadzenDropDown class="NT-grid" @bind-Value="@(lmsliteratureborrowdetail.BorrowApprovalStatus)"
+                                                             Name="DecisionId"  
+                                                                    Data="@getExcludedLiteratureBorrowApprovalType"
+                                                                    AllowClear="true"
+                                                                    Style="display: block; width: 100%"
+                                                                    TextProperty ="Name"
+                                                                    ValueProperty ="DecisionId"
+                                                                    Placeholder="@translationState.Translate("Select_Resolution")" />
+                                                        <RadzenRequiredValidator Component="DecisionId" Text="@translationState.Translate("Required_Field")" DefaultValue="0" />
+
+
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                  <div class="row popup-buttons-alignment">
+                                <div class="col-12 p-0">
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" Text="@translationState.Translate("Save")" ButtonStyle="ButtonStyle.Primary" />
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@Button2Click" />
+                                </div>
+                            </div>
+
+                                            }
+                                        }
+                                    }
+
+                                         </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenTemplateForm>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>

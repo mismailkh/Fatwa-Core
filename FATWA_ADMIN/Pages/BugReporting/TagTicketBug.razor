@@ -1,0 +1,224 @@
+﻿@using FATWA_DOMAIN.Models.ViewModel.AdminVM.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel.BugReportingVMs
+@using static FATWA_DOMAIN.Enums.BugReporting.BugReportingEnum
+
+@layout MainLayout
+<RadzenTemplateForm Data="@ticketAssignment" TItem="TicketAssignmentVM" Submit="@FormSubmit">
+    <ChildContent>
+        <div class="row pb-2 px-3">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="rz-alert rz-alert-sm rz-variant-flat rz-warning rz-shade-lighter" aria-live="polite">
+                    <div class="rz-alert-item">
+                        <i style="" class="rzi rz-alert-icon" id="4zgarvf6ik" _bl_480="">info_outline</i>
+                        <div class="rz-alert-message">
+                            <div class="rz-alert-content">
+                                <p class="m-0">@translationState.Translate("Ticket_Related_To_Bug") <a href="javascript:void(0)"></a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row pb-2 px-3">
+            <RadzenFieldset AllowCollapse="false" Style="width:100%;">
+                <HeaderTemplate>
+                    <span class="d-inline-flex align-items-center align-middle">
+                        <b>@translationState.Translate("Related_Bugs")</b>
+                    </span>
+                </HeaderTemplate>
+                <ChildContent>
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="form-group">
+                                <RadzenDropDownDataGrid Data=@detailReportedBug
+                                                        Style="display: block; width: 100%"
+                                                        AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                                        AllowClear="true"
+                                                        @bind-Value=@ticketAssignment.BugId
+                                                        Placeholder="@translationState.Translate("Select")"
+                                                        TextProperty="PrimaryBugId"
+                                                        ValueProperty="Id"
+                                                        TValue="Guid"
+                                                        Name="Bug"
+                                                        Count=@(detailReportedBug != null ? detailReportedBug.Count() : 0)
+                                                        Disabled="BugId != Guid.Empty ? true : false"
+                                                        Change="@(args => OnChangeBug(args))"
+                                                        EmptyText="@translationState.Translate("No_record_found")"
+                                                        PagingSummaryFormat="@(PageSummaryFormat != null ? PageSummaryFormat : "")"
+                                                        ShowPagingSummary="true"
+                                                        PageNumbersCount="3"
+                                                        FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                        AllowFiltering="true"
+                                                        PageSize="5"
+                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                    <Columns>
+                                        <RadzenDropDownDataGridColumn Property="PrimaryBugId" Title="@translationState.Translate("Bug_Id")" Width="100px" />
+                                        <RadzenDropDownDataGridColumn Property="Subject" Title="@translationState.Translate("Subject")" Width="100px" />
+                                        <RadzenDropDownDataGridColumn Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US"?"IssueTypeEn":"IssueTypeAr") Title="@translationState.Translate("Issue_Type")" Width="150px" />
+                                    </Columns>
+                                </RadzenDropDownDataGrid>
+                            </div>
+                        </div>
+                    </div>
+                </ChildContent>
+            </RadzenFieldset>
+        </div>
+        <div class="row pb-2 px-3">
+            <RadzenFieldset AllowCollapse="false" Style="width:100%;">
+                <HeaderTemplate>
+                    <span class="d-inline-flex align-items-center align-middle">
+                        <b>@translationState.Translate("Properties_Of_Ticket")</b>
+                    </span>
+                </HeaderTemplate>
+                <ChildContent>
+
+                    <div class="row">
+                        <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                            <div class="form-group">
+                                <RadzenLabel Text="@(translationState.Translate("Issue_Type") + " *")" Component="IssueType" />
+                                <RadzenDropDown Data="@IssueTypes" AllowFiltering="true" AllowClear="true"
+                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                Change="@OnChangeIssueType" Disabled="ticketAssignment.BugId != Guid.Empty ? true : false" Style="display:block;" @bind-Value="@ticketAssignment.IssueTypeId" Name="IssueType" />
+                                <RadzenRequiredValidator DefaultValue="0" Component="IssueType" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                            <div class="form-group">
+                                <RadzenLabel Text="@(translationState.Translate("Application") + " *")" Component="Application" />
+                                <RadzenDropDown Data="@Applications" AllowFiltering="true" AllowClear="true"
+                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                Change="@OnChangeApplication" Disabled="ticketAssignment.BugId != Guid.Empty ? true : false" Style="display:block;" @bind-Value="@ticketAssignment.ApplicationId" Name="Application" />
+                                <RadzenRequiredValidator DefaultValue="0" Component="Application" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                            <div class="form-group">
+                                <RadzenLabel Text="@(translationState.Translate("Module") + " *")" Component="Module" />
+                                <RadzenDropDown Data="@Modules" AllowFiltering="true" AllowClear="true"
+                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                Disabled="ticketAssignment.BugId != Guid.Empty ? true : false" Style="display:block;" @bind-Value="@ticketAssignment.ModuleId" Name="Module" />
+                                <RadzenRequiredValidator DefaultValue="0" Component="Module" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                        </div>
+                        <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                            <div class="form-group">
+                                <RadzenLabel Text="@(translationState.Translate("Severity") + " *")" Component="Severity" />
+                                <RadzenDropDown Data="@Severities" AllowFiltering="true" AllowClear="true"
+                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Value_En" : "Value_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                Disabled="ticketAssignment.BugId != Guid.Empty || assignedModule.FirstOrDefault()?.SeverityId > 0 ? true : false" Style="display:block;" @bind-Value="@ticketAssignment.SeverityId" Name="Severity" />
+                                <RadzenRequiredValidator DefaultValue="0" Component="Severity" Text="@translationState.Translate("Required_Field")" />
+                            </div>
+                        </div>
+                    </div>
+                </ChildContent>
+            </RadzenFieldset>
+        </div>
+        <div class="row pb-2 px-3">
+            <RadzenFieldset AllowCollapse="false" Style="width:100%;">
+                <HeaderTemplate>
+                    <span class="d-inline-flex align-items-center align-middle">
+                        <b>@translationState.Translate("Assign_To_Support_Team")</b>
+                    </span>
+                </HeaderTemplate>
+                <ChildContent>
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="rz-p-12 rz-text-align-center">
+                                <RadzenRadioButtonList Change="@OnChangeOption" @bind-Value=@ticketAssignment.AssignmentTypeId TValue="int" class="mb-5">
+                                    <Items>
+                                        <RadzenRadioButtonListItem Style="padding-left: 1.5rem !important;" Text="@(translationState.Translate("Assign_To_User"))" Value="(int)AssingmentOptionEnums.User" />
+                                        <RadzenRadioButtonListItem Style="padding-left: 12rem !important;" Text="@(translationState.Translate("Assign_To_Group"))" Value="(int)AssingmentOptionEnums.Group" />
+                                    </Items>
+                                </RadzenRadioButtonList>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row justify-content-center pb-3">
+                        @if (ticketAssignment.AssignmentTypeId == (int)AssingmentOptionEnums.User)
+                        {
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@(translationState.Translate("Assign_To_User") + " *")" Component="User" />
+                                    <RadzenDropDown Data="@users"
+                                                    AllowFiltering="true"
+                                                    AllowClear="true"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar")"
+                                                    ValueProperty="UserId"
+                                                    Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;"
+                                                    @bind-Value="@ticketAssignment.UserId"
+                                                    Name="User">
+                                        <Template Context="data">
+                                            @{
+                                                var user = data as UserDataVM;
+                                            }
+                                            <div>
+                                                @(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? user.FullName_En : user.FullName_Ar),
+                                                @translationState.Translate("Total_Tickets"): @user.TotalTickets,
+                                                @translationState.Translate("Pending_Tickets"): @user.PendingTickets,
+                                                @translationState.Translate("Completed_Tickets"): @user.ClosedTickets
+                                            </div>
+                                        </Template>
+                                    </RadzenDropDown>
+                                    <RadzenRequiredValidator Component="User" Text="@translationState.Translate("Required_Field")" />
+                                </div>
+                            </div>
+
+                        }
+                        else if (ticketAssignment.AssignmentTypeId == (int)AssingmentOptionEnums.Group)
+                        {
+                            <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@(translationState.Translate("Assign_To_Group") + " *")" Component="Group" />
+                                    <RadzenDropDown Data="@Groups"
+                                                    AllowFiltering="true"
+                                                    FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                    AllowClear="true"
+                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                                    ValueProperty="GroupId"
+                                                    Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;"
+                                                    @bind-Value="@ticketAssignment.GroupId"
+                                                    Name="Groups" />
+                                    <RadzenRequiredValidator Component="Groups" Text="@translationState.Translate("Required_Field")" />
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="row pb-2">
+                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                            <div class="form-group claim-amount-field">
+                                <RadzenLabel Text="@(translationState.Translate("Remarks") + " *")" Component="Reason" />
+                                <RadzenTextArea Placeholder=@translationState.Translate("Remarks") Class="w-100" @bind-Value="ticketAssignment.Remarks" Min="1" Name="Reason" />
+                                <RadzenRegexValidator Component="Reason" Pattern="@RegexPatterns.NoSpacesTextAreaPattern" Text="@translationState.Translate("Cannot_have_trailing_spaces")" />
+                                <RadzenRequiredValidator Component="Reason" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+                                <RadzenLengthValidator Component="Reason" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")"></RadzenLengthValidator>
+                            </div>
+                        </div>
+                    </div>
+                </ChildContent>
+            </RadzenFieldset>
+        </div>
+        <div class="row">
+            <div class="col-12 p-3" style="text-align:end;">
+                <RadzenButton Text="@translationState.Translate("Submit")"
+                              ButtonStyle="ButtonStyle.Primary"
+                              style="margin-right: 0.2rem !important"
+                              ButtonType="Radzen.ButtonType.Submit" />
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              ButtonType="Radzen.ButtonType.Button"
+                              Click="@ButtonCancelClick" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>
+
+
+
+
+
+

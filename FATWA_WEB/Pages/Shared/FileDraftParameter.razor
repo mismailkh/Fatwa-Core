@@ -1,0 +1,13 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+@using static FATWA_DOMAIN.Enums.WorkflowParameterEnums
+
+@if (ParameterType == CaseTemplateParamsEnum.CmsTempOutboxDate || ParameterType == CaseTemplateParamsEnum.CmsTempStartDateforLawsuit || ParameterType == CaseTemplateParamsEnum.CmsTempHearingDate || ParameterType == CaseTemplateParamsEnum.CmsTempPreviousHearingDate || ParameterType == CaseTemplateParamsEnum.CmsTempExpertReportDate || ParameterType == CaseTemplateParamsEnum.CmsTempPostponedHearingDate || ParameterType == CaseTemplateParamsEnum.CmsTempExpectedHearingDate)
+{
+    <RadzenDatePicker @bind-Value="@ParamValue" DateFormat="dd/MM/yyyy" Class="w-100" Disabled="Disabled" Change="ValueChanged" />
+}
+else
+{
+    <RadzenTextBox Disabled="Disabled" @bind-Value="@ParamValue" Name="Document_Name" Change="ValueChanged" Class="@Class" />
+}

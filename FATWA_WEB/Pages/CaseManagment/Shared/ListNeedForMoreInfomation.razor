@@ -1,0 +1,169 @@
+﻿@page "/list-needformoreinfo/{ReferenceId}/{SubModuleId}/{SectorTypeId}"
+@layout MainLayout
+
+
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+@using static FATWA_DOMAIN.Enums.CommunicationEnums;
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+
+<PageTitle>@translationState.Translate("Need_More_Information")</PageTitle>
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Comm.NeedMoreInfo.List").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            @if (SubModuleid == (int)SubModuleEnum.CaseFile)
+                            {
+                                <RadzenBreadCrumbItem Path=@redirectUrl Text="@translationState.Translate("View_Case_File_Details")" />
+                            }
+                            else if (SubModuleid == (int)SubModuleEnum.RegisteredCase)
+                            {
+                                <RadzenBreadCrumbItem Path=@redirectUrl Text="@translationState.Translate("View_Case_Details")" />
+                            }
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("View_Details")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back")"
+                                      class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Legal_Notifications")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 d-flex">
+                            <RadzenTextBox class="searchBox"
+                                       Placeholder="@translationState.Translate("Grid_Search")"
+                                       Name="Textbox0"
+                                       @oninput="@(async(args) => {search = $"{args.Value}";
+				await grid.GoToPage(0);
+				await OnSearchInput();})" />
+                        </div>
+                        <div class="col-md-8 tableAdditionButton addPrincipleBtn px-0 d-flex justify-content-end pb-3">
+                            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Comm.NeedMoreInfo.Request").Count() > 0 && (SubModuleid >= (int)SubModuleEnum.CaseRequest && SubModuleid <= (int)SubModuleEnum.RegisteredCase))
+                            {
+                                <RadzenButton class="addBtn" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Legal_Notifications")" Click="@NeedMoreInfo" />
+                            }
+
+                            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.COMS.ConsultationFile.RequestMoreInfo").Any() && (SubModuleid >= (int)SubModuleEnum.ConsultationRequest && SubModuleid <= (int)SubModuleEnum.ConsultationFile))
+                            {
+
+                                <RadzenButton class="addBtn" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Legal_Notifications")" Click="@RequestMoreInfo" />
+
+                            }
+                            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.COMS.ConsultationFile.RequestMoreInfo").Any())
+                            {
+                                @*if ((int)SectorTypeId == (int)OperatingSectorTypeEnum.Contracts)
+                        {
+                        <RadzenButton class="addBtn" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Review_Contract_Template")" Click="@FinalDraft" />
+                        }
+                        else
+                        {*@
+                                <RadzenButton class="addBtn" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate(Convert.ToInt32(SectorTypeId) == (int)OperatingSectorTypeEnum.Contracts ? "Review_Contract_Template" : "Create_Final_Draft")" Click="@FinalDraft" />
+                                @*}*@
+                            }
+
+
+                        </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid Width="120%"
+                                    @ref="communicationListgrid"
+                                    PageSize="@systemSettingState.Grid_Pagination"
+                                    ColumnWidth="200px"
+                                    Data="@FiletergetCommunicationList"
+                                    TItem="CommunicationListVM"
+                                    EmptyText="@translationState.Translate("No_record_found")"
+                                    FilterMode="Radzen.FilterMode.Advanced"
+                                    AllowPaging="true"
+                                    AllowSorting="true"
+                                    AllowFiltering="false"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                    ShowPagingSummary="true">
+                            <Columns>
+
+                                <RadzenDataGridColumn TItem="CommunicationListVM" Title="@translationState.Translate("Action")"
+                                                  Filterable="false"
+                                                  Sortable="false"
+                                                  Width="100px"
+                                                  TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        @if (!(bool)rowItem.IsReminderSent && !(bool)rowItem.IsReplied)
+                                        {
+                                            @if ((rowItem.CommunicationTypeId == (int)CommunicationTypeEnum.RequestMoreInfo
+                                           || rowItem.CommunicationTypeId == (int)CommunicationTypeEnum.RequestForMoreInformationReminder)
+                                           && rowItem.DateDifference == 1)
+                                            {
+                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                  Icon="notifications"
+                                                  Size="ButtonSize.Small"
+                                                  Click="@((args) => SendReminder(rowItem))"
+                                                  @onclick:stopPropagation="true" />
+                                            }
+                                        }
+                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                  Style=@($"background-color: {rowItem.HexCode}")
+                                                  Icon="visibility"
+                                                  Size="ButtonSize.Small"
+                                                  Click="@((args) => ViewResponse(rowItem))"
+                                                  @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                @if (SubModuleid == (int)SubModuleEnum.RegisteredCase)
+                                {
+                                    <RadzenDataGridColumn TItem="CommunicationListVM" Property="CanNo" Title="@translationState.Translate("CAN_Number")" />
+                                }
+                                <RadzenDataGridColumn TItem="CommunicationListVM" Property="ReferenceNo" Title="@translationState.Translate("Reference_No")" />
+                                <RadzenDataGridColumn TItem="CommunicationListVM" Property="OutboxNumber" Title="@translationState.Translate("OutboxNo")" />
+                                <RadzenDataGridColumn TItem="CommunicationListVM" Width="130px" Property="OutboxDate" Title="@translationState.Translate("OutboxDate")" FormatString="{0:dd/MM/yyyy hh:mm tt}" />
+                                <RadzenDataGridColumn TItem="CommunicationListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CorrespondenceTypeEn" : "CorrespondenceTypeAr") Title="@translationState.Translate("Correspondence_Type")" />
+                                <RadzenDataGridColumn TItem="CommunicationListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Activity_En" : "Activity_Ar") Title="@translationState.Translate("Activity")" />
+                                <RadzenDataGridColumn TItem="CommunicationListVM" Width="130px" FormatString="{0:dd/MM/yyyy}" Property="CreatedDate" Title="@translationState.Translate("Date")" />
+                                <RadzenDataGridColumn TItem="CommunicationListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorNameEn" : "SectorNameAr") Title="@translationState.Translate("Initiated_By")" />
+                                @if (SubModuleid != (int)SubModuleEnum.ConsultationFile)
+                                {
+                                <RadzenDataGridColumn TItem="CommunicationListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "PartyEntityEn" : "PartyEntityAr") Title="@translationState.Translate("Reciever_GE")" />
+                                }
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

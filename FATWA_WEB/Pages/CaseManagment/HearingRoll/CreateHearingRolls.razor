@@ -1,0 +1,176 @@
+﻿@page "/addhearing-rolls"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.MojRollsVM
+
+
+ @if (loginState.ClaimList.Any(x => x.Value == "Permissions.Submenu.CMS.HearingRolls.Add"))
+{
+<RadzenContent Container="main">
+    <RadzenTemplateForm Data="addDMOJRollsRequest" Visible="addDMOJRollsRequest != null" TItem="MOJRollsRequest" Submit="@Form0Submit">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Create_Hearing_Roll")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard"> 
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Create_Hearing_Roll")" />
+                    </div>
+                </div>
+            </div>
+            <RadzenCard>
+                <div class=" row pt-3">
+                    <div class="col-md-3">
+                        <div class="form-group rz-calendar-webkit-fill">
+                            <RadzenLabel Text="@(translationState.Translate("Court") + " *")" />
+                            <RadzenDropDown Data="@courts"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                            Name="CourtName"
+                                            ValueProperty="Id"
+                                            Style="display:block;"
+                                            @bind-Value="addDMOJRollsRequest.CourtType_LookUp"
+                                            Placeholder="@translationState.Translate("Select_Court")"
+                                            Change="OnChangeCourt">
+                            </RadzenDropDown>
+                            <RadzenRequiredValidator Component="CourtName" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                            </RadzenRequiredValidator>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group rz-calendar-webkit-fill">
+                            <RadzenLabel Text="@(translationState.Translate("Chamber") + " *")" />
+                            <RadzenDropDown Data="@Chambers"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            TextProperty="Name"
+                                            Name="ChamberName"
+                                            ValueProperty="Id"
+                                            Style="display:block;"
+                                            @bind-Value="addDMOJRollsRequest.ChamberType_LookUp"
+                                            Placeholder="@translationState.Translate("Select_Chamber")"
+                                            Change="OnChangeChamber">
+                            </RadzenDropDown>
+                            <RadzenRequiredValidator Component="ChamberName" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                            </RadzenRequiredValidator>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group rz-calendar-webkit-fill">
+                            <RadzenLabel Text="@(translationState.Translate("Chamber_Number") + " *")" />
+                            <RadzenDropDown Data="@ChamberNumbers"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowClear="true"
+                                            TextProperty="Name"
+                                            ValueProperty="Id"
+                                            Placeholder="@translationState.Translate("Select")"
+                                            Style="display:block;"
+                                            @bind-Value="addDMOJRollsRequest.ChamberTypeCode_LookUp"
+                                            Name="Chamber_Numbers"
+                                            Change="OnChangeChamberNumber">
+                            </RadzenDropDown>
+                            <RadzenRequiredValidator Component="Chamber_Numbers" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                            </RadzenRequiredValidator>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group rz-calendar-webkit-fill">
+                            <RadzenLabel Text="@(translationState.Translate("Hearing_Date") + "*")" Component="SessionDate" />
+                            <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="SessionDate" @bind-Value="addDMOJRollsRequest.SessionDate" />
+                            <RadzenRequiredValidator Component="SessionDate" Text="@translationState.Translate("Required_Field")" DefaultValue="0">
+                            </RadzenRequiredValidator>
+                        </div>
+                    </div>
+                </div>
+                <div class="row no-gutters mt-4">
+                    <!-- Add margin top here -->
+                    <div class="col-md-4 tableAdditionButton addPrincipleBtn px-0">
+                        <RadzenTextBox class="searchBox"
+                                       Placeholder="@translationState.Translate("Grid_Search")"
+                                       Name="Textbox0"
+                                       @oninput="@(async(args) => {search = $"{args.Value}";await grid.GoToPage(0);await OnSearchInput();})" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="tableContent table-responsive">
+                                <RadzenDataGrid @ref="grid"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            Width="100%"
+                                            AllowFiltering="false"
+                                            AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                            FilterMode="Radzen.FilterMode.Advanced"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            TItem="CmsRegisteredCase"
+                                            SelectionMode="DataGridSelectionMode.Multiple"
+                                            Data="@GetCmsRegisteredCaseVM"
+                                            @bind-Value=@selectedRegisteredcase
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="CmsRegisteredCase" Width="40px" Sortable="false" Filterable="false">
+                                        <HeaderTemplate>
+                                            <RadzenCheckBox TriState="false"
+                                                            Value="@((GetCmsRegisteredCaseVM!=null && selectedRegisteredcase != null)? (GetCmsRegisteredCaseVM.Except(selectedRegisteredcase).Any()? false : true) :false)"
+                                                            TValue="bool"
+                                                            Change="@(args => selectedRegisteredcase = args ? GetCmsRegisteredCaseVM.ToList() : null)" />
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            <RadzenCheckBox TriState="false"
+                                                            Value="@(selectedRegisteredcase != null && selectedRegisteredcase.Contains(data))"
+                                                            TValue="bool"
+                                                            Change=@(args => { if(!allowRowSelectOnRowClick) { grid.SelectRow(data); }}) />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="CmsRegisteredCase" Width="160px" Property="CANNumber" Title="@translationState.Translate("CAN_Number")" />
+                                    <RadzenDataGridColumn TItem="CmsRegisteredCase" Width="150px" Property="CaseNumber" Title="@translationState.Translate("Case_Number")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row justify-content-end pt-3">
+                    <div class="col-md-6 popup-buttons-alignment">
+                        <RadzenButton Text="@translationState.Translate("Create")"
+                                      ButtonStyle="ButtonStyle.Primary"
+                                      ButtonType="Radzen.ButtonType.Submit" />
+                        <RadzenButton Text="@translationState.Translate("Cancel")"
+                                      ButtonStyle="ButtonStyle.Light"
+                                      Style="margin-left: 1rem"
+                                      Click="@ButtonCancel" />
+                    </div>
+                </div>
+            </RadzenCard>
+        </ChildContent>
+    </RadzenTemplateForm>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

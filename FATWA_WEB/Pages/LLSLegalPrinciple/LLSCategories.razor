@@ -1,0 +1,85 @@
+﻿@page "/categories"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.LLSLegalPrinciple
+@using Syncfusion.Blazor.Navigations
+
+@using FATWA_DOMAIN.Models.LLSLegalPrinciple;
+
+
+<PageTitle>@translationState.Translate("Categories")</PageTitle>
+
+
+
+<div>
+<SfTreeView 
+    @ref="tree"
+     TValue="LLSLegalPrincipleCategoriesVM"
+     ShowCheckBox="true"
+     AutoCheck="false"
+     AllowEditing="false"
+     @bind-CheckedNodes="@LegalPrincipleCategoryList"
+     @bind-SelectedNodes="@selectedNodes">
+    <TreeViewFieldsSettings 
+        DataSource="@lLSLegalPrincipleCategoryDetails"
+        Id="CategoryId"
+        ParentID="ParentId"
+        Text="Name"
+        HasChildren="HasSubChildren"
+        Expanded="Expanded">
+    </TreeViewFieldsSettings>
+    <TreeViewEvents TValue="LLSLegalPrincipleCategoriesVM" NodeEdited="NodeEdited" NodeSelected="OnSelect" NodeClicked="nodeClicked"></TreeViewEvents>
+    <SfContextMenu TValue="MenuItem" @ref="menu" Target="#context" Items="@MenuItems">
+            <MenuEvents TValue="MenuItem" ItemSelected="MenuSelect" OnOpen="BeforeContextOpen"></MenuEvents>
+    </SfContextMenu>
+        <TreeViewTemplates TValue="LLSLegalPrincipleCategoriesVM">
+            <NodeTemplate>
+                    <div class="treeviewdiv">
+                        <div class="nodetext">
+                            <span class="treeName">@((context as LLSLegalPrincipleCategoriesVM).Name)</span>
+                        </div>
+                        @{
+                        @if (((context as LLSLegalPrincipleCategoriesVM).PrincipleContentCount) != 0 && ((context as LLSLegalPrincipleCategoriesVM).ParentId != null))
+                            {
+                                <span class="treeCount e-badge e-badge-primary">@((context as LLSLegalPrincipleCategoriesVM).PrincipleContentCount)</span>
+                            }
+                        }
+
+                    @if (((context as LLSLegalPrincipleCategoriesVM).ParentId != null))
+                    {
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Icon="text_snippet"
+                                      Size="ButtonSize.Small"
+                                      Style="background-color: #000000 !important; padding: 2.5px 2.5px !important; border-radius: 0px !important; "
+                                      Click="@(PopulatePrincipleContents)" />
+                    }
+                    
+
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  id="context"
+                                      Icon="keyboard_double_arrow_down"
+                                      Size="ButtonSize.Small"
+                                  Style="background-color: #000000 !important; padding: 2.5px 2.5px !important; border-radius: 0px !important; "
+                                      Click="@(OpenContextMenu)" />
+                </div>
+            </NodeTemplate>
+        </TreeViewTemplates>
+</SfTreeView>
+</div>
+
+<style>
+    .e-badge.e-badge-primary:not(.e-badge-ghost):not([href]) {
+        background-color: #000000 !important;
+        color: #fff !important;
+        margin: 0px 20px;
+        !important;
+    }
+
+    .e-contextmenu-container ul .e-menu-item.e-disabled {
+        cursor: auto;
+        background: #dadae3 !important;
+        pointer-events: none;
+        color: black !important;
+    }
+</style> 
+
+

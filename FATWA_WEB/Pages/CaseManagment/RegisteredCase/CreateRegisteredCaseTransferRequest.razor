@@ -1,0 +1,43 @@
+﻿@page "/RegisterCase-TransferRequest/{ChamberId:int}"
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum;
+<div class="row">
+    <div class="col-lg-12">
+        <div class="pb-2 row">
+            <div class="col-6 form-group mb-0">
+                <RadzenLabel Text="@(translationState.Translate("Chamber") + " *")" Style="display:block;" />
+                <RadzenDropDown Data="@(allChambers)" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                Name="ChamberName" ValueProperty="Id" Placeholder="@translationState.Translate("Select")" Change="@OnChangeChamber"
+                                Style="display:block;" @bind-Value="ChamberId">
+                </RadzenDropDown>
+            </div>
+            <div class="col-6 form-group mb-0">
+                <RadzenLabel Text="@(translationState.Translate("Chamber_Number") + " *")" Style="display:block;" />
+                <RadzenDropDown Data="@(ChamberNumbers)" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                TextProperty="Number" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                Style="display:block;" @bind-Value="ChamberNumberId">
+                </RadzenDropDown>
+            </div>
+        </div>
+        <div class="form-group">
+            <RadzenLabel Text="@translationState.Translate("Remarks")" Component="Remarks" style="width: 100%"> </RadzenLabel>
+            <RadzenTextArea Placeholder="@translationState.Translate("Remarks")" Name="Remarks" @bind-Value="@(cMSRegisteredCaseTransferRequest.Remarks)" Cols="54" Rows="3" />
+        </div>
+        <div class="form-group">
+            <FileUpload ReferenceGuid="OutComeId"
+                        Multiple="true"
+                        HideView="true"
+                        MaxFileSize="@systemSettingState.File_Maximum_Size"
+                        FileTypes="@systemSettingState.FileTypes"
+                        UploadFrom="CaseManagement"
+                        ModuleId="(int)WorkflowModuleEnum.CaseManagement" />
+        </div>
+    </div>
+</div>
+<div class="row mt-4 popup-buttons-alignment">
+    <div class="col-md-12">
+        <RadzenButton Text="@translationState.Translate("Submit")" Style="width: 120px" Disabled="@(ChamberNumberId == 0 || ChamberId == 0)" Click="@Form0Submit" />
+        <RadzenButton Click="@((args) => dialogService.Close(false))" ButtonStyle="ButtonStyle.Secondary" Text="@translationState.Translate("Cancel")" Style="width: 120px" Class="mr-1" />
+    </div>
+</div>

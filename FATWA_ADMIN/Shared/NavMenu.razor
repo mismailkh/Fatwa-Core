@@ -1,0 +1,77 @@
+﻿@using FATWA_DOMAIN.Models
+@inject NavigationManager navManager 
+@inject FATWA_ADMIN.Data.LoginState loginState
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">فتوى مشرف</a> @*FATWA_WEB*@
+        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </div>
+</div>
+
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
+    <nav class="flex-column">
+        @*<History Author = 'Hassan Abbas' Date='2022-02-28' Version="1.0" Branch="master"> Check User's Claim for the specified tab</History>*@
+        @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Menu.Dashboard").Count() > 0)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="Index" Match="NavLinkMatch.All">
+                    <span class="oi oi-home" aria-hidden="true"></span> مسكن
+                </NavLink> @*Home*@
+            </div>
+        }
+        @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Menu.Users").Count() > 0)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="userlist">
+                    <span class="bi bi-people-fill" aria-hidden="true"></span> قائمة المستخدم
+                </NavLink> @*User List*@
+            </div>
+        }
+        @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Menu.Roles").Count() > 0)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="roleList">
+                    <span class="bi bi-person-badge" aria-hidden="true"></span> قائمة الأدوار 
+                </NavLink> @*Role List*@
+            </div>
+        }
+        @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Menu.Tasks").Count() > 0)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="grid">
+                    <span class="oi oi-list-rich" aria-hidden="true"></span> ابحث عن المعلومة 
+                </NavLink> @*Fetch Tasks*@
+            </div>
+        }
+
+        @if (loginState.IsLoggedIn)
+        {
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" @onclick=@HandleLogout>
+                    <span class="oi oi-account-logout" aria-hidden="true"></span> تسجيل خروج
+                </NavLink> @*Logout*@
+            </div>
+        }
+    </nav>
+</div>
+
+@code {
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    
+    //<History Author = 'Hassan Abbas' Date='2022-02-28' Version="1.0" Branch="master"> Update Login State on Web Project</History>
+    void HandleLogout()
+    {
+        loginState.SetLogout(false);
+        navManager.NavigateTo("Login", true);
+    }
+}

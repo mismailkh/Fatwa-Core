@@ -1,0 +1,101 @@
+﻿@page "/correspondence-forward-lawyer/{CommunicationId}"
+
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.CommunicationModels
+@using FATWA_DOMAIN.Models.ViewModel
+
+<PageTitle>@translationState.Translate("Forward_To_Lawyer")</PageTitle>
+
+<div class="modal-dialog">
+    <div class="modal-content">
+    
+        <div class="modal-body">
+            <div class="container">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <RadzenLabel Text="@translationState.Translate("Case_Number")" Component="Number" />
+                            <RadzenTextBox Placeholder="@translationState.Translate("Case_Number")" @bind-Value="@CaseNumber" Name="Number" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <RadzenLabel Text="@translationState.Translate("Can_No")" Component="Number" />
+                            <RadzenTextBox Placeholder="@translationState.Translate("Can_No")" @bind-Value="@CanNumber" Name="Number" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitSearch" class="btn btn-primary w-100" />
+                    </div>
+                    @if (IsSearch)
+                    {
+
+                        <div class="col-md-6">
+@*                             <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="GetAllLawyersBySectorId" class="btn btn-primary w-100" />
+                        *@                            <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="GetAllLawyersBySectorId" class="btn btn-primary w-100" />
+
+                        
+                        </div>
+                    }
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-12">
+                        <RadzenTemplateForm Data="@communicationHistory" Visible="@(communicationHistory != null)" TItem="CommunicationHistory" Submit="@FormSubmit">
+                            <ChildContent>
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Lawyers")" Component="Lawyers" />
+                                    <RadzenDropDown  @ref="@ddlLawyer"
+                                                    Data="basicDetail"
+                                                    AllowFiltering="false"
+                                                    AllowClear="true"
+                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr")"
+                                                    ValueProperty="UserId"
+                                                    Placeholder="@translationState.Translate("Select")"
+                                                    Style="display:block;"
+                                                    @bind-Value="@sentTo"
+                                                    Multiple = "true"
+                                                    Name="Lawyers" class="form-control" />
+                                    <RadzenRequiredValidator Component="Lawyers" Text="@translationState.Translate("Required")" />
+
+                                </div>
+
+
+
+                                <div class="form-group">
+                                    <RadzenTextArea Placeholder="@translationState.Translate("Reason")" Cols="20" Rows="5" class="w-100" @bind-Value="@communicationHistory.Reason" Name="Reason" />
+
+                                    <RadzenRequiredValidator Component="Reason" Text="@translationState.Translate("Required")" />
+
+                               </div>
+@* 
+                                <div class="form-group text-right">
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("submit")" class="btn btn-primary" />
+                                </div> *@
+
+
+
+                                <div class="row popup-buttons-alignment">
+                                    <div class="col-12 p-0">
+                                      
+                                        
+                                            <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                            </RadzenButton>
+                                        
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@ButtonCancelClick">
+                                        </RadzenButton>
+                                    </div>
+                                </div>
+
+                            </ChildContent>
+                        </RadzenTemplateForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

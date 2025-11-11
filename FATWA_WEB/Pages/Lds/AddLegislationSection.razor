@@ -1,0 +1,50 @@
+﻿@page "/add-legal-section"
+
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel
+
+@layout MainLayout
+
+<PageTitle>@translationState.Translate("Add_Section")</PageTitle>
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@legalSections" Visible="@(legalSections != null)" TItem="LegalSection" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Section_Number")" Component="Section_Number" />
+                                    <RadzenNumeric ReadOnly="true" @bind-Value="@legalSections.Section_Number" />
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Section_Title")" Component="SectionTitle" />
+                                    <RadzenTextBox Placeholder="@translationState.Translate("Section_Title")" @bind-Value="@legalSections.SectionTitle" Name="SectionTitle" Class="@validations.SectionTitleEn" MaxLength="1000" />
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="form-group">
+                                    <RadzenLabel Text="@translationState.Translate("Section_Parent_Title")" Component="Section_Title_En" />
+                                    <RadzenDropDown Data="@SectionParentDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                TextProperty="SectionTitle" ValueProperty="SectionId" Placeholder="@translationState.Translate("Select")"
+                                                @bind-Value="@legalSections.Section_Parent_Id" Name="Section_Title_En" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row popup-buttons-alignment">
+                            <div class="col-12">
+                                <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                </RadzenButton>
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

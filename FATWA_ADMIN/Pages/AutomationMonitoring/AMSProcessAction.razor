@@ -1,0 +1,30 @@
+﻿@using FATWA_DOMAIN.Models.AdminModels.AutomationMonitoring;
+@layout MainLayout
+
+@*< History Author = 'Ijaz Ahmad' Date = '2024-06-24' Version = "1.0" Branch = "master"> Process Action</History>*@
+
+
+<RadzenTemplateForm Data="@process" Visible="@(process != null)" TItem="AMSProcesses" Submit="@SaveChanges">
+    <div class="col-12">
+        <div class="form-group ">
+            <RadzenLabel Text="@(translationState.Translate("Process_Action") )" Component="Process_Action" />
+            <RadzenDropDown Data="@statusOptions" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                            TextProperty="Status" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                            Style="display:block;" @bind-Value="process.IsActive" Name="Process_Action" />
+            <RadzenRequiredValidator DefaultValue="0" Component="Process_Action" Text="@translationState.Translate("Required_Field")" />
+        </div>
+        <div class="form-group">
+            <RadzenTextArea Placeholder="@translationState.Translate("Remarks")" @bind-Value="@process.Remarks" Rows=2 Cols=51 Name="Remarks" />
+        </div>
+        <div class="popup-buttons-alignment">
+            <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                          Style="margin-left: 10px; margin-right: 10px;"
+                          ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+            </RadzenButton>
+            <RadzenButton Text="@translationState.Translate("Cancel")"
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="@Button2Click">
+            </RadzenButton>
+        </div>
+    </div>
+</RadzenTemplateForm>

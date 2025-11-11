@@ -1,0 +1,43 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.CaseManagment;
+@using FATWA_DOMAIN.Models.TaskModels;
+@layout MainLayout
+
+<RadzenTemplateForm Data="@CmsBankGovernmentEntity" Visible="@(CmsBankGovernmentEntity != null)" TItem="CmsBankGovernmentEntity" Click="@(() => SaveChangesCallback(onSave))" Submit="@(() => SaveChangesCallback(onSave))">
+
+	<ChildContent>
+		<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+			<div class="form-group">
+				<RadzenLabel Style="font-weight:" Text="@(translationState.Translate("Bank_Name")+" *")" Component="Bank_Name" />
+				<RadzenDropDown Data="@CmsBanks" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" Multiple="false"
+								TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+								Style="display:block;" @bind-Value="@CmsBankGovernmentEntity.BankId"
+								Name="Bank_Name" />
+				<RadzenRequiredValidator Component="Bank_Name" DefaultValue="0" Text="@translationState.Translate("Required_Field")" />
+			</div>
+
+		</div>
+
+		<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+			<div class="form-group">
+				<RadzenLabel Style="font-weight:" Text="@(translationState.Translate("IBAN_Number")+" *")" Component="IBAN" />
+				<RadzenTextBox Placeholder="@translationState.Translate("IBAN_Number")"  @bind-Value="@(CmsBankGovernmentEntity.IBAN)" Name="IBAN"/>
+				<RadzenRegexValidator Component="IBAN" Text="@translationState.Translate("Only_English_Character_allowed")" Pattern="@RegexPatterns.EnglishPattern" />
+				<RadzenRequiredValidator Component="IBAN" Text="@translationState.Translate("Required_Field")"></RadzenRequiredValidator>
+				<RadzenLengthValidator Component="IBAN" Max="34" Text="@translationState.Translate("Max_Thirty_Four_Characters")" />
+			</div>
+		</div>
+
+
+		<div class="popup-buttons-alignment">
+			<RadzenButton ButtonType="Radzen.ButtonType.Submit"
+						  Style="margin-left: 10px; margin-right: 10px;"
+						  ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")" />
+			<RadzenButton Text="@translationState.Translate("Cancel")"
+						  ButtonStyle="ButtonStyle.Light"
+						  Click="@Button2Click" />
+		</div>
+
+
+	</ChildContent>
+</RadzenTemplateForm>

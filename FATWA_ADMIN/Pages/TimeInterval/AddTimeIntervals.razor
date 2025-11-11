@@ -1,0 +1,103 @@
+﻿@using FATWA_DOMAIN.Models.TimeInterval;
+@using FATWA_DOMAIN.Enums.TimeInterval;
+@using FATWA_DOMAIN.Models.ViewModel.TimeIntervalVMs;
+@using static FATWA_DOMAIN.Enums.TimeInterval.TimeIntervalEnums
+@layout MainLayout
+
+@*< History Author = 'Umer Zaman' Date = '2025-017-04' Version = "1.0" Branch = "master"> Fixed UI issues</History>*@
+@*< History Author = 'Ammaar Naveed' Date = '2024-06-04' Version = "1.0" Branch = "master"> UI fixations in pages and dialogs</History>*@
+<!-- <History Author = 'Nabeel Ur Rehman' Date='2022-09-09' Version="1.0" Branch="master">Add New Legal Principle Tags</History> -->
+<RadzenTemplateForm class="form" Data="@TimeIntervalVM" TItem="TimeIntervalVM" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="col-12">
+            <div class="row">
+                <div class="col-6">
+                    <div class="form-group">
+                        <RadzenLabel Text="@translationState.Translate("Service")" Component="PattrenName" />
+                        <RadzenTextBox @bind-Value="@TimeIntervalVM.IntervalNameEn" Disabled />
+                    </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Execution_Time") + "*")" />
+                        <TelerikTimePicker Format="HH:mm" @bind-Value="@TimeIntervalVM.ExecutionTime" />
+                        @if (!TimeIntervalVM.ExecutionTime.HasValue)
+                        {
+                            <div class="rz-message rz-messages-error ">@translationState.Translate("Required_Field")</div>
+                        }
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("SLA_Interval_Day") + "*")" Component="Name_En" />
+                        <RadzenNumeric Min="1" Max="999" TValue="int?" ShowUpDown  Name="Name_En" Style="width:100%" Change="OnChangeSLAIntervalValue"
+                                        Placeholder="@(translationState.Translate("SLA_Interval_Day") + "*")" @bind-Value="@TimeIntervalVM.SLAInterval" />
+                        <RadzenRequiredValidator Component="Name_En" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+                </div>
+                @if (!DisablCommunicationResponseTypes)
+                {
+                    <div class="col-6">
+                        <div class="form-group">
+                            <RadzenLabel Text="@(translationState.Translate("Reminder_Type"))" Component="Name_En" />
+                            <RadzenTextBox @bind-Value="@TimeIntervalVM.CommunicationTypeEn" Disabled />
+                            </div>
+                        </div>
+                }
+
+                <div class="col-12">
+                    <RadzenLabel Style="word-break: break-word;"
+                                    Title="@translationState.Translate("Reminders_will_be_sent_X_days_before_the_total_SLA_deadline_where_X_is_the_number_of_days_you_set")"
+                                    Text="@($"{translationState.Translate("Note")+": "} {translationState.Translate("Reminders_will_be_sent_X_days_before_the_total_SLA_deadline_where_X_is_the_number_of_days_you_set")}")" />
+                </div>
+                <div class="col-10 col-sm-10 col-md-10 col-lg-10 col-xl-10 mt-3">
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("First_Reminder_Duration") + "*")" Component="Name_En" />
+                        <RadzenNumeric Min="1" Max="999" Change="OnChangeFirstReminderValue" ShowUpDown Name="FirstReminderDuration" Style="width:100%" Disabled="@(DisablReminderfirst)" Placeholder="@(translationState.Translate("First_Reminder_Duration"))" @bind-Value="@TimeIntervalVM.FirstReminderDuration" TValue="int?"></RadzenNumeric>
+                        <RadzenRequiredValidator Component="FirstReminderDuration" Style="width:100%" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+                </div>
+                <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2 mt-3">
+                </div>
+                <div class="col-10 col-sm-10 col-md-10 col-lg-10 col-xl-10">
+                    <RadzenLabel Text="@(translationState.Translate("Second_Reminder_Duration") + "*")" Component="Name_En" />
+                    <div class="form-group">
+                        <RadzenNumeric Min="1" Max="999" TValue="int?" Change="OnChangeSecondReminderValue" ShowUpDown  Name="SecondReminderDuration" Style="width:100%" Disabled="@(DisablReminder2nd == true)" Placeholder="@(translationState.Translate("Second_Reminder_Duration"))" @bind-Value="@TimeIntervalVM.SecondReminderDuration"></RadzenNumeric>
+                        <RadzenRequiredValidator Component="SecondReminderDuration" Visible="@(!DisablReminder2nd)" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+                </div>
+                <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2">
+                    <div class="form-check p-0">
+                        <RadzenCheckBox TriState="false" Value="@DisablReminder2nd" TValue="bool" Change="OnIsDisableReminderSecondValueChanged" />
+                        <RadzenLabel Text="@translationState.Translate("Disable")" />
+                    </div>
+                </div>
+                <div class="col-10 col-sm-10 col-md-10 col-lg-10 col-xl-10">
+                    <RadzenLabel Text="@(translationState.Translate("Third_Reminder_Duration") + "*")" Component="Name_En" />
+                    <div class="form-group">
+                        <RadzenNumeric Min="1" Max="999" TValue="int?" Change="OnChangeThirdReminderValue" ShowUpDown Name="3rdReminderDuration" Style="width:100%" Disabled="@(DisablReminderthird)" Placeholder="@(translationState.Translate("Third_Reminder_Duration"))" @bind-Value="@TimeIntervalVM.ThirdReminderDuration"></RadzenNumeric>
+                        <RadzenRequiredValidator Component="3rdReminderDuration" Visible="@(!DisablReminderthird)" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+                </div>
+                <div class="col-2 col-sm-2 col-md-2 col-lg-2 col-xl-2">
+                    <div class="form-check p-0">
+                        <RadzenCheckBox TriState="false" Value="@DisablReminderthird" TValue="bool" Change="OnIsDisableReminderThirdValueChanged" />
+                        <RadzenLabel Text="@translationState.Translate("Disable")" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 p-3" style="text-align:end;">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Update")" />
+                <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@OnCancel" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>
+
+<style>
+    .form-check {
+        margin-top: 25px !important;
+    }
+</style>

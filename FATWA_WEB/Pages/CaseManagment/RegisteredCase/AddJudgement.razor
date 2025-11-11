@@ -1,0 +1,284 @@
+﻿@page "/add-judgement/{OutcomeId}/{CaseId}"
+@page "/add-judgement/{JudgementId}/{OutcomeId}/{CaseId}"
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using FATWA_DOMAIN.Models.ViewModel;
+@using FATWA_WEB.Pages.Shared
+@using System.Globalization
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@layout MainLayout
+
+<!-- <History Author = 'Hassan Abbas' Date='2022-12-05' Version="1.0" Branch="master">Add Judgement</History> -->
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="@("/case-view/" + CaseId.ToString())" Text="@translationState.Translate("Case")" />
+                        <RadzenBreadCrumbItem Text="@(translationState.Translate(judgement.IsUpdated==false ? "Add_Judgement" : "Edit_Judgement"))" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate(judgement.IsUpdated==false ? "Add_Judgement" : "Edit_Judgement")" />
+                </div>
+            </div>
+        </div>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@judgement" Visible="@(judgement != null)" TItem="Judgement" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                <div class="row">
+                                    <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@(translationState.Translate("Hearing_Date") + " *")" Component="Hearing_Date" />
+                                            <TelerikDatePicker Min="DateTime.Now.Date" Format="dd/MM/yyyy" Enabled="false" @bind-Value="@(judgement.HearingDate)" OnChange="ValidateFields" />
+                                        </div>
+                                    </div>
+                                    <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group">
+                                            <RadzenLabel Text="@(translationState.Translate("Judgement_Date") + " *")" Component="Judgement_Date" />
+                                            <TelerikDatePicker Format="dd/MM/yyyy" Min="DateTime.Now.Date" @bind-Value="@(judgement.JudgementDate)" />
+                                            <div class="rz-message rz-messages-error ">@judgementDateValidationMsg</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3 pt-4">
+                                        <div class="form-group">
+                                            <RadzenCheckBox @bind-Value="@judgement.IsFinal" Name="Is_Final"></RadzenCheckBox>
+                                            <RadzenLabel class="px-2" Text="@translationState.Translate("Is_Final")" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group rz-calendar-webkit-fill">
+                                            <RadzenLabel Text="@(translationState.Translate("Category") + " *")" Component="Category" />
+                                            <RadzenDropDown Data="@judgementCategories" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="judgement.CategoryId" Name="Category" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="Category" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                    <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group rz-calendar-webkit-fill">
+                                            <RadzenLabel Text="@(translationState.Translate("Type_of_Judgement") + " *")" Component="Status" />
+                                            <RadzenDropDown Data="@judgementStatuses" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="judgement.StatusId" Name="Status" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="Status" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                    <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group rz-calendar-webkit-fill">
+                                            <RadzenLabel Text="@(translationState.Translate("Judgement_Amount") + " " + (Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "(KWD)" :"(د.ك)") + " *")" Component="Judgement_Amount" />
+                                            <RadzenNumeric @onfocusout="(args => OnFocusOutJudgementAmount(false))" @onclick="(args => OnClickJudgementAmount(false))" Format="n3" @bind-Value="@judgement.Amount" Name="Judgement_Amount" />
+                                            <RadzenNumericRangeValidator Component="Judgement_Amount" Min="0" Max="1000000000" Text="@(translationState.Translate("Amount_Should_Be_Between") + " 0.000 " + translationState.Translate("And") + " " + string.Format("{0:n3}", 1000000000))" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="Judgement_Amount" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                    <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group rz-calendar-webkit-fill">
+                                            <RadzenLabel Text="@(translationState.Translate("Judgement_Amount_Collected") + " " + (Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "(KWD)" :"(د.ك)") + " *")" Component="Judgement_Amount_Collected" />
+                                            <RadzenNumeric Format="n3" @onfocusout="(args => OnFocusOutJudgementAmount(true))" @onclick="(args => OnClickJudgementAmount(true))" @bind-Value="@judgement.AmountCollected" Name="Judgement_Amount_Collected" />
+                                            <RadzenNumericRangeValidator Component="Judgement_Amount_Collected" Min="0" Max="@(judgement.Amount)" Text="@(translationState.Translate("Amount_Should_Be_Between") + " 0.000 " + translationState.Translate("And") + " " + string.Format("{0:n3}", judgement.Amount))" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="Judgement_Amount_Collected" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    @if (!judgement.IsUpdated)
+                                    {
+                                        <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3 pt-2">
+                                            <div class="form-group">
+                                                <RadzenCheckBox @bind-Value="@judgement.OpenExecutionFile" Name="Open_Execution_File"></RadzenCheckBox>
+                                                <RadzenLabel class="px-2" Text="@translationState.Translate("Open_Execution_File")" />
+                                            </div>
+                                        </div>
+                                        @if (judgement.OpenExecutionFile)
+                                        {
+                                            <div class="col-3 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                                <div class="form-group rz-calendar-webkit-fill">
+                                                    <RadzenLabel Text="@(translationState.Translate("Execution_File_Level") + " *")" Component="Execution_File_Level" />
+                                                    <RadzenDropDown Data="@executionFileLevels" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                    Style="display:block;" @bind-Value="judgement.ExecutionFileLevelId" Name="Execution_File_Level" />
+                                                    <RadzenRequiredValidator DefaultValue="0" Component="Execution_File_Level" Text="@translationState.Translate("Required_Field")" />
+                                                </div>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="form-group rz-calendar-webkit-fill">
+                                            <RadzenLabel Text="@translationState.Translate("Remarks")" />
+                                            <RadzenTextArea Placeholder="@translationState.Translate("Remarks")" @bind-Value="@judgement.Remarks" Name="Remarks" />
+                                            <RadzenRegexValidator Component="Remarks" Text="@translationState.Translate("Cannot_have_trailing_spaces")" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+                                            <RadzenLengthValidator Component="Remarks" Max="1000" Text="@translationState.Translate("Max_Thousand_Characters")" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" Style="display:block;">
+                                <RadzenAccordion>
+                                    <Items>
+                                        <RadzenAccordionItem style="width:100%" Text="@(translationState.Translate("Upload_Document")+ " / " +translationState.Translate("Existing_Document"))" Selected="false">
+                                            <RadzenTabs TabPosition="Radzen.TabPosition.Top" RenderMode="TabRenderMode.Client">
+                                                <Tabs>
+                                                    <RadzenTabsItem Text="@translationState.Translate("Upload_Document")">
+                                                        <div class="row">
+                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12" Style="display:block;">
+                                                                <FileUpload ReferenceGuid="judgement.Id"
+                                                                            Multiple="true"
+                                                                            HideView="true"
+                                                                            MaxFileSize="@systemSettingState.File_Maximum_Size"
+                                                                            FileTypes="@systemSettingState.FileTypes.ToList()"
+                                                                            UploadFrom="CaseManagement"
+                                                                            ModuleId="(int)WorkflowModuleEnum.CaseManagement" />
+                                                            </div>
+                                                        </div>
+                                                    </RadzenTabsItem>
+                                                    <RadzenTabsItem Text="@translationState.Translate("Existing_Document")">
+                                                        <div class="row pb-2">
+                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                <div class="tableContent table-responsive datagrid-rz-label">
+                                                                    <RadzenDataGrid @ref="gridAttachments"
+                                                                                    AllowFiltering="false"
+                                                                                    AllowPaging="true"
+                                                                                    AllowSorting="true"
+                                                                                    Data="@attachments?.Where(a => a.DocType?.ToLower() == ".pdf")"
+                                                                                    TItem="TempAttachementVM"
+                                                                                    Count="@(attachments != null ? attachments.Count() : 0)"
+                                                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                                                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                                                                    EmptyText="@translationState.Translate("No_record_found")"
+                                                                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                                                                    SelectionMode="DataGridSelectionMode.Multiple"
+                                                                                    AllowRowSelectOnRowClick="@allowRowSelectOnRowClick"
+                                                                                    @bind-Value=@executionRequest.SelectedDocuments
+                                                                                    ShowPagingSummary="true">
+                                                                        <Columns>
+                                                                            <RadzenDataGridColumn TItem="TempAttachementVM" Width="40px" Sortable="false" Filterable="false">
+                                                                                <HeaderTemplate>
+                                                                                    <RadzenCheckBox TriState="false"
+                                                                                                    Value="@((attachments!=null && executionRequest.SelectedDocuments != null)? (attachments.Except(executionRequest.SelectedDocuments).Any()? false : true) :false)"
+                                                                                                    TValue="bool"
+                                                                                                    Change="@(args => executionRequest.SelectedDocuments = args ? attachments.ToList() : null)" />
+                                                                                </HeaderTemplate>
+                                                                                <Template Context="data">
+                                                                                    <RadzenCheckBox TriState="false"
+                                                                                                    Value="@(executionRequest.SelectedDocuments != null && executionRequest.SelectedDocuments.Contains(data))"
+                                                                                                    TValue="bool"
+                                                                                                    Change=@(args => { if(!allowRowSelectOnRowClick) { gridAttachments.SelectRow(data); }}) />
+                                                                                </Template>
+                                                                            </RadzenDataGridColumn>
+                                                                            <RadzenDataGridColumn TItem="TempAttachementVM" Property="AttachmentTypeId" Title="@translationState.Translate("Document_Type")">
+                                                                                <Template Context="attachment">
+                                                                                    @if (attachment.AttachmentTypeId == (int)AttachmentTypeEnum.Other)
+                                                                                    {
+                                                                                        <RadzenLabel Text="@attachment.OtherAttachmentType" />
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        <RadzenLabel Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? $"{attachments?.Where(t => t.AttachmentTypeId == attachment.AttachmentTypeId)?.FirstOrDefault()?.Type_En}" : $"{attachments?.Where(t => t.AttachmentTypeId == attachment.AttachmentTypeId)?.FirstOrDefault()?.Type_Ar}") />
+                                                                                    }
+                                                                                </Template>
+                                                                            </RadzenDataGridColumn>
+                                                                            <RadzenDataGridColumn TItem="TempAttachementVM" Property="FileName" Title="@translationState.Translate("File_Name")">
+                                                                            </RadzenDataGridColumn>
+                                                                            <RadzenDataGridColumn TItem="TempAttachementVM" Property="DocDateTime" Width="90px" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Document_Date")">
+                                                                            </RadzenDataGridColumn>
+                                                                            <RadzenDataGridColumn TItem="TempAttachementVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "DocumentSourceEn" : "DocumentSourceAr")" Title="@translationState.Translate("Document_Source")">
+                                                                            </RadzenDataGridColumn>
+
+                                                                        </Columns>
+                                                                    </RadzenDataGrid>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </RadzenTabsItem>
+                                                </Tabs>
+                                            </RadzenTabs>
+                                            @if (DisplayDocumentViewer)
+                                            {
+                                                <RadzenCard class="bg-light m-3">
+                                                    <div class="row pb-2">
+                                                        <div class="col-md-4">
+                                                            <h2 class="formHeading">@translationState.Translate("Document_Viewer")</h2>
+                                                        </div>
+                                                        <div class="col-md-8 d-flex justify-content-end">
+                                                            <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                                          class="btn-close-custom"
+                                                                          Text="@translationState.Translate("Close")"
+                                                                          Click="@( () => DisplayDocumentViewer = false )" />
+                                                        </div>
+                                                    </div>
+                                                    <div class="row pb-2" style="overflow:scroll">
+                                                        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                            <TelerikPdfViewer @ref="PdfViewerRef"
+                                                                              Width="100%"
+                                                                              Height="800px"
+                                                                              Data="@FileDataViewer">
+                                                                <PdfViewerToolBar>
+                                                                    <PdfViewerToolBarSeparator />
+                                                                    <PdfViewerToolBarDownloadTool />
+                                                                    <PdfViewerToolBarPrintTool />
+                                                                    <PdfViewerToolBarPagerTool />
+                                                                    <PdfViewerToolBarSpacer />
+                                                                    <PdfViewerToolBarZoomTool />
+                                                                    <PdfViewerToolBarSelectionTool />
+                                                                    <PdfViewerToolBarSearchTool />
+                                                                </PdfViewerToolBar>
+                                                            </TelerikPdfViewer>
+                                                        </div>
+                                                    </div>
+                                                </RadzenCard>
+                                            }
+                                        </RadzenAccordionItem>
+                                    </Items>
+                                </RadzenAccordion>
+                            </div>
+                        </div>
+                        <div class="row mt-4 popup-buttons-alignment">
+                            <div class="col-12 p-0">
+                                <RadzenButton Text="@translationState.Translate("Submit")"
+                                              ButtonStyle="ButtonStyle.Primary"
+                                              style="margin-right: 0.2rem !important"
+                                              ButtonType="Radzen.ButtonType.Submit" />
+                                <RadzenButton Text="@translationState.Translate("Cancel")"
+                                              ButtonStyle="ButtonStyle.Light"
+                                              Click="@ButtonCancelClick" />
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>

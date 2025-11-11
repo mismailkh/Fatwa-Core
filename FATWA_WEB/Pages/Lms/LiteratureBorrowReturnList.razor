@@ -1,0 +1,287 @@
+﻿@page "/borrow-returnbooks"
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel.Lms
+@using static FATWA_DOMAIN.Enums.LiteratureEnum
+
+<!-- <History Author = 'Hassan Iftikhar' Date='2024-09-03' Version="1.0" Branch="master">list of borrowed and return literature</History> -->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.LMS.Literatures.ReturnBorrowExtend").Count() > 0)
+{
+    <PageTitle>
+        @translationState.Translate("Borrow_Return_Books")
+    </PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Borrow_Return_Books")" />
+                    </RadzenBreadCrumb>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="row TitleBar justify-content-center align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Borrow_Return_Books")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            @if (isStockTakingInPrgoress)
+            {
+                <div class="row">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="rz-alert rz-alert-sm rz-variant-flat rz-warning rz-shade-lighter" aria-live="polite">
+                            <div class="rz-alert-item">
+                                <i style="" class="rzi rz-alert-icon" id="4zgarvf6ik" _bl_480="">info_outline</i>
+                                <div class="rz-alert-message">
+                                    <div class="rz-alert-content">
+                                        <p class="m-0" style="font-size: 15px;">@(translationState.Translate("Cannot_Take_Any_Action_StockTaking_InProgress"))</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+            <RadzenCard>
+                <div class="row align-items-center">
+                    <div class="col-md-5">
+                        <div class="k-form-field-wrap">
+                            <RadzenLabel Text="@translationState.Translate("Select_Employee")" style="width: 100%;">
+                            </RadzenLabel>
+                        </div>
+                     
+                            <div class="k-form-field-wrap">
+                                <RadzenDropDown class="NT-grid" Placeholder="@translationState.Translate("Select_User")"
+                                Data=@getUserDetails
+                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullNameEnglish" : "FullNameArabic")"
+                                ValueProperty="Id"
+                                Name="UserId"
+                                @bind-Value="@(UserId)"
+                                @ref="userDropDown"
+                                AllowClear="true"
+                                TValue="string"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowFiltering="true"
+                                Change="@OnChangeUser"
+                                Style="width: 100%; height: 40px;" />
+                            </div>
+                        
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="k-form-field-wrap">
+                            <RadzenLabel Text="@translationState.Translate("Civil_Id")" style="width: 100%;">
+                            </RadzenLabel>
+                        </div>
+                        <div class="k-form-field-wrap">
+                            <RadzenTextBox Placeholder="@translationState.Translate("Civil_Id")"
+                                           @bind-Value="@CivilId"
+                                           Style="width: 100%; height: 40px;" />
+                        </div>
+                    </div>
+
+                    <div class="col-md-4 d-flex align-items-center justify-content-start">
+                        <div class="k-form-field-wrap" style="margin-top: 1.5rem;">
+                            <!-- Adjusts top margin -->
+                            <RadzenButton ButtonStyle="ButtonStyle.Light" Disabled="@isStockTakingInPrgoress" Text="@translationState.Translate("search")" Click="Search" Style="margin-right: 0.5rem;">
+                            </RadzenButton>
+
+                            @if (IsSearch)
+                            {
+                                <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@translationState.Translate("Reset")" Click="Reset" Style="margin-left: 0.5rem;">
+                                </RadzenButton>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+            </RadzenCard>
+            @if (IsSearch)
+            {
+                <RadzenCard>
+
+                    <div class="row pb-2">
+                        <div class="col-6 datagrid-rz-label">
+                            <div class="detailSection" style="margin-bottom: 1rem;">
+
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Designation"):</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? LiteratureAndUserDetail?.UserDetail.FirstOrDefault().DesignationEn : LiteratureAndUserDetail?.UserDetail.FirstOrDefault().DesignationAr) </h3>
+
+                                </div>
+                            </div>
+
+                            <div class="detailSection" style="margin-bottom: 1rem;">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Sector"):</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? LiteratureAndUserDetail?.UserDetail.FirstOrDefault().SectorNameEn : LiteratureAndUserDetail?.UserDetail.FirstOrDefault().SectorNameAr) </h3>
+                                </div>
+                            </div>
+
+                            <div class="detailSection" style="margin-bottom: 1rem;">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Mobile"):</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@LiteratureAndUserDetail?.UserDetail.FirstOrDefault().MobileNumber</h3>
+                                </div>
+                            </div>
+                            <div class="detailSection" style="margin-bottom: 1rem;">
+                                <div class="detailHeading">
+                                    <h3>@translationState.Translate("Extension"):</h3>
+                                </div>
+                                <div class="detailContent">
+                                    <h3>@LiteratureAndUserDetail?.UserDetail.FirstOrDefault().Extension</h3>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6 datagrid-rz-label">
+                            <RadzenImage Path="@($"data:image/png;base64,{imagebase64}")" AlternateText="base64 image" Width = "250px"/>
+                        </div>
+
+                    </div>
+                    
+
+
+
+
+                </RadzenCard>
+                <RadzenCard>
+                   @*  <div class="row justify-content-center mainContentBlock py-4"> *@
+                        <div class="col-md-12">
+                        <div class="row no-gutters">
+                            <div class="col-md-4">
+                                <RadzenTextBox Placeholder="@translationState.Translate("Barcode")" @bind-Value="@Barcode" style="width: 100%; margin-bottom: 10px;" />
+                            </div>
+                            <div class="col-md-8 d-flex justify-content-start tableAdditionButton px-2 pb-3">
+                                <RadzenButton class="compareBtn" Text="@translationState.Translate("Add_Book")" Style="margin-left: 0.5rem !important;" Click="@Go">
+                                </RadzenButton>
+                                <RadzenButton class="compareBtn" ButtonStyle="ButtonStyle.Primary" Style="margin-left: 0.5rem !important;" Text="@translationState.Translate("Search_Book")" Click="@SearchBook">
+                                </RadzenButton>
+                            </div>
+                        </div>
+                        </div>
+                        <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid0"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(FilteredBorrowedLiterature != null ? FilteredBorrowedLiterature.Count() : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        AllowFiltering="false"
+                                        Data="@FilteredBorrowedLiterature"
+                                        TItem="BorrowedLiteratureVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true" ColumnWidth="100px"
+                                        AllowRowSelectOnRowClick="false"
+                                        SelectionMode="DataGridSelectionMode.Multiple"
+                                        CellRender="@RowRenderHandler">
+                            <Columns>
+                               
+                                <RadzenDataGridColumn TItem="BorrowedLiteratureVM" Title="@translationState.Translate("Action")" Width="70px" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+									<Template Context="rowItem">
+                                       
+                                        <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                      Class="deleteIcon"
+                                                      Icon="assignment_returned"
+                                                      Title="@translationState.Translate("Return")"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => Return(rowItem))"
+                                                      @onclick:stopPropagation="true" />
+                                        @if (rowItem.DueDate < DateTime.Now && (bool)!rowItem.Extended && rowItem.DecisionId == (int)BorrowApprovalStatus.Approved && rowItem.ApplyReturnDate == null && rowItem.ReturnDate == null)
+                                       {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          class="editIcon"
+                                                          Icon="extension"
+                                                          Title="@translationState.Translate("Apply_Extension")"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => Extend(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+
+                                       }
+                                    </Template>
+                                        </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="BorrowedLiteratureVM" Property="BookName" Title="@translationState.Translate("Book_Name")" />
+                                <RadzenDataGridColumn TItem="BorrowedLiteratureVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "AuthorNameEn" : "AuthorNameAr") Title="@translationState.Translate("Author")" />
+                                <RadzenDataGridColumn TItem="BorrowedLiteratureVM" Property="Barcode" Title="@translationState.Translate("Barcode_No")" />
+                                <RadzenDataGridColumn TItem="BorrowedLiteratureVM" Property="BarrowedDate" Title="@translationState.Translate("Borrow_Issue_Date")" FormatString="{0:dd/MM/yyyy h:mm tt}" />
+                                <RadzenDataGridColumn TItem="BorrowedLiteratureVM" Property="DueDate" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Due_Date_Borrow")">
+
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="BorrowedLiteratureVM" Property="ExtendDueDate" FormatString="{0:dd/MM/yyyy h:mm tt}" Title="@translationState.Translate("Extended_Date")">
+
+
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                        </div>               
+                        @*    </div> *@
+
+                </RadzenCard>
+             
+                
+                    <div class="row mt-3">
+                        <div class="col-md-12 popup-buttons-alignment">
+                            <RadzenButton Text="@translationState.Translate("Cancel")"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Click="@Cancel" />
+                            <RadzenButton Text="@translationState.Translate("User_Borrow_History")"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          
+                                          Click="@UserHistory" />
+                        
+                        </div>
+                    </div>
+                
+            }
+        </ChildContent>
+    </RadzenContent>
+}
+@* @code
+{
+      string searchText = "";
+
+    public string SearchText
+    {
+        get
+        {
+            var rr = searchText;
+            searchText = "";
+            return rr;
+        }
+        set
+        {
+            if (searchText != UserId)
+            {
+                searchText = UserId;
+            }
+        }
+    }
+} *@

@@ -1,0 +1,201 @@
+﻿@page "/save-closecase-file/{CaseId}"
+@using FATWA_DOMAIN.Models.CaseManagment
+@layout MainLayout
+@*<History Author = 'Ijaz Ahmad' Date='2022-12-21' Version="1.0" Branch="master"> Save &  Close Case File </History>*@
+<RadzenContent Container="main">
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("save_and_Close_CaseFile")" />
+                </RadzenBreadCrumb>
+
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard"> 
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_Dashboard")"
+                              class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4">
+
+        <div class="row no-gutters">
+            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("save_and_Close_CaseFile")" />
+        </div>
+    </div>
+    <RadzenTemplateForm Data="@cmsSaveCloseCaseFiles" Visible="@(cmsSaveCloseCaseFiles != null)" TItem="CmsSaveCloseCaseFile" Submit="@FormSubmit">
+        <ChildContent>
+            <RadzenFieldset AllowCollapse="false" Style="width: 100% !important; margin: 30px auto;">
+
+                <ChildContent>
+                    <div class="row">
+                        <div class="col-3">
+                            <RadzenLabel Text="@translationState.Translate("Response_Type")" />
+                            <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowClear="true"
+                                            Data="@ResponseType"
+                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                            ValueProperty="Id"
+                                            Name="saveAndCloseCaseFileType"
+                                            Disabled="true"
+                                            Placeholder="@translationState.Translate("Select")"
+                                            Style="display:block;"
+                                            @bind-Value="@saveAndCloseCaseFileType" />
+                            <div class="rz-message rz-messages-error ">@typeValidationMsg</div>
+
+
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("Government_Entity")"
+                                             Component="EntityId" />
+                                <RadzenDropDown Data="@governmentEntities"
+                                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowClear="true"
+                                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                                ValueProperty="EntityId"
+                                                Placeholder="@translationState.Translate("Select")"
+                                                Style="display:block;" @bind-Value="@cmsSaveCloseCaseFiles.EntityId"
+                                                Name="EntityId" />
+                               <div class="rz-message rz-messages-error ">@governmentEntitiesValidationMsg</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("Request_Date")" Component="Request_Date" />
+                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Disabled="true" Min="@DateTime.Today" Class="w-100" Name="RequestDate" @bind-Value="@cmsSaveCloseCaseFiles.RequestDate" />
+
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="form-group">
+
+                                <RadzenLabel Text="@translationState.Translate("Is_Urgent")" Component="Is_Urgent" Style="width: 100%" />
+
+                                <RadzenCheckBox class="NT-checkbox"
+                                                @bind-Value=@(cmsSaveCloseCaseFiles.IsUrgent)
+                                                TValue="bool" Name="Is_Urgent" />
+
+
+                            </div>
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("File_Number")" Component="File_Number" />
+                                <RadzenTextBox Disabled="true" Class="w-100" @bind-Value="@(cmsRegisteredCaseDetailVM.FileNumber)" Name="FileNumber">
+                                </RadzenTextBox>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("Case_Number")" Component="Case_Number" />
+                                <RadzenTextBox Disabled="true" Class="w-100" @bind-Value="@(cmsRegisteredCaseDetailVM.CaseNumber)" Name="CaseNumber">
+                                </RadzenTextBox>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("CAN_Number")" Component="Can_Number" />
+                                <RadzenTextBox Disabled="true" Class="w-100" @bind-Value="@(cmsRegisteredCaseDetailVM.CANNumber)" Name="CanNumber">
+                                </RadzenTextBox>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("Case_Date")" Component="Case_Date" />
+                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Disabled="true" Class="w-100" Name="CaseDate" @bind-Value="@cmsRegisteredCaseDetailVM.CaseDate" />
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group">
+                                <RadzenLabel Text="@translationState.Translate("Due_Date")" Component="Due_Date" />
+                                <RadzenDatePicker DateFormat="dd/MM/yyyy" Min="@DateTime.Today" Class="w-100" Name="Due_Date" @bind-Value="@cmsSaveCloseCaseFiles.DueDate" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenLabel Text="@translationState.Translate("Reminder_Frequency")" Component="Frequency" />
+                            <RadzenDropDown AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowClear="true"
+                                            Data="@frequency"
+                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+                                            ValueProperty="Id"
+                                            Placeholder="@translationState.Translate("Select")"
+                                            Style="display:block;"
+                                            @bind-Value="@cmsSaveCloseCaseFiles.FrequencyId"
+                                            Name="Frequency" />
+                         </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <RadzenLabel Text="@translationState.Translate("Reason")" />
+
+                            <RadzenTextArea Cols="30"
+                                            @bind-Value="@cmsSaveCloseCaseFiles.Reason"
+                                            Rows="2"
+                                            class="w-100"
+                                            Placeholder="Reason of response"
+                                            Name="Reason" />
+
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenLabel Text="@translationState.Translate("Other")" Component="Other" />
+                            <RadzenTextArea @bind-Value="@cmsSaveCloseCaseFiles.Other"
+                                            Cols="30"
+                                            class="w-100"
+                                            Rows="2"
+                                            Name="Other" />
+                        </div>
+                        <div class="col-md-4">
+                            <RadzenLabel Text="@translationState.Translate("Priority")" Component="Reminder_Frequency" />
+                            <RadzenDropDown Data="@Priorities"
+                                            AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowClear="true"
+                                            TextProperty="Name_En"
+                                            ValueProperty="Id"
+                                            Placeholder="@translationState.Translate("Select")"
+                                            Style="display:block;"
+                                            @bind-Value="@cmsSaveCloseCaseFiles.PriorityId" />
+                        </div>
+                    </div>
+
+
+                    <div class="row justify-content-end pt-3">
+                        <div class="col-md-6" style="text-align:right;">
+                            <RadzenButton Text="@translationState.Translate("Back")"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Click="@GoBackDashboard" />
+
+                            <RadzenButton Text="@translationState.Translate("save_and_Close_CaseFile")"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          ButtonType="Radzen.ButtonType.Submit" />
+                        </div>
+
+
+                    </div>
+                </ChildContent>
+            </RadzenFieldset>
+
+        </ChildContent>
+    </RadzenTemplateForm>
+</RadzenContent>

@@ -1,0 +1,54 @@
+﻿@using FATWA_DOMAIN.Models.DigitalSignature;
+
+<RadzenDataGrid Data="@signatureVerification.Signatures"
+                TItem="Signature"
+                AllowPaging="true"
+                PageSize="5"
+                EmptyText="@(VerificationResponse.IsSuccessStatusCode?translationState.Translate("No_record_found"):FailedResponse)"
+                PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                ShowPagingSummary="true"
+                PageSizeText="@translationState.Translate("Items_Per_Page")"
+                Count="@(signatureVerification.Signatures.Length)"
+                ExpandMode="DataGridExpandMode.Single">
+    <Columns>
+        <RadzenDataGridColumn TItem="Signature" Property="Header" Title="@translationState.Translate("Signatory_Name")" Width="300px">
+            <Template Context="signature">
+                @(signature.Header.Contains("Signed By")
+                    ? signature.Header.Substring(signature.Header.IndexOf("Signed By") + "Signed By".Length).Split('\r')[0].Trim()
+                    : string.Empty)
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Signature" Property="SignerCertificateIsValid" Title="@translationState.Translate("Verification_Status")" Width="150px">
+            <Template Context="signature">
+                @(signature.SignerCertificateIsValid ? @translationState.Translate("Valid") : @translationState.Translate("InValid"))
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Signature" Title="@translationState.Translate("Signing_Time")" Width="150px">
+            <Template Context="signature">
+                @signature.TimestampDetails.TimeStampDate.ToString("g")
+            </Template>
+        </RadzenDataGridColumn>
+
+        <RadzenDataGridColumn TItem="Signature" Property="SignerCertificateIsValid" Title="@translationState.Translate("Is_Valid")" Width="110px">
+            <Template Context="signature">
+                @(signature.SignerCertificateIsValid ? "Yes" : "No")
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn TItem="Signature" Title="@translationState.Translate("Signature_Algorithm")" Width="150px">
+            <Template Context="signature">
+                <a href="#" @onclick="() => DownloadCertificate(signature.SignatureDetails.ChainDetails.First().Certificate)" @onclick:preventDefault>
+                    @translationState.Translate("Certificate")
+                </a>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+<div class="popup-buttons-alignment pt-3">
+    <RadzenButton Text="@translationState.Translate("OK")"
+                  ButtonStyle="ButtonStyle.Primary"
+                  Click="@CancelChanges">
+    </RadzenButton>
+</div>
+
+

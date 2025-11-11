@@ -1,0 +1,225 @@
+﻿@page "/caseparty-view/{CasepartyId}"
+@using FATWA_DOMAIN.Common;
+@using FATWA_DOMAIN.Models.ViewModel;
+@using static FATWA_DOMAIN.Enums.TaskEnums
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@using FATWA_WEB.Pages.Shared
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@layout MainLayout
+<!-- <History Author = 'Ijaz Ahmad' Date='2024-03-07' Version="1.0" Branch="master">Case Party page showing the Case Party  details, atachments  if any</History> -->
+<PageTitle>"@translationState.Translate("Party_Details")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+                <div class="col-9">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem onclick=@RedirectBack Text="@translationState.Translate("Case")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Party_Details")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-3 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-12">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate("Party_Details")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row d-block justify-content-left p-0 m-0 tab-webkit-fill">
+                <RadzenAccordion>
+                    <Items>
+                        <RadzenAccordionItem Text="@translationState.Translate("Metadata_Section")" Selected="true">
+                            <div class="row no-gutters">
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("Case_Party_Category") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? $"{CasePartyDetail.CategoryName_En}" : $"{CasePartyDetail.CategoryName_Ar}")</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("Type") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? @CasePartyDetail?.TypeName_En : @CasePartyDetail?.TypeName_Ar)</h3>
+                                    </div>
+                                </div>
+                                @if (ShowIndividualSection)
+                            {
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("Name") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        @if (CasePartyDetail.CasePartyType == CasePartyTypeEnum.Individual || CasePartyDetail.TypeId == (int)CasePartyTypeEnum.Individual)
+                                        {
+                                            <h3>@(CasePartyDetail?.Name)</h3>
+                                        }
+                                        else
+                                        {
+                                            <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? $"{CasePartyDetail.RepresentativeEn}" : $"{CasePartyDetail.RepresentativeAr}")</h3>
+
+                                        }
+
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("CivilId_CRN") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        @if (CasePartyDetail.CasePartyType == CasePartyTypeEnum.Individual || CasePartyDetail.TypeId == (int)CasePartyTypeEnum.Individual)
+                                        {
+                                            <h3>@(CasePartyDetail?.CivilId)</h3>
+                                        }
+
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("PACI_Number") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@CasePartyDetail.PACINumber</h3>
+                                    </div>
+                                </div>
+                                <div class="col-12 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("Address") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@CasePartyDetail.Address</h3>
+                                    </div>
+                                </div>
+                            }
+                            @if (ShowCompanySection)
+                            {
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("Name") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        @if (CasePartyDetail.CasePartyType == CasePartyTypeEnum.Company || CasePartyDetail.TypeId == (int)CasePartyTypeEnum.Company)
+                                        {
+                                            <h3>@(CasePartyDetail?.Name)</h3>
+                                        }
+                                        else
+                                        {
+                                            <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? $"{CasePartyDetail.RepresentativeEn}" : $"{CasePartyDetail.RepresentativeAr}")</h3>
+                                        }
+
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("CivilId_CRN") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        @if (CasePartyDetail.CasePartyType == CasePartyTypeEnum.Company || CasePartyDetail.TypeId == (int)CasePartyTypeEnum.Company)
+                                        {
+                                            <h3>@(CasePartyDetail?.CRN)</h3>
+                                        }
+                                        else
+                                        {
+                                            <h3>-</h3>
+                                        }
+
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("Company_Civil_Id") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@(CasePartyDetail?.CompanyCivilId)</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("MOCI_File_Number") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@(CasePartyDetail?.MOCIFileNumber)</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("License_Number") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@CasePartyDetail.LicenseNumber</h3>
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("Membership_Number") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@CasePartyDetail.MembershipNumber</h3>
+                                    </div>
+                                </div>
+                            }
+                            @if (ShowGovtEntitySection)
+                            {
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("Government_Entity") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                    
+                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? $"{CasePartyDetail.GovtEntity_En}" : $"{CasePartyDetail.GovtEntity_Ar}")</h3>
+                                     
+                                    </div>
+                                </div>
+                                <div class="col-6 detailSection">
+                                    <div class="detailHeading">
+                                        <h3>@(translationState.Translate("Representative") + ":")</h3>
+                                    </div>
+                                    <div class="detailContent">
+                                        <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? $"{CasePartyDetail.RepresentativeEn}" : $"{CasePartyDetail.RepresentativeAr}")</h3>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+            <RadzenAccordion>
+                <Items>
+                    <RadzenAccordionItem Text="@translationState.Translate("Document_Details")" Selected="false">
+                        <FileUpload ReferenceGuid="Guid.Parse(CasePartyId)"
+                                    IsViewOnly="true"
+                                    ModuleId="(int)WorkflowModuleEnum.CaseManagement " />
+                    </RadzenAccordionItem>
+                </Items>
+            </RadzenAccordion>
+        </div>
+        <div class="col-md-6 mt-2 justify-content-start" style="padding-left: 0px;">
+            <RadzenButton ButtonStyle="ButtonStyle.Light" class="m-1" Text="@translationState.Translate("Back")" Click="@RedirectBack">
+            </RadzenButton>
+        </div>
+    </ChildContent>
+</RadzenContent>

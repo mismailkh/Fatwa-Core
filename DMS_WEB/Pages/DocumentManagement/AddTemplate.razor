@@ -1,0 +1,247 @@
+﻿@page "/template-add"
+@page "/template-add/{TemplateId}"
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.CaseManagment
+@using Syncfusion.Blazor.RichTextEditor
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DropDowns
+@using Syncfusion.Blazor.DocumentEditor
+@using Syncfusion.Blazor.Buttons
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+@inject Microsoft.AspNetCore.Components.NavigationManager UriHelper
+@inject IJSRuntime JSRuntime;
+@layout MainLayout
+
+<PageTitle>@translationState.Translate(DocumentTemplateId > 0 ? "Update_Template" : "Add_Template")</PageTitle>
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.DMS.Template.Add").Count() > 0)
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/template-list" Text="@translationState.Translate("Template_List")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate(DocumentTemplateId > 0 ? "Update_Template" : "Add_Template")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row pt-3 no-gutters">
+                        <RadzenHeading Size="H1" Text="@translationState.Translate(DocumentTemplateId > 0 ? "Update_Template" : "Add_Template")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock">
+                <div class="col-md-12">
+                    <RadzenFieldset AllowCollapse="false" Style=" margin: 20px auto;">
+                        <HeaderTemplate>
+                            <span class="d-inline-flex align-items-center align-middle">
+                                <b>@translationState.Translate("Template_Details")</b>
+                            </span>
+                        </HeaderTemplate>
+                        <ChildContent>
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Name_En") + " *")" Component="Template_Name_En" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Name_En")" @bind-Value="@(Template.NameEn)" Name="Template_Name_En" />
+                                        <RadzenRequiredValidator Component="Template_Name_En" Text="@translationState.Translate("Required_Field")" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@(translationState.Translate("Name_Ar") + " *")" Component="Template_Name_Ar" />
+                                        <RadzenTextBox Placeholder="@translationState.Translate("Name_Ar")" @bind-Value="@(Template.NameAr)" Name="Template_Name_Ar" />
+                                        <RadzenRequiredValidator Component="Template_Name_Ar" Text="@translationState.Translate("Required_Field")" />
+                                    </div>
+                                </div>
+                                @if (!IsHeaderFooterTemplate)
+                                {
+                                    @if (DocumentTemplateId <= 0)
+                                    {
+                                        <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                            <div class="form-group" style="display: grid;">
+                                                <RadzenLabel Text="@(translationState.Translate("Module") + "*")" Component="Module" />
+                                                <RadzenDropDown TValue="int" Data="@Modules" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                TextProperty="ModuleEnumName" ValueProperty="ModuleEnumValue" Placeholder="@translationState.Translate("Select")"
+                                                                Style="display:block;" @bind-Value="ModuleId" Name="Module" Change="@OnModuleChange">
+                                                </RadzenDropDown>
+                                            </div>
+                                        </div>
+                                    }
+                                    <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                        <div class="form-group" style="display: grid;">
+                                            <RadzenLabel Text="@(translationState.Translate("Document_Type") + " *")" Component="Attachment_Type" />
+                                            <RadzenDropDown Data="@AttachmentTypes" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar")" ValueProperty="AttachmentTypeId" Placeholder="@translationState.Translate("Select")"
+                                                            Style="display:block;" @bind-Value="Template.AttachmentTypeId" Name="Attachment_Type" />
+                                            <RadzenRequiredValidator DefaultValue="0" Component="Attachment_Type" Text="@translationState.Translate("Required_Field")" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("Is_G2G_Stamp")" />
+                                        <br>
+                                        <RadzenCheckBox class="d-block mt-2" Placeholder="@translationState.Translate("Is_G2G_Stamp")" @bind-Value="@Template.IsG2GStamp" Name="Is_G2G_Stamp" />
+                                    </div>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-3 col-lg-3 col-xl-3">
+                                    <div class="form-group">
+                                        <RadzenLabel Text="@translationState.Translate("Is_Time_Stamp")" />
+                                        <br>
+                                        <RadzenCheckBox class="d-block mt-2" Placeholder="@translationState.Translate("Is_Time_Stamp")" @bind-Value="@Template.IsTimeStamp" Name="Is_Time_Stamp" />
+                                    </div>
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenFieldset>
+                    @if (!IsHeaderFooterTemplate)
+                    {
+                        <RadzenFieldset AllowCollapse="false" Style=" margin: 40px auto;">
+                            <HeaderTemplate>
+                                <span class="d-inline-flex align-items-center align-middle">
+                                    <b>@translationState.Translate("Template_Header")</b>
+                                </span>
+                            </HeaderTemplate>
+                            <ChildContent>
+                                <div class="row">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 direction-ltr">
+                                        @if (HeaderFooterTemplates.Any())
+                                        {
+                                            @(new MarkupString(HeaderFooterTemplates.Where(x => x.Id == (Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? (int)CaseTemplateEnum.HeaderEn : (int)CaseTemplateEnum.HeaderAr)).Select(x => x.Content).FirstOrDefault()))
+                                        }
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="rz-alert rz-alert-sm rz-variant-flat rz-warning rz-shade-lighter" aria-live="polite">
+                                            <div class="rz-alert-item">
+                                                <i style="" class="rzi rz-alert-icon" id="4zgarvf6ik" _bl_480="">info_outline</i>
+                                                <div class="rz-alert-message">
+                                                    <div class="rz-alert-content">
+                                                        <p class="m-0">@translationState.Translate("Header_Edit_Info_Alert") <a href="javascript:void(0)" @onclick="@EditHeader">@translationState.Translate("Click_Edit_Header")</a></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ChildContent>
+                        </RadzenFieldset>
+                    }
+                    <RadzenFieldset AllowCollapse="false" Style=" margin: 40px auto;">
+                        <HeaderTemplate>
+                            <span class="d-inline-flex align-items-center align-middle">
+                                <b>@translationState.Translate(IsHeaderFooterTemplate ? "Content" : "Template_Content")</b>
+                            </span>
+                        </HeaderTemplate>
+                        <ChildContent>
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                    @if (DocumentTemplateId <= 0)
+                                    {
+                                        <SfDocumentEditorContainer EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                                                   Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")" @ref="container"
+                                                                   ToolbarItems="ToolBarItems" EnableToolbar=true Height="590px" DocumentEditorSettings="@settings">
+                                            <DocumentEditorContainerEvents Created="OnCreated" DocumentChanged="OnDocumentChange" ContextMenuItemSelected="OnContentMenuSelect"></DocumentEditorContainerEvents>
+                                        </SfDocumentEditorContainer>
+                                    }
+                                    else if (DocumentTemplateId <= (int)CaseTemplateEnum.HeaderAr)
+                                    {
+                                        <SfRichTextEditor CssClass="direction-ltr" @bind-Value="Template.Content" EnableAutoUrl="false" EnableRtl="false" Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")">
+                                            <RichTextEditorToolbarSettings Items="@Tools" />
+                                            <RichTextEditorQuickToolbarSettings Image="@ImageTools" />
+                                            <RichTextEditorImageSettings SaveFormat="SaveFormat.Base64"></RichTextEditorImageSettings> 
+                                        </SfRichTextEditor>
+                                    }
+                                    else
+                                    {
+                                        @if (!String.IsNullOrWhiteSpace(Template.Content))
+                                        {
+                                            <SfDocumentEditorContainer EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" 
+                                            Locale="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "en-US" : "ar-KW")"
+                                                                       @ref="container" ToolbarItems="ToolBarItems" EnableToolbar=true Height="590px" DocumentEditorSettings="@settings">
+                                                <DocumentEditorContainerEvents OnToolbarClick="@ToolbarClickHandler" Created="OnCreated" DocumentChanged="OnDocumentChange" ContextMenuItemSelected="OnContentMenuSelect"></DocumentEditorContainerEvents>
+                                            </SfDocumentEditorContainer>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </ChildContent>
+                    </RadzenFieldset>
+                    @if (!IsHeaderFooterTemplate)
+                    {
+                        <RadzenFieldset AllowCollapse="false" Style=" margin: 40px auto;">
+                            <HeaderTemplate>
+                                <span class="d-inline-flex align-items-center align-middle">
+                                    <b>@translationState.Translate("Template_Footer")</b>
+                                </span>
+                            </HeaderTemplate>
+                            <ChildContent>
+                                <div class="row">
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 direction-ltr">
+                                        @if (HeaderFooterTemplates.Any())
+                                        {
+                                            @(new MarkupString(HeaderFooterTemplates.Where(x => x.Id == (int)CaseTemplateEnum.Footer).Select(x => x.Content).FirstOrDefault()))
+                                        }
+                                    </div>
+                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                        <div class="rz-alert rz-alert-sm rz-variant-flat rz-warning rz-shade-lighter" aria-live="polite">
+                                            <div class="rz-alert-item">
+                                                <i style="" class="rzi rz-alert-icon" id="4zgarvf6ik" _bl_480="">info_outline</i>
+                                                <div class="rz-alert-message">
+                                                    <div class="rz-alert-content">
+                                                        <p class="m-0">@translationState.Translate("Footer_Edit_Info_Alert") <a href="javascript:void(0)" @onclick="@EditFooter">@translationState.Translate("Click_Edit_Footer")</a></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </ChildContent>
+                        </RadzenFieldset>
+                    }
+                </div>
+            </div>
+            <div class="buttoncontainer">
+                <input type="checkbox" id="toggle" />
+                <label class="floatingbutton" for="toggle"></label>
+                <nav class="nav">
+                    <ul>
+                        <TelerikButton Class="cancleBtn"
+                                       ButtonType="Telerik.Blazor.ButtonType.Button"
+                                       ThemeColor="light" OnClick="@SubmitTemplate">@translationState.Translate("Submit")</TelerikButton>
+                        <TelerikButton Class="cancleBtn"
+                                       ButtonType="Telerik.Blazor.ButtonType.Button"
+                                       ThemeColor="light" OnClick="@RedirectBack">@translationState.Translate("Back")</TelerikButton>
+
+                    </ul>
+                </nav>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} 

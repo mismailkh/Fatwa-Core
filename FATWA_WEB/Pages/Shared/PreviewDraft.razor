@@ -1,0 +1,34 @@
+﻿@page "/previewDraft"
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+
+@if (true)
+{
+    <RadzenCard class="bg-light mt-3">
+        <div class="row pb-2">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                @* <TelerikPdfViewer @ref="PdfViewerRef"
+            Width="100%"
+            Height="800px"
+            Data="@FileData">
+            </TelerikPdfViewer> *@
+                <SfPdfViewerServer EnableNavigationToolbar="false"
+                                   Width="100%"
+                                   Height="1000px"
+                                   @ref="@pdfViewer"
+                                   EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                   Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                   ID="pdfviewerDetailCommunication"
+                                   DocumentPath="@DocumentPath"
+                                   InteractionMode="InteractionMode.Pan">
+                </SfPdfViewerServer>
+            </div>
+        </div>
+    </RadzenCard>
+}
+else
+{
+    @*  <row class="row mt-3">
+        @html
+    </row>*@
+}

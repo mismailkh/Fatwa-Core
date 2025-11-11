@@ -1,0 +1,165 @@
+﻿@page "/case-study-list"
+@using FATWA_DOMAIN.Models.ViewModel.MojStatistics
+@using Telerik.Blazor;
+@using Telerik.Blazor.Components
+@using static FATWA_GENERAL.Helper.Enum;
+@using Microsoft.AspNetCore.Authorization
+@using Radzen;
+@using Radzen.Blazor
+@layout MainLayout
+
+@*//<History Author = 'Ijaz Ahmad' Date='2023-7-21' Version="1.0" Branch="master"> Populate MOJ Statistics Dashboard List Lawyer case Study</History>*@
+@*//<History Author = 'Hassan Abbas' Date='2024-02-13' Version="1.0" Branch="master"> Migrated from Statistics Case Study Project</History>*@
+<PageTitle>@translationState.Translate("Moj_Statistics_Case_Study")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.ODRP.MojStatisticsCaseStudy.List"))
+{
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Moj_Statistics_Case_Study")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Moj_Statistics_Case_Study")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row justify-content-center pt-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4">
+                            <RadzenTextBox class="searchBox"
+                                       Placeholder="@translationState.Translate("Grid_Search")"
+                                       Name="Textbox0"
+                                       @oninput="@(async(args) => {search = $"{args.Value}";await grid.GoToPage(0);await OnSearchInput();})" />
+                        </div>
+                        <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                            <RadzenButton class="addBtn"
+                                      Icon="search"
+                                      Text="@translationState.Translate("Advanced_Search")"
+                                      Click="ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid @ref="grid"
+                                    Data="@FilteredCaseStudyStatisticsDashboardList"
+                                    Count="@(getMojStatisticsCaseStudyRequestDetails != null ? getMojStatisticsCaseStudyRequestDetails.Count() : 0)"
+                                    Width="100%"
+                                    TItem="MojStatsCaseStudyVM"
+                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                    PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                    PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                    EmptyText="@translationState.Translate("No_record_found")"
+                                    PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                    ShowPagingSummary="true"
+                                    AllowPaging="true"
+                                    AllowSorting="true">
+
+                            <Columns>
+
+                                <RadzenDataGridColumn TItem="MojStatsCaseStudyVM" Width="65px" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                    <Template Context="row">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                  Icon="visibility"
+                                                  Size="ButtonSize.Small"
+                                                  Class="viewIcon"
+                                                  Title="@translationState.Translate("Details")"
+                                                  Click="@((args) => ViewDetails(row))" @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MojStatsCaseStudyVM" Property="CaseAutomatedNumber" Width="122px" Title="@translationState.Translate("CaseAutomated_Number")">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MojStatsCaseStudyVM" Property="EntityName" Width="120px" Title="@translationState.Translate("Government_Entity")">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MojStatsCaseStudyVM" FormatString="{0:dd/MM/yyyy}" Width="108px" Property="CaseDate" Title="@translationState.Translate("Case_Date")">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MojStatsCaseStudyVM" FormatString="{0:dd/MM/yyyy}" Width="108px" Property="JudgementDate" Title="@translationState.Translate("Judgement_Date")">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MojStatsCaseStudyVM" Property="JudgementType" Width="130px" Title="@translationState.Translate("Judgement_Type")">
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="MojStatsCaseStudyVM" Property="CaseStudyStatus" Width="130px" Title="@translationState.Translate("CaseStudy_Status")">
+                                </RadzenDataGridColumn>
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+    @*Advance search Window*@
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-12">
+
+                    <div class="form-group">
+                        <RadzenLabel Text="@(translationState.Translate("Government_Entity") + " *")" Component="GovernmentEntity" />
+                        <RadzenDropDown Data="@GovtEntities"
+                                    AllowFiltering="true"
+                                    AllowClear="true"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "EntityName" : "EntityName")"
+                                    ValueProperty="id"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;"
+                                    @bind-Value="advanceSearchVM.id"
+                                    Name="GovernmentEntity" />
+                        <RadzenRequiredValidator DefaultValue="0" Component="GovernmentEntity" Text="@translationState.Translate("Required_Field")" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Request_From")" Component="Request_From" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Request_From" @bind-Value="@advanceSearchVM.CreatedFrom" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Request_To")" Component="Request_To" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Request_To" @bind-Value="@advanceSearchVM.CreatedTo" />
+                </div>
+            </div>
+            <div class="row justify-content-end pt-3">
+                <div class="col-md-6" style="text-align:right;">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+

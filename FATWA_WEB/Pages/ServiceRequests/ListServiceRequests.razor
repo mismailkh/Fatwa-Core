@@ -1,0 +1,172 @@
+﻿@page "/servicerequest-list"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel.InventoryManagementVMs;
+@using static FATWA_DOMAIN.Enums.ServiceRequests.ServiceRequestEnums
+@using static FATWA_DOMAIN.Enums.Inventory.InventoryEnum
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.SR.ServiceRequest.List").Count() > 0)
+{
+
+    <PageTitle>@translationState.Translate("Service_Requests")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Service_Requests")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Service_Requests")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end ">
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+
+                    <div class="row no-gutters">
+                        <div class="col-md-4 ">
+                            <RadzenTextBox class="searchBox"
+                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                           Name="Textbox0"
+                                           @oninput="@(async(args) => {search = $"{args.Value}";await grid.GoToPage(0);await OnSearchInput();})" />
+                        </div>
+                        <div class="col-md-8 tableAdditionButton addPrincipleBtn px-0 pb-3">
+                            <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add_Service_Request")" Click="@AddServiceRequest" />
+                            <RadzenButton class="addBtn"
+                                          Icon="search"
+                                          Text="@translationState.Translate("Advanced_Search")"
+                                          Click="@ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid AllowFiltering="false"
+                                        @ref="grid"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        FilterMode="Radzen.FilterMode.Advanced"
+                                        Count="@(ServiceRequestList != null ? ServiceRequestList.Count() : 0)"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        Data="@FilteredServiceRequestList"
+                                        TItem="ServiceRequestVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                        ShowPagingSummary="true"
+                                        ColumnWidth="200px">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="ServiceRequestVM" Title="@translationState.Translate("Actions")" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        @if (rowItem.ServiceRequestStatusId == (int)ServiceRequestStatusEnum.Draft ||
+                                       rowItem.ServiceRequestStatusId == (int)ServiceRequestStatusEnum.NeedModification)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          class="editIcon"
+                                                          Titile="@translationState.Translate("Edit")"
+                                                          Icon="edit"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => EditServiceRequest(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                        }
+                                        @if (rowItem.ServiceRequestStatusId != (int)ServiceRequestStatusEnum.Draft ||
+                                       rowItem.ServiceRequestStatusId == (int)ServiceRequestStatusEnum.NeedModification)
+                                        {
+                                            <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                          Class="viewIcon"
+                                                          Titile="@translationState.Translate("View_Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => ServiceRequestDetailView(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                        }
+
+
+
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="ServiceRequestVM" Property="ServiceRequestNumber" Title="@translationState.Translate("Request_Number")" />
+                                <RadzenDataGridColumn TItem="ServiceRequestVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RequestTypeEn" :"RequestTypeEn")" Title="@translationState.Translate("Request_Type")" />
+                                <RadzenDataGridColumn TItem="ServiceRequestVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RequestorNameEn" :"RequestorNameAr")" Title="@translationState.Translate("Requestor_Name")" />
+                                @* <RadzenDataGridColumn TItem="ServiceRequestVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorFromEn" :"SectorFromAr")" Title="@translationState.Translate("Sector_Sent_By")" /> *@
+                                <RadzenDataGridColumn TItem="ServiceRequestVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "SectorToEn" :"SectorToAr")" Title="@translationState.Translate("Sector_Received_By")" />
+                                <RadzenDataGridColumn TItem="ServiceRequestVM" Property="RequestCreatedDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Request_Date")" />
+                                <RadzenDataGridColumn TItem="ServiceRequestVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "RequestStatusEn" :"RequestStatusAr")" Title="@translationState.Translate("Request_Status")" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+
+    @*Advance search Window*@
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Request_Status")" Component="ServiceRequestStatus" />
+                    <RadzenDropDown Data="@ServiceRequestStatus" AllowFiltering="true" AllowClear="true"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" :"NameAr")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchVM.RequestStatusId" Name="ServiceRequestStatus" />
+                </div>
+            </div>
+            <div class="row" Style="margin-top:10px;">
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Request_From")" Component="Request_From" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Request_From" @bind-Value="@advanceSearchVM.RequestedDateFrom" />
+                </div>
+                <div class="col-md-6">
+                    <RadzenLabel Text="@translationState.Translate("Request_To")" Component="Request_To" />
+                    <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Request_To" @bind-Value="@advanceSearchVM.RequestedDateTo" />
+                </div>
+            </div>
+            <div class="row justify-content-end pt-3">
+                <div class="col-md-12 popup-buttons-alignment">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+
+
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+
+}

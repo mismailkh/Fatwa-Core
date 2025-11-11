@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="www.cait.gov.kw" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" targetNamespace="www.cait.gov.kw" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="www.cait.gov.kw">
+      <s:element name="G2G_TransferIncomingDocument">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DocumentID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="G2G_TransferIncomingDocumentResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="G2G_TransferIncomingDocumentResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="G2G_IncomingDocumentTransfered">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DocumentID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="G2G_IncomingDocumentTransferedResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="G2G_IncomingDocumentTransferedResult" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="G2G_GetIncomingData">
+        <s:complexType />
+      </s:element>
+      <s:element name="G2G_GetIncomingDataResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="G2G_GetIncomingDataResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="G2G_GetIncomingAttachment">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="DocumentID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="G2G_GetIncomingAttachmentResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="G2G_GetIncomingAttachmentResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="G2G_GetSitesList">
+        <s:complexType />
+      </s:element>
+      <s:element name="G2G_GetSitesListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="G2G_GetSitesListResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSitesList">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetSitesListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSitesListResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetSitesBranchList">
+        <s:complexType />
+      </s:element>
+      <s:element name="GetSitesBranchListResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetSitesBranchListResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="G2G_GetSitesSubBranch">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="ParentID" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="G2G_GetSitesSubBranchResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="G2G_GetSitesSubBranchResult">
+              <s:complexType>
+                <s:sequence>
+                  <s:element ref="s:schema" />
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="G2G_SendOutGoingDocument">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="SenderUser" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="SSite" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="RSite" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="Remarks" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="BookNo" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="G2GSubject" type="s:string" />
+            <s:element minOccurs="1" maxOccurs="1" name="SBrSiteID" type="s:int" />
+            <s:element minOccurs="1" maxOccurs="1" name="RBrSiteID" type="s:int" />
+            <s:element minOccurs="0" maxOccurs="1" name="AttachmentsDT">
+              <s:complexType>
+                <s:sequence>
+                  <s:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/2001/XMLSchema" processContents="lax" />
+                  <s:any minOccurs="1" namespace="urn:schemas-microsoft-com:xml-diffgram-v1" processContents="lax" />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="G2G_SendOutGoingDocumentResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="G2G_SendOutGoingDocumentResult" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="G2G_TransferIncomingDocumentSoapIn">
+    <wsdl:part name="parameters" element="tns:G2G_TransferIncomingDocument" />
+  </wsdl:message>
+  <wsdl:message name="G2G_TransferIncomingDocumentSoapOut">
+    <wsdl:part name="parameters" element="tns:G2G_TransferIncomingDocumentResponse" />
+  </wsdl:message>
+  <wsdl:message name="G2G_IncomingDocumentTransferedSoapIn">
+    <wsdl:part name="parameters" element="tns:G2G_IncomingDocumentTransfered" />
+  </wsdl:message>
+  <wsdl:message name="G2G_IncomingDocumentTransferedSoapOut">
+    <wsdl:part name="parameters" element="tns:G2G_IncomingDocumentTransferedResponse" />
+  </wsdl:message>
+  <wsdl:message name="G2G_GetIncomingDataSoapIn">
+    <wsdl:part name="parameters" element="tns:G2G_GetIncomingData" />
+  </wsdl:message>
+  <wsdl:message name="G2G_GetIncomingDataSoapOut">
+    <wsdl:part name="parameters" element="tns:G2G_GetIncomingDataResponse" />
+  </wsdl:message>
+  <wsdl:message name="G2G_GetIncomingAttachmentSoapIn">
+    <wsdl:part name="parameters" element="tns:G2G_GetIncomingAttachment" />
+  </wsdl:message>
+  <wsdl:message name="G2G_GetIncomingAttachmentSoapOut">
+    <wsdl:part name="parameters" element="tns:G2G_GetIncomingAttachmentResponse" />
+  </wsdl:message>
+  <wsdl:message name="G2G_GetSitesListSoapIn">
+    <wsdl:part name="parameters" element="tns:G2G_GetSitesList" />
+  </wsdl:message>
+  <wsdl:message name="G2G_GetSitesListSoapOut">
+    <wsdl:part name="parameters" element="tns:G2G_GetSitesListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSitesListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSitesList" />
+  </wsdl:message>
+  <wsdl:message name="GetSitesListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSitesListResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetSitesBranchListSoapIn">
+    <wsdl:part name="parameters" element="tns:GetSitesBranchList" />
+  </wsdl:message>
+  <wsdl:message name="GetSitesBranchListSoapOut">
+    <wsdl:part name="parameters" element="tns:GetSitesBranchListResponse" />
+  </wsdl:message>
+  <wsdl:message name="G2G_GetSitesSubBranchSoapIn">
+    <wsdl:part name="parameters" element="tns:G2G_GetSitesSubBranch" />
+  </wsdl:message>
+  <wsdl:message name="G2G_GetSitesSubBranchSoapOut">
+    <wsdl:part name="parameters" element="tns:G2G_GetSitesSubBranchResponse" />
+  </wsdl:message>
+  <wsdl:message name="G2G_SendOutGoingDocumentSoapIn">
+    <wsdl:part name="parameters" element="tns:G2G_SendOutGoingDocument" />
+  </wsdl:message>
+  <wsdl:message name="G2G_SendOutGoingDocumentSoapOut">
+    <wsdl:part name="parameters" element="tns:G2G_SendOutGoingDocumentResponse" />
+  </wsdl:message>
+  <wsdl:portType name="G2GIWSSoap">
+    <wsdl:operation name="G2G_TransferIncomingDocument">
+      <wsdl:input message="tns:G2G_TransferIncomingDocumentSoapIn" />
+      <wsdl:output message="tns:G2G_TransferIncomingDocumentSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="G2G_IncomingDocumentTransfered">
+      <wsdl:input message="tns:G2G_IncomingDocumentTransferedSoapIn" />
+      <wsdl:output message="tns:G2G_IncomingDocumentTransferedSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetIncomingData">
+      <wsdl:input message="tns:G2G_GetIncomingDataSoapIn" />
+      <wsdl:output message="tns:G2G_GetIncomingDataSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetIncomingAttachment">
+      <wsdl:input message="tns:G2G_GetIncomingAttachmentSoapIn" />
+      <wsdl:output message="tns:G2G_GetIncomingAttachmentSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetSitesList">
+      <wsdl:input message="tns:G2G_GetSitesListSoapIn" />
+      <wsdl:output message="tns:G2G_GetSitesListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSitesList">
+      <wsdl:input message="tns:GetSitesListSoapIn" />
+      <wsdl:output message="tns:GetSitesListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetSitesBranchList">
+      <wsdl:input message="tns:GetSitesBranchListSoapIn" />
+      <wsdl:output message="tns:GetSitesBranchListSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetSitesSubBranch">
+      <wsdl:input message="tns:G2G_GetSitesSubBranchSoapIn" />
+      <wsdl:output message="tns:G2G_GetSitesSubBranchSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="G2G_SendOutGoingDocument">
+      <wsdl:input message="tns:G2G_SendOutGoingDocumentSoapIn" />
+      <wsdl:output message="tns:G2G_SendOutGoingDocumentSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="G2GIWSSoap" type="tns:G2GIWSSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="G2G_TransferIncomingDocument">
+      <soap:operation soapAction="www.cait.gov.kw/G2G_TransferIncomingDocument" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_IncomingDocumentTransfered">
+      <soap:operation soapAction="www.cait.gov.kw/G2G_IncomingDocumentTransfered" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetIncomingData">
+      <soap:operation soapAction="www.cait.gov.kw/G2G_GetIncomingData" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetIncomingAttachment">
+      <soap:operation soapAction="www.cait.gov.kw/G2G_GetIncomingAttachment" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetSitesList">
+      <soap:operation soapAction="www.cait.gov.kw/G2G_GetSitesList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSitesList">
+      <soap:operation soapAction="www.cait.gov.kw/GetSitesList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSitesBranchList">
+      <soap:operation soapAction="www.cait.gov.kw/GetSitesBranchList" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetSitesSubBranch">
+      <soap:operation soapAction="www.cait.gov.kw/G2G_GetSitesSubBranch" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_SendOutGoingDocument">
+      <soap:operation soapAction="www.cait.gov.kw/G2G_SendOutGoingDocument" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="G2GIWSSoap12" type="tns:G2GIWSSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="G2G_TransferIncomingDocument">
+      <soap12:operation soapAction="www.cait.gov.kw/G2G_TransferIncomingDocument" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_IncomingDocumentTransfered">
+      <soap12:operation soapAction="www.cait.gov.kw/G2G_IncomingDocumentTransfered" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetIncomingData">
+      <soap12:operation soapAction="www.cait.gov.kw/G2G_GetIncomingData" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetIncomingAttachment">
+      <soap12:operation soapAction="www.cait.gov.kw/G2G_GetIncomingAttachment" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetSitesList">
+      <soap12:operation soapAction="www.cait.gov.kw/G2G_GetSitesList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSitesList">
+      <soap12:operation soapAction="www.cait.gov.kw/GetSitesList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetSitesBranchList">
+      <soap12:operation soapAction="www.cait.gov.kw/GetSitesBranchList" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_GetSitesSubBranch">
+      <soap12:operation soapAction="www.cait.gov.kw/G2G_GetSitesSubBranch" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="G2G_SendOutGoingDocument">
+      <soap12:operation soapAction="www.cait.gov.kw/G2G_SendOutGoingDocument" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="G2GIWS">
+    <wsdl:port name="G2GIWSSoap" binding="tns:G2GIWSSoap">
+      <soap:address location="http://devg2g4/g2gportal/G2GIWS.asmx" />
+    </wsdl:port>
+    <wsdl:port name="G2GIWSSoap12" binding="tns:G2GIWSSoap12">
+      <soap12:address location="http://devg2g4/g2gportal/G2GIWS.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

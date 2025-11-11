@@ -1,0 +1,67 @@
+﻿@using FATWA_DOMAIN.Models.BugReporting
+@using FATWA_DOMAIN.Models.ViewModel.BugReportingVMs
+@layout MainLayout
+
+<RadzenTemplateForm Data="@assignTypeUser" TItem="BugUserTypeAssignment" Submit="@FormSubmit">
+    <ChildContent>
+        <div class="col-12">
+            <div class="form-group">
+                <RadzenLabel Text="@(translationState.Translate("Issue_Type") + " *")" Component="BugType" />
+                <RadzenDropDown Data="@issueTypes"
+                                AllowFiltering="true"
+                                AllowClear="true"
+                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Type_En" : "Type_Ar")"
+                                ValueProperty="Id"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                Placeholder="@translationState.Translate("Select")"
+                                Disabled="true"
+                                Style="display:block;"
+                @bind-Value="@assignTypeUser.BugTypeId"
+                                Name="BugType" />
+                <RadzenRequiredValidator Component="BugType" Text="@translationState.Translate("Required_Field")" />
+            </div>
+            <div class="form-group">
+                <RadzenLabel Text="@translationState.Translate("User_Name")" Component="User" />
+                <RadzenDropDown Data="@users"
+                                AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowClear="true"
+                                TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_Ar")
+                                ValueProperty="UserId"
+                                Placeholder="@translationState.Translate("Select")"
+                                Style="display:block; "
+                                SelectAllText="@translationState.Translate("Selected_All")"
+                                SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                Multiple="true"
+                @bind-Value="@assignTypeUser.selectedUserIds"
+                                Name="User" />
+            </div>
+            <div class=" form-group">
+                <RadzenLabel Text="@(translationState.Translate("Group"))" />
+                <RadzenDropDown Data="@Groups"
+                                AllowFiltering="true"
+                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                AllowClear="true"
+                                TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                ValueProperty="GroupId"
+                                Placeholder="@translationState.Translate("Select")"
+                                Style="display:block;"
+                                SelectAllText="@translationState.Translate("Selected_All")"
+                                SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                Multiple="true"
+                @bind-Value="@assignTypeUser.selectedGroupIds"
+                                Name="Groupz" />
+            </div>
+            <div class="popup-buttons-alignment">
+                <RadzenButton Text="@translationState.Translate("Submit")"
+                              ButtonStyle="ButtonStyle.Primary"
+                              Style="margin-left: 10px; margin-right: 10px;"
+                              ButtonType="Radzen.ButtonType.Submit" />
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              ButtonType="Radzen.ButtonType.Button"
+                              Click="@ButtonCancelClick" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>
+

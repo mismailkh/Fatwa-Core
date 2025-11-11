@@ -1,0 +1,144 @@
+﻿@layout MainLayout
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs;
+@using FATWA_DOMAIN.Models.ViewModel.ConsultationVMs;
+@using FATWA_WEB.Data
+@using FATWA_DOMAIN.Models
+@using static FATWA_DOMAIN.Enums.CommunicationEnums;
+@using static FATWA_GENERAL.Helper.Enum
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+@using static FATWA_DOMAIN.Models.ViewModel.AdvancedSearchVM
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+<RadzenTabsItem Text="@translationState.Translate("Communication_Key")">
+    <div class="row pb-1">
+        <div class="col-12 datagrid-rz-label">
+            <div class="ow tableContent table-responsive no-gutters pb-3 ">
+                <RadzenDataGrid @ref="CommunicationGrid"
+                                AllowPaging="true"
+                                PageSize="@systemSettingState.Grid_Pagination"
+                                ColumnWidth="250px"
+                                Data="@communicationListVm"
+                                TItem="CommunicationListVM"
+                                EmptyText="@translationState.Translate("No_record_found")"
+                                Width="100%"
+                                AllowFiltering="false"
+                                FilterMode="Radzen.FilterMode.Advanced"
+                                AllowSorting="true"
+                                PagerHorizontalAlign="Radzen.HorizontalAlign.Center">
+                    <Columns>
+                        <RadzenDataGridColumn TItem="CommunicationListVM" Title="@translationState.Translate("Action")"
+                                              Filterable="false"
+                                              Sortable="false"
+                                              Width="100px"
+                                              TextAlign="TextAlign.Center">
+                            <Template Context="rowItem">
+                                @if (rowItem.CommunicationTypeId < (int)CommunicationTypeEnum.ContractRequest)
+                                {
+                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                  Icon="visibility"
+                                                  Size="ButtonSize.Small"
+                                                  Click="@((args) => ViewResponse(rowItem))"
+                                    @onclick:stopPropagation="true" />
+                                }
+                                @if (rowItem.CommunicationTypeId == (int)CommunicationTypeEnum.RequestForMeeting && rowItem.CorrespondenceTypeId == (int)CommunicationCorrespondenceTypeEnum.Inbox)
+                                {
+                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                  Class="editIcon"
+                                                  Icon="mode"
+                                                  Title="@translationState.Translate("Schedule_Meeting")"
+                                                  Size="ButtonSize.Small"
+                                                  Click="@((args) => AddMeeting(rowItem))"
+                                    @onclick:stopPropagation="true" />
+                                }
+
+                            </Template>
+                        </RadzenDataGridColumn>
+                        <RadzenDataGridColumn TItem="CommunicationListVM" Property="InboxNumber" Title="@translationState.Translate("InboxNo")" />
+                        <RadzenDataGridColumn TItem="CommunicationListVM" Property="InboxDate" Title="@translationState.Translate("InboxDate")" FormatString="{0:dd/MM/yyyy hh:mm tt}" />
+                        <RadzenDataGridColumn TItem="CommunicationListVM" Property="OutboxNumber" Title="@translationState.Translate("OutboxNo")" />
+                        <RadzenDataGridColumn TItem="CommunicationListVM" Property="OutboxDate" Title="@translationState.Translate("OutboxDate")" FormatString="{0:dd/MM/yyyy hh:mm tt}" />
+                        @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                        {
+                            <RadzenDataGridColumn TItem="CommunicationListVM" Property="CorrespondenceTypeEn" Title="@translationState.Translate("Correspondence_Type")" />
+                            <RadzenDataGridColumn TItem="CommunicationListVM" Property="Activity_En" Title="@translationState.Translate("Activity")" />
+                        }
+                        else
+                        {
+                            <RadzenDataGridColumn TItem="CommunicationListVM" Property="CorrespondenceTypeAr" Title="@translationState.Translate("Correspondence_Type")" />
+                            <RadzenDataGridColumn TItem="CommunicationListVM" Property="Activity_Ar" Title="@translationState.Translate("Activity")" />
+                        }
+                        <RadzenDataGridColumn TItem="CommunicationListVM" Property="CreatedBy" Title="@translationState.Translate("Initiated_By")" />
+                    </Columns>
+                </RadzenDataGrid>
+            </div>
+        </div>
+    </div>
+
+
+</RadzenTabsItem>
+
+@code {
+    [Parameter]
+    public dynamic ConsultationRequestId { get; set; }
+    [Parameter]
+    public IEnumerable<CommunicationListVM> communicationListVm { get; set; }
+    public bool IsStatusConsultationRequest { get; set; }
+    protected RadzenDataGrid<CommunicationListVM> CommunicationGrid;
+    public ViewConsultationVM consultationRequestVM = new ViewConsultationVM();
+    protected string RedirectURL { get; set; }
+    protected async void ViewResponse(CommunicationListVM item)
+    {
+
+        if (item.CommunicationTypeId == (int)CommunicationTypeEnum.RequestMoreInfo)
+        {
+            RedirectURL = "/request-need-information-detail/" + ConsultationRequestId + "/" + true + "/" + (int)CommunicationTypeEnum.RequestMoreInfo;
+            navigationManager.NavigateTo(RedirectURL);
+        }
+        else if (item.CommunicationTypeId == (int)CommunicationTypeEnum.SendMessage)
+        {
+            IsStatusConsultationRequest = true;
+            RedirectURL = "/request-need-information-detail/" + item.CommunicationId + "/" + true + "/" + (int)CommunicationTypeEnum.SendMessage;
+            navigationManager.NavigateTo(RedirectURL);
+        }
+        else if (item.CommunicationTypeId == (int)CommunicationTypeEnum.RequestForMeeting)
+        {
+            navigationManager.NavigateTo("/meeting-view/" + item.CommunicationId + "/" + ConsultationRequestId + "/" + item.CommunicationTypeId + "/" + true + "/" + (int)SubModuleEnum.ConsultationRequest);
+        }
+        else if (item.CommunicationTypeId == (int)CommunicationTypeEnum.MeetingScheduled)
+        {
+            navigationManager.NavigateTo("/meeting-view/" + item.CommunicationId + "/" + item.CommunicationTypeId + "/" + true);
+        }
+        else if (item.CommunicationTypeId == (int)CommunicationTypeEnum.SendResponse)
+        {
+            IsStatusConsultationRequest = true;
+            RedirectURL = "/request-need-information-detail/" + item.CommunicationId + "/" + true + "/" + (int)CommunicationTypeEnum.SendResponse;
+            navigationManager.NavigateTo(RedirectURL);
+        }
+        else if (item.CommunicationTypeId == (int)CommunicationTypeEnum.ConsultationRequest)
+        {
+            IsStatusConsultationRequest = false;
+        }
+
+    }
+    protected async Task AddMeeting(CommunicationListVM item)
+    {
+        try
+        {
+            Guid CommunicationId = item.CommunicationId;
+            string ReferenceId = ConsultationRequestId;
+            int SubModuleId = (int)SubModuleEnum.ConsultationRequest;
+            string ReceivedBy = consultationRequestVM.CreatedBy;
+            navigationManager.NavigateTo("/meeting-add/" + CommunicationId + "/" + ReferenceId + "/" + SubModuleId + "/" + ReceivedBy);
+        }
+        catch (Exception ex)
+        {
+            notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Detail = ex.Message,
+                    Style = "position: fixed !important; left: 0; margin: auto; "
+                });
+        }
+    }
+}

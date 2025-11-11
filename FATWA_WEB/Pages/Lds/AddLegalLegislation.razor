@@ -1,0 +1,1503 @@
+﻿@page "/add-legislation/{LegislationId}"
+@page "/add-legislation/{LegislationId}/{editLegislationCheck}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.ViewModel;
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using FATWA_DOMAIN.Models
+@using System.Text.RegularExpressions;
+@using static FATWA_DOMAIN.Enums.LegalLegislationEnum
+
+<!--<History Author = "Umer Zaman" Date="2022-10-11" Version="1.0" Branch="master"> Adding legal legisation Wizard</History>-->
+@if ((loginState.ClaimList.Where(x => x.Value == "Permissions.LDS.Documents.Create").Count() > 0 && LegislationId == null) || (loginState.ClaimList.Where(x => x.Value == "Permissions.LDS.Documents.Edit").Count() > 0 && LegislationId != null))
+{
+        <RadzenContent Container="main">
+            <ChildContent>
+                <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                    <div class="col-md-6">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Path="/legallegislation-list" Text="@translationState.Translate("Legal_Legislation_Heading")" />
+                        @if (EditLegislationTrue)
+                        {
+                                    <RadzenBreadCrumbItem Text="@translationState.Translate("Edit_Legislation")" />
+                        }
+                        else
+                        {
+                                    <RadzenBreadCrumbItem Text="@translationState.Translate("Add_Legislation")" />
+                        }
+                        </RadzenBreadCrumb>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <div class="backtoDashboard">
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.Small"
+                                          title="@translationState.Translate("Go_Back_Dashboard")"
+                                          class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.Small"
+                                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                                          class="returnBtn"
+                                          Icon="home" Click="@GoBackHomeScreen" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row TitleBar justify-content-left align-items-center py-4">
+                    <div class="col-md-6">
+                        <div class="row no-gutters">
+                        @if (EditLegislationTrue)
+                        {
+                                    <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Edit_Legislation")"></RadzenHeading>
+                        }
+                        else
+                        {
+                                    <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Add_Legislation")"></RadzenHeading>
+                        }
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-end">
+                    </div>
+                </div>
+
+            <div class="row justify-content-center mainContentBlock no-gutters bg-light p-0" style="overflow:scroll">
+                <div class="col-md-6 save-case-request-col">
+                    <SfPdfViewerServer EnableNavigationToolbar="false"
+                                       Width="100%"
+                                       Height="1000px"
+                                       ID="pdfviewerLegislation"
+                                       DownloadFileName="@DownloadFileName"
+                                       DocumentPath="@DocumentPath"
+                                        @ref="@pdfViewer"
+                                       EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)"
+                                       Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                                       ToolbarSettings="@ToolbarSettings"
+                                       InteractionMode="InteractionMode.Pan">
+                                       <PdfViewerEvents DocumentLoaded="DocumentLoaded"></PdfViewerEvents>
+                    </SfPdfViewerServer>
+                    @if (ExplanatoryNoteFileAdded)
+                    {
+                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                    @ref="FileGrid"
+                                                    AllowFiltering="false"
+                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                    AllowPaging="true"
+                                                    AllowSorting="true"
+                                                    Data="@FileExplanatoryNoteTemp"
+                                                    TItem="TempAttachementVM"
+                                                    ShowPagingSummary="true">
+                                        <Columns>
+                                            <RadzenDataGridColumn TItem="TempAttachementVM" Property="FileName" Title="@translationState.Translate("Publication_Document_Name_Title")" />
+                                            <RadzenDataGridColumn TItem="TempAttachementVM" Filterable="false" Title="@translationState.Translate("Action")" Sortable="false" Width="150px" TextAlign="TextAlign.Center">
+                                                <Template Context="filedetails">
+                                            @{
+                                                string referenceGuidId = filedetails.Guid != null ? filedetails.Guid.ToString() : filedetails.ReferenceGuid;
+                                                string result = filedetails.FileName + "=" + filedetails.Description + "=" + referenceGuidId;
+                                                if (result != pdfViewer.DownloadFileName)
+                                                {
+                                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="visibility" class="addIcon" title="@translationState.Translate("View")" Size="ButtonSize.Medium" Click="@((args) => OnGridViewClick(filedetails))" @onclick:stopPropagation="true" />
+                                                }
+                                            }
+                                                    <RadzenButton ButtonStyle="ButtonStyle.Primary" Icon="delete_outline" class="deleteIcon" title="@translationState.Translate("Delete")" Size="ButtonSize.Medium" Click="@((args) => OnGridDeleteClick(filedetails))" @onclick:stopPropagation="true" />
+                                                </Template>
+                                            </RadzenDataGridColumn>
+                                        </Columns>
+                                    </RadzenDataGrid>
+                                </div>
+                    }
+                    </div>
+                    <div class="col-md-6 save-case-request-col k-overflow-y-scroll">
+                    @if (ShowWizard)
+                    {
+                                <TelerikWizard @bind-Value="@Value" OnFinish="@OnWizardFinish">
+                                    <WizardSteps>
+                                        <WizardStep ImageUrl="@filePath1" Label="@translationState.Translate("Legislation_Template_Setup")" OnChange="@OnTemplateSetupStepChange">
+                                            <Content>
+                                                <TelerikForm Model="@validations"
+                                                @ref="@TemplateSetupForm">
+                                                    <FormValidation>
+                                                        <DataAnnotationsValidator></DataAnnotationsValidator>
+                                                    </FormValidation>
+                                                    <FormItems>
+                                                        <RadzenFieldset>
+                                                            <ChildContent>
+                                                                <div class="row pb-2">
+                                                                    <div class="col-12">
+                                                                        <label for="sub" class="k-label k-form-label dottedTitle">@translationState.Translate("Setup_Template")</label>
+                                                                        <div class="dots">@translationState.Translate(".........................")</div>
+                                                                    </div>
+                                                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                                        <div class="k-form-field">
+                                                                            <div class="k-form-field-wrap">
+                                                                                <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Template") *</label>
+                                                                                <div class="k-form-field-wrap">
+                                                                                    <RadzenDropDown Data="@GetLegalTemplateDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                                                    TextProperty="Template_Name" ValueProperty="TemplateId" Placeholder="@translationState.Translate("Template_Choose")"
+                                                                                    @bind-Value="@legalTemplates.TemplateId" Name="Template_Name"
+                                                                                                    Change="@CheckAndGetTemplateSelectedValueDetails" Class="@validations.LegalTemplateChoose" />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                            @if (ShowTemplateNameAndTypeField)
+                                                            {
+                                                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                                                <div class="k-form-field">
+                                                                                    <div class="k-form-field-wrap">
+                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_New_Template_Title") *</label>
+                                                                                        <div class="k-form-field-wrap">
+                                                                                            <RadzenTextBox @bind-Value="@legalTemplates.Template_Name" Placeholder="@translationState.Translate("Legislation_New_Template_Title")" Class="@validations.LegalTemplateName" MaxLength="1000" />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                                                <div class="k-form-field">
+                                                                                    <div class="k-form-field-wrap">
+                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Type") *</label>
+                                                                                        <div class="k-form-field-wrap">
+                                                                                            <RadzenDropDown Data="@GetLegislationTypeDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                                            @bind-Value="@legalTemplates.Legislation_Type" Name="Legislation_Type"
+                                                                                                            Class="@validations.LegislationType" />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                                                <div class="k-form-field">
+                                                                                    <div class="k-form-field-wrap">
+                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_New_Template_Title") *</label>
+                                                                                        <div class="k-form-field-wrap">
+                                                                                            <RadzenTextBox ReadOnly="true" @bind-Value="@legalTemplates.Template_Name" Placeholder="@translationState.Translate("Legislation_New_Template_Title")" Class="@validations.LegalTemplateName" />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                                                <div class="k-form-field">
+                                                                                    <div class="k-form-field-wrap">
+                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Type") *</label>
+                                                                                        <div class="k-form-field-wrap">
+                                                                                            <RadzenDropDown Data="@GetLegislationTypeDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                                            @bind-Value="@legalTemplates.Legislation_Type" Name="Legislation_Type"
+                                                                                                            Class="@validations.LegislationType" Disabled />
+                                                                                         </div>
+                                                                                     </div>
+                                                                                 </div>
+                                                                             </div>
+                                                            }
+                                                                </div>
+                                                                <div class="row pb-2">
+                                                            @if (ShowTemplateNameAndTypeField)
+                                                            {
+                                                                @foreach (var item in GetLegalTemplateSettingDetails)
+                                                                {
+                                                                    @if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Issue_Date || @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Start_Date || @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Subject ||
+                                                                  @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_without_relation || @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Articles_without_sections || @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Clauses_with_sections || @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Clauses_without_sections)
+                                                                    {
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                                                                <div class="k-form-field">
+                                                                                                    <div class="k-form-field-wrap">
+                                                                                    @if (item.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_with_relation || item.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_without_relation || item.TemplateSettingId == (int)LegalTemplateSettingEnum.Explanatory_Note || item.TemplateSettingId == (int)LegalTemplateSettingEnum.Note)
+                                                                                    {
+                                                                                                                <label for="sub" class="k-label k-form-label dottedTitle">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? item.Template_Heading : item.Template_Heading_Ar) *</label>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                                                <label for="sub" class="k-label k-form-label dottedTitle">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? item.Template_Heading : item.Template_Heading_Ar)</label>
+                                                                                    }                                                                                <div class="dots">@translationState.Translate("..............................")</div>
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                        @if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_with_relation)
+                                                                                        {
+                                                                                                                    <RadzenRadioButtonList @bind-Value=@valueRadioButtonIntroduction TValue="int" Change=@(args => OnChangeIntroductionRadioButtonSetting(item, args))>
+                                                                                                                        <Items>
+                                                                                                                            <RadzenRadioButtonListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? item.Template_Value : item.Template_Value_Ar) Value=@item.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                        </Items>
+                                                                                                                    </RadzenRadioButtonList>
+                                                                                        }
+                                                                                        else if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Articles_with_sections)
+                                                                                        {
+                                                                                                                    <RadzenRadioButtonList @bind-Value=@valueRadioButtonLegislationBody TValue="int" Change=@(args => OnChangeArticleClauseRadioButtonSetting(item, args))>
+                                                                                                                        <Items>
+                                                                                                                            <RadzenRadioButtonListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? item.Template_Value : item.Template_Value_Ar) Value=@item.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                        </Items>
+                                                                                                                    </RadzenRadioButtonList>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                                                    <RadzenCheckBoxList @bind-Value=@TemplateCheckboxSelectedValues TValue="int">
+                                                                                                                        <Items>
+                                                                                                                            <RadzenCheckBoxListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? item.Template_Value : item.Template_Value_Ar) Value=@item.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                        </Items>
+                                                                                                                    </RadzenCheckBoxList>
+                                                                                        }
+                                                                                        @foreach (var secondItem in GetLegalTemplateSettingDetails)
+                                                                                        {
+                                                                                            @if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Number && (@secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Issue_Date ||
+                                                                                          @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Start_Date || @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Subject))
+                                                                                            {
+                                                                                                                            <RadzenCheckBoxList @bind-Value=@TemplateCheckboxSelectedValues TValue="int">
+                                                                                                                                <Items>
+                                                                                                                                    <RadzenCheckBoxListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? secondItem.Template_Value : secondItem.Template_Value_Ar) Value=@secondItem.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                                </Items>
+                                                                                                                            </RadzenCheckBoxList>
+                                                                                            }
+                                                                                            @if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_with_relation && @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_without_relation)
+                                                                                            {
+                                                                                                                            <RadzenRadioButtonList @bind-Value=@valueRadioButtonIntroduction TValue="int" Change=@(args => OnChangeIntroductionRadioButtonSetting(item, args))>
+                                                                                                                                <Items>
+                                                                                                                                    <RadzenRadioButtonListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? secondItem.Template_Value : secondItem.Template_Value_Ar) Value=@secondItem.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                                </Items>
+                                                                                                                            </RadzenRadioButtonList>
+                                                                                            }
+                                                                                            @if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Articles_with_sections && (@secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Articles_without_sections ||
+                                                                                          @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Articles_without_sections || @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Clauses_with_sections || @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Clauses_without_sections))
+                                                                                            {
+                                                                                                                            <RadzenRadioButtonList @bind-Value=@valueRadioButtonLegislationBody TValue="int" Change=@(args => OnChangeArticleClauseRadioButtonSetting(item, args))>
+                                                                                                                                <Items>
+                                                                                                                                    <RadzenRadioButtonListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? secondItem.Template_Value : secondItem.Template_Value_Ar) Value=@secondItem.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                                </Items>
+                                                                                                                            </RadzenRadioButtonList>
+                                                                                            }
+                                                                                        }
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                    }
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                @foreach (var item in GetLegalTemplateSettingDetails)
+                                                                {
+                                                                    @if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Issue_Date || @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Start_Date || @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Subject ||
+                                                                  @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_without_relation || @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Articles_without_sections || @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Clauses_with_sections || @item.TemplateSettingId == (int)LegalTemplateSettingEnum.Clauses_without_sections)
+                                                                    {
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                                                                <div class="k-form-field">
+                                                                                                    <div class="k-form-field-wrap">
+                                                                                    @if (item.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_with_relation || item.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_without_relation || item.TemplateSettingId == (int)LegalTemplateSettingEnum.Explanatory_Note || item.TemplateSettingId == (int)LegalTemplateSettingEnum.Note)
+                                                                                    {
+                                                                                                                <label for="sub" class="k-label k-form-label dottedTitle">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? item.Template_Heading : item.Template_Heading_Ar) *</label>
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                                                <label for="sub" class="k-label k-form-label dottedTitle">@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? item.Template_Heading : item.Template_Heading_Ar)</label>
+                                                                                    }
+                                                                                                        <div class="dots">@translationState.Translate("..............................")</div>
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                        @if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_with_relation)
+                                                                                        {
+                                                                                                                    <RadzenRadioButtonList @bind-Value=@valueRadioButtonIntroduction TValue="int" Change=@(args => OnChangeIntroductionRadioButtonSetting(item, args)) Disabled>
+                                                                                                                     <Items>
+                                                                                                                         <RadzenRadioButtonListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? item.Template_Value : item.Template_Value_Ar) Value=@item.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                     </Items>
+                                                                                                                 </RadzenRadioButtonList>
+                                                                                        }
+                                                                                        else if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Articles_with_sections)
+                                                                                        {
+                                                                                                                    <RadzenRadioButtonList @bind-Value=@valueRadioButtonLegislationBody TValue="int" Change=@(args => OnChangeArticleClauseRadioButtonSetting(item, args)) Disabled>
+                                                                                                                     <Items>
+                                                                                                                         <RadzenRadioButtonListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? item.Template_Value : item.Template_Value_Ar) Value=@item.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                     </Items>
+                                                                                                                 </RadzenRadioButtonList>
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                                                    <RadzenCheckBoxList @bind-Value=@TemplateCheckboxSelectedValues TValue="int" Disabled>
+                                                                                                                     <Items>
+                                                                                                                         <RadzenCheckBoxListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? item.Template_Value : item.Template_Value_Ar) Value=@item.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                     </Items>
+                                                                                                                 </RadzenCheckBoxList>
+                                                                                        }
+                                                                                        @foreach (var secondItem in GetLegalTemplateSettingDetails)
+                                                                                        {
+                                                                                            @if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Number && (@secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Issue_Date ||
+                                                                                          @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Start_Date || @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Legislation_Subject))
+                                                                                            {
+                                                                                                                            <RadzenCheckBoxList @bind-Value=@TemplateCheckboxSelectedValues TValue="int" Disabled>
+                                                                                                                             <Items>
+                                                                                                                                 <RadzenCheckBoxListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? secondItem.Template_Value : secondItem.Template_Value_Ar) Value=@secondItem.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                             </Items>
+                                                                                                                         </RadzenCheckBoxList>
+                                                                                            }
+                                                                                            @if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_with_relation && @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Introduction_without_relation)
+                                                                                            {
+                                                                                                                            <RadzenRadioButtonList @bind-Value=@valueRadioButtonIntroduction TValue="int" Change=@(args => OnChangeIntroductionRadioButtonSetting(item, args)) Disabled>
+                                                                                                                             <Items>
+                                                                                                                                 <RadzenRadioButtonListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? secondItem.Template_Value : secondItem.Template_Value_Ar) Value=@secondItem.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                             </Items>
+                                                                                                                         </RadzenRadioButtonList>
+                                                                                            }
+                                                                                            @if (@item.TemplateSettingId == (int)LegalTemplateSettingEnum.Articles_with_sections && (@secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Articles_without_sections ||
+                                                                                          @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Articles_without_sections || @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Clauses_with_sections || @secondItem.TemplateSettingId == (int)LegalTemplateSettingEnum.Clauses_without_sections))
+                                                                                            {
+                                                                                                                            <RadzenRadioButtonList @bind-Value=@valueRadioButtonLegislationBody TValue="int" Change=@(args => OnChangeArticleClauseRadioButtonSetting(item, args)) Disabled>
+                                                                                                                             <Items>
+                                                                                                                                 <RadzenRadioButtonListItem Text=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? secondItem.Template_Value : secondItem.Template_Value_Ar) Value=@secondItem.TemplateSettingId Class="@(validations.TemplateValues + " " + "template-font")" />
+                                                                                                                             </Items>
+                                                                                                                         </RadzenRadioButtonList>
+                                                                                            }
+                                                                                        }
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                    }
+                                                                }
+                                                            }
+                                                                </div>
+                                                        @if (ShowTemplateAssociatedWithLegislationMessage)
+                                                        {
+                                                            @if (TotalLegislationCount != 0)
+                                                            {
+                                                                                <div class="row pb-2">
+                                                                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                                        <p>@translationState.Translate("Legislation_Checkbox_Change_Message_Start") @TotalLegislationCount @translationState.Translate("Legislation_Checkbox_Change_Message_End")</p>
+                                                                                    </div>
+                                                                                </div>
+                                                            }
+                                                        }
+                                                            </ChildContent>
+                                                        </RadzenFieldset>
+                                                    </FormItems>
+                                                    <FormButtons></FormButtons>
+                                                </TelerikForm>
+                                            </Content>
+                                        </WizardStep>
+
+                                        <WizardStep ImageUrl="@filePath1" Label="@translationState.Translate("Legislation_Basic_Detail")" OnChange="@OnBasicDetailsStepChange">
+                                            <Content>
+                                                <TelerikForm Model="@validations"
+                                                @ref="@BasicSectionForm">
+                                                    <FormValidation>
+                                                        <DataAnnotationsValidator></DataAnnotationsValidator>
+                                                    </FormValidation>
+                                                    <FormItems>
+                                                        <RadzenFieldset>
+                                                            <ChildContent>
+                                                                <div class="row pb-2">
+                                                                    <div class="col-md-12">
+                                                                        <div class="row" style="display:none;">
+                                                                            <div class="col-md-4">
+                                                                                <label for="sub" class="k-label k-form-label">@translationState.Translate("New_Template")</label>
+                                                                            </div>
+                                                                    @if (legalTemplates.Template_Name != null)
+                                                                    {
+                                                                                    <div class="col-md-6">
+                                                                                        <RadzenTextBox ReadOnly="true" @bind-Value="@legalTemplates.Template_Name" />
+                                                                                    </div>
+                                                                                    <div class="col-md-2">
+                                                                                        <RadzenButton ButtonStyle="ButtonStyle.Secondary" class="editIcon" Icon="mode" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@(() =>EditTemplateIconClick(Value))" @onclick:stopPropagation="true" />
+                                                                                    </div>
+                                                                    }
+                                                                        </div>
+                                                                        <div class="row newTemplateHeading">
+                                                                            <label for="sub" class="k-label k-form-label">@translationState.Translate("New_Template")</label>
+
+                                                                    @if (legalTemplates.Template_Name != null)
+                                                                    {
+                                                                                    <table>
+                                                                                        <tbody>
+                                                                                            <tr>
+                                                                                                <td>
+                                                                                                    <RadzenTextBox ReadOnly="true" @bind-Value="@legalTemplates.Template_Name" />
+                                                                                                </td>
+                                                                                                <td>
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Secondary" class="editIcon" Icon="mode" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@(() =>EditTemplateIconClick(Value))" @onclick:stopPropagation="true" />
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        </tbody>
+                                                                                    </table>
+                                                                    }
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </ChildContent>
+                                                        </RadzenFieldset>
+                                                        <RadzenFieldset>
+                                                            <ChildContent>
+                                                                <div class="row pb-2">
+                                                                    <div class="col-12 col-sm-12 col-md-6">
+                                                                        <div class="k-form-field">
+                                                                            <div class="k-form-field-wrap">
+                                                                                <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Type") *</label>
+                                                                                <div class="k-form-field-wrap">
+                                                                            @if (legalLegislation.Legislation_Type != 0)
+                                                                            {
+                                                                                            <RadzenDropDown Data="@GetLegislationTypeDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                                            @bind-Value="@legalLegislation.Legislation_Type" Name="Legislation_Type"
+                                                                                                            Class="@validations.LegislationType" Disabled />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                            <RadzenDropDown Data="@GetLegislationTypeDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                                            @bind-Value="@legalLegislation.Legislation_Type" Name="Legislation_Type"
+                                                                                                            Class="@validations.LegislationType" />
+                                                                            }
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                            @if (TemplateCheckboxSelectedValues.Count() != 0)
+                                                            {
+                                                                @foreach (var item in TemplateCheckboxSelectedValues)
+                                                                {
+                                                                    if (item == (int)LegalTemplateSettingEnum.Legislation_Number)
+                                                                    {
+                                                                                            <div class="col-12 col-sm-12 col-md-6">
+                                                                                                <div class="k-form-field">
+                                                                                                    <div class="k-form-field-wrap">
+                                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Number") *</label>
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                        @* @if (EditLegislationTrue)
+                                                                    {
+                                                                    @if (legalLegislation.Legislation_Number == string.Empty)
+                                                                    {
+                                                                    <RadzenTextBox MaxLength="50" Placeholder="@translationState.Translate("Legislation_Number")" @bind-Value="@(legalLegislation.Legislation_Number)" Name="Legislation_Number" Class="@validations.LegislationNumber" />
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                    <RadzenTextBox MaxLength="50" Placeholder="@translationState.Translate("Legislation_Number")" @bind-Value="@(legalLegislation.Legislation_Number)" Name="Legislation_Number" Class="@validations.LegislationNumber" ReadOnly="true" />
+                                                                    }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                    }*@
+                                                                                                            <RadzenTextBox MaxLength="50" Placeholder="@translationState.Translate("Legislation_Number")" @bind-Value="@(legalLegislation.Legislation_Number)" Name="Legislation_Number" Class="@validations.LegislationNumber" />
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                    }
+                                                                    if (item == (int)LegalTemplateSettingEnum.Legislation_Issue_Date)
+                                                                    {
+                                                                                            <div class="col-12 col-sm-12 col-md-6">
+                                                                                                <div class="k-form-field">
+                                                                                                    <div class="k-form-field-wrap">
+
+                                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Issue_Date") *</label>
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                                            <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                                                                                              Min="@Min"
+                                                                                                                              Max="@Max"
+                                                                                                                              Class="@validations.IssueDate_Hijri"
+                                                                                                            @bind-Value="@legalLegislation.IssueDate" />
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="col-12 col-sm-12 col-md-6">
+                                                                                                <div class="k-form-field">
+                                                                                                    <div class="k-form-field-wrap">
+                                                                                    @* <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Issue_Date_Hijri") *</label> *@
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                                            <HijriDatePicker Id="1" @bind-HijriDate=@legalLegislation.IssueDate_Hijri
+                                                                                                                             InputLabelText="@translationState.Translate("Legislation_Issue_Date_Hijri")">
+                                                                                                            </HijriDatePicker>
+
+                                                                                        @*  <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                                    Min="@Min"
+                                                                    Max="@Max"
+                                                                    Class="@validations.IssueDate_Hijri"
+                                                                    @bind-Value="@legalLegislation.IssueDate_Hijri" /> *@
+                                                                                        @* <SfDateTimePicker Min="@Min" Max="@Max" CssClass="@validations.IssueDate_Hijri" TValue="DateTime" @bind-Value="@legalLegislation.IssueDate_Hijri" ShowClearButton="true"></SfDateTimePicker>*@
+
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                    }
+                                                                }
+                                                            }
+                                                                </div>
+                                                                <div class="row">
+                                                            @if (TemplateCheckboxSelectedValues.Count() != 0)
+                                                            {
+                                                                @foreach (var item in TemplateCheckboxSelectedValues)
+                                                                {
+                                                                    @if (item == (int)LegalTemplateSettingEnum.Legislation_Subject)
+                                                                    {
+                                                                                            <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                                                                <div class="k-form-field">
+                                                                                                    <div class="k-form-field-wrap">
+                                                                                                        <label for="destinations" class="k-label k-form-label">@translationState.Translate("Legislation_Subject") *</label>
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                                            <RadzenTextBox MaxLength="300" Placeholder="@translationState.Translate("Legislation_Subject")" @bind-Value="@(legalLegislation.LegislationTitle)" Class="@validations.TitleEn" />
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                    }
+                                                                }
+                                                            }
+                                                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                                        <div class="k-form-field">
+                                                                            <div class="k-form-field-wrap">
+                                                                                <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Status") *</label>
+                                                                                <div class="k-form-field-wrap">
+                                                                            @if (legalLegislation.Legislation_Status == (int)LegislationStatus.Active)
+                                                                            {
+                                                                                            <RadzenDropDown Data="@GetLegislationStatusDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                                            @bind-Value="@legalLegislation.Legislation_Status" Name="Status"
+                                                                                                            Class="@validations.LegislationStatus" Disabled />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                            <RadzenDropDown Data="@GetLegislationStatusDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                                                            @bind-Value="@legalLegislation.Legislation_Status" Name="Status"
+                                                                                                            Class="@validations.LegislationStatus" />
+                                                                            }
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                                                        <div class="k-form-field">
+                                                                            <div class="k-form-field-wrap">
+                                                                        @if (TemplateCheckboxSelectedValues.Count() != 0)
+                                                                        {
+                                                                            @foreach (var item in TemplateCheckboxSelectedValues)
+                                                                            {
+                                                                                @if (item == (int)LegalTemplateSettingEnum.Articles_with_sections || item == (int)LegalTemplateSettingEnum.Articles_without_sections)
+                                                                                {
+                                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Article") *</label>
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                                            <RadzenNumeric Min="1" Placeholder="@translationState.Translate("Select")" @bind-Value="@legalLegislation.NumberofArticle" Name="NumberofArticle" Class="@validations.ArticleNumber" />
+                                                                                                        </div>
+                                                                                }
+                                                                                @if (item == (int)LegalTemplateSettingEnum.Clauses_with_sections || item == (int)LegalTemplateSettingEnum.Clauses_without_sections)
+                                                                                {
+                                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Clause") *</label>
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                                            <RadzenNumeric Min="1" Placeholder="@translationState.Translate("Select")" @bind-Value="@legalLegislation.NumberofClause" Name="NumberofClause" Class="@validations.ClauseNumber" />
+                                                                                                        </div>
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                            @if (TemplateCheckboxSelectedValues.Count() != 0)
+                                                            {
+                                                                @foreach (var item in TemplateCheckboxSelectedValues)
+                                                                {
+                                                                    @if (item == (int)LegalTemplateSettingEnum.Legislation_Start_Date)
+                                                                    {
+                                                                                            <div class="col-12 col-sm-12 col-md-6">
+                                                                                                <div class="k-form-field">
+                                                                                                    <div class="k-form-field-wrap">
+                                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Start_Date") *</label>
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                                            <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                                                                                              Min="@Min"
+                                                                                                                              Max="@Max"
+                                                                                                                              Class="@validations.StartDate"
+                                                                                                            @bind-Value="@legalLegislation.StartDate" />
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                    }
+                                                                }
+                                                            }
+                                                                    <div class="col-12 col-sm-12 col-md-6">
+                                                                        <div class="k-form-field">
+                                                                            <div class="k-form-field-wrap">
+                                                                                <label for="sub" class="k-label k-form-label">@translationState.Translate("Legislation_Cancel_Date") *</label>
+                                                                                <div class="k-form-field-wrap">
+                                                                            @if (legalLegislation.Legislation_Status == (int)LegislationStatus.Expired)
+                                                                            {
+                                                                                            <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                                                                              Min="@Min"
+                                                                                                              Max="@Max"
+                                                                                                              Class="@validations.CancelDate"
+                                                                                            @bind-Value="@legalLegislation.CanceledDate" />
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                            <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                                                                              Min="@Min"
+                                                                                                              Max="@Max"
+                                                                                            @bind-Value="@legalLegislation.CanceledDate" Disabled />
+                                                                            }
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row mainLabel">
+                                                                    <div class="col-12 col-sm-12 col-md-10">
+                                                                        <div class="k-form-field">
+                                                                            <div class="k-form-field-wrap">
+                                                                                <label for="sub" class="k-label k-form-label">@translationState.Translate("Tags")</label>
+                                                                                <div class="k-form-field-wrap">
+                                                                                    <TelerikMultiSelect Data="LegislationTagDetails"
+                                                                                    @bind-Value="@SelectedTagIds"
+                                                                                                        ValueField="TagId"
+                                                                                                        TextField="TagName"
+                                                                                                        Filterable="false"
+                                                                                                        Placeholder=@translationState.Translate("Legislation_Tags")
+                                                                                                        Id="destinations"
+                                                                                                        Width="100%">
+                                                                                    </TelerikMultiSelect>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="col-12 col-sm-12 col-md-2 addBtnBlock">
+                                                                        <div class="k-form-field">
+                                                                            <label for="sub" class="k-label k-form-label"></label>
+                                                                            <div class="k-form-field-wrap">
+                                                                                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                                                              Icon="add"
+                                                                                              class="addBtn"
+                                                                                              Style=" margin-top: 21px !important;"
+                                                                                              Title="@translationState.Translate("Add")"
+                                                                                              Size="ButtonSize.Small"
+                                                                                              Click="@((args) => AddTagsButtonClick(args))"
+                                                                                @onclick:stopPropagation="true" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+
+                                                        @if (TemplateCheckboxSelectedValues.Count() != 0)
+                                                        {
+                                                            @foreach (var item in TemplateCheckboxSelectedValues)
+                                                            {
+                                                                @if (item == (int)LegalTemplateSettingEnum.Publication_details)
+                                                                {
+                                                                                        <div class="dots">@translationState.Translate("........................................................................................................................................................................................................")</div>
+
+                                                                                        <div class="row">
+                                                                                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                                                                                <div class="k-form-field">
+                                                                                                    <div class="k-form-field-wrap">
+                                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Publication_Source") *</label>
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                                            <RadzenDropDown Data="@GetLegislationPublicationSourceNameDetails" AllowFiltering="true" AllowClear="true"
+                                                                                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="PublicationNameId" Placeholder="@translationState.Translate("Select")"
+                                                                                                            @bind-Value="@legalPublicationSourceCS.PublicationNameId" Name="PublicationNameId" Class="@validations.PublicationName" />
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="col-12 col-sm-12 col-md-6">
+                                                                                                <div class="k-form-field">
+                                                                                                    <div class="k-form-field-wrap">
+                                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Issue_Number") *</label>
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                                            <RadzenNumeric Min="0" Max="9999" Placeholder="@translationState.Translate("Issue_Number")" @bind-Value="@(legalPublicationSourceCS.Issue_Number)" Name="Issue_Number" Class="@validations.PublicationIssueNumber" />
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="col-12 col-sm-12 col-md-6">
+                                                                                                <div class="k-form-field">
+                                                                                                    <div class="k-form-field-wrap">
+                                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Publication_Date")</label>
+                                                                                                        <div class="k-form-field-wrap">
+                                                                                                            <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                                                                                              Min="@Min"
+                                                                                                                              Max="@Max"
+                                                                                                                              Class="@validations.PublicationDate"
+                                                                                                            @bind-Value="@legalPublicationSourceCS.PublicationDate" />
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="col-12 col-sm-12 col-md-6">
+                                                                                                <div class="k-form-field">
+                                                                                                    <div class="k-form-field-wrap">
+                                                                                                        <HijriDatePicker Id="2" @bind-HijriDateSecond=@legalPublicationSourceCS.PublicationDate_Hijri
+                                                                                                                         InputLabelText="@translationState.Translate("Publication_Date_Hijri")"></HijriDatePicker>
+
+                                                                                    @* <label for="sub" class="k-label k-form-label">@translationState.Translate("Publication_Date_Hijri") *</label>
+                                                                <div class="k-form-field-wrap">
+                                                                <RadzenDatePicker DateFormat="dd/MM/yyyy"
+                                                                Min="@Min"
+                                                                Max="@Max"
+                                                                Class="@validations.PublicationDateHijri"
+                                                                @bind-Value="@legalPublicationSourceCS.PublicationDate_Hijri" />
+                                                                </div> *@
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-12 col-sm-12 col-md-6">
+                                                                            <div class="k-form-field">
+                                                                                <div class="k-form-field-wrap">
+                                                                                    <label for="sub" class="k-label k-form-label">@translationState.Translate("Publication_Start_Page") *</label>
+                                                                                    <div class="k-form-field-wrap">
+                                                                                        <RadzenMask Mask="****" class="@validations.PublicationPageStart" CharacterPattern="[0-9]" Placeholder="0000" Name="StartPage" @bind-Value="@PageStart"
+                                                                                                    Style="width: 100%;"
+                                                                                        @onfocusout="@(async() => await ParseStringToIntPageStart(PageStart))" />
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-12 col-sm-12 col-md-6">
+                                                                            <div class="k-form-field">
+                                                                                <div class="k-form-field-wrap">
+                                                                                    <label for="sub" class="k-label k-form-label">@translationState.Translate("Publication_End_Page") *</label>
+                                                                                    <div class="k-form-field-wrap">
+                                                                                        <RadzenMask Mask="****" class="@validations.PublicationPageEnd" CharacterPattern="[0-9]" Placeholder="0000" Name="EndPage" @bind-Value="@PageEnd"
+                                                                                                    Style="width: 100%;" 
+                                                                                                    @onfocusout="@(async() => await ParseStringToIntPageEnd(PageEnd))"
+                                                                                                    />
+                                                                                        @* <RadzenNumeric Min="1" 
+                                                                                                       Placeholder="@translationState.Translate("Publication_End_Page")" @bind-Value="@(legalPublicationSourceCS.Page_End)"
+                                                                                                       Name="Page_End" Class="@validations.PublicationPageEnd" /> *@
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                }
+                                                            }
+                                                        }
+                                                                <div class="dots">@translationState.Translate("........................................................................................................................................................................................................")</div>
+                                                                <RadzenFieldset>
+                                                                    <ChildContent>
+                                                                        <div class="row mainLabel">
+                                                                            <div class="col-12 col-sm-12">
+                                                                                <label for="sub" class="k-label k-form-label">@translationState.Translate("Signature")</label>
+                                                                            </div>
+                                                                            <div class="col-12 col-sm-12 col-md-5">
+                                                                                <div class="k-form-field">
+                                                                                    <div class="k-form-field-wrap">
+                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Signature_Full_Name") *</label>
+                                                                                        <div class="k-form-field-wrap">
+                                                                                            <RadzenTextBox MaxLength="90" Placeholder="@translationState.Translate("Signature_Full_Name")" @bind-Value="@legalLegislationSignature.Full_Name" Class="@validations.SignatureFullName" />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-12 col-sm-12 col-md-5">
+                                                                                <div class="k-form-field">
+                                                                                    <div class="k-form-field-wrap">
+                                                                                        <label for="sub" class="k-label k-form-label">@translationState.Translate("Signature_Job_Title") *</label>
+                                                                                        <div class="k-form-field-wrap">
+                                                                                            <RadzenTextBox MaxLength="50" Placeholder="@translationState.Translate("Signature_Job_Title")" @bind-Value="@legalLegislationSignature.Job_Title" Class="@validations.SignatureJobTitle" />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-12 col-sm-12 col-md-2 addBtnBlock">
+                                                                                <div class="k-form-field">
+                                                                                    <label for="sub" class="k-label k-form-label"></label>
+                                                                                    <div class="k-form-field-wrap">
+                                                                                        <TelerikButton class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="@(ThemeConstants.Button.ThemeColor.Success)" OnClick="@AddSignatureDetailToGrid">@translationState.Translate("Add")</TelerikButton>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                @if (ShowSignatureGrid)
+                                                                {
+                                                                                <div class="row tableContent table-responsive no-gutters pb-3">
+                                                                                    <RadzenDataGrid EmptyText="@translationState.Translate("No_record_found")"
+                                                                                    @ref="SignatureGridRef"
+                                                                                                    AllowFiltering="false"
+                                                                                                    FilterMode="Radzen.FilterMode.Advanced"
+                                                                                                    AllowPaging="true"
+                                                                                                    AllowSorting="true"
+                                                                                                    Data="@SignatureDetailForGrid"
+                                                                                                    TItem="LegalLegislationSignature"
+                                                                                                    PageSize="@systemSettingState.Grid_Pagination"
+                                                                                                    PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                                                    ColumnWidth="200px">
+                                                                                        <Columns>
+                                                                                            <RadzenDataGridColumn TItem="LegalLegislationSignature" Property="Full_Name" Title="@translationState.Translate("Signature_Full_Name")" />
+                                                                                            <RadzenDataGridColumn TItem="LegalLegislationSignature" Property="Job_Title" Title="@translationState.Translate("Signature_Job_Title")" />
+                                                                                            <RadzenDataGridColumn TItem="LegalLegislationSignature" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" TextAlign="TextAlign.Center">
+                                                                                                <Template Context="rowItem">
+                                                                                        @*<RadzenButton ButtonStyle="ButtonStyle.Secondary" class="editIcon" Icon="mode" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@(() =>UpdateSignatureHandler(rowItem))" @onclick:stopPropagation="true" />*@
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Danger" class="deleteIcon" Icon="delete_outline" title="@translationState.Translate("delete")" Size="ButtonSize.Small" Click="@(() =>DeleteSignatureHandler(rowItem))" @onclick:stopPropagation="true" />
+                                                                                                </Template>
+                                                                                            </RadzenDataGridColumn>
+                                                                                        </Columns>
+                                                                                    </RadzenDataGrid>
+                                                                                </div>
+                                                                }
+                                                                    </ChildContent>
+                                                                </RadzenFieldset>
+                                                            </ChildContent>
+                                                        </RadzenFieldset>
+                                                    </FormItems>
+                                                    <FormButtons></FormButtons>
+                                                </TelerikForm>
+                                            </Content>
+                                        </WizardStep>
+
+                                        <WizardStep ImageUrl="@filePath2" Label="@translationState.Translate("Legislation_Article_Section")" OnChange="@OnSectionArticleDetailsStepChange">
+                                            <Content>
+                                                <TelerikForm Model="@validations"
+                                                @ref="@Intro_Article_Section_Ref_Form">
+                                                    <FormValidation>
+                                                        <DataAnnotationsValidator></DataAnnotationsValidator>
+                                                    </FormValidation>
+                                                    <FormItems>
+                                                        <RadzenFieldset>
+                                                            <ChildContent>
+                                                                <div class="row newTemplateHeading">
+                                                                    <label for="sub" class="k-label k-form-label">@translationState.Translate("New_Template")</label>
+
+                                                            @if (legalTemplates.Template_Name != null)
+                                                            {
+                                                                            <table>
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <RadzenTextBox ReadOnly="true" @bind-Value="@legalTemplates.Template_Name" />
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" class="editIcon" Icon="mode" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@(() =>EditTemplateIconClick(Value))" @onclick:stopPropagation="true" />
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                            }
+                                                                </div>
+                                                            </ChildContent>
+                                                        </RadzenFieldset>
+                                                        <RadzenFieldset>
+                                                            <ChildContent>
+                                                                <div class="row pb-2">
+                                                                    <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                                        <RadzenLabel Text="@translationState.Translate("Legistion_Introduction")" Component="Introduction" />
+                                                                    </div>
+                                                            @if (TemplateCheckboxSelectedValues.Count() != 0)
+                                                            {
+                                                                @foreach (var item in TemplateCheckboxSelectedValues)
+                                                                {
+                                                                    @if (item == (int)LegalTemplateSettingEnum.Introduction_with_relation)
+                                                                    {
+                                                                                            <div class="col-md-6 d-flex justify-content-end tableAdditionButton pb-3">
+                                                                                                <div class="">
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="add" Text="@translationState.Translate("Add_Relation")" Click="@( () => AddRelation() )" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                    }
+                                                                }
+                                                            }
+                                                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                        <RadzenHtmlEditor @bind-Value=@(legalLegislation.Introduction) style="height: 200px; margin-bottom: 1rem;">
+                                                                            <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                                                                            <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                                                                            <RadzenHtmlEditorSeparator />
+                                                                            <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                                                                            <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                                                                            <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                                                                            <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                                                                            <RadzenHtmlEditorSeparator />
+                                                                            <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                                                                            <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                                                                            <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                                                                        </RadzenHtmlEditor>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row pb-2">
+                                                            @if (TemplateCheckboxSelectedValues.Any(item => item == (int)LegalTemplateSettingEnum.Articles_with_sections || item == (int)LegalTemplateSettingEnum.Clauses_with_sections))
+                                                            {
+                                                                            <div class="col-12 col-sm-12 col-md-6">
+                                                                                <div class="form-group">
+                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="add" Text="@translationState.Translate("Add_Section")" Click="@( () => AddSection() )" />
+                                                                                </div>
+                                                                            </div>
+                                                            }
+                                                            @if (TemplateCheckboxSelectedValues.Count() != 0)
+                                                            {
+                                                                @foreach (var item in TemplateCheckboxSelectedValues)
+                                                                {
+                                                                    @if (item == (int)LegalTemplateSettingEnum.Articles_with_sections)
+                                                                    {
+                                                                                            <div class="col-12 col-sm-12 col-md-6 d-flex justify-content-end">
+                                                                                                <div class="form-group">
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="add" Text="@translationState.Translate("Add_Article")" Click="@( () => AddArticle(true) )" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                    }
+                                                                    @if (item == (int)LegalTemplateSettingEnum.Articles_without_sections)
+                                                                    {
+                                                                                            <div class="col-12 col-sm-12 col-md-6 d-flex justify-content-end">
+                                                                                                <div class="form-group">
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="add" Text="@translationState.Translate("Add_Article")" Click="@( () => AddArticle(false) )" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                    }
+                                                                    @if (item == (int)LegalTemplateSettingEnum.Clauses_with_sections)
+                                                                    {
+                                                                                            <div class="col-12 col-sm-12 col-md-6 d-flex justify-content-end">
+                                                                                                <div class="form-group">
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="add" Text="@translationState.Translate("Add_Clause")" Click="@( () => AddClause(true) )" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                    }
+                                                                    @if (item == (int)LegalTemplateSettingEnum.Clauses_without_sections)
+                                                                    {
+                                                                                            <div class="col-12 col-sm-12 col-md-6 d-flex justify-content-end">
+                                                                                                <div class="form-group">
+                                                                                                    <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="add" Text="@translationState.Translate("Add_Clause")" Click="@( () => AddClause(false) )" />
+                                                                                                </div>
+                                                                                            </div>
+                                                                    }
+                                                                }
+                                                            }
+                                                                </div>
+                                                                <div class="row tableContent table-responsive no-gutters pb-3 article-clause-gridk-actions-start table-display article-rtl-position">
+                                                            @if (TemplateCheckboxSelectedValues.Count() != 0)
+                                                            {
+                                                                @foreach (var item in TemplateCheckboxSelectedValues)
+                                                                {
+                                                                    @if (item == (int)LegalTemplateSettingEnum.Articles_with_sections)
+                                                                    {
+                                                                                            <TelerikGrid @ref="@gridSectionArticle" Data="@legalArticlesList" Pageable="true" Height="auto" Width="100%" FilterMode="@GridFilterMode.None" PageSize="@systemSettingState.Grid_Pagination" Sortable="true"
+                                                                                                         SelectionMode="@GridSelectionMode.Multiple" OnRowRender="@ArticleRowRender" ScrollMode="@GridScrollMode.Scrollable" OnRowDrop="@((GridRowDropEventArgs<LegalArticle> args) => OnInStockArticleDrop(args))">
+                                                                                                <GridColumns>
+                                                                                                    <GridCommandColumn Title="@translationState.Translate("Action")" Width="100px">
+                                                                                                        <GridCommandButton Command="Add" Icon="add" OnClick="@((args) => AddGridArticleButtonClick(args, true))"></GridCommandButton>
+                                                                                                        <GridCommandButton Command="Delete" Icon="delete" OnClick="@DeleteGridArticleButtonClick"></GridCommandButton>
+                                                                                                    </GridCommandColumn>
+                                                                                                    <GridColumn Field=@nameof(legalArticles.ShowSectionTitle) Title="@translationState.Translate("Section_Name")" Width="200px" />
+
+                                                                                                    <GridColumn Field=@nameof(legalArticles.Article_Title) Title="@translationState.Translate("Article_Title")" Width="200px" />
+                                                                                                    <GridColumn Field="@(nameof(legalArticles.Article_Text))" Title="@translationState.Translate("Article_Text")" Width="200px">
+                                                                                                        <Template>
+                                                                                        @{
+                                                                                            var dataItem = (LegalArticle)context;
+                                                                                            if (dataItem.Article_Text != null)
+                                                                                            {
+                                                                                                //var details = new MarkupString(string.Format("{0}", dataItem.Article_Text));
+                                                                                                var details = Regex.Replace(dataItem.Article_Text, "<.*?>", string.Empty);
+                                                                                                                            <span id="tooltip-target" href="#" title="@details" class="custom-ellipsis">@dataItem.Article_Text</span>
+                                                                                                                            <TelerikTooltip TargetSelector="tooltip-target>span[title]"
+                                                                                                                                            Width="350px" Height="250px" Position="@Telerik.Blazor.TooltipPosition.Top" ShowOn="@TooltipShowEvent.Hover">
+                                                                                                                            </TelerikTooltip>
+                                                                                            }
+                                                                                        }
+                                                                                                        </Template>
+                                                                                                    </GridColumn>
+                                                                                                    <GridColumn Field=@nameof(legalArticles.Start_Date) Title="@translationState.Translate("Article_StartDate")" DisplayFormat="{0:dd/MM/yyyy}" Width="150px" />
+                                                                                                    <GridColumn Field=@nameof(legalArticles.End_Date) Title="@translationState.Translate("Article_EndDate")" DisplayFormat="{0:dd/MM/yyyy}" Width="150px" />
+                                                                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                                                {
+                                                                                                            <GridColumn Field=@nameof(legalArticles.Article_Status_Name_En) Title="@translationState.Translate("Article_Status")" Width="150px" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                                            <GridColumn Field=@nameof(legalArticles.Article_Status_Name_Ar) Title="@translationState.Translate("Article_Status")" Width="150px" />
+                                                                                }
+                                                                                                </GridColumns>
+                                                                                            </TelerikGrid>
+                                                                    }
+                                                                    @if (item == (int)LegalTemplateSettingEnum.Articles_without_sections)
+                                                                    {
+                                                                                            <TelerikGrid @ref="@gridSectionArticle" Data="@legalArticlesList" Pageable="true" Height="auto" Width="100%" FilterMode="@GridFilterMode.None" PageSize="@systemSettingState.Grid_Pagination" Sortable="true"
+                                                                                                         SelectionMode="@GridSelectionMode.Multiple" OnRowRender="@ArticleRowRender" ScrollMode="@GridScrollMode.Scrollable" OnRowDrop="@((GridRowDropEventArgs<LegalArticle> args) => OnInStockArticleDrop(args))"
+                                                                                                         Resizable="true">
+                                                                                                <GridColumns>
+                                                                                                    <GridCommandColumn Width="100px" Title="@translationState.Translate("Action")">
+                                                                                                        <GridCommandButton Command="Add" Icon="add" OnClick="@((args) => AddGridArticleButtonClick(args, false))"></GridCommandButton>
+                                                                                                        <GridCommandButton Command="Delete" Icon="delete" OnClick="@DeleteGridArticleButtonClick"></GridCommandButton>
+                                                                                                    </GridCommandColumn>
+                                                                                                    <GridColumn Field=@nameof(legalArticles.Article_Title) Title="@translationState.Translate("Article_Title")" Width="200px" />
+                                                                                                    <GridColumn Field="@(nameof(legalArticles.Article_Text))" Title="@translationState.Translate("Article_Text")" Width="200px">
+                                                                                                        <Template>
+                                                                                        @{
+                                                                                            var dataItem = (LegalArticle)context;
+                                                                                            if (dataItem.Article_Text != null)
+                                                                                            {
+                                                                                                //var details = new MarkupString(string.Format("{0}", dataItem.Article_Text));
+                                                                                                var details = Regex.Replace(dataItem.Article_Text, "<.*?>", string.Empty);
+                                                                                                                            <span id="tooltip-target" href="#" title="@details" class="custom-ellipsis">@dataItem.Article_Text</span>
+                                                                                                                            <TelerikTooltip TargetSelector="tooltip-target>span[title]"
+                                                                                                                                            Width="350px" Height="250px" Position="@Telerik.Blazor.TooltipPosition.Top" ShowOn="@TooltipShowEvent.Hover">
+                                                                                                                            </TelerikTooltip>
+                                                                                            }
+                                                                                        }
+                                                                                                        </Template>
+                                                                                                    </GridColumn>
+                                                                                                    <GridColumn Field=@nameof(legalArticles.Start_Date) Title="@translationState.Translate("Article_StartDate")" DisplayFormat="{0:dd/MM/yyyy}" Width="150px" />
+                                                                                                    <GridColumn Field=@nameof(legalArticles.End_Date) Title="@translationState.Translate("Article_EndDate")" DisplayFormat="{0:dd/MM/yyyy}" Width="150px" />
+                                                                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                                                {
+                                                                                                            <GridColumn Field=@nameof(legalArticles.Article_Status_Name_En) Title="@translationState.Translate("Article_Status")" Width="150px" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                                            <GridColumn Field=@nameof(legalArticles.Article_Status_Name_Ar) Title="@translationState.Translate("Article_Status")" Width="150px" />
+                                                                                }
+                                                                                                </GridColumns>
+                                                                                            </TelerikGrid>
+                                                                    }
+                                                                    @if (item == (int)LegalTemplateSettingEnum.Clauses_with_sections)
+                                                                    {
+                                                                                            <TelerikGrid @ref="@gridSectionClause" Data="@legalClausesList" Pageable="true" Height="auto" Width="100%" FilterMode="@GridFilterMode.None" PageSize="@systemSettingState.Grid_Pagination"
+                                                                                                         SelectionMode="@GridSelectionMode.Multiple" OnRowRender="@ClauseRowRender" OnRowDrop="@((GridRowDropEventArgs<LegalClause> args) => OnInStockClauseDrop(args))">
+                                                                                                <GridColumns>
+                                                                                                    <GridCommandColumn Width="100px" Title="@translationState.Translate("Action")">
+                                                                                                        <GridCommandButton Command="Add" Icon="add" OnClick="@((args) => AddGridClauseButtonClick(args, true))"></GridCommandButton>
+                                                                                                        <GridCommandButton Command="Delete" Icon="delete" OnClick="@DeleteGridClauseButtonClick"></GridCommandButton>
+                                                                                                    </GridCommandColumn>
+                                                                                                    <GridColumn Field=@nameof(legalClauses.ShowSectionTitle) Title="@translationState.Translate("Section_Name")" Width="200px" />
+                                                                                                    <GridColumn Field=@nameof(legalClauses.Clause_Name) Title="@translationState.Translate("Clause_Name")" Width="200px" />
+                                                                                                    <GridColumn Field="@(nameof(legalClauses.Clause_Content))" Title="@translationState.Translate("Clause_Content")" Width="200px">
+                                                                                                        <Template>
+                                                                                        @{
+                                                                                            var dataItem = (LegalClause)context;
+                                                                                            if (dataItem.Clause_Content != null)
+                                                                                            {
+                                                                                                //var details = new MarkupString(string.Format("{0}", dataItem.Clause_Content));
+                                                                                                var details = Regex.Replace(dataItem.Clause_Content, "<.*?>", string.Empty);
+                                                                                                                            <span id="tooltip-target" href="#" title="@details" class="custom-ellipsis">@dataItem.Clause_Content</span>
+                                                                                                                            <TelerikTooltip TargetSelector="tooltip-target>span[title]"
+                                                                                                                                            Width="350px" Height="250px" Position="@Telerik.Blazor.TooltipPosition.Top" ShowOn="@TooltipShowEvent.Hover">
+                                                                                                                            </TelerikTooltip>
+                                                                                            }
+                                                                                        }
+
+                                                                                                        </Template>
+                                                                                                    </GridColumn>
+                                                                                                    <GridColumn Field=@nameof(legalClauses.Start_Date) Title="@translationState.Translate("Clause_StartDate")" DisplayFormat="{0:dd/MM/yyyy}" Width="150px" />
+                                                                                                    <GridColumn Field=@nameof(legalClauses.End_Date) Title="@translationState.Translate("Clause_EndDate")" DisplayFormat="{0:dd/MM/yyyy}" Width="150px" />
+                                                                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                                                {
+                                                                                                            <GridColumn Field=@nameof(legalClauses.Clause_Status_Name_En) Title="@translationState.Translate("Clause_Status")" Width="150px" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                                            <GridColumn Field=@nameof(legalClauses.Clause_Status_Name_Ar) Title="@translationState.Translate("Clause_Status")" Width="150px" />
+                                                                                }
+                                                                                                </GridColumns>
+                                                                                            </TelerikGrid>
+                                                                    }
+                                                                    @if (item == (int)LegalTemplateSettingEnum.Clauses_without_sections)
+                                                                    {
+                                                                                            <TelerikGrid @ref="@gridSectionClause" Data="@legalClausesList" Pageable="true" Height="auto" Width="100%" FilterMode="@GridFilterMode.None" PageSize="@systemSettingState.Grid_Pagination"
+                                                                                                         SelectionMode="@GridSelectionMode.Multiple" OnRowRender="@ClauseRowRender" OnRowDrop="@((GridRowDropEventArgs<LegalClause> args) => OnInStockClauseDrop(args))">
+                                                                                                <GridColumns>
+                                                                                                    <GridCommandColumn Width="100px" Title="@translationState.Translate("Action")">
+                                                                                                        <GridCommandButton Command="Add" Icon="add" OnClick="@((args) => AddGridClauseButtonClick(args, false))"></GridCommandButton>
+                                                                                                        <GridCommandButton Command="Delete" Icon="delete" OnClick="@DeleteGridClauseButtonClick"></GridCommandButton>
+                                                                                                    </GridCommandColumn>
+                                                                                                    <GridColumn Field=@nameof(legalClauses.Clause_Name) Title="@translationState.Translate("Clause_Name")" Width="200px" />
+                                                                                                    <GridColumn Field="@(nameof(legalClauses.Clause_Content))" Title="@translationState.Translate("Clause_Content")" Width="200px">
+                                                                                                        <Template>
+                                                                                        @{
+                                                                                            var dataItem = (LegalClause)context;
+                                                                                            if (dataItem.Clause_Content != null)
+                                                                                            {
+                                                                                                //var details = new MarkupString(string.Format("{0}", dataItem.Clause_Content));
+                                                                                                var details = Regex.Replace(dataItem.Clause_Content, "<.*?>", string.Empty);
+                                                                                                                            <span id="tooltip-target" href="#" title="@details" class="custom-ellipsis">@dataItem.Clause_Content</span>
+                                                                                                                            <TelerikTooltip TargetSelector="tooltip-target>span[title]"
+                                                                                                                                            Width="350px" Height="250px" Position="@Telerik.Blazor.TooltipPosition.Top" ShowOn="@TooltipShowEvent.Hover">
+                                                                                                                            </TelerikTooltip>
+                                                                                            }
+                                                                                        }
+                                                                                                        </Template>
+                                                                                                    </GridColumn>
+                                                                                                    <GridColumn Field=@nameof(legalClauses.Start_Date) Title="@translationState.Translate("Clause_StartDate")" DisplayFormat="{0:dd/MM/yyyy}" Width="150px" />
+                                                                                                    <GridColumn Field=@nameof(legalClauses.End_Date) Title="@translationState.Translate("Clause_EndDate")" DisplayFormat="{0:dd/MM/yyyy}" Width="150px" />
+                                                                                @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                                                                                {
+                                                                                                            <GridColumn Field=@nameof(legalClauses.Clause_Status_Name_En) Title="@translationState.Translate("Clause_Status")" Width="150px" />
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                                            <GridColumn Field=@nameof(legalClauses.Clause_Status_Name_Ar) Title="@translationState.Translate("Clause_Status")" Width="150px" />
+                                                                                }                                                                                
+                                                                                                </GridColumns>
+                                                                                            </TelerikGrid>
+                                                                    }
+                                                                }
+                                                            }
+                                                                </div>
+                                                            </ChildContent>
+                                                        </RadzenFieldset>
+                                                    </FormItems>
+                                                    <FormButtons></FormButtons>
+                                                </TelerikForm>
+                                            </Content>
+                                        </WizardStep>
+
+                                        <WizardStep ImageUrl="@filePath3" Label="@translationState.Translate("Legislation_Notes_Section")" OnChange="@OnNotesDetailsStepChange">
+                                            <Content>
+                                                <TelerikForm Model="@validations" @ref="@Notes_Form">
+                                                    <FormValidation>
+                                                        <DataAnnotationsValidator></DataAnnotationsValidator>
+                                                    </FormValidation>
+                                                    <FormItems>
+                                                        <RadzenFieldset>
+                                                            <ChildContent>
+                                                                <div class="row newTemplateHeading">
+                                                                    <label for="sub" class="k-label k-form-label">@translationState.Translate("New_Template")</label>
+
+                                                            @if (legalTemplates.Template_Name != null)
+                                                            {
+                                                                            <table>
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <RadzenTextBox ReadOnly="true" @bind-Value="@legalTemplates.Template_Name" />
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" class="editIcon" Icon="mode" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@(() =>EditTemplateIconClick(Value))" @onclick:stopPropagation="true" />
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                            }
+                                                                </div>
+                                                            </ChildContent>
+                                                        </RadzenFieldset>
+                                                        <RadzenFieldset>
+                                                            <ChildContent>
+                                                        @if (TemplateCheckboxSelectedValues.Count() != 0)
+                                                        {
+                                                            @foreach (var item in TemplateCheckboxSelectedValues)
+                                                            {
+                                                                @if (item == (int)LegalTemplateSettingEnum.Explanatory_Note)
+                                                                {
+                                                                                        <div class="row pb-2">
+                                                                                            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                                                                <RadzenLabel Text="@translationState.Translate("Legistion_Explanatory_Notes")" />
+                                                                                            </div>
+                                                                                            <div class="col-md-6 d-flex justify-content-end tableAdditionButton pb-3">
+                                                                                                <TelerikButton class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="@(ThemeConstants.Button.ThemeColor.Success)" OnClick="@UploadExplanatoryDocumentButtonClick">@translationState.Translate("Upload_Explanatory_Document")</TelerikButton>
+                                                                                            </div>
+                                                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+
+                                                                                                <RadzenHtmlEditor @bind-Value=@(explanatoryNote.ExplanatoryNote_Body) style="height: 500px; margin-bottom: 1rem;">
+                                                                                                    <RadzenHtmlEditorUndo />
+                                                                                                    <RadzenHtmlEditorRedo />
+                                                                                                    <RadzenHtmlEditorSeparator />
+                                                                                                    <RadzenHtmlEditorBold />
+                                                                                                    <RadzenHtmlEditorItalic />
+                                                                                                    <RadzenHtmlEditorUnderline />
+                                                                                                    <RadzenHtmlEditorStrikeThrough />
+                                                                                                    <RadzenHtmlEditorSeparator />
+                                                                                                    <RadzenHtmlEditorColor />
+                                                                                                    <RadzenHtmlEditorBackground />
+                                                                                                    <RadzenHtmlEditorRemoveFormat />
+                                                                                                </RadzenHtmlEditor>
+                                                                                            </div>
+                                                                                        </div>
+                                                                }
+                                                                @if (item == (int)LegalTemplateSettingEnum.Note)
+                                                                {
+                                                                                        <div class="row pb-2">
+                                                                                            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                                                                <RadzenLabel Text="@translationState.Translate("Legistion_Note")" />
+                                                                                            </div>
+                                                                                            <div class="col-md-6 d-flex justify-content-end tableAdditionButton pb-3">
+                                                                                                <RadzenButton ButtonStyle="ButtonStyle.Light" Icon="add" Text="@translationState.Translate("Add_Relation")" Click="@( () => AddRelationInNote() )" />
+                                                                                            </div>
+                                                                                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                                                <RadzenHtmlEditor @bind-Value=@(legalNote.Note_Text) style="height: 200px; margin-bottom: 1rem;">
+                                                                                                    <RadzenHtmlEditorUndo />
+                                                                                                    <RadzenHtmlEditorRedo />
+                                                                                                    <RadzenHtmlEditorSeparator />
+                                                                                                    <RadzenHtmlEditorBold />
+                                                                                                    <RadzenHtmlEditorItalic />
+                                                                                                    <RadzenHtmlEditorUnderline />
+                                                                                                    <RadzenHtmlEditorStrikeThrough />
+                                                                                                    <RadzenHtmlEditorSeparator />
+                                                                                                    <RadzenHtmlEditorColor />
+                                                                                                    <RadzenHtmlEditorBackground />
+                                                                                                    <RadzenHtmlEditorRemoveFormat />
+                                                                                                </RadzenHtmlEditor>
+                                                                                            </div>
+                                                                                        </div>
+                                                                }
+                                                            }
+                                                        }
+                                                            </ChildContent>
+                                                        </RadzenFieldset>
+                                                    </FormItems>
+                                                </TelerikForm>
+                                            </Content>
+                                        </WizardStep>
+
+                                        <WizardStep ImageUrl="@filePath4" Label="@translationState.Translate("Legislation_Preview")">
+                                            <Content>
+                                                <TelerikForm Model="@validations" @ref="@Preview_Form">
+                                                    <FormItems>
+                                                        <RadzenFieldset>
+                                                            <ChildContent>
+                                                                <div class="row newTemplateHeading">
+                                                                    <label for="sub" class="k-label k-form-label">@translationState.Translate("New_Template")</label>
+
+                                                            @if (legalTemplates.Template_Name != null)
+                                                            {
+                                                                            <table>
+                                                                                <tbody>
+                                                                                    <tr>
+                                                                                        <td>
+                                                                                            <RadzenTextBox ReadOnly="true" @bind-Value="@legalTemplates.Template_Name" />
+                                                                                        </td>
+                                                                                        <td>
+                                                                                            <RadzenButton ButtonStyle="ButtonStyle.Secondary" class="editIcon" Icon="mode" title="@translationState.Translate("Edit")" Size="ButtonSize.Small" Click="@(() =>EditTemplateIconClick(Value))" @onclick:stopPropagation="true" />
+                                                                                        </td>
+                                                                                    </tr>
+                                                                                </tbody>
+                                                                            </table>
+                                                            }
+                                                                </div>
+                                                            </ChildContent>
+                                                        </RadzenFieldset>
+                                                        <RadzenFieldset>
+                                                            <ChildContent>
+                                                                <div class="row pb-2 addPriviewContainer">
+                                                                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                                                                @NewTest
+                                                                    </div>
+                                                                </div>
+                                                            </ChildContent>
+                                                        </RadzenFieldset>
+                                                    </FormItems>
+                                                </TelerikForm>
+                                            </Content>
+                                        </WizardStep>
+                                    </WizardSteps>
+                                    <WizardButtons>
+                                @{
+                                    var index = context;
+                                    if (index == 0)
+                                    {
+                                        <TelerikButton Class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@( () => OnTemplateSetupStepChangeCustom(index) )">@translationState.Translate("Next")</TelerikButton>
+                                        <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" OnClick="@CancelLegislationForm">@translationState.Translate("Cancel")</TelerikButton>
+
+                                    }
+                                    if (index > 0)
+                                    {
+                                        if (index == 1) // basic detail part
+                                        {
+                                                                <TelerikButton Class="prevBtn" OnClick="@(() => Value -= 1)">@translationState.Translate("Previous")</TelerikButton>
+                                                                <TelerikButton Class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@( () => OnBasicDetailsStepChangeCustom(index) )">@translationState.Translate("Next")</TelerikButton>
+                                                                <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@( () => SaveLegislationButtonClickAsPartiallyCompleted() )">@translationState.Translate("Save")</TelerikButton>
+                                                                <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" OnClick="@CancelLegislationForm">@translationState.Translate("Cancel")</TelerikButton>
+                                        }
+                                        if (index == 2) // section, article and relation part
+                                        {
+                                                                <TelerikButton Class="prevBtn" OnClick="@(() => OnSectionArticlePreviousStepCustom(index))">@translationState.Translate("Previous")</TelerikButton>
+                                                                <TelerikButton Class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@( () => OnSectionArticleStepChangeCustom(index) )">@translationState.Translate("Next")</TelerikButton>
+                                                                <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@( () => SaveLegislationButtonClickAsPartiallyCompleted() )">@translationState.Translate("Save")</TelerikButton>
+                                                                <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" OnClick="@CancelLegislationForm">@translationState.Translate("Cancel")</TelerikButton>
+
+                                        }
+                                        if (index == 3) //legislation notes part
+                                        {
+
+                                                                <TelerikButton Class="prevBtn" OnClick="@(() => Value -= 1)">@translationState.Translate("Previous")</TelerikButton>
+                                                                <TelerikButton Class="nextBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@( () => OnNotesDetailsStepChangeCustom(index) )">@translationState.Translate("Next")</TelerikButton>
+                                                                <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@( () => SaveLegislationButtonClickAsPartiallyCompleted() )">@translationState.Translate("Save")</TelerikButton>
+                                                                <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" OnClick="@CancelLegislationForm">@translationState.Translate("Cancel")</TelerikButton>
+
+                                        }
+                                        if (index == 4) //legislation  preview
+                                        {
+                                                                <TelerikButton Class="prevBtn" OnClick="@(() => Value -= 1)">@translationState.Translate("Previous")</TelerikButton>
+                                                                <TelerikButton Class="cancleBtn" ButtonType="Telerik.Blazor.ButtonType.Button" OnClick="@CancelLegislationForm">@translationState.Translate("Cancel")</TelerikButton>
+
+                                            @if (EditLegislationTrue)
+                                            {
+                                                                        <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@( () => UpdateLegalLegislationButtonClick(false) )">@translationState.Translate("Save")</TelerikButton>
+                                                                        <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@( () => UpdateLegalLegislationButtonClick(true) )">@translationState.Translate("Submit")</TelerikButton>
+                                            }
+                                            else
+                                            {
+                                                                        <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@SaveLegalLegislationButtonClick">@translationState.Translate("Save")</TelerikButton>
+                                                                        <TelerikButton Class="submitBtn" ButtonType="Telerik.Blazor.ButtonType.Button" ThemeColor="success" OnClick="@SubmitLegalLegislationButtonClick">@translationState.Translate("Submit")</TelerikButton>
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                    }
+                                }
+                                    </WizardButtons>
+                                </TelerikWizard>
+                    }
+                    </div>
+                </div>
+            </ChildContent>
+        </RadzenContent>
+}
+else
+{
+        <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+<style>
+    .rz-textbox {
+        font-size: 0.875rem !important;
+        width: 100% !important;
+    }
+
+    .k-stepper .k-step-label .k-step-text {
+        font-weight: 500;
+        font-size: 12px !important;
+    }
+
+    .k-step-current .k-step-indicator img {
+        width: 35px !important;
+    }
+
+    .k-step-indicator img {
+        width: 35px !important;
+    }
+
+    span.k-step-label {
+        height: 30px;
+    }
+
+    li.k-step {
+        width: 18% !important;
+        max-width: 18%;
+        margin: 1%;
+    }
+
+        li.k-step.k-step-current a.k-step-link {
+            padding: 8px !important;
+        }
+
+        li.k-step a.k-step-link {
+            padding: 8px !important;
+        }
+
+    .k-wizard-step {
+        padding: 10px 15px !important;
+    }
+
+    .k-wizard .k-wizard-steps {
+        overflow: visible !important;
+    }
+
+    label.k-label.k-form-label.dottedTitle {
+        margin-bottom: 0px;
+        padding-bottom: 0px !important;
+    }
+
+    label.k-label.k-form-label {
+        padding-bottom: 10px !important;
+        font-weight: 500 !important;
+        font-size: 13px !important;
+    }
+
+    .dots {
+        height: 20px;
+        line-height: 0px;
+        overflow: hidden;
+    }
+
+    .rz-chkbox {
+        top: -2px;
+        width: 1.05rem !important;
+        min-width: 1.05rem !important;
+        height: 1.05rem !important;
+    }
+
+    .rz-checkbox-list-horizontal {
+        display: block !important;
+    }
+
+    .rz-chkbox-label {
+        margin: 0px !important;
+        display: inline;
+        font-size: 13px;
+    }
+
+    .rz-checkbox-list-vertical:not(.rz-state-disabled) > div > .rz-chkbox-label:hover, .rz-checkbox-list-horizontal:not(.rz-state-disabled) > div > .rz-chkbox-label:hover {
+        color: #8C7B6C;
+        cursor: pointer;
+    }
+
+    .rz-chkbox-box .rzi {
+        color: #8C7B6C !important;
+        background-color: #8C7B6C !important;
+    }
+
+    span.k-spacer {
+        display: none;
+    }
+
+    .k-form-field-wrap .valid {
+        width: 100% !important;
+    }
+
+    .addBtnBlock button {
+        margin-top: 18px;
+        float: right !important;
+    }
+
+    .rz-dialog {
+        min-width: 600px !important;
+        width: auto !important;
+    }
+
+    .searchBtn {
+        margin-top: 35px !important;
+    }
+
+    .mainLabel {
+        margin-top: 30px !important;
+    }
+
+    .k-form-buttons.k-actions-start {
+        display: none;
+    }
+
+    .table-display {
+        display: grid !important;
+    }
+
+    .custom-ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .empty-article {
+        background-color: #e3d4c9;
+    }
+
+    .demo-section.k-content,
+    html.k-material .demo-section.k-content {
+        overflow: hidden;
+        padding: 0;
+        border: 0;
+        box-shadow: none;
+    }
+
+    input#pdfviewer_fileUploadElement {
+        display: none;
+    }
+
+    .rz-fieldset-content-wrapper {
+        overflow: visible;
+    }
+</style>

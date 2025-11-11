@@ -1,0 +1,15 @@
+﻿@page "/legalprinciple-publishUnpublish"
+@layout MainLayout
+
+
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LPS.Principles.PublishUnpublish").Count() > 0)
+{
+    <LLSLegalPrincipleListComponent
+        IsPublishUnPublish="true"
+        UserId="@loginState.UserDetail.UserId">
+    </LLSLegalPrincipleListComponent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+} 

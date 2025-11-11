@@ -1,0 +1,33 @@
+﻿@page "/PDFView/{FilesId}"
+@layout MainLayout
+@using Radzen
+@using Radzen.Blazor
+@using FATWA_DOMAIN.Models
+<!--<History Author = 'ijaz Ahmad' Date='2023-06-16' Version="1.0" Branch="master">PDF View File</History>-->
+@*//<History Author = 'Hassan Abbas' Date='2024-02-13' Version="1.0" Branch="master"> Migrated from Statistics Case Study Project</History>*@
+<PageTitle> </PageTitle>
+<RadzenCard> 
+    <div class="row pb-2" style="overflow:scroll">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+            <RadzenHtml>
+                @if (ShowDocumentViewer)
+                {
+                    <TelerikPdfViewer @ref="PdfViewerRef"
+                                  Width="100%"
+                                  Height="490px"
+                                  Data="@FileData">
+                        <PdfViewerToolBar>
+                            <PdfViewerToolBarSeparator /> 
+                            <PdfViewerToolBarSpacer />
+                            <PdfViewerToolBarZoomTool />
+                            <PdfViewerToolBarPagerTool />
+                            <PdfViewerToolBarPrintTool />
+                            <PdfViewerToolBarDownloadTool />
+                        </PdfViewerToolBar>
+                    </TelerikPdfViewer>
+                }
+            </RadzenHtml>
+        </div>
+    </div>
+</RadzenCard>
+

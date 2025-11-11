@@ -1,0 +1,169 @@
+﻿@page "/detail-llsleagalprinciple/{PrincipleId}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.AdminModels.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment
+@using FATWA_WEB.Pages.Shared
+@using FATWA_WEB.Pages.TimeTracking
+@using static FATWA_GENERAL.Helper.Enum;
+@using static FATWA_DOMAIN.Enums.GeneralEnums
+@using static FATWA_DOMAIN.Enums.TaskEnums;
+@using static FATWA_DOMAIN.Enums.CommunicationEnums;
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums
+@using FATWA_DOMAIN.Models.ViewModel.LLSLegalPrinciple;
+@using System.Text.RegularExpressions;
+
+
+<PageTitle>@translationState.Translate("LLS_Legal_Principle_Detail")</PageTitle>
+
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenBreadCrumb>
+                        <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                        <RadzenBreadCrumbItem Path="/llslegalprincipledocuments-list" Text="@translationState.Translate("Legal_Principle_Documents")" />
+                        <RadzenBreadCrumbItem Text="@translationState.Translate("Legal_Principle_Detail")" />
+                    </RadzenBreadCrumb>
+                </div>
+            </div>
+            <div class="col-md-6 d-flex justify-content-end">
+                <div class="backtoDashboard">
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back")"
+                                  class="returnBtn" Icon="@(System.Globalization.CultureInfo.CurrentCulture.Name == "en-US"? "arrow_back" : "arrow_forward")" Click="@RedirectBack" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_Dashboard")"
+                                  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                    <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                  Size="ButtonSize.Small"
+                                  title="@translationState.Translate("Go_Back_HomeScreen")"
+                                  class="returnBtn"
+                                  Icon="home" Click="@GoBackHomeScreen" />
+                </div>
+            </div>
+        </div>
+        <div class="row TitleBar justify-content-left align-items-center py-4">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <RadzenHeading Size="H1" Text="@translationState.Translate("Legal_Principle_Detail")" />
+                </div>
+            </div>
+        </div>
+        <RadzenAccordion>
+            <Items>
+                <RadzenAccordionItem Text="@translationState.Translate("Principle_Details")" Selected="true">
+                    <div class="row no-gutters">
+                        <div class="col-6 detailSection">
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("Principle_Number")</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>@LLSLegalPrincipleDetailVM?.PrincipleNumber</h3>
+                            </div>
+                        </div>
+                        <div class="col-6 detailSection">
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("Principle_Status")</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? LLSLegalPrincipleDetailVM?.FlowStatusEn : LLSLegalPrincipleDetailVM?.FlowStatusAr)</h3>
+                            </div>
+                        </div>
+                        <div class="col-6 detailSection">
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("Type")</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? LLSLegalPrincipleDetailVM?.TypeEn : LLSLegalPrincipleDetailVM?.TypeAr)</h3>
+                            </div>
+                        </div>
+                        <div class="col-6 detailSection">
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("Principle_Issue_Date")</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>@LLSLegalPrincipleDetailVM?.CreatedDate.ToString("dd/MM/yyyy")</h3>
+                            </div>
+                        </div>
+                        <div class="col-6 detailSection">
+                            <div class="detailHeading">
+                                <h3>@translationState.Translate("NumberOfPrincipleContents")</h3>
+                            </div>
+                            <div class="detailContent">
+                                <h3>@LLSLegalPrincipleDetailVM?.NumberOfPrincipleContents</h3>
+                            </div>
+                        </div>
+                    </div>
+                </RadzenAccordionItem>
+            </Items>
+        </RadzenAccordion>
+        <RadzenAccordion>
+            <Items>
+                <RadzenAccordionItem Text="@translationState.Translate("Principle_Content")" Selected="false">
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <RadzenDataGrid AllowFiltering="false"
+                                        @ref="gridRelation"
+                                        EmptyText="@translationState.Translate("No_record_found")"
+                                        AllowPaging="true"
+                                        AllowSorting="true"
+                                        Data="@lLSLegalPrinciplesContentVMs"
+                                        TItem="LLSLegalPrinciplesContentVM"
+                                        PageSize="@systemSettingState.Grid_Pagination"
+                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                        PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                        PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                        ShowPagingSummary="true"
+                                        ColumnWidth="280px">
+                            <Columns>
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesContentVM" Title="@translationState.Translate("Actions")" Filterable="false" Sortable="false" Width="90px" TextAlign="TextAlign.Center">
+                                    <Template Context="rowItem">
+                                        <RadzenButton ButtonStyle="ButtonStyle.Info"
+                                                      class="viewIcon"
+                                                      Icon="visibility"
+                                                      Title="@translationState.Translate("View")"
+                                                      Size="ButtonSize.Small"
+                                                      Click="@((args) => ViewDetail(rowItem))"
+                                                      @onclick:stopPropagation="true" />
+                                    </Template>
+                                </RadzenDataGridColumn>
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesContentVM" Property="PrincipleContent" Title="@translationState.Translate("Principle_Content")" />
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesContentVM" Property="StartDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("Start_Date")" />
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesContentVM" Property="EndDate" FormatString="{0:dd/MM/yyyy}" Title="@translationState.Translate("End_Date")" />
+                                <RadzenDataGridColumn TItem="LLSLegalPrinciplesContentVM" Property="PageNumber" Title="@translationState.Translate("Page_Number")" Width="120px" />
+                            </Columns>
+                        </RadzenDataGrid>
+                    </div>
+                </RadzenAccordionItem>
+            </Items>
+        </RadzenAccordion>
+        <div class="col-md-6 mt-2 justify-content-start" style="padding-left: 0px;">
+            <RadzenButton ButtonStyle="ButtonStyle.Light" class="m-1" Text="@translationState.Translate("Back")" Click="@RedirectBack">
+            </RadzenButton>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+@code {
+    async Task OnPrincipleContentDetail(string args)
+    {
+
+        if (args != null)
+        {
+            await dialogService.OpenAsync(@translationState.Translate("Principle_Content"), ds =>
+    @<div clas s="col-12 mt-0 mb-2">
+
+        @(new MarkupString(args))
+    </div>
+        , new DialogOptions
+        {
+            Width = "60%"
+        });
+        }
+    }
+}

@@ -1,0 +1,34 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.CaseManagment;
+@using FATWA_DOMAIN.Models.TaskModels;
+@using FATWA_DOMAIN.Models.LegalPrinciple;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@layout MainLayout
+
+<RadzenTemplateForm class="container" Data="@sectorAssignemnt" Visible="@(sectorAssignemnt != null)" TItem="AssignMojCaseFileToSectorVM" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="row pt-2 pb-2">
+            <div class="col-12 col-sm-12  col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@translationState.Translate("Sector")" Component="SectorType" />
+                    <RadzenDropDown Data="@SectorTypes" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" Multiple="false"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@sectorAssignemnt.SectorTypeId"
+                                    Name="SectorType" />
+                    <RadzenRequiredValidator Component="SectorType" DefaultValue="0" Text="@translationState.Translate("Required_Field")" />
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4 popup-buttons-alignment">
+            <div class="col-12 p-0">
+                <RadzenButton Text="@translationState.Translate("Submit")"
+                                ButtonStyle="ButtonStyle.Primary"
+                                style="margin-right: 0.2rem !important"
+                                ButtonType="Radzen.ButtonType.Submit" />
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                                ButtonStyle="ButtonStyle.Light"
+                                Click="@ButtonCancelClick" />
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

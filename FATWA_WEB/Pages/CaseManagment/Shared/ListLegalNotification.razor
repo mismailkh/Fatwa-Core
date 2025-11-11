@@ -1,0 +1,49 @@
+﻿@page "/list-legalnotification/{ReferenceId}/{SubModuleId}"
+@layout MainLayout
+
+@using FATWA_DOMAIN.Models.ViewModel.CommunicationVMs
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+@using static FATWA_DOMAIN.Enums.CommunicationEnums;
+@using static FATWA_DOMAIN.Enums.GeneralEnums;
+
+<RadzenContent Container="main" class="p-0 pt-3">
+    <ChildContent>
+        <div class="row tableContent table-responsive no-gutters">
+            <RadzenDataGrid @ref="communicationListgrid"
+                            PageSize="@systemSettingState.Grid_Pagination"
+                            ColumnWidth="200px"
+                            Data="@FiletergetCommunicationList"
+                            TItem="CommunicationListVM"
+                            EmptyText="@translationState.Translate("No_record_found")"
+                            FilterMode="Radzen.FilterMode.Advanced"
+                            AllowPaging="true"
+                            AllowSorting="true"
+                            AllowFiltering="false"
+                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                            ShowPagingSummary="true">
+                <Columns>
+                    <RadzenDataGridColumn TItem="CommunicationListVM" Title="@translationState.Translate("Action")"
+                                          Filterable="false"
+                                          Sortable="false"
+                                          Width="50px"
+                                          TextAlign="TextAlign.Center">
+                        <Template Context="rowItem">
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Style=@($"background-color: {rowItem.HexCode}")
+                                          Icon="visibility"
+                                          Size="ButtonSize.Small"
+                                          Click="@((args) => ViewResponse(rowItem))"
+                                          @onclick:stopPropagation="true" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                    <RadzenDataGridColumn TItem="CommunicationListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Activity_En" : "Activity_Ar") Title="@translationState.Translate("Activity")" />
+                    <RadzenDataGridColumn TItem="CommunicationListVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "PartyEntityEn" : "PartyEntityAr") Title="@translationState.Translate("Reciever_GE")" />
+                    <RadzenDataGridColumn TItem="CommunicationListVM" Width="80px" FormatString="{0:dd/MM/yyyy}" Property="CreatedDate" Title="@translationState.Translate("Date")" />
+                </Columns>
+            </RadzenDataGrid>
+        </div>
+    </ChildContent>
+</RadzenContent>

@@ -1,0 +1,97 @@
+﻿@page "/roleList"
+
+@using FATWA_WEB.Data
+@using FATWA_WEB.Services
+@using Microsoft.AspNetCore.Identity
+@inject RoleService roleService
+@inject FATWA_WEB.Data.LoginState loginState
+@using static FATWA_GENERAL.Helper.Response;
+
+<h1>قائمة الأدوار</h1>
+
+@*<History Author = 'Hassan Abbas' Date='2022-02-28' Version="1.0" Branch="master"> Check User's Claim for the specified operation</History>*@
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Roles.Create").Count() > 0)
+{
+    <TelerikGrid Data=@GridData EditMode="@GridEditMode.Inline" Height="450px"
+             ShowColumnMenu="true" Width="100%" FilterMode="@GridFilterMode.FilterMenu"
+             Pageable="true" PageSize="10" Resizable="true" Reorderable="true"
+            OnCreate="@CreateHandler" OnDelete="@DeleteHandler" OnUpdate="@UpdateHandler">
+        <GridToolBar>
+            <GridCommandButton Command="Add" Icon="add">أضف دورًا</GridCommandButton>
+        </GridToolBar>
+        <GridColumns>
+            <GridColumn Field="@nameof(IdentityRole.Id)" Locked="true" Title="هوية شخصية" Width="200px" ShowColumnMenu="false" ShowColumnChooser="false" />
+            <GridColumn Field=@nameof(IdentityRole.Name) Title="اسم" Width="200px" />
+            <GridColumn Field=@nameof(IdentityRole.NormalizedName) Title="الاسم الطبيعي" Width="200px" /> 
+            <GridCommandColumn Title="أجراءات" Width="300px" Locked="true" Lockable="false" Resizable="false">
+                <GridCommandButton Command="Edit" Icon="edit">يحرر</GridCommandButton>
+                <GridCommandButton Command="Delete" Icon="delete">حذف</GridCommandButton>
+                <GridCommandButton Command="Save" Icon="save">إدارة الأذونات</GridCommandButton>
+                <GridCommandButton Command="Save" Icon="save" ShowInEdit="true">يحفظ</GridCommandButton>
+                <GridCommandButton Command="Cancel" Icon="cancel" ShowInEdit="true">يلغي</GridCommandButton>
+            </GridCommandColumn>
+        </GridColumns>
+    </TelerikGrid>
+}
+else
+{
+        <TelerikGrid Data=@GridData EditMode="@GridEditMode.Inline" Height="450px"
+             ShowColumnMenu="true" Width="100%" FilterMode="@GridFilterMode.FilterMenu"
+             Pageable="true" PageSize="10" Resizable="true" Reorderable="true"
+            OnCreate="@CreateHandler" OnDelete="@DeleteHandler" OnUpdate="@UpdateHandler"> 
+        <GridColumns>
+            <GridColumn Field="@nameof(IdentityRole.Id)" Locked="true" Title="هوية شخصية" Width="200px" ShowColumnMenu="false" ShowColumnChooser="false" />
+            <GridColumn Field=@nameof(IdentityRole.Name) Title="اسم" Width="200px" />
+            <GridColumn Field=@nameof(IdentityRole.NormalizedName) Title="الاسم الطبيعي" Width="200px" /> 
+            <GridCommandColumn Title="أجراءات" Width="300px" Locked="true" Lockable="false" Resizable="false">
+                <GridCommandButton Command="Edit" Icon="edit">يحرر</GridCommandButton>
+                <GridCommandButton Command="Delete" Icon="delete">حذف</GridCommandButton>
+                <GridCommandButton Command="Save" Icon="save">إدارة الأذونات</GridCommandButton>
+                <GridCommandButton Command="Save" Icon="save" ShowInEdit="true">يحفظ</GridCommandButton>
+                <GridCommandButton Command="Cancel" Icon="cancel" ShowInEdit="true">يلغي</GridCommandButton>
+            </GridCommandColumn>
+        </GridColumns>
+    </TelerikGrid>
+
+}
+
+@code
+{
+    public IEnumerable<IdentityRole> GridData { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var gridData = await roleService.GetAllUserRoles();
+        if(gridData.IsSuccessStatusCode)
+        {
+            GridData = (IEnumerable<IdentityRole>)gridData.ResultData;
+        }
+        //  GridData = (await roleService.GetAllUserRoles()).ToList();
+    }
+
+    private void CreateHandler(GridCommandEventArgs args)
+    {
+        //var response = roleService.Register(args);
+    }
+
+    private void DeleteHandler(GridCommandEventArgs args)
+    {
+        // GridData.Remove((IdentityRole)args.Item);
+    }
+
+    private void UpdateHandler(GridCommandEventArgs args)
+    {
+        //Product product = (Product)args.Item;
+
+        //var existing = GridData.FirstOrDefault(p => p.ProductId == product.ProductId);
+
+        //if (existing != null)
+        //{
+        //    existing.ProductName = product.ProductName;
+        //    existing.Cost = product.Cost;
+        //    existing.CategoryName = product.CategoryName;
+        //    existing.Quantity = product.Quantity;
+        //    existing.Available = product.Available;
+        //}
+    }
+}

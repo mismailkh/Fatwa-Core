@@ -1,0 +1,310 @@
+﻿@page "/preview-document/{ReferenceGuid}/{DocumentId}"
+@page "/preview-attachement/{ReferenceGuid}/{AttachementId:int}"
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ArchivedCasesModels
+@using FATWA_DOMAIN.Models.Dms
+
+@using FATWA_GENERAL.Helper
+@using Microsoft.JSInterop;
+@using Newtonsoft.Json;
+@using PdfSharp.Drawing;
+@using PdfSharp.Pdf;
+@using System.Security.Cryptography;
+@using PdfSharp.Drawing.Layout;
+@using MsgReader.Outlook;
+@using FATWA_DOMAIN.Models.ViewModel
+@using Syncfusion.Blazor
+@using System.Text.Json
+@using Syncfusion.Blazor.PdfViewer
+@using Syncfusion.Blazor.PdfViewerServer
+@using System.Collections.ObjectModel;
+@using System.Net.Http.Headers;
+@using System.Text;
+@using System.Text.RegularExpressions;
+@using static FATWA_DOMAIN.Enums.WorkflowModuleAndActivitiesEnum
+@using static FATWA_DOMAIN.Enums.DmsEnums
+@using static FATWA_GENERAL.Helper.Response
+
+@* <History Author = 'Hassan Abbas' Date='2024-03-14' Version="1.0" Branch="master"> Preview Document In New FLoating Window</History>*/ *@
+@if (DisplayDocumentViewer)
+{
+    <div class="row">
+        <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 pb-0">
+            <SfPdfViewerServer EnableNavigationToolbar="false"
+                               ZoomMode="ZoomMode.FitToWidth"
+                               EnableRtl="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? false : true)" Locale="@(Thread.CurrentThread.CurrentUICulture.Name)"
+                               ID="pdfviewer"
+                               DocumentPath="@DocumentPath">
+                <PdfViewerEvents DocumentLoaded="DocumentLoaded"></PdfViewerEvents>
+                <PdfViewerToolbarSettings ToolbarItems="ToolbarItems"></PdfViewerToolbarSettings>
+            </SfPdfViewerServer>
+        </div>
+    </div>
+}
+@code {
+
+    #region Component Load
+    [Parameter]
+    public dynamic? DocumentId { get; set; }
+    [Parameter]
+    public string ReferenceGuid { get; set; }
+    [Parameter]
+    public int AttachementId { get; set; }
+    public int UploadedDocumentId { get { return Convert.ToInt32(DocumentId); } set { DocumentId = value; } }
+    #endregion
+
+    #region Variables Declaration
+    public byte[] FileData { get; set; }
+    public string DocumentPath { get; set; }
+    List<ToolbarItem> ToolbarItems = new List<ToolbarItem>();
+    public bool DisplayDocumentViewer { get; set; }
+    #endregion
+
+
+    #region Component Load
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            spinnerService.Show();
+            if (UploadedDocumentId > 0)
+            {
+                var uploadedDocument = await fileUploadService.GetUploadedAttachementById(UploadedDocumentId, Guid.Parse(ReferenceGuid));
+                if (uploadedDocument != null)
+                {
+                    await ViewAttachement(uploadedDocument.StoragePath, uploadedDocument.DocType);
+                }
+                else
+                {
+                    await invalidRequestHandlerService.ReturnBadRequestNotification(new ApiCallResponse());
+                }
+            }
+            else
+            {
+                var tempAttachment = await fileUploadService.GetTempAttachements(Guid.Parse(ReferenceGuid), AttachementId);
+                if (tempAttachment != null)
+                {
+                    var attachments = (ObservableCollection<TempAttachementVM>)tempAttachment;
+                    await ViewAttachement(attachments?.FirstOrDefault().StoragePath, attachments?.FirstOrDefault().DocType);
+                }
+                else
+                {
+                    await invalidRequestHandlerService.ReturnBadRequestNotification(new ApiCallResponse());
+                }
+
+            }
+            spinnerService.Hide();
+        }
+        catch (Exception ex)
+        {
+            notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Detail = translationState.Translate("Something_Went_Wrong"),
+                    Summary = translationState.Translate("Error"),
+                    Style = "position: fixed !important; left: 0; margin: auto; "
+                });
+        }
+    }
+
+    #endregion
+
+    #region View Attachment
+
+    /*<History Author = 'Hassan Abbas' Date='2024-03-14' Version="1.0" Branch="master"> Append Custom Action into the Pdf Viewer Toolbar through Html</History>*/
+    protected async Task DocumentLoaded(LoadEventArgs args)
+    {
+        await jSRuntime.InvokeVoidAsync("addRotateButtonToPdfToolbar");
+    }
+    //<History Author = 'Hassan Abbas' Date='2022-10-21' Version="1.0" Branch="master"> View Attachment either Pdf or Image (read in stream and convert to PDF document) in Pdf Viewer</History>
+    //<History Author = 'Hassan Abbas' Date='2023-06-20' Version="1.0" Branch="master"> Modified the function to Decrypt the attachment and then view, also added functionality to convert .msg file to .pdf for preview</History>
+    protected async Task ViewAttachement(string StoragePath, string DocType)
+    {
+        try
+        {
+            ToolbarItems = new List<ToolbarItem>()
+                {
+                    ToolbarItem.PageNavigationTool,
+                    ToolbarItem.MagnificationTool,
+                    ToolbarItem.SelectionTool,
+                    ToolbarItem.PanTool,
+                    ToolbarItem.SearchOption,
+                    ToolbarItem.PrintOption,
+                    ToolbarItem.DownloadOption
+                };
+            DisplayDocumentViewer = false;
+            StateHasChanged();
+            var physicalPath = Path.Combine(_config.GetValue<string>("dms_file_path") + StoragePath).Replace(@"\\", @"\");
+#if !DEBUG
+            {
+                physicalPath = physicalPath.Replace("\\wwwroot\\Attachments\\", "\\");
+            }
+#endif
+            if (!String.IsNullOrEmpty(physicalPath))
+            {
+                string base64String = await DocumentEncryptionService.GetDecryptedDocumentBase64(physicalPath, DocType, _config.GetValue<string>("DocumentEncryptionKey"));
+                DocumentPath = "data:application/pdf;base64," + base64String;
+                DisplayDocumentViewer = true;
+                StateHasChanged();
+
+            }
+            else
+            {
+
+                notificationService.Notify(new NotificationMessage()
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Detail = translationState.Translate("File_Not_Found"),
+                        Summary = translationState.Translate("Error"),
+                        Style = "position: fixed !important; left: 0; margin: auto; "
+                    });
+
+
+            }
+
+        }
+        catch (Exception)
+        {
+
+            notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Detail = translationState.Translate("Something_Went_Wrong"),
+                    Summary = translationState.Translate("Error"),
+                    Style = "position: fixed !important; left: 0; margin: auto; "
+                });
+        }
+
+
+    }
+    #endregion
+
+
+    #region view Attachment Legal Legislation
+    public string KayDocumentBase64 { get; set; }
+    public bool busyPreviewBtn { get; set; }
+    protected async Task ViewAttachementlegislationDocument(KayPublication theUpdatedItem)
+    {
+        try
+        {
+            if (theUpdatedItem != null)
+            {
+                ToolbarItems = new List<ToolbarItem>()
+                    {
+                        ToolbarItem.PageNavigationTool,
+                        ToolbarItem.MagnificationTool,
+                        ToolbarItem.SelectionTool,
+                        ToolbarItem.PanTool,
+                        ToolbarItem.SearchOption,
+                        ToolbarItem.PrintOption,
+                        ToolbarItem.DownloadOption
+                    };
+                spinnerService.Show();
+                DisplayDocumentViewer = false;
+                busyPreviewBtn = true;
+                await Task.Run(() => DecryptDocument(theUpdatedItem));
+                await Task.Delay(1000);
+                busyPreviewBtn = false;
+                spinnerService.Hide();
+            }
+            else
+            {
+                notificationService.Notify(new NotificationMessage()
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Detail = translationState.Translate("File_Not_Found"),
+                        Summary = translationState.Translate("Error"),
+                        Style = "position: fixed !important; left: 0; margin: auto; "
+                    });
+            }
+
+        }
+        catch (Exception)
+        {
+
+            notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Detail = translationState.Translate("Something_Went_Wrong"),
+                    Summary = translationState.Translate("Error"),
+                    Style = "position: fixed !important; left: 0; margin: auto; "
+                });
+        }
+    }
+
+    protected async Task DecryptDocument(KayPublication theUpdatedItem)
+    {
+        try
+        {
+            var physicalPath = string.Empty;
+
+#if DEBUG
+    {
+    physicalPath = Path.Combine(theUpdatedItem.StoragePath).Replace(@"\\", @"\");
+    }
+#else
+            {
+
+
+
+                physicalPath = Path.Combine(_config.GetValue<string>("kay_file_path") + theUpdatedItem.StoragePath).Replace(@"\\", @"\");
+                physicalPath = physicalPath.Replace(_config.GetValue<string>("KayPublicationsPath"), "");
+            }
+#endif
+            if (!String.IsNullOrEmpty(physicalPath))
+            {
+
+                string base64String = await DocumentEncryptionService.GetDecryptedDocumentBase64(physicalPath, ".pdf", _config.GetValue<string>("DocumentEncryptionKey"));
+                DocumentPath = "data:application/pdf;base64," + base64String;
+                DisplayDocumentViewer = true;
+            }
+            else
+            {
+
+                notificationService.Notify(new NotificationMessage()
+                    {
+                        Severity = NotificationSeverity.Error,
+                        Detail = translationState.Translate("File_Not_Found"),
+                        Summary = translationState.Translate("Error"),
+                        Style = "position: fixed !important; left: 0; margin: auto; "
+                    });
+
+
+            }
+        }
+        catch (Exception)
+        {
+
+            notificationService.Notify(new NotificationMessage()
+                {
+                    Severity = NotificationSeverity.Error,
+                    Detail = translationState.Translate("Something_Went_Wrong"),
+                    Summary = translationState.Translate("Error"),
+                    Style = "position: fixed !important; left: 0; margin: auto; "
+                });
+        }
+
+
+    }
+    #endregion
+}
+
+<style>
+    .rz-sidebar, .rz-header, .rz-footer {
+        display: none !important;
+    }
+
+    .rz-body {
+        padding-top: 0px !important;
+        overflow: unset !important;
+    }
+
+    .e-pv-viewer-container {
+        width: 100% !important;
+    }
+
+    #pdfviewer {
+        height: 100vh !important;
+    }
+</style>

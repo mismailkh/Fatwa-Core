@@ -1,0 +1,311 @@
+﻿@page "/add-consultationarticle"
+@layout MainLayout
+@using FATWA_DOMAIN.Models.Consultation
+
+@if((bool)consultationArticles.IsDetailView)
+{
+    <PageTitle>@translationState.Translate("Detail_Article")</PageTitle>
+}
+else if(consultationArticles.ConsultationRequestId != Guid.Empty)
+{
+    <PageTitle>@translationState.Translate("Edit_Article")</PageTitle>
+}
+else
+{
+    <PageTitle>@translationState.Translate("Add_Article")</PageTitle>
+}
+<RadzenContent Container="main">
+    <ChildContent>
+        <div class="row case-party-row">
+            <div class="col-md-12">
+                <RadzenTemplateForm Data="@consultationArticles" Visible="@(consultationArticles != null)" TItem="ConsultationArticle" Submit="@Form0Submit">
+                    <ChildContent>
+                        <div class="row">
+                            <div class="col-md-12">
+                                @if ((bool)consultationArticles.IsDetailView)
+                                {
+                                    <div class="row">
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Article_Name")" Component="ArticleTitle" />
+                                                <RadzenTextBox MaxLength="1000" Placeholder="@translationState.Translate("Article_Name")" @bind-Value="@consultationArticles.ArticleTitle" Name="ArticleTitle" Disabled />
+
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Article_Parent_Section")" Component="SectionId" />
+                                                <TelerikDropDownList Data="@SectionParentDetails" DefaultText="@translationState.Translate("Select")"
+                                                                 GroupField="SectionParentTitle"
+                                                                 ValueField="SectionId"
+                                                                 TextField="SectionTitle"
+                                                                 @bind-Value="@consultationArticles.SectionId" Enabled="false">
+                                                </TelerikDropDownList>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Article_Status")" Component="Article_Status" />
+                                                    <RadzenDropDown Data="@ArticleStatusDetails" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            @bind-Value="@consultationArticles.ArticleStatusId" Name="Article_Status" Disabled />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-2">
+                                        <div class="col-12 col-sm-12 col-md-12">
+                                            <RadzenHtmlEditor @bind-Value=@(consultationArticles.ArticleText) style="height: 200px; margin-bottom: 1rem;" Disabled>
+                                                <RadzenHtmlEditorUndo Title=@translationState.Translate("Undo") />
+                                                <RadzenHtmlEditorRedo Title=@translationState.Translate("Redo") />
+                                                <RadzenHtmlEditorSeparator />
+                                                <RadzenHtmlEditorBold Title=@translationState.Translate("Bold") />
+                                                <RadzenHtmlEditorItalic Title=@translationState.Translate("Italic") />
+                                                <RadzenHtmlEditorUnderline Title=@translationState.Translate("Underline") />
+                                                <RadzenHtmlEditorStrikeThrough Title=@translationState.Translate("Strikethrough") />
+                                                <RadzenHtmlEditorSeparator />
+                                                <RadzenHtmlEditorColor Title=@translationState.Translate("Text_Color") />
+                                                <RadzenHtmlEditorBackground Title=@translationState.Translate("Background_Color") />
+                                                <RadzenHtmlEditorRemoveFormat Title=@translationState.Translate("Remove_Styling") />
+                                            </RadzenHtmlEditor>
+                                        </div>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="row">
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Article_Name")" Component="ArticleTitle" />
+                                                <RadzenTextBox MaxLength="1000" Placeholder="@translationState.Translate("Article_Name")" @bind-Value="@consultationArticles.ArticleTitle" Name="ArticleTitle" />
+                                                <RadzenRequiredValidator Component="ArticleTitle" Text="@translationState.Translate("Required_Field")" />
+
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Article_Parent_Section")" Component="SectionId" />
+                                                <TelerikDropDownList Data="@SectionParentDetails" DefaultText="@translationState.Translate("Select")"
+                                                                 GroupField="SectionParentTitle"
+                                                                 ValueField="SectionId"
+                                                                 TextField="SectionTitle"
+                                                                 @bind-Value="@consultationArticles.SectionId">
+                                                </TelerikDropDownList>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 col-sm-12 col-md-4 col-lg-4 col-xl-4">
+                                            <div class="form-group">
+                                                <RadzenLabel Text="@translationState.Translate("Article_Status")" Component="Article_Status" />
+                                                    <RadzenDropDown Data="@ArticleStatusDetails" AllowFiltering="true" AllowClear="true"
+                                                            TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                                            @bind-Value="@consultationArticles.ArticleStatusId" Name="Article_Status" />
+                                                <RadzenRequiredValidator DefaultValue="0" Component="Article_Status"  Text="@translationState.Translate("Required_Field")" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row pb-2">
+                                        <div class="col-12 col-sm-12 col-md-12">
+                                            <RadzenHtmlEditor @bind-Value=@(consultationArticles.ArticleText) style="height: 200px; margin-bottom: 1rem;">
+                                                <RadzenHtmlEditorUndo />
+                                                <RadzenHtmlEditorRedo />
+                                                <RadzenHtmlEditorSeparator />
+                                                <RadzenHtmlEditorBold />
+                                                <RadzenHtmlEditorItalic />
+                                                <RadzenHtmlEditorUnderline />
+                                                <RadzenHtmlEditorStrikeThrough />
+                                                <RadzenHtmlEditorSeparator />
+                                                <RadzenHtmlEditorColor />
+                                                <RadzenHtmlEditorBackground />
+                                                <RadzenHtmlEditorRemoveFormat />
+                                            </RadzenHtmlEditor>
+                                        </div>
+                                    </div>
+                                }
+                                    }
+                                <div class="row pb-2 popup-buttons-alignment">
+                                    <div class="col-12">
+                                        @if (!(bool)consultationArticles.IsDetailView)
+                                        {
+                                            <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                                            </RadzenButton>
+                                        }
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                                        </RadzenButton>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </ChildContent>
+                </RadzenTemplateForm>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenContent>
+
+<style>
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    .box {
+        margin: 4.5em 7.5em;
+        padding: 3em;
+        background-color: rgba(20,53,80,0.038);
+        border: 1px solid rgba(20,53,80,0.05);
+    }
+
+    .demo-section {
+        margin: 0 auto;
+        padding: 3em;
+        border: 1px solid rgba(20,53,80,0.14);
+        box-shadow: 0 1px 2px 1px rgba(0,0,0,.08), 0 3px 6px rgba(0,0,0,.08);
+    }
+
+    .auto {
+        max-width: max-content;
+    }
+
+    .demo-section:not(.wide):not(.auto),
+    .box:not(.wide):not(.auto) {
+        max-width: 500px;
+    }
+
+    .box:after,
+    .demo-section:after {
+        content: ";
+        display: block;
+        clear: both;
+        height: 0;
+    }
+
+    .box {
+        margin: 4.5em auto;
+    }
+
+    .box:first-child {
+        margin-top: 0;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .demo-section.editor {
+        max-width: 100%;
+        border: none;
+    }
+    .demo-alert {
+        font: normal 18px "Metric";
+        border-radius: 2px;
+        margin: 20px auto 40px auto;
+        padding: 20px;
+        border-left: 4px solid;
+    }
+
+    .demo-alert-success {
+        border-left-color: rgb(55,180,0);
+        background: rgba(55,180,0, 0.1);
+    }
+
+    .demo-alert-info {
+        border-left-color: rgb(83,146,228);
+        background: rgba(83,146,228, 0.1);
+    }
+
+    .demo-alert-error {
+        border-left-color: rgb(243, 23, 0);
+        background: rgba(243, 23, 0, 0.1);
+    }
+
+    .demo-alert-warning {
+        border-left-color: rgb(255, 192, 0);
+        background: rgba(255, 192, 0, 0.1);
+    }
+</style>
+
+@code {
+    public class TreeItem
+    {
+        public int Id { get; set; }
+        public string Text { get; set; }
+        public int? ParentIdValue { get; set; }
+        public bool HasChildren { get; set; }
+        public string Icon { get; set; }
+        public bool Expanded { get; set; }
+    }
+
+    public IEnumerable<TreeItem> FlatData { get; set; }
+    public IEnumerable<object> ExpandedItems { get; set; }
+
+    protected override void OnInitialized()
+    {
+        LoadFlatData();
+    }
+
+    private void LoadFlatData()
+    {
+        List<TreeItem> items = new List<TreeItem>();
+        items.Add(new TreeItem()
+        {
+            Id = 1,
+            Text = "Project",
+            ParentIdValue = null,
+            HasChildren = true,
+            Icon = "folder"
+        });
+        items.Add(new TreeItem()
+        {
+            Id = 2,
+            Text = "Design",
+            ParentIdValue = 1,
+            HasChildren = true,
+            Icon = "brush"
+        });
+        items.Add(new TreeItem()
+        {
+            Id = 3,
+            Text = "Implementation",
+            ParentIdValue = 1,
+            HasChildren = true,
+            Icon = "folder"
+        });
+
+        items.Add(new TreeItem()
+        {
+            Id = 4,
+            Text = "site.psd",
+            ParentIdValue = 2,
+            HasChildren = false,
+            Icon = "psd"
+        });
+
+        items.Add(new TreeItem()
+        {
+            Id = 5,
+            Text = "index.js",
+            ParentIdValue = 3,
+            HasChildren = false,
+            Icon = "js"
+        });
+        items.Add(new TreeItem()
+        {
+            Id = 6,
+            Text = "index.html",
+            ParentIdValue = 3,
+            HasChildren = false,
+            Icon = "html"
+        });
+
+        items.Add(new TreeItem()
+        {
+            Id = 7,
+            Text = "styles.css",
+            ParentIdValue = 3,
+            HasChildren = false,
+            Icon = "css"
+        });
+
+        FlatData = items;
+        ExpandedItems = items.Take(3);
+    }
+}
+

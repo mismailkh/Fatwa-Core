@@ -1,0 +1,164 @@
+﻿@page "/assignLawyerToCourt"
+@page "/AssignLawyerToCourt/{assignlawyertocourtId}"
+@using FATWA_DOMAIN.Common;
+@using FATWA_DOMAIN.Models.CaseManagment
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@using FATWA_INFRASTRUCTURE.Database
+@using FATWA_WEB.Services.Lms;
+@using static FATWA_DOMAIN.Enums.CaseManagementEnums;
+@layout MainLayout
+
+<!--<History Author = "Hassan Abbas" Date="2023-11-30" Version="1.0" Branch="master"> Assign Lawyer to Chambers</History>-->
+@if (loginState.ClaimList.Where(x => x.Value == "Permissions.Submenu.CMS.LawyerChamberAssignment").Any())
+{
+    <RadzenContent Container="main">
+        <RadzenTemplateForm Data="@assignLawyerToCourt" Visible="@(assignLawyerToCourt != null)" TItem="CmsAssignLawyerToCourt" Submit="@Form0Submit">
+            <ChildContent>
+                <div class="row breadcrumbBar justify-content-center align-items-center pb-3 tab-webkit-fill">
+                    <div class="col-md-6">
+                        <div class="row no-gutters">
+                            <RadzenBreadCrumb>
+                                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                                <RadzenBreadCrumbItem Path="/assigned-lawyertocourt-list" Text="@translationState.Translate("Assigned_lawyer_list")" />
+                                <RadzenBreadCrumbItem Text="@translationState.Translate("Assign_Lawyer_To_Courts")" />
+                            </RadzenBreadCrumb>
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <div class="backtoDashboard">
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.Small"
+                                          title="@translationState.Translate("Go_Back_Dashboard")"
+                                          class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.Small"
+                                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                                          class="returnBtn"
+                                          Icon="home" Click="@GoBackHomeScreen" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row TitleBar justify-content-left align-items-center py-4">
+                    <div class="col-md-12">
+                        <div class="row no-gutters">
+                            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Assign_Lawyer_To_Courts")" />
+                        </div>
+                    </div>
+                </div>
+                <RadzenCard>
+                    <div class=" row">
+                        @if (loginState.UserRoles.Any(x => SystemRoles.AdminRoles.Contains(x.RoleId)))
+                        {
+                            <div class="col-md-4 rz-calendar-webkit-fill">
+                                <RadzenLabel Text="@(translationState.Translate("Sector") + " *")" />
+                                <RadzenDropDown TValue="@OperatingSectorTypeEnum"
+                                                Data="@operatingSectorsList"
+                                                AllowFiltering="true"
+                                                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                                AllowClear="true"
+                                                TextProperty="OperatingSectorTypeEnumName"
+                                                ValueProperty="OperatingSectorTypeEnumValue"
+                                                Name="OperatingSectorTypeEnumName"
+                                                @bind-Value="@selectedSector"
+                                                Placeholder="@translationState.Translate("Select_Sector")"
+                                                Style="display:block;"
+                                                Change="@PopulateLawyers">
+                                </RadzenDropDown>
+                                <RadzenRequiredValidator Component="OperatingSectorTypeEnumName" Text="@translationState.Translate("Required_Field")" style="position: absolute" DefaultValue="0">
+                                </RadzenRequiredValidator>
+                            </div>
+                        }
+                        <div class="col-md-4 rz-calendar-webkit-fill">
+                            <RadzenLabel Text="@(translationState.Translate("User") + " *")" />
+                            <RadzenDropDown Data="@users"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            AllowClear="true"
+                                            Multiple="true"
+                                            SelectAllText="@translationState.Translate("Selected_All")"
+                                            SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FirstNameEnglish" : "FirstNameArabic")"
+                                            Name="LawyerName"
+                                            ValueProperty="Id"
+                                            @bind-Value="assignLawyerToCourt.SelectedUsers"
+                                            Placeholder="@translationState.Translate("Select_Lawyer")"
+                                            Style="display:block;">
+                            </RadzenDropDown>
+                            <RadzenRequiredValidator Component="LawyerName" Text="@translationState.Translate("Required_Field")" style="position: absolute" DefaultValue="0">
+                            </RadzenRequiredValidator>
+                        </div>
+                    </div>
+                    <div class=" row pt-3">
+                        <div class="col-md-4 rz-calendar-webkit-fill">
+                            <RadzenLabel Text="@(translationState.Translate("Court") + " *")" />
+                            <RadzenDropDown Data="@courts"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            Multiple="true"
+                                            SelectAllText="@translationState.Translate("Selected_All")"
+                                            SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                            Name="CourtName"
+                                            ValueProperty="Id"
+                                            @bind-Value="selectedcourts"
+                                            Placeholder="@translationState.Translate("Select_Court")"
+                                            Style="display:block;"
+                                            Change="OnChangeCourt">
+                            </RadzenDropDown>
+                            <RadzenRequiredValidator Component="CourtName" Text="@translationState.Translate("Required_Field")" style="position: absolute" DefaultValue="0">
+                            </RadzenRequiredValidator>
+                        </div>
+                        <div class="col-md-4 rz-calendar-webkit-fill">
+                            <RadzenLabel Text="@(translationState.Translate("Chamber") + " *")" />
+                            <RadzenDropDown Data="@allChambersSelectedbyCourtId"
+                                            AllowFiltering="true"
+                                            FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                            Multiple="true"
+                                            SelectAllText="@translationState.Translate("Selected_All")"
+                                            SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")"
+                                            Name="ChamberName"
+                                            ValueProperty="Id"
+                                            @bind-Value="selectedchambers"
+                                            Placeholder="@translationState.Translate("Select_Chamber")"
+                                            Style="display:block;"
+                                            Change="OnChangeChamber">
+                            </RadzenDropDown>
+                            <RadzenRequiredValidator Component="ChamberName" Text="@translationState.Translate("Required_Field")" style="position: absolute" DefaultValue="0">
+                            </RadzenRequiredValidator>
+                        </div>
+                        <div class="col-md-4 rz-calendar-webkit-fill">
+                            <RadzenLabel Text="@(translationState.Translate("Chamber_Number") + " *")" />
+                            <RadzenDropDown Data="@allChamberNumberSelectedbyChamberId"
+                                            SelectAllText="@translationState.Translate("Selected_All")"
+                                            SelectedItemsText="@translationState.Translate("Items_Ielected")"
+                                            Multiple="true" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                            TextProperty="Number" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                            Style="display:block;" @bind-Value="assignLawyerToCourt.SelectedChamberNumbers" Name="Chamber_Numbers">
+                            </RadzenDropDown>
+                            <RadzenRequiredValidator Component="Chamber_Numbers" Text="@translationState.Translate("Required_Field")" style="position: absolute" DefaultValue="0">
+                            </RadzenRequiredValidator>
+                        </div>
+                    </div>
+                    <div class="row justify-content-end pt-3">
+                        <div class="col-md-6 popup-buttons-alignment">
+                            <RadzenButton Text="@translationState.Translate("Assign")"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          ButtonType="Radzen.ButtonType.Submit" />
+                            <RadzenButton Text="@translationState.Translate("Cancel")"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          Style="margin-left: 1rem"
+                                          Click="@ButtonCancel" />
+                        </div>
+                    </div>
+                </RadzenCard>
+            </ChildContent>
+        </RadzenTemplateForm>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+

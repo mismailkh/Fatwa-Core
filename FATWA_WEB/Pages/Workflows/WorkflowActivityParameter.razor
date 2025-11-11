@@ -1,0 +1,41 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using Microsoft.AspNetCore.Identity
+@using static FATWA_DOMAIN.Enums.WorkflowParameterEnums
+
+@if (ParameterType == WorkflowParams.LdsReview_User || ParameterType == WorkflowParams.LdsPublishUnpublish_User || ParameterType == WorkflowParams.LpsReview_User || ParameterType == WorkflowParams.LpsPublishUnpublish_User ||ParameterType == WorkflowParams.CmsReviewDraftDocument_User || ParameterType == WorkflowParams.CmsReviewDraftDocumentHos_User || ParameterType == WorkflowParams.DMSDocumentReview_User ||
+ParameterType == WorkflowParams.DMSDocumentPublish_User || ParameterType == WorkflowParams.LawModifyDraftDocument_User || ParameterType == WorkflowParams.PublishDraftandEndFlow_User || ParameterType == WorkflowParams.SignDraftPublishDraftSendtoG2GandEndFlow_User || ParameterType == WorkflowParams.InitiatorDocumentModification_User || ParameterType == WorkflowParams.CmsReviewDraftDocumentViceHos_User)
+{
+
+    <TelerikDropDownList TItem="@User" TValue="@string"
+                     ScrollMode="@DropDownScrollMode.Virtual"
+                     OnRead="@GetRemoteUsersData"
+                     ValueMapper="@GetUserModelFromValue"
+                     ItemHeight="30"
+                     PageSize="20"
+                     TextField="UserName"
+                     ValueField="Id"
+                     Filterable="true"
+                     DefaultText="@translationState.Translate("Select")"
+                     FilterOperator="@Telerik.Blazor.StringFilterOperator.Contains"
+                     @bind-Value="@ParamValue"
+                     OnChange="@ValueChanged"
+                     Class="@Class"
+                     Enabled="Disabled ? false : true">
+        <DropDownListSettings>
+            <DropDownListPopupSettings />
+        </DropDownListSettings>
+    </TelerikDropDownList>
+}
+@if (ParameterType == WorkflowParams.LdsReview_UserRole || ParameterType == WorkflowParams.LdsPublishUnpublish_UserRole || ParameterType == WorkflowParams.Sla_UserRole || ParameterType == WorkflowParams.LpsReview_UserRole || ParameterType == WorkflowParams.LpsPublishUnpublish_UserRole || ParameterType == WorkflowParams.CmsReviewDraftDocument_UserRole || ParameterType == WorkflowParams.CmsReviewDraftDocumentHos_UserRole || ParameterType == WorkflowParams.DMSDocumentReview_UserRole ||
+ParameterType == WorkflowParams.DMSDocumentPublish_UserRole || ParameterType == WorkflowParams.LawModifyDraftDocument_UserRole || ParameterType == WorkflowParams.PublishDraftandEndFlow_UserRole || ParameterType == WorkflowParams.SignDraftPublishDraftSendtoG2GandEndFlow_UserRole || ParameterType == WorkflowParams.InitiatorDocumentModification_UserRole || ParameterType == WorkflowParams.CmsReviewDraftDocumentViceHos_UserRole)
+{
+    <RadzenDropDown Disabled="Disabled" @bind-Value="ParamValue" LoadData="LoadRolesData" Data="@Roles" Change="@ValueChanged" TextProperty="Name" ValueProperty="Id" Style="width:100%; display: block;">
+       
+    </RadzenDropDown>
+}
+
+@if (ParameterType == WorkflowParams.SendEmail_Email || ParameterType == WorkflowParams.Sla_Email)
+{
+    <TelerikTextBox Enabled="Disabled ? false : true" PlaceHolder="abc@xyz.com" @bind-Value="@ParamValue" OnChange="ValueChanged" Class="@Class"></TelerikTextBox>
+}

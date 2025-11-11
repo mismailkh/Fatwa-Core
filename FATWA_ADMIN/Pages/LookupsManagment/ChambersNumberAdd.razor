@@ -1,0 +1,49 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@using FATWA_DOMAIN.Models.CaseManagment;
+@layout MainLayout
+@inject FATWA_ADMIN.Data.LoginState loginState
+
+@*< History Author = 'Ammaar Naveed' Date = '2024-06-04' Version = "1.0" Branch = "master"> UI fixations in pages and dialogs</History>*@
+<PageTitle>@translationState.Translate("Add_Chamber_Number")</PageTitle>
+<RadzenTemplateForm class="form" Data="@chamberNumber" Visible="@(chamberNumber != null)" TItem="ChamberNumber" Submit="@SaveChanges">
+	<ChildContent>
+		<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+			<div class="form-group">
+				<RadzenLabel Text="@(translationState.Translate("Chamber_Number") + "*")" Component="Number" />
+				<RadzenTextBox class="flex-grow-1" Placeholder="@translationState.Translate("Chamber_Number")" @bind-Value="@chamberNumber.Number" Name="Number" /> @* MaxLength="10" *@
+				<RadzenRegexValidator Component="Number" Text="@translationState.Translate("Only_Specified_Characters_allowed")" Pattern="@RegexPatterns.SpecialPattern" />
+				<RadzenRequiredValidator Component="Number" Text="@translationState.Translate("Required_Field")" />
+				<RadzenLengthValidator Component="Number" Max="30" Text="@translationState.Translate("Max_Thirty_Characters")" />
+			</div>
+		</div>
+		<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+			<div class="form-group">
+				<RadzenLabel Text="@(translationState.Translate("Chamber_Name"))" Component="Chamber_Name" />
+				<RadzenDropDown Data="@ChamberNames" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" Multiple="true"
+								TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+								Style="display:block; margin-top: 10px;" @bind-Value="@chamberNumber.ChamberIds" Name="Chamber_Name" />
+				<RadzenRequiredValidator Component="Chamber_Name" Text="@translationState.Translate("Required_Field")" />
+			</div>
+		</div>
+
+		<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+			<div class="form-group">
+				<RadzenLabel Text="@(translationState.Translate("Shift"))" Component="Shift" />
+				<RadzenDropDown Data="@Shifts" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+								TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+								Style="display:block; margin-top: 10px;" @bind-Value="@chamberNumber.ShiftId" Name="Shift" />
+				<RadzenRequiredValidator Component="Shift" Text="@translationState.Translate("Required_Field")" />
+			</div>
+		</div>
+
+		<div class="popup-buttons-alignment">
+			<RadzenButton ButtonType="Radzen.ButtonType.Submit"
+						  Style="margin-left: 10px; margin-right: 10px;"
+						  ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")" />
+			<RadzenButton Text="@translationState.Translate("Cancel")"
+						  ButtonStyle="ButtonStyle.Light"
+						  Click="@Button2Click" />
+		</div>
+	</ChildContent>
+</RadzenTemplateForm>

@@ -1,0 +1,273 @@
+﻿@page "/contact-list"
+@using FATWA_DOMAIN.Models.ViewModel.ContactManagmentVMs;
+@layout MainLayout
+
+
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.Submenu.Contact.ContactList"))
+{
+
+    <PageTitle>@translationState.Translate("Contact_List")</PageTitle>
+    <RadzenContent Container="main">
+        <ChildContent>
+            @if (!ContactListForFileLink)
+            {
+                <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                    <div class="col-md-6">
+                        <div class="row no-gutters">
+                            <RadzenBreadCrumb>
+                                <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                                <RadzenBreadCrumbItem Text="@translationState.Translate("Contact_List")" />
+                            </RadzenBreadCrumb>
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-end">
+                        <div class="backtoDashboard">
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.Small"
+                                          title="@translationState.Translate("Go_Back_Dashboard")"
+                                          class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                          Size="ButtonSize.Small"
+                                          title="@translationState.Translate("Go_Back_HomeScreen")"
+                                          class="returnBtn"
+                                          Icon="home" Click="@GoBackHomeScreen" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row TitleBar justify-content-left align-items-center py-4">
+                    <div class="col-md-6">
+                        <div class="row no-gutters">
+                            <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Contact_List")" />
+                        </div>
+                    </div>
+                    <div class="col-md-6 d-flex justify-content-end ">
+                    </div>
+                </div>
+            }
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4 tableAdditionButton addPrincipleBtn px-0">
+                            <RadzenTextBox class="searchBox"
+                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                           Name="Textbox0"
+                                           @bind-Value="search"
+                                           @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+                         </div>
+                        <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3 addPrincipleBtn">
+                            @if (ContactListForFileLink)
+                            {
+                                <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add_New_Contact")" Click="@ButtonAddContactWithFileClick" />
+                            }
+                            else
+                            {
+                                <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Add")" Click="@ButtonAddClick" />
+                            }
+                            <RadzenButton class="addBtn"
+                                          Icon="search"
+                                          Text="@translationState.Translate("Advanced_Search")"
+                                          Click="ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        @if (ContactListForFileLink)
+                        {
+                            <RadzenDataGrid @ref="grid"
+                                            AllowFiltering="false"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            LoadData="OnLoadData"
+                                            Data="@FilteredContactList"
+                                            Sort="OnSortData"
+                                            SelectionMode="DataGridSelectionMode.Multiple"
+                                            @bind-Value=@selectedContact
+                                            Count="@(ContactsList?.Any() == true ? ContactsList.FirstOrDefault().TotalCount : 0)"
+                                            TItem="ContactListVM"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                            ShowPagingSummary="true">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="ContactListVM" Width="40px" Sortable="false" Filterable="false">
+                                        <HeaderTemplate>
+                                            <RadzenCheckBox TriState="false"
+                                                            TValue="bool"
+                                                            Value="@(FilteredContactList?.Count() == selectedContact?.Count() ? true : false)"
+                                                            Change="@(args => selectedContact = args ? FilteredContactList.ToList() : null)" />
+
+                                        </HeaderTemplate>
+                                        <Template Context="data">
+                                            <RadzenCheckBox TriState="false"
+                                                            Value="@(selectedContact != null && selectedContact.Contains(data))"
+                                                            TValue="bool"
+                                                            Change=@(args => { if(!allowRowSelectOnRowClick) { grid.SelectRow(data); }}) />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ContactListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "ContactTypeNameEn" : "ContactTypeNameAr")" Title="@translationState.Translate("Contact_Type")" />
+                                    <RadzenDataGridColumn TItem="ContactListVM" Property="Name" Title="@translationState.Translate("Name")" />
+                                    @if (FilteredContactList?.Select(x => x.JobRoleId) != null)
+                                    {
+                                        <RadzenDataGridColumn TItem="ContactListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "JobRoleEn" : "JobRoleAr")" Title="@translationState.Translate("Contact_Designation")" />
+                                    }
+                                    else if (FilteredContactList?.Select(x => x.Designation) != null)
+                                    {
+                                        <RadzenDataGridColumn TItem="ContactListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "DesignationNameEn" : "DesignationNameAr")" Title="@translationState.Translate("Contact_Designation")" />
+                                    }
+                                    <RadzenDataGridColumn TItem="ContactListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "WorkplaceNameEn" : "WorkplaceNameAr")" Title="@translationState.Translate("Contact_WorkPlace")" />
+                                    <RadzenDataGridColumn TItem="ContactListVM" Property="PhoneNumber" Title="@translationState.Translate("Contact_Phone")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        }
+                        else
+                        {
+                            <RadzenDataGrid @ref="grid"
+                                            AllowFiltering="false"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            AllowPaging="true"
+                                            AllowSorting="true"
+                                            Count="@(ContactsList?.Any() == true ? ContactsList.FirstOrDefault().TotalCount : 0)"
+                                            LoadData="OnLoadData"
+                                            Data="@FilteredContactList"
+                                            Sort="OnSortData"
+                                            TItem="ContactListVM"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                            ShowPagingSummary="true">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="ContactListVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="120px" TextAlign="TextAlign.Center">
+                                        <Template Context="rowItem">
+                                         <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                                          Title="@translationState.Translate("Details")"
+                                                          Icon="visibility"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => DetailContact(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Contact.AddContact.Edit").Count() > 0)
+                                            {
+                                                <RadzenButton ButtonStyle="ButtonStyle.Primary"
+                                                              Class="editIcon"
+                                                              Icon="mode"
+                                                              Title="@translationState.Translate("Edit")"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@((args) => EditContact( rowItem))"
+                                                              @onclick:stopPropagation="true" />
+                                            }
+                                            @if (loginState.ClaimList.Where(x => x.Value == "Permissions.Contact.DeleteContact.Delete").Count() > 0)
+                                            {
+                                                <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                              Class="deleteIcon"
+                                                              Icon="delete_outline"
+                                                              Title="@translationState.Translate("delete")"
+                                                              Size="ButtonSize.Small"
+                                                              Click="@((args) => DeleteContact( rowItem))"
+                                                              @onclick:stopPropagation="true" />
+                                            }
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="ContactListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "ContactTypeNameEn" : "ContactTypeNameAr")" Title="@translationState.Translate("Contact_Type")" />
+                                    <RadzenDataGridColumn TItem="ContactListVM" Property="Name" Title="@translationState.Translate("Name")" />
+                                    @if (FilteredContactList?.Select(x => x.JobRoleId) != null)
+                                    {
+                                        <RadzenDataGridColumn TItem="ContactListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "JobRoleEn" : "JobRoleAr")" Title="@translationState.Translate("Contact_Designation")" />
+                                    }
+                                    else if (FilteredContactList?.Select(x => x.Designation) != null)
+                                    {
+                                        <RadzenDataGridColumn TItem="ContactListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "DesignationNameEn" : "DesignationNameAr")" Title="@translationState.Translate("Contact_Designation")" />
+                                    }
+                                    <RadzenDataGridColumn TItem="ContactListVM" Property="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US" ? "WorkplaceNameEn" : "WorkplaceNameAr")" Title="@translationState.Translate("Contact_WorkPlace")" />
+                                    <RadzenDataGridColumn TItem="ContactListVM" Property="PhoneNumber" Title="@translationState.Translate("Contact_Phone")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        }
+                    </div>
+                    @if (ContactListForFileLink)
+                    {
+                        @if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+                        {
+                            <div class="row pt-2">
+                                <div class="col-12 p-0 d-flex justify-content-end">
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Add")" Click="@AddSelectedContactToFile">
+                                    </RadzenButton>
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.2rem !important" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                                    </RadzenButton>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="row pt-2">
+                                <div class="col-12 p-0 d-flex justify-content-end">
+                                    <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 0.2rem !important" Text="@translationState.Translate("Cancel")" Click="@CloseDialog">
+                                    </RadzenButton>
+                                    <RadzenButton ButtonType="Radzen.ButtonType.Button" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Add")" Click="@AddSelectedContactToFile">
+                                    </RadzenButton>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <TelerikWindow Class=@(ContactListForFileLink == false ? "advance-search-window" : "advance-search-window-popup") Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? ContactListForFileLink == false ? "45%" : "30%" : ContactListForFileLink == false ? "45%" : "30%") Left=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? ContactListForFileLink == false ? "45%" : "28.9%" : ContactListForFileLink == false ? "45%" : "19%") Visible="@isVisible">
+                <WindowTitle>
+                    <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+                </WindowTitle>
+                <WindowActions>
+                    <WindowAction Name="Minimize"></WindowAction>
+                    <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+                </WindowActions>
+                <WindowContent>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <RadzenLabel Text="@(translationState.Translate("Contact_Type"))" Component="ContactType" />
+                            <RadzenDropDown Data="@CntContactTypeList" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                            TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name=="en-US"? "NameEn" : "NameAr")" ValueProperty="TypeId" Placeholder="@translationState.Translate("Select")"
+                                            Style="display:block;" @bind-Value="@(advanceSearchVM.ContactTypeId)" Name="ContactType" />
+                        </div>
+                        <div class="col-md-6">
+                            <RadzenLabel Text="@(translationState.Translate("Name"))" Component="Name" />
+                            <RadzenTextBox Placeholder="@translationState.Translate("Name")" @bind-Value="@(advanceSearchVM.Name)" Name="Name" />
+                        </div>
+
+                    </div>
+                    <div class="row" Style="margin-top:10px;">
+                        <div class="col-md-6">
+                            <RadzenLabel Text="@translationState.Translate("Created_From")" Component="Created_From" />
+                            <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Created_From" @bind-Value="@advanceSearchVM.CreatedFrom" />
+                        </div>
+                        <div class="col-md-6">
+                            <RadzenLabel Text="@translationState.Translate("Created_To")" Component="Created_To" />
+                            <RadzenDatePicker DateFormat="dd/MM/yyyy" Class="w-100" Name="Created_To" @bind-Value="@advanceSearchVM.CreatedTo" />
+                        </div>
+                    </div>
+                    <div class="row justify-content-end pt-3">
+                        <div class="col-md-6" style="text-align:right;">
+                            <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                            @if (Keywords == true)
+                            {
+                                <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                            }
+                        </div>
+                    </div>
+                </WindowContent>
+            </TelerikWindow>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+
+}
+
+<style>
+    .advance-search-window-popup {
+        z-index: 10003 !important;
+    }
+</style>

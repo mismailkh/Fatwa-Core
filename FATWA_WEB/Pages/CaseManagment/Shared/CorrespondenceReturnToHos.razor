@@ -1,0 +1,29 @@
+﻿@page "/return-to-hos/{CommunicationId}"
+@layout MainLayout
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.CommunicationModels
+@using FATWA_DOMAIN.Models.ViewModel
+
+
+<PageTitle>Page Title</PageTitle>
+<div class="col-md-12">
+    <RadzenTemplateForm Data="@communicationHistory" Visible="@(communicationHistory != null)" TItem="CommunicationHistory" Submit="@FormSubmit">
+        <ChildContent>
+            <div>
+                <div class="form-group">
+                    <RadzenLabel Text="@translationState.Translate("Reason")" Component="Reason" />
+                    <RadzenTextArea Placeholder="@translationState.Translate("Reason")" Cols="20" Rows="5" class="w-100" @bind-Value="@communicationHistory.Reason" Name="Reason" />
+                    <RadzenRequiredValidator Component="Reason" Text="@translationState.Translate("Required")" />
+                </div>
+            </div>
+            <div class="row popup-buttons-alignment">
+                <div class="col-12 p-0">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Submit")">
+                    </RadzenButton>
+                    <RadzenButton ButtonStyle="ButtonStyle.Light" style="margin-left: 1rem" Text="@translationState.Translate("Cancel")" Click="@ButtonCancelClick">
+                    </RadzenButton>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenTemplateForm>
+</div>

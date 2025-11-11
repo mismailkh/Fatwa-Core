@@ -1,0 +1,276 @@
+﻿@page "/lmsliterature-list"
+
+@using FATWA_DOMAIN.Common
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.ViewModel
+@using Enum = System.Enum;
+@using static FATWA_DOMAIN.Enums.UserEnum
+@using FATWA_DOMAIN.Enums
+
+@layout MainLayout
+@using static FATWA_DOMAIN.Models.ViewModel.LiteratureAdvancedSearchVM
+
+<PageTitle>@translationState.Translate("Literature")</PageTitle>
+<!-- <History Author = 'Umer Zaman' Date='2022-03-18' Version="1.0" Branch="master">Redesign literatures</History> -->
+<!-- <History Author = 'Aqeel Altaf' Date='2022-03-18' Version="1.0" Branch="master">Add BreadCrumb</History> -->
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.Submenu.LMS.Literatures"))
+{
+	<RadzenContent Container="main">
+		<ChildContent>
+			<div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+				<div class="col-md-6">
+					<RadzenBreadCrumb>
+						<RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+						<RadzenBreadCrumbItem Text="@translationState.Translate("Literature_List")" />
+					</RadzenBreadCrumb>
+				</div>
+				<div class="col-md-6 d-flex justify-content-end">
+					<div class="backtoDashboard">
+						<RadzenButton ButtonStyle="ButtonStyle.Secondary"
+									  Size="ButtonSize.Small"
+									  title="@translationState.Translate("Go_Back_Dashboard")"
+									  class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+						<RadzenButton ButtonStyle="ButtonStyle.Secondary"
+									  Size="ButtonSize.Small"
+									  title="@translationState.Translate("Go_Back_HomeScreen")"
+									  class="returnBtn"
+									  Icon="home" Click="@GoBackHomeScreen" />
+					</div>
+				</div>
+			</div>
+			<div class="row TitleBar justify-content-center align-items-center py-4">
+				<div class="col-md-6">
+					<div class="row no-gutters">
+						<RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Literature")" />
+					</div>
+				</div>
+				<div class="col-md-6 d-flex justify-content-end">
+				</div>
+			</div>
+			@if (isStockTakingInPrgoress)
+			{
+				<div class="row">
+					<div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+						<div class="rz-alert rz-alert-sm rz-variant-flat rz-warning rz-shade-lighter" aria-live="polite">
+							<div class="rz-alert-item">
+								<i style="" class="rzi rz-alert-icon" id="4zgarvf6ik" _bl_480="">info_outline</i>
+								<div class="rz-alert-message">
+									<div class="rz-alert-content">
+										<p class="m-0" style="font-size: 15px;">@(translationState.Translate("Cannot_Take_Any_Action_StockTaking_InProgress"))</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+			<div class="row justify-content-center mainContentBlock py-4">
+				<div class="col-md-12">
+					<div class="row no-gutters">
+						<div class="col-md-4">
+							<RadzenTextBox Placeholder="@translationState.Translate("Grid_Search")" class="searchBox" Name="Textbox0"
+							@oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+						</div>
+						<div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+							@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.Literatures.Create").Any())
+							{
+								<RadzenButton class="addBtn" Icon="add" Disabled="@isStockTakingInPrgoress" Text="@translationState.Translate("Add")" Click="@ButtonAddClick" />
+							}
+							@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.Literatures.Delete").Any())
+							{
+								<RadzenButton class="addBtn" Icon="delete_outline" Text="@translationState.Translate("delete")" Disabled="@(isStockTakingInPrgoress == true || selectedLiteratures == null || selectedLiteratures.Count() < 1)" Click="@ButtonDeleteClick" />
+							}
+							<RadzenButton ButtonType="Radzen.ButtonType.Button" class="addBtn" Icon="search" Text="@translationState.Translate("Advanced_Search")" Click="ToggleAdvanceSearch" />
+
+						</div>
+					</div>
+					<div class="row tableContent table-responsive no-gutters pb-3">
+						<RadzenDataGrid @ref="grid"
+										FilterMode="Radzen.FilterMode.Advanced"
+										Count="@(getLmsLiteraturesResult?.Any() == true ? getLmsLiteraturesResult.FirstOrDefault().TotalCount : 0)"
+										AllowPaging="true"
+										AllowSorting="true"
+										AllowFiltering="false"
+										LoadData="OnLoadData"
+										Data="@FilteredGetLmsLiteraturesResult"
+										Sort="OnSortData"
+										TItem="LiteratureDetailVM"
+										PageSizeOptions="@systemSettingState.Page_Size_Options"
+										PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+										PageSizeText="@translationState.Translate("Items_Per_Page")"
+										EmptyText="@translationState.Translate("No_record_found")"
+										ColumnWidth="200px"
+										SelectionMode="DataGridSelectionMode.Multiple"
+										@bind-Value=@selectedLiteratures
+										PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+										ShowPagingSummary="true">
+							<Columns>
+
+								<RadzenDataGridColumn TItem="LiteratureDetailVM" Width="40px" Sortable="false" Filterable="false" TextAlign="TextAlign.Center">
+									<HeaderTemplate>
+										<RadzenCheckBox TriState="false"
+														TValue="bool"
+														Change="@(args => selectedLiteratures = args ? getLmsLiteraturesResult.ToList() : null)" />
+									</HeaderTemplate>
+									<Template Context="data">
+										<RadzenCheckBox TriState="false"
+														Value="@(selectedLiteratures != null && selectedLiteratures.Contains(data))"
+														TValue="bool"
+														Change=@(args => { if(!allowRowSelectOnRowClick) { grid.SelectRow(data); }}) />
+									</Template>
+								</RadzenDataGridColumn>
+								<RadzenDataGridColumn TItem="LiteratureDetailVM" TextAlign="TextAlign.Center" Title="@translationState.Translate("Action")" Width="90px" Filterable="false" Sortable="false">
+									<Template Context="rowItem">
+
+										<RadzenButton ButtonStyle="ButtonStyle.Info"
+													  class="viewIcon"
+													  Icon="visibility"
+													  Title="@translationState.Translate("Details")"
+													  Size="ButtonSize.Small"
+													  Click="@((args) => ViewLiteratureDetail(rowItem))"
+													  @onclick:stopPropagation="true" />
+										@if (loginState.ClaimList.Where(x => x.Value == "Permissions.LMS.Literatures.Edit").Any())
+										{
+											<RadzenButton ButtonStyle="ButtonStyle.Secondary"
+														  class="editIcon"
+														  Icon="mode"
+														  Title="@translationState.Translate("Edit")"
+														  Size="ButtonSize.Small"
+														  Disabled="@isStockTakingInPrgoress"
+														  Click="@((args) => EditLiterature(rowItem))"
+														  @onclick:stopPropagation="true" />
+										}
+									</Template>
+								</RadzenDataGridColumn>
+								<RadzenDataGridColumn TItem="LiteratureDetailVM" Property="LiteratureName" Width="120px" Title="@translationState.Translate("Name")" />
+								<RadzenDataGridColumn TItem="LiteratureDetailVM" Property="IndexNumber" Width="120px" Title="@translationState.Translate("Index_Number")" />
+								<RadzenDataGridColumn TItem="LiteratureDetailVM" Property="DeweyBookNumber" Width="120px" Title="@translationState.Translate("Dewey_Book_Number")" />
+								<RadzenDataGridColumn TItem="LiteratureDetailVM" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "BookStatus" : "BookStatus_Ar") Width="120px" Title="@translationState.Translate("Book_Status")" />
+								<RadzenDataGridColumn TItem="LiteratureDetailVM" Property="CopyCount" Width="120px" Title="@translationState.Translate("Number_of_Copies")" />
+								<RadzenDataGridColumn TItem="LiteratureDetailVM" Property="Subject" Width="120px" Title="@translationState.Translate("Subject")" />
+							</Columns>
+						</RadzenDataGrid>
+
+					</div>
+				</div>
+			</div>
+		</ChildContent>
+	</RadzenContent>
+
+	@*Advance search Window*@
+	<TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+		<WindowTitle>
+			<h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+		</WindowTitle>
+		<WindowActions>
+
+
+			<WindowAction Name="Minimize"></WindowAction>
+			<WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+		</WindowActions>
+		<WindowContent>
+			<div class="row">
+				<div class="col-md-6">
+					<RadzenLabel Text="@translationState.Translate("Choose_Search_Item")" Style="display:block;" />
+					<RadzenDropDown TValue="AdvancedSearchDropDownEnum" Data="@AdvancedSearchOptions" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+									TextProperty="advancedSearchEnumName" ValueProperty="advancedSearchEnumValue" Placeholder="@translationState.Translate("Select_Option")"
+									@bind-Value="@(advancedSearchVM.EnumSearchValue)" Change="OnChangeSearchValue" Style="display:block;">
+					</RadzenDropDown>
+				</div>
+				<div class="col-md-6">
+					@switch ((int)advancedSearchVM.EnumSearchValue)
+					{
+
+						case (int)AdvancedSearchDropDownEnum.Book_Name:
+							<RadzenLabel Text="@translationState.Translate("Book_Name")" Style="display:block;" Component="KeywordsType" />
+
+							<RadzenTextBox Disabled="false" MaxLength="100" style="display: block;" @bind-Value="@(advancedSearchVM.KeywordsType)" Placeholder="@translationState.Translate("Enter_Book_Name")" Name="KeywordsType" />
+							break;
+
+						case (int)AdvancedSearchDropDownEnum.Barcode:
+							<RadzenLabel Text="@translationState.Translate("Barcode")" Style="display:block;" Component="KeywordsType" />
+							<RadzenTextBox Disabled="false" MaxLength="100" style="display: block;" @bind-Value="@(advancedSearchVM.KeywordsType)" Placeholder="@translationState.Translate("Enter_Barcode")" Name="KeywordsType" />
+							break;
+
+						case (int)AdvancedSearchDropDownEnum.Sticker:
+							<RadzenLabel Text="@translationState.Translate("Sticker")" Style="display:block;" Component="KeywordsType" />
+							<RadzenTextBox Disabled="false" MaxLength="100" style="display: block;" @bind-Value="@(advancedSearchVM.KeywordsType)" Placeholder="@translationState.Translate("Enter_Sticker")" Name="KeywordsType" />
+							break;
+
+						case (int)AdvancedSearchDropDownEnum.Author_Name:
+							<RadzenLabel Text="@translationState.Translate("Author_Name")" Style="display:block;" Component="KeywordsType" />
+
+
+
+							<RadzenDropDown Data="LmsLiteratureAuthor"
+											AllowFiltering="true"
+											FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+											TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "FullName_En" : "FullName_En")
+											ValueProperty="AuthorId"
+											Style="display:block;"
+											@bind-Value="@advancedSearchVM.GenericsIntergerKeyword"
+											Placeholder="@translationState.Translate("Select")">
+							</RadzenDropDown>
+
+
+
+							break;
+
+						case (int)AdvancedSearchDropDownEnum.Book_Index:
+
+							<RadzenLabel Text="@translationState.Translate("Book_Index")" Style="display:block;" Component="KeywordsType" />
+
+							<RadzenDropDownDataGrid @bind-Value=@advancedSearchVM.GenericsIntergerKeyword
+													TValue="@(int)"
+													Data=@LiteratureIndexeDetails TextProperty=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "Name_En" : "Name_Ar")
+													ValueProperty="IndexId"
+													Style="width:100%;max-width:100%;"
+													AllowColumnResize="true"
+													AllowFilteringByAllStringColumns="true"
+													Name="DropDownDataGridColumns"
+													Placeholder="@translationState.Translate("Select")"
+													@onclick:stopPropagation="true"
+													FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive">
+								<Columns>
+									<RadzenDropDownDataGridColumn Property=@(Thread.CurrentThread.CurrentCulture.Name == "en-US" ? "Name_En" : "Name_Ar") Title=@translationState.Translate("Name") Width="90px" />
+									<RadzenDropDownDataGridColumn Property="IndexNumber" Title="@translationState.Translate("Index_Number")" Width="90px" />
+								</Columns>
+							</RadzenDropDownDataGrid>
+							break;
+					}
+				</div>
+			</div>
+			<div class="row" style="margin-top:10px;">
+				<div class="col-md-6">
+					<RadzenLabel Text="@translationState.Translate("From_Date")" />
+					<TelerikDatePicker Format="dd/MM/yyyy " Placeholder="@translationState.Translate("From_Date")"
+									   Min="@advancedSearchVM.Min"
+									   Max="@advancedSearchVM.Max"
+									   @bind-Value="@advancedSearchVM.FromDate" />
+				</div>
+				<div class="col-md-6">
+					<RadzenLabel Text="@translationState.Translate("To_Date")" />
+					<TelerikDatePicker Format="dd/MM/yyyy" Placeholder="@translationState.Translate("To_Date")"
+									   Min="@advancedSearchVM.Min"
+									   Max="@advancedSearchVM.Max"
+									   @bind-Value="@advancedSearchVM.ToDate" />
+				</div>
+			</div>
+
+			<div class="row justify-content-end pt-3">
+				<div class="col-md-12 popup-buttons-alignment">
+					<RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+
+					@if (Keywords == true)
+					{
+						<RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+					}
+				</div>
+			</div>
+		</WindowContent>
+	</TelerikWindow>
+}
+else
+{
+	<div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

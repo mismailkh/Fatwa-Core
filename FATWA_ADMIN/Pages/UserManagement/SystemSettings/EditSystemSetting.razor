@@ -1,0 +1,188 @@
+﻿@page "/system-setting"
+@layout MainLayout
+@using FATWA_ADMIN.Pages.UserManagement.SystemSettings
+@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement
+@using FATWA_DOMAIN.Models.Dms
+
+    <PageTitle>@translationState.Translate("System_Setting_Title")</PageTitle>
+@if (loginState.ClaimList.Any(x => x.Value == "Admin.Permissions.Users.SystemConfiguration"))
+{
+    <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenBreadCrumb>
+                    <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                    <RadzenBreadCrumbItem Text="@translationState.Translate("System_Setting_Title")" />
+                </RadzenBreadCrumb>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="backtoDashboard">
+                <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                              Size="ButtonSize.Small"
+                              title="@translationState.Translate("Go_Back_HomeScreen")"
+                              class="returnBtn"
+                              Icon="home" Click="@GoBackHomeScreen" />
+            </div>
+        </div>
+    </div>
+    <div class="row TitleBar justify-content-left align-items-center py-4 pt-5">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("System_Setting_Title")" />
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end ">
+        </div>
+    </div>
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row">
+                <div class="col-md-12">
+                    <RadzenCard>
+                        <RadzenTemplateForm Data="@systemSetting" Visible="@(systemSetting != null)" TItem="SystemSetting" Submit="@FormSubmit">
+                            <ChildContent>
+                                <div class="col-md-12">
+                                    <div class="row">
+                                        <div class="col-md-6" style="margin-top:20px;">
+                                            <div class="NT-sub-div">
+                                                <p class="NT-label">@translationState.Translate("Grid_Pagination") *</p>
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Number_Enter_placeholder")"
+                                                               style="display: block; width: 100%" @bind-Value="@(systemSetting.Grid_Pagination)" Name="Grid_Pagination" />
+                                                <RadzenRequiredValidator DefaultValue="0" Component="Grid_Pagination" Text="@translationState.Translate("Number_is_required")" style="position: absolute;" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" style="margin-top:20px;">
+                                            <div class="NT-sub-div">
+                                                <p class="NT-label">@translationState.Translate("Book_CopyCount") *</p>
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Number_Enter_placeholder")"
+                                                               style="display: block; width: 100%" @bind-Value="@(systemSetting.Book_Copy_Count)" Name="Book_Copy_Count" />
+                                                <RadzenRequiredValidator DefaultValue="0" Component="Book_Copy_Count" Text="@translationState.Translate("Number_is_required")" style="position: absolute;" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" style="margin-top:20px;">
+                                            <div class="NT-sub-div">
+
+                                                <p class="NT-label">@translationState.Translate("Eligible_Count") *</p>
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Number_Enter_placeholder")"
+                                                               style="display: block; width: 100%" @bind-Value="@(systemSetting.Eligible_Count)" Name="Eligible_Count" />
+                                                <RadzenRequiredValidator DefaultValue="0" Component="Eligible_Count" Text="@translationState.Translate("Number_is_required")" style="position: absolute;" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" style="margin-top:20px;">
+                                            <div class="NT-sub-div">
+
+                                                <p class="NT-label">@translationState.Translate("Borrow_Period") *</p>
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Number_Enter_placeholder")"
+                                                               style="display: block; width: 100%" @bind-Value="@(systemSetting.Borrow_Period)" Name="Borrow_Period" />
+                                                <RadzenRequiredValidator DefaultValue="0" Component="Borrow_Period" Text="@translationState.Translate("Number_is_required")" style="position: absolute;" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" style="margin-top:20px;">
+                                            <div class="NT-sub-div">
+
+                                                <p class="NT-label">@translationState.Translate("Extension_Period") *</p>
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Number_Enter_placeholder")"
+                                                               style="display: block; width: 100%" @bind-Value="@(systemSetting.Extension_Period)" Name="Extension_Period" />
+                                                <RadzenRequiredValidator DefaultValue="0" Component="Extension_Period" Text="@translationState.Translate("Number_is_required")" style="position: absolute;" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6" style="margin-top:20px;">
+                                            <div class="NT-sub-div">
+
+                                                <p class="NT-label">@translationState.Translate("File_Maximum_Size") *</p>
+                                                <RadzenNumeric Placeholder="@translationState.Translate("Number_Enter_placeholder")"
+                                                               style="display: block; width: 100%" @bind-Value="@(systemSetting.File_Maximum_Size)" Min="1" Max="2147483647" Name="File_Maximum_Size" />
+                                            </div>
+                                        </div>
+                                        <div class="col-6 pt-2">
+                                            <RadzenFieldset AllowCollapse="false" Style=" margin: 20px auto;">
+                                                <HeaderTemplate>
+                                                    <span class="d-inline-flex align-items-center align-middle">
+                                                        <b>@translationState.Translate("Digital_Signature_Methods")</b>
+                                                    </span>
+                                                </HeaderTemplate>
+                                                <ChildContent>
+                                                    <div class="row">
+                                                        <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                                                            @* <RadzenLabel Text="@(translationState.Translate("Digital_Signature"))" Component="DigitalSignatureMethods" /> *@
+                                                            @foreach (var signingMethod in systemSetting.SigningMethods)
+                                                            {
+                                                                <div class="form-group">
+                                                                    <RadzenCheckBox class="NT-checkbox" @bind-Value="@(signingMethod.IsActive)" Name="IsDigitalSignature" />
+                                                                    <RadzenLabel Text="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? signingMethod.NameEn : signingMethod.NameAr)" />
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </ChildContent>
+                                            </RadzenFieldset>
+                                        </div>
+                                        <div class="col-md-6 pt-2">
+                                            <div class="NT-sub-div">
+                                                <RadzenFieldset AllowCollapse="false" Style=" margin: 20px auto;">
+                                                    <HeaderTemplate>
+                                                        <span class="d-inline-flex align-items-center align-middle">
+                                                            <b>@translationState.Translate("File_Types")</b>
+                                                        </span>
+                                                    </HeaderTemplate>
+                                                    <ChildContent>
+                                                        <RadzenDataGrid Data="@fileTypes"
+                                                        @bind-Value="systemSetting.DmsFileTypesSelectedList"
+                                                                        AllowPaging="true"
+                                                        @ref="grid"
+                                                                        AllowSorting="true"
+                                                                        AllowFiltering="false"
+                                                                        TItem="DmsFileTypes"
+                                                                        SelectionMode="DataGridSelectionMode.Multiple"
+                                                                        FilterMode="Radzen.FilterMode.Advanced"
+                                                                        PageSize="5"
+                                                                        PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                                                        EmptyText="@translationState.Translate("No_record_found")">
+                                                            <Columns>
+                                                                <RadzenDataGridColumn TItem="DmsFileTypes" Width="30px" TextAlign="TextAlign.Center" Sortable="false">
+                                                                    <HeaderTemplate>
+                                                                        <RadzenCheckBox TriState="false" TValue="bool"
+                                                                                        Value="@((fileTypes!=null && systemSetting.DmsFileTypesSelectedList != null) ? (fileTypes.Except(systemSetting.DmsFileTypesSelectedList).Any()? false : true) :false)"
+                                                                                        Change="@(args => systemSetting.DmsFileTypesSelectedList = args ? fileTypes.ToList() : null)" />
+                                                                    </HeaderTemplate>
+                                                                    <Template Context="data">
+                                                                        <RadzenCheckBox TriState="false"
+                                                                                        TValue="bool"
+                                                                                        Value="@(systemSetting.DmsFileTypesSelectedList != null && systemSetting.DmsFileTypesSelectedList.Contains(data))"
+                                                                                        Change=@(args => { if(!allowRowSelectOnRowClick) { grid?.SelectRow(data); }}) />
+
+                                                                    </Template>
+                                                                </RadzenDataGridColumn>
+                                                                <RadzenDataGridColumn TItem="DmsFileTypes" Property="Type" Title="@translationState.Translate("Name")" Width="100px" />
+
+                                                            </Columns>
+                                                        </RadzenDataGrid>
+                                                    </ChildContent>
+                                                </RadzenFieldset>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="popup-buttons-alignment pb-2">
+                                        <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                                                      ButtonStyle="ButtonStyle.Primary"
+                                                      Text="@(translationState.Translate("Update"))" />
+                                        <RadzenButton ButtonStyle="ButtonStyle.Light"
+                                                      Text="@translationState.Translate("Cancel")"
+                                                      Click="@ButtonCancelClick" />
+                                    </div>
+                                </div>
+
+                            </ChildContent>
+                        </RadzenTemplateForm>
+                    </RadzenCard>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}

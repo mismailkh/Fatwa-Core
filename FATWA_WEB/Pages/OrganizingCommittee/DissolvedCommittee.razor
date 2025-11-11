@@ -1,0 +1,42 @@
+﻿@page "/dissolved-committee"
+@using FATWA_DOMAIN.Models.ViewModel.OrganizingCommitteeVMs
+
+@layout MainLayout
+
+
+
+<RadzenTemplateForm Data="@decisionStatusVM" TItem="CommitteeDecisionStatusVM" Submit="@FormSubmit">
+    <ChildContent>
+
+        <div class="row mt-4">
+            <div class="col-12 p-3" style="text-align:left;">
+                <div class="row pb-2">
+                    <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                        <div class="form-group">
+                            <RadzenLabel Text="@(translationState.Translate("Reason")+"*" )" />
+                            <RadzenTextArea Placeholder="@translationState.Translate("Remarks")" Name="Reason" Disabled="false" @bind-Value="@(decisionStatusVM.Reason)" Rows="3" class="w-100" />
+                            <RadzenRequiredValidator Component="Reason" Text="@translationState.Translate("Required_Field")" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="popup-buttons-alignment px-0">
+                            <RadzenButton Text="@translationState.Translate("Dissolve")"
+                                          ButtonStyle="ButtonStyle.Primary"
+                                          style="margin-right: 0.2rem !important"
+                                          ButtonType="Radzen.ButtonType.Submit" />
+                            <RadzenButton Text="@translationState.Translate("Cancel")"
+                                          ButtonStyle="ButtonStyle.Light"
+                                          ButtonType="Radzen.ButtonType.Button"
+                                          Click="CloseDialog" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>
+
+
+

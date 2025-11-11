@@ -1,0 +1,111 @@
+﻿@using FATWA_DOMAIN.Models
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@using static FATWA_DOMAIN.Enums.LiteratureEnum;
+@layout MainLayout
+ 
+
+<RadzenTemplateForm Data="@LiteratureDeweyNumberPatterns" Visible="@(LiteratureDeweyNumberPatterns != null)" TItem="LiteratureDeweyNumberPattern" Submit="@SaveChanges">
+    <ChildContent>
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Pattern_Type") + " *")" Component="Pattern_Type" />
+                    <RadzenDropDown TValue="int"
+                                    AllowClear="true"
+                                    Data="@LiteratureDeweyNumberPatternType"
+                                    Style="width:100%;max-width:100%;"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    TextProperty="LiteratureDeweyNumberPatternTypeEnumName"
+                                    ValueProperty="LiteratureDeweyNumberPatternTypeEnumValue"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    @bind-Value="LiteratureDeweyNumberPatterns.PatternTypId" Name="Pattern_Type" />
+                </div>
+                <RadzenRequiredValidator Component="Pattern_Type" Text="@translationState.Translate("Required_Field")" />
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Seperator_Pattern") +"*")" Component="SepteratorPettern" />
+                    <RadzenTextBox class="pt-1 flex-grow-1" Name="SepteratorPettern" Placeholder="@translationState.Translate("Seperator_Pattern")" MaxLength="9" @bind-Value="@LiteratureDeweyNumberPatterns.SeperatorPattern" />
+                    <RadzenRequiredValidator Component="SepteratorPettern" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenRegexValidator Component="SepteratorPettern" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesPattern" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Digit_Sequence_Number") +"*")" Component="DigitSequenceNumber" />
+                    <RadzenTextBox class="pt-1 flex-grow-1" Name="DigitSequenceNumber" Placeholder="@translationState.Translate("Digit_Sequence_Number")" MaxLength="9" @oninput="OnInput" @bind-Value="@LiteratureDeweyNumberPatterns.DigitSequenceNumber" />
+                    <RadzenRequiredValidator Component="DigitSequenceNumber" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenRegexValidator Component="DigitSequenceNumber" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesPattern" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Set_Order_Sequence") +"*")" Component="DigitSequnceOrder" />
+                    <RadzenDropDown TValue="int"
+                                    AllowClear="true"
+                                    Name="DigitSequnceOrder"
+                                    Data="@SequnceOrderList"
+                                    Style="width:100%;max-width:100%;"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    TextProperty="LiteratureDeweyNumberPatternTypeEnumName"
+                                    ValueProperty="LiteratureDeweyNumberPatternTypeEnumValue"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    @bind-Value="LiteratureDeweyNumberPatterns.DigitSequnceOrder" />
+                    <RadzenRequiredValidator Component="DigitSequnceOrder" Text="@translationState.Translate("Required_Field")" />
+                </div>
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Cheracter_Series") +"*")" Component="CheracterSeries" />
+                    <RadzenTextBox class="pt-1 flex-grow-1" Placeholder="@translationState.Translate("Series_Number")" @bind-Value="@LiteratureDeweyNumberPatterns.SeriesNumber" Name="CheracterSeries" />
+                    <RadzenRequiredValidator Component="CheracterSeries" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenLengthValidator Component="CheracterSeries" Max="90" Text="@translationState.Translate("Max_Ninety_Characters")" />
+                    <RadzenRegexValidator Component="CheracterSeries" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesPattern" />
+                </div>
+            </div>
+            <div class="col-6 col-sm-6 col-md-6 col-lg-6 col-xl-6">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Set_Order_Sequence") +"*")" Component="CheracterSeriesOrder" />
+                    <RadzenDropDown TValue="int"
+                                    AllowClear="true"
+                                    Name="CheracterSeriesOrder"
+                                    Data="@SequnceOrderList"
+                                    Style="width:100%;max-width:100%;"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    TextProperty="LiteratureDeweyNumberPatternTypeEnumName"
+                                    ValueProperty="LiteratureDeweyNumberPatternTypeEnumValue"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    @bind-Value="LiteratureDeweyNumberPatterns.CheracterSeriesOrder" />
+                    <RadzenRequiredValidator Component="CheracterSeriesOrder" Text="@translationState.Translate("Required_Field")" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Series_Sequence_Number") +"*")" Component="SeriesSequenceNumber" />
+                    <RadzenTextBox class="pt-1 flex-grow-1" Name="SeriesSequenceNumber" Placeholder="@translationState.Translate("Series_Sequence_Number")" MaxLength="9" @oninput="OnInputSeriesSequenceNumber" @bind-Value="@LiteratureDeweyNumberPatterns.SeriesSequenceNumber" />
+                </div>
+                <RadzenRequiredValidator Component="SeriesSequenceNumber" Text="@translationState.Translate("Required_Field")" />
+                <RadzenRegexValidator Component="SeriesSequenceNumber" Text="@translationState.Translate("Cannot_Have_Trailing_Spaces")" Pattern="@RegexPatterns.NoSpacesPattern" />
+            </div>
+        </div>
+        <!-- Buttons Section -->
+        <div class="popup-buttons-alignment px-0">
+            <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                          Style="margin-left: 10px; margin-right: 10px;"
+                          ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Save")">
+            </RadzenButton>
+            <RadzenButton Text="@translationState.Translate("Cancel")"
+                          ButtonStyle="ButtonStyle.Light"
+                          Click="@Button2Click">
+            </RadzenButton>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>

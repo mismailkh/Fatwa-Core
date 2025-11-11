@@ -1,0 +1,231 @@
+﻿@page "/assigned-lawyertocourt-list"
+@using FATWA_DOMAIN.Models.ViewModel.AdminVM.CaseManagment;
+@using FATWA_DOMAIN.Models.ViewModel.CaseManagment;
+@using FATWA_WEB.Services.Lms;
+@layout MainLayout
+
+<!--<History Author = "Ijaz Ahmad" Date="2022-01-19" Version="1.0" Branch="master"> List of Assigned Lawyer to Court</History>-->
+@if (loginState.ClaimList.Any(x => x.Value == "Permissions.Submenu.CMS.LawyerChamberAssignment.List"))
+{
+
+    <RadzenContent Container="main">
+        <ChildContent>
+            <div class="row breadcrumbBar justify-content-center align-items-center pb-3">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenBreadCrumb>
+                            <RadzenBreadCrumbItem Path="/Index" Text="@translationState.Translate("Home")" />
+                            <RadzenBreadCrumbItem Text="@translationState.Translate("Assigned_lawyer_list")" />
+                        </RadzenBreadCrumb>
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                    <div class="backtoDashboard">
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_Dashboard")"
+                                      class="returnBtn" Icon="dashboard" Click="@GoBackDashboard" />
+                        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                                      Size="ButtonSize.Small"
+                                      title="@translationState.Translate("Go_Back_HomeScreen")"
+                                      class="returnBtn"
+                                      Icon="home" Click="@GoBackHomeScreen" />
+                    </div>
+                </div>
+            </div>
+            <div class="row TitleBar justify-content-left align-items-center py-4">
+                <div class="col-md-6">
+                    <div class="row no-gutters">
+                        <RadzenHeading Size="H1" class="pageTitle" Text="@translationState.Translate("Assigned_lawyer_list")" />
+                    </div>
+                </div>
+                <div class="col-md-6 d-flex justify-content-end">
+                </div>
+            </div>
+            <div class="row justify-content-center mainContentBlock py-4">
+                <div class="col-md-12">
+                    <div class="row no-gutters">
+                        <div class="col-md-4">
+                            <RadzenTextBox class="searchBox"
+                                           Placeholder="@translationState.Translate("Grid_Search")"
+                                           Name="Textbox0"
+                                           @bind-Value="search"
+                            @oninput="@(async(args) => {await OnSearchInput($"{args.Value}");})" />
+                         </div>
+                        <div class="col-md-8 d-flex justify-content-end tableAdditionButton px-0 pb-3">
+                            <RadzenButton class="addBtn" Icon="add" Text="@translationState.Translate("Assign_Lawyer_To_Courts")" Click="@ButtonAddClick" />
+                            <RadzenButton class="addBtn"
+                                          Icon="search"
+                                          Text="@translationState.Translate("Advanced_Search")"
+                                          Click="ToggleAdvanceSearch" />
+                        </div>
+                    </div>
+                    <div class="row tableContent table-responsive no-gutters pb-3">
+                        <div class="col-md-12">
+                            <RadzenDataGrid @ref=grid AllowGrouping="false" AllowFiltering="false"
+                                            AllowColumnResize="true"
+                                            AllowPaging="true"
+                                            PageSize="@systemSettingState.Grid_Pagination"
+                                            EmptyText="@translationState.Translate("No_record_found")"
+                                            PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                                            PageSizeText="@translationState.Translate("Items_Per_Page")"
+                                            PageSizeOptions="@systemSettingState.Page_Size_Options"
+                                            PagingSummaryFormat="@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")"
+                                            ShowPagingSummary="true"
+                                            Count="@(GetAssignedLawyerToCourt?.Any() == true ? GetAssignedLawyerToCourt.FirstOrDefault().TotalCount : 0)"
+                                            LoadData="OnLoadData"
+                                            Data="@FilteredAssignedLawyerToCourt"
+                                            Sort="OnSortData"
+                                            TItem="AssignLawyerToCourtVM"
+                                            AllowSorting="true"
+                                            ColumnWidth="200px">
+                                <Columns>
+                                    <RadzenDataGridColumn TItem="AssignLawyerToCourtVM" Title="@translationState.Translate("Action")" Filterable="false" Sortable="false" Width="70px" TextAlign="TextAlign.Center">
+                                        <Template Context="rowItem">
+                                            <RadzenButton ButtonStyle="ButtonStyle.Danger"
+                                                          class="deleteIcon"
+                                                          Icon="delete_outline"
+                                                          Title="@translationState.Translate("delete")"
+                                                          Size="ButtonSize.Small"
+                                                          Click="@((args) => Delete(rowItem))"
+                                                          @onclick:stopPropagation="true" />
+                                        </Template>
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="AssignLawyerToCourtVM" Width="180px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "LawyerFullNameEn" : "LawyerFullNameAr") Title="@translationState.Translate("Lawyer")" />
+                                    <RadzenDataGridColumn TItem="AssignLawyerToCourtVM" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "CourtNameEn" : "CourtNameAr") Title="@translationState.Translate("Court_Name")">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="AssignLawyerToCourtVM" Width="140px" Property=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "ChamberNameEn" : "ChamberNameAr") Title="@translationState.Translate("Chamber_Name")">
+                                    </RadzenDataGridColumn>
+                                    <RadzenDataGridColumn TItem="AssignLawyerToCourtVM" Width="170px" Property="ChamberNumber" Title="@translationState.Translate("Chamber_Number")" />
+                                </Columns>
+                            </RadzenDataGrid>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </ChildContent>
+    </RadzenContent>
+    @*Advance search Window*@
+    <TelerikWindow Class="advance-search-window" Size="@(ThemeConstants.Window.Size.Medium)" Draggable="true" Top="45%" Left="45%" Visible="@isVisible">
+        <WindowTitle>
+            <h1 class="pageTitle">@translationState.Translate("Advanced_Search")</h1>
+        </WindowTitle>
+        <WindowActions>
+            <WindowAction Name="Minimize"></WindowAction>
+            <WindowAction Name="Close" OnClick="@ToggleAdvanceSearch"></WindowAction>
+        </WindowActions>
+        <WindowContent>
+            <div class="row">
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Lawyer_Name")" Component="LawyerFullNameEn" />
+                    <RadzenDropDown Data="@lawyers" Placeholder="@translationState.Translate("Select")" @bind-Value="@advanceSearchVM.LawyerName" Name="LawyerName"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "UserNameEn" : "UserNameAr") ValueProperty="Id" Style="display:block;"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Court_Name")" Component="CourtNameEn" />
+                    <RadzenDropDown Data="@courts" Placeholder="@translationState.Translate("Select")" @bind-Value="@advanceSearchVM.CourtName" Name="CourtName"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Style="display:block;"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true" Change="@PopulateChambers" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Chamber_Name")" Component="ChamberNameEn" />
+                    <RadzenDropDown Data="@allChambers" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty=@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "Name_En" : "Name_Ar") ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchVM.ChamberName" Name="ChamberName"
+                                    Change="@PopulateChamberNumbers" />
+                </div>
+                <div class="col-md-4">
+                    <RadzenLabel Text="@translationState.Translate("Chamber_Number")" Component="ChamberNumber" />
+                    <RadzenDropDown Data="@allChamberNumbers" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowClear="true"
+                                    TextProperty="Number" ValueProperty="Id" Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;" @bind-Value="@advanceSearchVM.ChamberNumber" Name="Chamber_Numbers" />
+                </div>
+            </div>
+            <div class="row justify-content-end pt-3">
+                <div class="col-md-12 popup-buttons-alignment">
+                    <RadzenButton ButtonType="Radzen.ButtonType.Button" Icon="search" Text="@translationState.Translate("Grid_Search")" Click="SubmitAdvanceSearch" />
+                    @if (Keywords == true)
+                    {
+                        <RadzenButton ButtonSize="Radzen.ButtonSize.Medium" Icon="find_replace" Text="@translationState.Translate("Reset")" Click="ResetForm" />
+                    }
+                </div>
+            </div>
+        </WindowContent>
+    </TelerikWindow>
+}
+else
+{
+    <div class="demo-alert demo-alert-error" role="alert">@translationState.Translate("Unauthorized")</div>
+}
+
+@code {
+
+
+    // this below code to show Court Name on Chamber  Grid
+    async Task CourtNameDialog(AssignLawyerToCourtVM args)
+    {
+        string[] CourtNames;
+        string CourtNameHeader;
+
+        if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+        {
+            CourtNames = !string.IsNullOrEmpty(args.CourtNameEn) ? args.CourtNameEn.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) : new string[0];
+            CourtNameHeader = args.ChamberNameEn ?? "";
+        }
+        else
+        {
+            CourtNames = !string.IsNullOrEmpty(args.CourtNameAr) ? args.CourtNameAr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) : new string[0];
+            CourtNameHeader = args.ChamberNameAr ?? "";
+        }
+
+        await dialogService.OpenAsync($"", ds =>
+    @<RadzenDataGrid Data="@CourtNames" TItem="string"
+                     AllowPaging="true"
+                     PageSize=@systemSettingState.Grid_Pagination
+                     EmptyText=@translationState.Translate("No_record_found")
+                     PagerHorizontalAlign=Radzen.HorizontalAlign.Center
+                     PageSizeText=@translationState.Translate("Items_Per_Page")
+                     PageSizeOptions=@systemSettingState.Page_Size_Options
+                     PagingSummaryFormat=@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")
+                     ShowPagingSummary="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="string" Property="." Title="@translationState.Translate("Court_Name")" />
+        </Columns>
+    </RadzenDataGrid>);
+    }
+
+    async Task ChamberNameDialog(AssignLawyerToCourtVM args)
+    {
+        string[] chamberNames;
+        string chamberNameHeader;
+
+        if (Thread.CurrentThread.CurrentUICulture.Name == "en-US")
+        {
+            chamberNames = !string.IsNullOrEmpty(args.ChamberNameEn) ? args.ChamberNameEn.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) : new string[0];
+            chamberNameHeader = args.ChamberNameEn ?? "";
+        }
+        else
+        {
+            chamberNames = !string.IsNullOrEmpty(args.ChamberNameAr) ? args.ChamberNameAr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries) : new string[0];
+            chamberNameHeader = args.ChamberNameAr ?? "";
+        }
+
+        await dialogService.OpenAsync($"", ds =>
+    @<RadzenDataGrid Data="@chamberNames" TItem="string"
+                     AllowPaging="true"
+                     PageSize=@systemSettingState.Grid_Pagination
+                     EmptyText=@translationState.Translate("No_record_found")
+                     PagerHorizontalAlign="Radzen.HorizontalAlign.Center"
+                     PageSizeText=@translationState.Translate("Items_Per_Page")
+                     PageSizeOptions=@systemSettingState.Page_Size_Options
+                     PagingSummaryFormat=@(translationState.PageSummaryFormat != null ? translationState.PageSummaryFormat : "")
+                     ShowPagingSummary="true">
+        <Columns>
+            <RadzenDataGridColumn TItem="string" Property="." Title="@translationState.Translate("Chamber_Name")" />
+        </Columns>
+    </RadzenDataGrid>);
+    }
+
+}
+

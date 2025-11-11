@@ -1,0 +1,77 @@
+﻿@page "/user-addresses"
+@using FATWA_DOMAIN.Models.AdminModels.UserManagement;
+@layout MainLayout
+<PageTitle>Page Title</PageTitle>
+
+
+<RadzenTemplateForm Data="UserAddress" TItem="UserAdress" Visible="true" Submit="@SubmitChnages">
+    <ChildContent>
+        <div class="pt-2 pb-2">
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Address") + " *")" />
+                    <RadzenTextArea Name="Address" Placeholder="@translationState.Translate("Address")" @bind-Value="UserAddress.Address" />
+                    <RadzenRequiredValidator Component="Address" Text="@translationState.Translate("Required_Field")" />
+                    <RadzenRegexValidator Component="Address" Text="@translationState.Translate("Cannot_have_trailing_spaces")" Pattern="@RegexPatterns.NoLeadingSpacesTextAreaPattern" />
+                    <RadzenLengthValidator Component="Address" Max="150" Text="@translationState.Translate("Max_Hundred_Fifty_Characters")" />
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class="form-group">
+                    <RadzenLabel Text="@(translationState.Translate("Area") + " *")" />
+                    <RadzenDropDown Data="@Cities"
+                                    AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                                    AllowClear="true"
+                                    TextProperty="@(Thread.CurrentThread.CurrentUICulture.Name == "en-US" ? "NameEn" : "NameAr")"
+                                    ValueProperty="CityId"
+                                    Placeholder="@translationState.Translate("Select")"
+                                    Style="display:block;"
+                    @bind-Value="UserAddress.CityId"
+                                    Name="City"
+                                    Change=GetCityDetail>
+                    </RadzenDropDown>
+                    <RadzenRequiredValidator DefaultValue="0" Component="City" Text="@translationState.Translate("Required_Field")" />
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class=" form-group">
+                    <RadzenLabel Text="@translationState.Translate("Governorate")" />
+
+                    @if (Thread.CurrentThread.CurrentCulture.Name == "en-US")
+                    {
+                        <RadzenTextBox Disabled Name="Governorate" Placeholder="@translationState.Translate("Governorate")" @bind-Value="City.Governorate.Name_En" />
+                    }
+                    else
+                    {
+                        <RadzenTextBox Disabled Name="Governorate" Placeholder="@translationState.Translate("Governorate")" @bind-Value="City.Governorate.Name_Ar" />
+                    }
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12">
+                <div class=" form-group">
+                    <RadzenLabel Text="@translationState.Translate("Country")" />
+                    @if (Thread.CurrentThread.CurrentCulture.Name == "en-US")
+                    {
+                        <RadzenTextBox Disabled Name="Country" Placeholder="@translationState.Translate("Country")" @bind-Value="City.Governorate.Country.NameEn" />
+                    }
+                    else
+                    {
+                        <RadzenTextBox Disabled Name="Country" Placeholder="@translationState.Translate("Country")" @bind-Value="City.Governorate.Country.NameAr" />
+                    }
+                </div>
+            </div>
+            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 popup-buttons-alignment">
+                <RadzenButton ButtonType="Radzen.ButtonType.Submit"
+                              ButtonStyle="ButtonStyle.Primary" Text="@translationState.Translate("Add")">
+                </RadzenButton>
+
+                <RadzenButton Text="@translationState.Translate("Cancel")"
+                              ButtonStyle="ButtonStyle.Light"
+                              Click="@ButtonCancelClick">
+                </RadzenButton>
+            </div>
+        </div>
+    </ChildContent>
+</RadzenTemplateForm>
+
+
